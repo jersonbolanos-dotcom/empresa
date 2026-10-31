@@ -6,7 +6,9 @@ src = open(os.path.join(root, 'index.src.html'), encoding='utf-8').read()
 # fotos reales con licencia: si existen en recursos/fotos/ se incrustan; si no, el episodio usa fichas tipográficas (sin rostros inventados)
 import json
 fotos = {}
-for who, fn in [('musk', 'elon_musk_2022_dominio_publico.jpg'), ('zhao', 'changpeng_zhao_2022_cc_by_sa_4.jpg')]:
+CAND = {'musk': ['elon_musk_aportada_usuario.jpg', 'elon_musk_2022_dominio_publico.jpg'], 'zhao': ['changpeng_zhao_aportada_usuario.jpg', 'changpeng_zhao_2022_cc_by_sa_4.jpg']}
+for who in CAND:
+    fn = next((f for f in CAND[who] if os.path.exists(os.path.join(root, 'recursos', 'fotos', f))), CAND[who][-1])
     fp = os.path.join(root, 'recursos', 'fotos', fn)
     cfg = os.path.join(root, 'recursos', 'fotos', fn + '.crop.json')
     if os.path.exists(fp):

@@ -1,6 +1,6 @@
 # ASOMBROTECA · Musk vs Zhao (Editorial Essay Collage)
 
-Entregable: `../FINAL_ASOMBROTECA_ELON_ZHAO_1080x1920.mp4` (1080×1920, 30 fps, 64,6 s).
+Entregable actual: `../FINAL_ASOMBROTECA_ELON_ZHAO_1080x1920_FOTOS.mp4` (con fotografías reales de Musk y Zhao). Versión anterior conservada: `../FINAL_ASOMBROTECA_ELON_ZHAO_1080x1920.mp4` (fichas tipográficas). Ambas en 1080×1920, 30 fps, 64,6 s, con la misma narración.
 
 | Carpeta | Contenido |
 |---|---|

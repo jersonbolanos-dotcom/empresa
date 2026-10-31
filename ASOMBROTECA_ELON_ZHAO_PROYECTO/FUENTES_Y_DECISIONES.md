@@ -32,3 +32,17 @@ Consulta: 31 oct 2026. El proxy de este entorno bloquea x.com, wikimedia.org y l
 - Emojis: Twemoji © Twitter, Inc. y colaboradores, CC-BY 4.0.
 - Tipografías: Anton, Oswald y Libre Baskerville (OFL 1.1).
 - Si se añaden las fotos: Elon Musk, Trevor Cokley/U.S. Air Force (dominio público en EE. UU.); Changpeng Zhao, Aevozer/Wikimedia Commons, CC BY-SA 4.0, adaptación con trama y recorte.
+
+## Versión con fotografías (FINAL_ASOMBROTECA_ELON_ZHAO_1080x1920_FOTOS.mp4)
+
+- **Fotos.** Musk y Zhao en las dos fotografías que el usuario envió en el chat. Los originales se guardaron sin tocar en `04_CODIGO/recursos/fotos/original_*.webp`. **No he podido verificar su autor ni su licencia**:
+  - Musk: parece el retrato de la Royal Society de 2018.
+  - Zhao: es un retrato de estudio profesional.
+  - Antes de publicar, confirma el origen de ambas y añade los créditos correspondientes. Si alguna no tiene una licencia adecuada, se puede sustituir por las fotos de Wikimedia del kit: es el mismo flujo, basta con cambiar el archivo.
+- **Tratamiento.** Recorte de cabeza y hombros, y después `treat()` (semitono duotono a 45°, celda 4) + `makePrint()` (borde blanco rasgado, sombra, textura). Cinta con `tape()`, aparición con `putSpr()` a 12 fps y `place()` con parallax. No se alteran la identidad ni la expresión.
+- **Cambios limitados (todo lo demás queda igual).**
+  - Las fichas de nombre de Musk y Zhao ahora muestran la foto y su rótulo de nombre debajo: en la apertura, en las reacciones de X y en la escena de Zhao.
+  - Acercamiento moderado (+8 %) sobre la foto de Zhao durante su cita.
+  - Dos miniaturas rotuladas «MUSK» (junto a la compra de Twitter) y «ZHAO» (junto al sello «SEGÚN ZHAO»).
+  - El cierre muestra ambas fotos enfrentadas con sus nombres.
+- **Sin cambios.** La pista de audio del MP4 nuevo es idéntica bit a bit a la anterior: MD5 de la pista decodificada 6911d1f905afc4bc6d37ca5e64a9f6f6 en ambos. Tampoco cambian la duración, los subtítulos ni la cámara.

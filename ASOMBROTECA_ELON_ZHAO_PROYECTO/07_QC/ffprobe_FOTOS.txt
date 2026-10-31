@@ -1,0 +1,35 @@
+== ffprobe (versión con fotos)
+index=0
+codec_name=h264
+profile=High
+width=1080
+height=1920
+pix_fmt=yuv420p
+r_frame_rate=30/1
+duration=64.633333
+nb_frames=1939
+index=1
+codec_name=aac
+profile=LC
+sample_rate=48000
+channels=2
+r_frame_rate=0/0
+duration=64.634000
+nb_frames=3031
+duration=64.634000
+size=83705386
+bit_rate=10360539
+== moov antes de mdat
+True
+== fotogramas decodificados
+1939
+== EBU R128
+    I:         -14.4 LUFS
+    LRA:         2.3 LU
+    Peak:       -1.0 dBFS
+== pista de audio idéntica a la versión anterior (misma mezcla)
+MD5=6911d1f905afc4bc6d37ca5e64a9f6f6
+MD5=6911d1f905afc4bc6d37ca5e64a9f6f6
+== voz
+ffcb3504c0a531a265ddad2798844e326295be40c806065c88c1c84effa605eb  ../01_ENTRADA/audio/voz_original_Audio_de_ElonMusk.mp3
+ffcb3504c0a531a265ddad2798844e326295be40c806065c88c1c84effa605eb  /root/.claude/uploads/bd0c5430-868d-5a95-9cc8-40710df7134b/c84e9bbe-Audio_de_ElonMusk

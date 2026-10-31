@@ -91,6 +91,9 @@
    s.photo = false; s.info = info; return s;
   });
  }
+ // rótulo de nombre bajo una foto (solo cuando la ficha es una fotografía real)
+ function nameUnder(c, cam, depth, who, pr, x, y, rot, sc, tq, a) { if (!pr.photo) return; putSpr(c, cam, depth + 0.02, nameTag(who), x, y + pr.h * sc / 2 + 18, rot * 0.5, 0.62 * Math.max(0.75, sc), tq, a + 0.08, 'drop'); }
+ function miniTag(who) { return cache('mini' + who, () => makeStrip(who === 'musk' ? 'MUSK' : 'ZHAO', F.anton(46), { bg: PAL.INK, fg: '#f3efe5', seed: who === 'musk' ? 7 : 8 })); }
  function nameTag(who) { return cache('tag' + who, () => makeStrip(who === 'musk' ? 'ELON MUSK' : 'CHANGPENG ZHAO', F.anton(54), { bg: PAL.INK, fg: '#f3efe5', seed: who === 'musk' ? 5 : 6 })); }
  // tarjeta de publicación: EXTRACTO EDITORIAL (no imita la interfaz de X: sin avatar, likes ni verificaciones)
  function post(key, o) {
@@ -189,6 +192,8 @@
    putSpr(c, cam, 1.0, pm, -215, -260 + Math.sin(t * 0.8) * 4, -0.05, 1.0, tq, T.elon - 0.05, 'slideL', (cc) => tape(cc, 0, -pm.h / 2 + 4, 130, 36, -0.12, 3));
    const pz = portrait('zhao');
    putSpr(c, cam, 1.04, pz, 225, -190 + Math.sin(t * 0.7 + 1) * 4, 0.05, 1.0, tq, T.fundador1, 'slideR', (cc) => tape(cc, 0, -pz.h / 2 + 4, 130, 36, 0.1, 4));
+   nameUnder(c, cam, 1.0, 'musk', pm, -215, -260, -0.05, 1.0, tq, T.elon - 0.05);
+   nameUnder(c, cam, 1.04, 'zhao', pz, 225, -190, 0.05, 1.0, tq, T.fundador1);
    // emblema de Binance (trazado oficial) aterriza con «Binance»
    putSpr(c, cam, 1.08, logoChip('binance', BIN, 150, 21, PAL.INK), 330, -560, 0.08, 1, tq, T.binance0, 'drop');
    // titular recortado
@@ -228,6 +233,7 @@
    putSpr(c, cam, 1.1, hd, ox + 90, -760, -0.012, 1, tq, T.musk4 + 0.05, 'drop');
    const pm = portrait('musk');
    putSpr(c, cam, 1.0, pm, ox - 300, -440, -0.06, 0.62, tq, T.musk4 + 0.1, 'slideL', (cc) => tape(cc, 0, -pm.h / 2, 120, 34, -0.1, 3));
+   nameUnder(c, cam, 1.0, 'musk', pm, ox - 300, -440, -0.06, 0.62, tq, T.musk4 + 0.1);
    const p1 = post('x01', { title: 'MUSK REACCIONA', handle: '@elonmusk', date: '30 OCT 2026', emoji: ['grimace'], body: [], band: 'Ante la comparación pública con FTX', tag: 'EXTRACTO EDITORIAL · NO ES CAPTURA DE X', url: 'x.com/elonmusk/status/2116025797400236362', w: 700, seed: 61 });
    putSpr(c, cam, 1.04, p1, ox + 140, -400, 0.025, 0.84, tq, T.mueca - 0.15, 'drop', (cc) => { const r = p1.rects.emo0; if (tq > T.mueca + 0.25) marker(cc, loopPts(r[0] + r[2] / 2, r[1] + r[3] / 2, r[2] * 0.66, r[3] * 0.62, 1.7), (t - T.mueca - 0.25) / 0.6, PAL.RED, 8); });
    const p2 = post('x02', { title: 'OTRA REACCIÓN', handle: '@elonmusk', date: '30 OCT 2026', emoji: ['fire', 'joy'], emojiLate: true, body: [], band: 'Respuesta a un aviso de CZ del 28 oct · otro hilo', tag: 'EXTRACTO EDITORIAL · NO ES CAPTURA DE X', url: 'x.com/elonmusk/status/2116034884393213964', w: 740, seed: 63 });
@@ -245,7 +251,9 @@
    const pm = portrait('musk');
    if (push < 1) place(c, cam, 1.0, ox - 260 - 700 * push, -520, -0.06 - 0.2 * push, 0.7, (cc) => drawSpr(cc, pm));
    const pz = portrait('zhao');
-   putSpr(c, cam, 1.02, pz, ox - 170, -520 + Math.sin(t * 0.7) * 3, -0.03, 0.86, tq, T.changpeng - 0.1, 'slideR', (cc) => tape(cc, 0, -pz.h / 2, 130, 36, 0.08, 5));
+   const zq = pz.photo ? 0.08 * io(sm(T.q1, T.q3 + 1.0, t)) : 0; // acercamiento moderado durante la cita
+   putSpr(c, cam, 1.02 + zq * 0.6, pz, ox - 170, -520 + Math.sin(t * 0.7) * 3, -0.03, 0.86 + zq, tq, T.changpeng - 0.1, 'slideR', (cc) => tape(cc, 0, -pz.h / 2, 130, 36, 0.08, 5));
+   if (t < T.q1) nameUnder(c, cam, 1.02, 'zhao', pz, ox - 170, -520, -0.03, 0.86, tq, T.changpeng - 0.1);
    const fz = strip('fz', 'FUNDADOR DE BINANCE', F.osw(54), { seed: 72, hl: 'FUNDADOR' });
    putSpr(c, cam, 1.1, fz, ox + 230, -600, 0.03, 1, tq, T.fundador5 - 0.1, 'drop', (cc) => hilite(cc, fz.hl, (t - T.fundador5) / 0.5, 14));
    putSpr(c, cam, 1.12, logoChip('binance', BIN, 140, 73, PAL.INK), ox + 300, -420, -0.06, 1, tq, wt(5, 'binance'), 'drop');
@@ -279,6 +287,7 @@
    if (op > 0 && t < T.spacex + 0.2) place(c, cam, 1.1, ox, y5, 0.015, 1, (cc) => { cc.scale(Math.max(0.03, op), 1); drawSpr(cc, s5); });
    putSpr(c, cam, 1.12, logoChip('binance', BIN, 150, 86, PAL.INK), ox - 300, y5 + 170, -0.05, 1, tq, T.invertido, 'drop');
    putSpr(c, cam, 1.12, logoChip('twitter', '#1d9bf0', 150, 87), ox + 300, y5 + 170, 0.05, 1, tq, T.twitter, 'drop');
+   { const pmm = portrait('musk'); if (pmm.photo && t < T.spacex + 0.2) { putSpr(c, cam, 1.0, pmm, ox + 345, y5 - 222, 0.07, 0.3, tq, wt(11, 'musk'), 'drop', (cc) => tape(cc, 0, -pmm.h / 2, 120, 34, 0.1, 12)); putSpr(c, cam, 1.01, miniTag('musk'), ox + 345, y5 - 222 + pmm.h * 0.15 + 22, 0.04, 0.7, tq, wt(11, 'musk') + 0.08, 'drop'); } }
    const lp = sm(T.ayudar, T.twitter + 0.2, t);
    if (lp > 0) place(c, cam, 1.12, ox, y5 + 170, 0, 1, (cc) => inkArrow(cc, curve([-205, -10], [-80, -90], [80, -90], [205, -10]), lp, 7));
    const lb = strip('tw22', 'compra de Twitter · 2022', F.osw(40, 500), { seed: 88 });
@@ -289,6 +298,7 @@
    if (thread > 0) place(c, cam, 1.08, ox, 0, 0, 1, (cc) => inkArrow(cc, curve([0, y5 + 60], [-260, y5 + 260], [-200, ys - 220], [0, ys - 120]), thread, 5, PAL.RED));
    const sg = strip('segun', 'SEGÚN ZHAO', F.anton(64), { bg: PAL.RED, fg: '#f8f1e4', seed: 89 });
    putSpr(c, cam, 1.16, sg, ox + 200, ys - 250, 0.08, 1, tq, T.segun, 'drop');
+   { const pzm = portrait('zhao'); if (pzm.photo) { putSpr(c, cam, 1.0, pzm, ox + 420, ys - 175, -0.06, 0.3, tq, T.segun + 0.1, 'drop', (cc) => tape(cc, 0, -pzm.h / 2, 120, 34, -0.1, 13)); putSpr(c, cam, 1.01, miniTag('zhao'), ox + 420, ys - 175 + pzm.h * 0.15 + 22, -0.03, 0.7, tq, T.segun + 0.18, 'drop'); } }
    putSpr(c, cam, 1.1, logoChip('spacex', PAL.INK, 220, 90), ox - 220, ys - 60, -0.04, 1, tq, T.spacex, 'drop', (cc) => { cc.fillStyle = PAL.INK; cc.font = F.osw(40); cc.textAlign = 'center'; cc.fillText('SPCX', 0, 140); });
    const sb = strip('s1000', '+US$1.000 MILLONES', F.anton(92), { bg: PAL.INK, fg: '#f3efe5', seed: 91 });
    putSpr(c, cam, 1.14, sb, ox, ys + 160, 0.02, 1, tq, T.mil12, 'drop');
