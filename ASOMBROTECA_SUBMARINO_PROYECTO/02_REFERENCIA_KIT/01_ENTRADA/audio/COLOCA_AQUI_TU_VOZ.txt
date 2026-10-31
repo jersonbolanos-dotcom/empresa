@@ -1,0 +1,1 @@
+Coloca aquí el MP3/WAV de narración original. Claude Code NO debe sintetizar ni reemplazar esta voz.

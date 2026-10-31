@@ -1,0 +1,8 @@
+md5 de getImageData tras window.seek(t), dos páginas, orden distinto (scratchpad/hash.js):
+0 5.3 54949136a027d041f9c21e780b35d7bb
+0 17.9 5e3832e49d8c0aca13a31cdf73db28c1
+0 41 8a458cd9cfe9c023a4e7d0e4c0535c67
+1 41 8a458cd9cfe9c023a4e7d0e4c0535c67
+1 5.3 54949136a027d041f9c21e780b35d7bb
+1 17.9 5e3832e49d8c0aca13a31cdf73db28c1
+=> idénticos: cada fotograma es función pura de t.
