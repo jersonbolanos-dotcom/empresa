@@ -1,0 +1,15 @@
+filename,persona_entidad,url,fecha_acceso,licencia_permisos,uso_escena,fuente_verificada,estado
+04_CODIGO/recursos/logos/binance.svg,Binance (logo),https://simpleicons.org (paquete npm simple-icons 16.36.0; fuente binance.com),2026-10-31,CC0 (trazado); marca registrada de Binance – uso referencial,01 02 06 09,Si,incluido
+04_CODIGO/recursos/logos/spacex.svg,SpaceX (logo),https://simpleicons.org (simple-icons 16.36.0),2026-10-31,CC0 (trazado); marca registrada de SpaceX – uso referencial,10 11,Si,incluido
+04_CODIGO/recursos/logos/twitter_simple-icons-9.21.0.svg,Twitter (logo histórico 2022),https://simpleicons.org (simple-icons 9.21.0; fuente brand.twitter.com),2026-10-31,CC0 (trazado); marca registrada – uso referencial,09,Si,incluido
+04_CODIGO/recursos/logos/x.svg,X (logo),https://simpleicons.org (simple-icons 16.36.0),2026-10-31,CC0 (trazado); marca registrada – no usado en pantalla,—,Si,incluido (no usado)
+04_CODIGO/recursos/emoji/1f62c.svg,Emoji 😬,https://github.com/jdecked/twemoji (npm @twemoji/svg 15.0.0),2026-10-31,Twemoji gráficos CC-BY 4.0 (© Twitter Inc. y colaboradores),05 12,Si,incluido
+04_CODIGO/recursos/emoji/1f525.svg,Emoji 🔥,https://github.com/jdecked/twemoji (npm @twemoji/svg 15.0.0),2026-10-31,CC-BY 4.0,05 12,Si,incluido
+04_CODIGO/recursos/emoji/1f602.svg,Emoji 😂,https://github.com/jdecked/twemoji (npm @twemoji/svg 15.0.0),2026-10-31,CC-BY 4.0,05 12,Si,incluido
+04_CODIGO/recursos/fotos/elon_musk_2022_dominio_publico.jpg,Elon Musk,https://commons.wikimedia.org/wiki/File:Elon_Musk_April_2022.jpg,2026-10-31,Dominio público EE.UU. (Trevor Cokley/U.S. Air Force); derechos de imagen pueden aplicar,01 02 05 06 12,Si (enlace del kit),NO DESCARGADA – red del entorno bloqueó upload.wikimedia.org; ficha tipográfica en su lugar
+04_CODIGO/recursos/fotos/changpeng_zhao_2022_cc_by_sa_4.jpg,Changpeng Zhao,https://commons.wikimedia.org/wiki/File:Changpeng_Zhao_in_2022.jpg,2026-10-31,CC BY-SA 4.0 (Aevozer) – atribución y ShareAlike,02 06 07 12,Si (enlace del kit),NO DESCARGADA – ficha tipográfica en su lugar
+(maquetación en código) X-01,@elonmusk 😬,https://x.com/elonmusk/status/2116025797400236362,2026-10-31,Extracto editorial propio; no es captura de X,05 12,Prensa + archivo elonmuskarchive.org,incluido
+(maquetación en código) X-02,@elonmusk 🔥😂,https://x.com/elonmusk/status/2116034884393213964,2026-10-31,Extracto editorial propio; otro hilo,05 12,Prensa + archivo elonmuskarchive.org,incluido
+(maquetación en código) X-03/X-04,@cz_binance (un solo post),https://x.com/cz_binance/status/2116097554882728341,2026-10-31,Fragmentos citados por prensa; maquetación propia,07 08 09 10 12,CryptoSlate / Decrypt / Indian Express,incluido
+(maquetación en código) X-05,@heyibinance (Yi He),https://x.com/heyibinance/status/2116101170079076558,2026-10-31,RESUMEN EDITORIAL – no cita literal,11,Reuters (paráfrasis),incluido
+04_CODIGO/fonts/fuentes.css,Anton / Oswald / Libre Baskerville,npm @fontsource 5.3.0,2026-10-31,SIL Open Font License 1.1,todas,Si,incluido

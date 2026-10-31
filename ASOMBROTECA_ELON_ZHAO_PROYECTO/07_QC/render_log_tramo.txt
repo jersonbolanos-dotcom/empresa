@@ -1,0 +1,3 @@
+DURATION 64.634 frames 1940
+1800/1940 10 s
+listo 1940 fotogramas en 15 s

@@ -1,0 +1,1 @@
+Coloca aquí el audio de narración aprobado. Claude debe detectarlo, no crearlo ni modificarlo.

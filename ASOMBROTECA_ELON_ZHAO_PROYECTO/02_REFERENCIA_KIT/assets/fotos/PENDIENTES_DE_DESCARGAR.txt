@@ -1,0 +1,2 @@
+Las fotografías auténticas NO se pudieron descargar aquí. Claude Code debe ejecutar: python tools/descargar_fotos.py
+Referencias/licencias completas en 07_FOTOS_Y_LICENCIAS.md.
