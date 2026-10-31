@@ -37,3 +37,11 @@ Desde este entorno el proxy de red bloqueó la descarga directa de páginas (bin
 - **Música.** Instrumental original, generada con el kit SOUND (`k.music` y `k.tone`) en una pasada aparte con `voiceover:false`, porque el modo voiceover la suprime. `lib/sound.js` no se modificó.
 - **Efectos.** `SOUND.renderOffline(scoreSound, DURATION, 48000, {voiceover:true})`.
 - **Fuente tipográfica.** Inter (OFL 1.1), del paquete npm `@fontsource/inter@5.0.18`, incrustada en base64. Su subconjunto latin no tiene ≈ ni ≠, así que esos signos se dibujan como trazos.
+
+## V3 · logos y símbolos
+
+- Binance: `binance.svg` de [Simple Icons](https://simpleicons.org) 16.36.0 (CC0; fuente indicada por el proyecto: binance.com). Color #F0B90B. El trazado se extruye en 3D sin cambiar su geometría.
+- BTC, ETH, USDT y BNB: [cryptocurrency-icons](https://github.com/spothq/cryptocurrency-icons) 0.18.1 (CC0), versión color con disco y glifo.
+- Las fichas son **ejemplos del ecosistema** y llevan la etiqueta correspondiente. No significan que esos activos fueran robados. Según CNBC (31 oct), los activos congelados eran sobre todo stablecoins y Binance declaró plenamente respaldados BTC, ETH, USDT, BNB, SOL, USDC y otros. No se afirma en pantalla qué activos se sustrajeron ni qué redes se usaron.
+- Las 6 confirmaciones de bloque son ilustrativas.
+- El indicador del 90 % llega directo a su valor, sin cuenta: la reposición fue del 80 % (30 oct) al 90 % (31 oct) y no se inventan hitos intermedios.

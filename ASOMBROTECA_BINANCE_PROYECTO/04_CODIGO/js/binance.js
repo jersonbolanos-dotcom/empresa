@@ -1,5 +1,5 @@
 // =====================================================================================================
-// binance.js — explainer(ctx, W, H_, t) vertical 1080x1920 para "El robo de Binance" (Asombroteca)
+// binance.js (V3) — explainer(ctx, W, H_, t) vertical 1080x1920 para "El robo de Binance" (Asombroteca)
 // Reloj global = segundos de la grabación de voz original. Todos los tiempos salen de window.ALIGN (alineacion.json)
 // mediante wt(tramo, palabra). Determinista: sin Math.random; azar sólo con H.rng(semilla).
 // =====================================================================================================
@@ -45,158 +45,6 @@
   [SG(13).s, SG(15).s], [SG(15).s, SG(18).s], [SG(18).s, SG(20).s], [SG(20).s, SG(21).s], [SG(21).s, SG(24).s], [SG(24).s, DURATION],
  ];
  const sweep0 = T.asombro - 0.35, sweep1 = T.asombro + 0.2;
-
- // ---------- cámara: una sola cámara de estudio continua ----------
- const KEYS = [
-  { t: 0, cx: 540, cy: 1170, s: 1.101, yaw: -0.95, pitch: 0.30 },
-  { t: T.binance, cx: 540, cy: 1180, s: 1.178, yaw: -0.72, pitch: 0.34 },
-  { t: T.veinte - 0.6, cx: 540, cy: 1200, s: 1.229, yaw: -0.5, pitch: 0.38 },
-  { t: T.dolaresE, cx: 540, cy: 1220, s: 1.152, yaw: -0.3, pitch: 0.40 },
-  { t: T.b4 + 0.3, cx: 540, cy: 1280, s: 1.024, yaw: -0.18, pitch: 0.36 },
-  { t: T.dinero, cx: 540, cy: 1260, s: 1.05, yaw: -0.1, pitch: 0.40 },
-  // atravesar el cristal: dolly-in hasta el die, cámara casi cenital
-  { t: T.billeteras, cx: 540, cy: 1190, s: 1.344, yaw: 0.0, pitch: 0.62 },
-  { t: T.internet, cx: 540, cy: 1060, s: 1.9, yaw: 0.12, pitch: 1.12 },
-  { t: T.rapid + 0.3, cx: 540, cy: 1050, s: 1.95, yaw: 0.22, pitch: 1.14 },
-  // salir: objeto + ledger detrás
-  { t: T.movs, cx: 470, cy: 1300, s: 0.998, yaw: 0.35, pitch: 0.48 },
-  { t: T.seguras + 0.3, cx: 460, cy: 1310, s: 0.973, yaw: 0.42, pitch: 0.50 },
-  // ataque: subir para ver las direcciones externas en el suelo
-  { t: T.retiros, cx: 560, cy: 1190, s: 0.794, yaw: 0.25, pitch: 0.72 },
-  { t: T.comprom + 0.4, cx: 560, cy: 1180, s: 0.768, yaw: 0.15, pitch: 0.74 },
-  // sellado del bloque: macro sobre la cadena de bloques
-  { t: T.sorpr0 + 0.4, cx: 540, cy: 1260, s: 0.794, yaw: 0.0, pitch: 0.48 },
-  { t: T.deshacer + 0.6, cx: 540, cy: 1250, s: 0.845, yaw: -0.08, pitch: 0.48 },
-  // dispersión: cenital, red en el suelo
-  { t: T.distrib, cx: 540, cy: 950, s: 0.448, yaw: -0.2, pitch: 1.05 },
-  { t: T.redes + 0.4, cx: 540, cy: 910, s: 0.381, yaw: -0.45, pitch: 1.18 },
-  { t: T.recuperar, cx: 540, cy: 910, s: 0.403, yaw: -0.7, pitch: 1.18 },
-  { t: T.congelar, cx: 560, cy: 920, s: 0.426, yaw: -1.0, pitch: 1.12 },
-  { t: T.bloquearse + 0.5, cx: 560, cy: 930, s: 0.414, yaw: -1.08, pitch: 1.1 },
-  // cobertura desde reservas: vuelta al objeto
-  { t: T.recursos, cx: 540, cy: 1270, s: 0.896, yaw: -0.7, pitch: 0.5 },
-  { t: T.noventa, cx: 540, cy: 1340, s: 0.794, yaw: -0.55, pitch: 0.44 },
-  { t: T.robado + 0.4, cx: 540, cy: 1350, s: 0.768, yaw: -0.45, pitch: 0.44 },
-  // cierre: regreso al héroe
-  { t: T.leccion, cx: 540, cy: 1210, s: 1.075, yaw: -0.3, pitch: 0.4 },
-  { t: T.minutos2, cx: 540, cy: 1180, s: 1.178, yaw: 0.05, pitch: 0.38 },
-  { t: DURATION, cx: 540, cy: 1200, s: 1.203, yaw: 0.3, pitch: 0.36 },
- ];
- KEYS.sort((a, b) => a.t - b.t);
-
- // ---------- grafo de direcciones (mundo, plano del suelo) ----------
- const GRAPH = (() => {
-  const r = H.rng(2026), nodes = [], edges = [];
-  const root = { x: 0, z: 0, hop: 0 };
-  // hop 1: retiros no autorizados hacia direcciones externas (lado izquierdo/fondo, lejos de la cadena de bloques)
-  const N1 = 7;
-  for (let i = 0; i < N1; i++) {
-   const an = H.lerp(PI * 0.62, PI * 1.62, i / (N1 - 1)) + r.range(-0.08, 0.08), rad = r.range(1.9, 2.3);
-   const t0 = H.lerp(T.retiros - 0.1, T.autorizado + 0.3, i / (N1 - 1));
-   nodes.push({ x: Math.cos(an) * rad, z: Math.sin(an) * rad, hop: 1, parent: root, t0, t1: t0 + 0.55, an });
-  }
-  const h1 = nodes.slice();
-  // hop 2/3: distribución por distintas redes
-  const chainCols = ['#38bdf8', '#7dd3fc', '#60a5fa', '#22d3ee', '#93c5fd', '#38bdf8', '#67e8f9', '#0ea5e9', '#a5b4fc', '#5eead4'];
-  let ci = 0;
-  h1.forEach((p, i) => {
-   const n2 = r.int(2, 3);
-   for (let k = 0; k < n2; k++) {
-    const an = p.an + (k - (n2 - 1) / 2) * 0.32 + r.range(-0.06, 0.06), rad = r.range(3.2, 3.7);
-    const t0 = H.lerp(T.distrib, T.direcc + 0.6, (i * 3 + k) / (h1.length * 3)) + r.range(0, 0.2);
-    const q = { x: Math.cos(an) * rad, z: Math.sin(an) * rad, hop: 2, parent: p, t0, t1: t0 + 0.6, an, chain: ci++ % 10 };
-    nodes.push(q);
-    if (r.chance(0.7)) {
-     const an3 = an + r.range(-0.18, 0.18), rad3 = r.range(4.5, 5.2), t3 = H.lerp(T.direcc, T.redes + 0.3, r()) ;
-     nodes.push({ x: Math.cos(an3) * rad3, z: Math.sin(an3) * rad3, hop: 3, parent: q, t0: t3, t1: t3 + 0.6, an: an3, chain: q.chain });
-    }
-   }
-  });
-  // algunos se pueden congelar (emisores de stablecoins, etc.), otros no
-  const fz = nodes.filter((n) => n.hop >= 2);
-  fz.forEach((n, i) => { n.freeze = r.chance(0.45); n.freezeT = H.lerp(T.congelar - 0.3, T.bloquearse + 0.5, r()); });
-  return { nodes, chainCols };
- })();
-
- // ---------- cadena de bloques (mundo) ----------
- const BLOCKS = Array.from({ length: 6 }, (_, i) => ({ x: -1.0 + i * 0.95, z: -2.55 }));
- const SEALB = 3; // bloque que se sella en el beat 07
-
- // ---------- luz ----------
- function lighting(t) {
-  const L = {
-   key: (0.45 + 0.55 * sm(0.4, 2.2, t)) * (1 - 0.35 * sm(T.b4, T.b4 + 0.6, t) * (1 - sm(T.todo - 0.4, T.todo + 0.4, t))) * (1 - 0.3 * sm(T.sorpr0, T.sorpr, t) * (1 - sm(T.confirmada, T.confirmada + 1, t))),
-   rim: 0.35 + 0.65 * sm(0.0, 0.9, t),
-   hover: 0.36 + 0.015 * Math.sin(t * 1.2),
-   ringRot: t * 0.3, act: sm(1.5, 3, t),
-   spec: -1,
-  };
-  // barridos especulares motivados: revelación inicial, entrada al cristal, sellado, regreso final
-  const sw = [[1.6, 3.4], [T.billeteras - 0.2, T.calientes + 0.6], [T.confirmada, T.confirmada + 1.1], [T.leccion, T.leccion + 1.6]];
-  for (const [a, b] of sw) if (t > a - 0.3 && t < b + 0.3) L.spec = H.map(t, a, b, -0.25, 1.25);
-  // anillo: encendido en el gancho; rojo en el ataque; cian rastreo; oro reposición; se cierra al final
-  const pulses = [T.binance, T.dolares, T.calientes, T.seguras, T.retiros, T.confirmada, T.rastro, T.recursos, T.noventa, T.minutos2];
-  L.ring = t < 1.2 ? 0 : S.ringGlow(sm(1.2, 1.8, t) * 0.85, t, pulses) * (1 - 0.6 * sm(T.leccion, T.minutos2, t));
-  if (t > T.durante - 0.2 && t < T.sorpr0) { L.ringCols = ['#ff453a', '#ff9a4d', '#ff453a', '#e879f9', '#ff453a']; L.ringGlow = 'rgba(255,69,58,0.9)'; L.spill = '255,69,58'; }
-  else if (t >= T.fondos && t < T.cubrir0) { L.ringCols = ['#38bdf8', '#5eead4', '#6d7cff', '#38bdf8']; L.ringGlow = 'rgba(56,189,248,0.9)'; L.spill = '56,189,248'; }
-  else if (t >= T.cubrir0 && t < T.leccion0) { L.ringCols = ['#ffe08a', '#f0b90b', '#ff9a4d', '#f0b90b', '#ffe08a']; L.ringGlow = 'rgba(240,185,11,0.9)'; L.spill = '240,185,11'; }
-  return L;
- }
- // saldo (contable) de la billetera caliente: baja con los retiros, se repone con reservas propias
- function balance(t) {
-  const out = 0.82 * io(sm(T.retiros, T.autorizado + 0.8, t));
-  const refill = 0.9 * 0.82 * io(sm(T.recursos - 0.4, T.repuesto + 0.4, t));
-  return 1 - out + refill;
- }
- // contenido del die: libro de saldos (filas), puertos de red, llave de autorización
- function dieDraw(t, L) {
-  return (x, P, yT, sc) => {
-   const bal = balance(t), act = L.act;
-   // filas del libro de saldos
-   const r = H.rng(55);
-   for (let i = 0; i < 7; i++) {
-    const z = -0.42 + i * 0.14, wmax = r.range(0.45, 0.95);
-    const w = wmax * H.clamp(bal * 1.05 - r.range(0, 0.15));
-    const a = P(-0.5, yT, z), b = P(-0.5 + w, yT, z);
-    const gold = t >= T.cubrir0 && t < T.leccion0 ? 1 : 0;
-    x.strokeStyle = gold ? `rgba(240,185,11,${0.35 + 0.4 * act})` : `rgba(190,200,235,${0.12 + 0.25 * act})`;
-    x.lineWidth = 4 * sc; x.lineCap = 'round';
-    x.beginPath(); x.moveTo(a[0], a[1]); x.lineTo(b[0], b[1]); x.stroke();
-   }
-   // puertos conectados a internet (beat 04): nodos en el borde del die que laten
-   const net = sm(T.sistemas - 0.3, T.internet + 0.3, t) * (1 - sm(T.movs, T.movs + 0.6, t));
-   if (net > 0) for (let i = 0; i < 12; i++) {
-    const an = i / 12 * PI * 2, p = P(Math.cos(an) * 0.56, yT, Math.sin(an) * 0.56);
-    const pulse = 0.5 + 0.5 * Math.sin(t * 6 - i);
-    x.fillStyle = `rgba(56,189,248,${net * (0.4 + 0.6 * pulse)})`; x.beginPath(); x.arc(p[0], p[1], 6 * sc, 0, 7); x.fill();
-   }
-  };
- }
-
- // ---------- utilidades de dibujo nuevas ----------
- // caja 3D (bloques de la cadena, capa de autorización, reservas): caras ordenadas por profundidad
- function box3(x, c, cx, y0, cz, w, h, d, o) {
-  o = o || {};
-  const X = [cx - w / 2, cx + w / 2], Y = [y0, y0 + h], Z = [cz - d / 2, cz + d / 2];
-  const v = []; for (const xx of X) for (const yy of Y) for (const zz of Z) v.push(c.P(xx, yy, zz));
-  const id = (i, j, k) => i * 4 + j * 2 + k;
-  const faces = [
-   { q: [id(0, 0, 0), id(0, 1, 0), id(0, 1, 1), id(0, 0, 1)], n: 'side' }, { q: [id(1, 0, 0), id(1, 0, 1), id(1, 1, 1), id(1, 1, 0)], n: 'side' },
-   { q: [id(0, 0, 0), id(1, 0, 0), id(1, 1, 0), id(0, 1, 0)], n: 'back' }, { q: [id(0, 0, 1), id(0, 1, 1), id(1, 1, 1), id(1, 0, 1)], n: 'front' },
-   { q: [id(0, 1, 0), id(1, 1, 0), id(1, 1, 1), id(0, 1, 1)], n: 'top' },
-  ];
-  faces.forEach((f) => { f.dep = f.q.reduce((s, i) => s + v[i][2], 0) / 4; });
-  faces.sort((a, b) => a.dep - b.dep);
-  const a = o.alpha == null ? 1 : o.alpha;
-  for (const f of faces) {
-   const pts = f.q.map((i) => v[i]);
-   S.poly(x, pts);
-   const base = f.n === 'top' ? (o.top || 'rgba(40,44,56,0.92)') : f.n === 'front' ? (o.front || 'rgba(22,24,32,0.95)') : (o.side || 'rgba(14,15,20,0.95)');
-   x.save(); x.globalAlpha *= a; x.fillStyle = base; x.fill();
-   x.strokeStyle = o.edge || 'rgba(235,238,255,0.35)'; x.lineWidth = o.lw || 1.2; x.stroke(); x.restore();
-  }
-  return { top: [v[id(0, 1, 0)], v[id(1, 1, 0)], v[id(1, 1, 1)], v[id(0, 1, 1)]], c: c.P(cx, y0 + h, cz) };
- }
  function glowDot(x, X, Y, r, col, a) {
   const g = x.createRadialGradient(X, Y, 0, X, Y, r * 4); g.addColorStop(0, `rgba(${col},${0.55 * a})`); g.addColorStop(1, `rgba(${col},0)`);
   x.fillStyle = g; x.beginPath(); x.arc(X, Y, r * 4, 0, 7); x.fill();
@@ -219,62 +67,312 @@
  function kicker(x, s, Y, a, col) { if (a <= 0) return; x.save(); S.setF(x, 600, 34); try { x.letterSpacing = '6px'; } catch (e) {} x.globalAlpha = a; x.fillStyle = col || GREY; x.textAlign = 'center'; x.fillText(s, 540, Y); x.restore(); }
  function fadeIO(t, a, b, f = 0.35) { return sm(a, a + f, t) * (1 - sm(b - f, b, t)); }
 
- // ================= ESCENA OSCURA =================
- function darkScene(x, W, Hh, t, c, L) {
-  S.stage(x, W, Hh, c, L, t);
-  const yT = L.hover + THICK / 2;
-  // ---- suelo: cadena de bloques detrás del objeto (beats 05-07)
-  const chainA = fadeIO(t, T.pero10 - 0.2, T.fondos + 0.4, 0.6);
-  if (chainA > 0) drawChain(x, c, t, chainA);
-  // ---- suelo: grafo de direcciones (beats 06-09, rastro tenue hasta el cierre)
-  if (t > T.retiros - 0.3) drawGraph(x, c, t);
-  // ---- capa de autorización flotando sobre el objeto (beat 05)
-  const authA = fadeIO(t, T.pero10 + 0.2, T.sorpr0 + 0.2, 0.5);
-  L.dieDraw = dieDraw(t, L);
-  S.chip(x, c, L, W, Hh);
-  if (authA > 0) drawAuth(x, c, t, authA, yT);
-  // ---- reservas propias de Binance (beat 10-11): bloque oro independiente que repone el saldo
-  const resA = fadeIO(t, T.cubrir0 - 0.2, T.leccion0, 0.5);
-  if (resA > 0) drawReserves(x, c, t, resA, yT);
-  overlays(x, W, Hh, t, c, L, yT);
- }
+ // ================= V3: protagonistas por concepto =================
+ const PR = window.PROT;
+ const GREY2 = '#c7c7cc';
 
- function drawChain(x, c, t, a) {
-  x.save(); x.globalAlpha = a;
-  // enlaces entre bloques
-  for (let i = 0; i < BLOCKS.length - 1; i++) {
-   const p = c.P(BLOCKS[i].x + 0.32, 0.18, BLOCKS[i].z), q = c.P(BLOCKS[i + 1].x - 0.32, 0.18, BLOCKS[i + 1].z);
-   x.strokeStyle = 'rgba(200,210,240,0.35)'; x.lineWidth = 2; x.beginPath(); x.moveTo(p[0], p[1]); x.lineTo(q[0], q[1]); x.stroke();
+ // ---------- cámara: una sola cámara de estudio continua que DESCUBRE, ATRAVIESA, SIGUE y RETROCEDE ----------
+ const KEYS = [
+  // 01 emblema de Binance: órbita lenta + push-in
+  { t: 0, cx: 540, cy: 1150, s: 1.0, yaw: -0.55, pitch: 0.16 },
+  { t: T.binance, cx: 540, cy: 1170, s: 1.1, yaw: -0.3, pitch: 0.2 },
+  { t: T.mundo, cx: 540, cy: 1180, s: 1.0, yaw: -0.12, pitch: 0.24 },
+  // 02 la cámara penetra en el sistema de custodia y baja para ver el anillo temporal en el suelo
+  { t: T.veinte - 0.4, cx: 540, cy: 1200, s: 1.12, yaw: -0.05, pitch: 0.36 },
+  { t: T.dolaresE, cx: 540, cy: 1230, s: 1.0, yaw: 0.1, pitch: 0.46 },
+  // 03 metáfora física: bóveda y fajos
+  { t: T.b4 + 0.4, cx: 600, cy: 1200, s: 1.0, yaw: 0.0, pitch: 0.2 },
+  { t: T.dinero, cx: 600, cy: 1200, s: 1.05, yaw: 0.06, pitch: 0.22 },
+  // 04 billetera caliente: rodear y atravesar el cristal hasta la pantalla
+  { t: T.billeteras, cx: 540, cy: 1270, s: 1.0, yaw: -0.32, pitch: 0.16 },
+  { t: T.sistemas + 0.2, cx: 540, cy: 1330, s: 1.2, yaw: -0.12, pitch: 0.12 },
+  { t: T.internet, cx: 540, cy: 1610, s: 2.0, yaw: 0.0, pitch: 0.08 },
+  { t: T.rapid + 0.2, cx: 540, cy: 1640, s: 2.06, yaw: 0.04, pitch: 0.08 },
+  // 05 retroceder: módulo de autorización arriba, billetera, cadena (capa de red) delante
+  { t: T.movs, cx: 540, cy: 1200, s: 0.84, yaw: 0.22, pitch: 0.3 },
+  { t: T.seguras + 0.3, cx: 540, cy: 1200, s: 0.84, yaw: 0.3, pitch: 0.32 },
+  // 06 subir para seguir la operación roja hacia direcciones externas
+  { t: T.retiros + 0.2, cx: 600, cy: 1120, s: 0.6, yaw: 0.1, pitch: 0.6 },
+  { t: T.comprom + 0.4, cx: 620, cy: 1110, s: 0.58, yaw: -0.02, pitch: 0.64 },
+  // 07 la operación se convierte en registro: travelling a lo largo de la cadena de bloques
+  { t: T.sorpr0 + 0.6, cx: 640, cy: 880, s: 1.0, yaw: 0.0, pitch: 0.34 },
+  { t: T.confirmada, cx: 540, cy: 880, s: 1.06, yaw: 0.0, pitch: 0.34 },
+  { t: T.deshacer + 0.5, cx: 500, cy: 880, s: 1.08, yaw: -0.08, pitch: 0.36 },
+  // 08-09 cenital: viajar por el grafo
+  { t: T.distrib, cx: 540, cy: 950, s: 0.45, yaw: -0.2, pitch: 1.05 },
+  { t: T.redes + 0.4, cx: 540, cy: 910, s: 0.38, yaw: -0.45, pitch: 1.18 },
+  { t: T.rastro + 0.3, cx: 600, cy: 900, s: 0.43, yaw: -0.62, pitch: 1.16 },
+  { t: T.recuperar, cx: 540, cy: 910, s: 0.4, yaw: -0.75, pitch: 1.18 },
+  { t: T.congelar, cx: 560, cy: 920, s: 0.43, yaw: -1.0, pitch: 1.12 },
+  { t: T.bloquearse + 0.5, cx: 560, cy: 930, s: 0.41, yaw: -1.08, pitch: 1.1 },
+  // 10-11 fuente independiente: retroceso que muestra reservas, billetera y rutas del robo separadas
+  { t: T.recursos, cx: 400, cy: 1280, s: 0.72, yaw: -0.05, pitch: 0.34 },
+  { t: T.noventa, cx: 420, cy: 1360, s: 0.64, yaw: 0.0, pitch: 0.32 },
+  { t: T.robado + 0.4, cx: 430, cy: 1370, s: 0.62, yaw: 0.05, pitch: 0.32 },
+  // 12 regreso al mecanismo de autorización y custodia
+  { t: T.leccion, cx: 540, cy: 1380, s: 0.72, yaw: -0.22, pitch: 0.28 },
+  { t: T.minutos2, cx: 540, cy: 1370, s: 0.76, yaw: 0.02, pitch: 0.26 },
+  { t: DURATION, cx: 540, cy: 1300, s: 0.86, yaw: 0.2, pitch: 0.26 },
+ ];
+ KEYS.sort((a, b) => a.t - b.t);
+
+ // ---------- grafo de direcciones (V2, conservado) ----------
+ const GRAPH = (() => {
+  const r = H.rng(2026), nodes = [];
+  const root = { x: 0, z: 0, hop: 0 };
+  const N1 = 7;
+  for (let i = 0; i < N1; i++) {
+   const an = H.lerp(PI * 0.62, PI * 1.62, i / (N1 - 1)) + r.range(-0.08, 0.08), rad = r.range(1.9, 2.3);
+   const t0 = H.lerp(T.retiros - 0.1, T.autorizado + 0.3, i / (N1 - 1));
+   nodes.push({ x: Math.cos(an) * rad, z: Math.sin(an) * rad, hop: 1, parent: root, t0, t1: t0 + 0.55, an });
   }
-  const seal = sm(T.confirmada, T.confirmada + 0.5, t), stamp = t > T.confirmada ? Math.exp(-(t - T.confirmada) * 4) : 0;
-  BLOCKS.forEach((b, i) => {
-   const appear = sm(T.pero10 + i * 0.12, T.pero10 + 0.5 + i * 0.12, t);
-   const isS = i === SEALB;
-   const inco = isS ? sm(T.transf, T.transf + 0.6, t) : 1;
-   const top = isS ? (seal > 0 ? `rgba(${Math.round(H.lerp(40, 56, seal))},${Math.round(H.lerp(44, 189, seal))},${Math.round(H.lerp(56, 248, seal))},${0.35 + 0.4 * seal})` : 'rgba(40,44,56,0.6)') : 'rgba(40,44,56,0.92)';
-   const r = box3(x, c, b.x, 0.02, b.z, 0.62, 0.32 * appear * (isS ? H.lerp(0.4, 1, inco) : 1) + 0.001, 0.62, { alpha: appear, top, edge: isS && seal > 0 ? `rgba(160,225,255,${0.5 + 0.5 * stamp})` : 'rgba(235,238,255,0.3)', lw: isS ? 2 : 1.2 });
-   if (isS && t > T.transf) {
-    // transacción entrando al bloque
-    const tp = sm(T.transf, T.confirmada, t);
-    const from = c.P(0, 0.45, 0), to = r.c;
-    if (tp < 1) glowDot(x, H.lerp(from[0], to[0], io(tp)), H.lerp(from[1], to[1], io(tp)) - Math.sin(tp * PI) * 80, 7, '56,189,248', 1);
-    if (seal > 0) {
-     // candado de sellado
-     const cx = r.c[0], cy = r.c[1] - 50 - 30 * (1 - eo(seal));
-     x.save(); x.globalAlpha *= seal; x.strokeStyle = '#a5e4ff'; x.lineWidth = 5; x.shadowColor = 'rgba(56,189,248,0.8)'; x.shadowBlur = 20 + 40 * stamp;
-     x.beginPath(); x.roundRect(cx - 26, cy - 8, 52, 40, 8); x.stroke();
-     x.beginPath(); x.arc(cx, cy - 8, 15, PI, 0); x.stroke(); x.restore();
+  const h1 = nodes.slice();
+  let ci = 0;
+  h1.forEach((p, i) => {
+   const n2 = r.int(2, 3);
+   for (let k = 0; k < n2; k++) {
+    const an = p.an + (k - (n2 - 1) / 2) * 0.32 + r.range(-0.06, 0.06), rad = r.range(3.2, 3.7);
+    const t0 = H.lerp(T.distrib, T.direcc + 0.6, (i * 3 + k) / (h1.length * 3)) + r.range(0, 0.2);
+    const q = { x: Math.cos(an) * rad, z: Math.sin(an) * rad, hop: 2, parent: p, t0, t1: t0 + 0.6, an, chain: ci++ % 10 };
+    nodes.push(q);
+    if (r.chance(0.7)) {
+     const an3 = an + r.range(-0.18, 0.18), rad3 = r.range(4.5, 5.2), t3 = H.lerp(T.direcc, T.redes + 0.3, r());
+     nodes.push({ x: Math.cos(an3) * rad3, z: Math.sin(an3) * rad3, hop: 3, parent: q, t0: t3, t1: t3 + 0.6, an: an3, chain: q.chain });
     }
    }
   });
+  nodes.filter((n) => n.hop >= 2).forEach((n) => { n.freeze = r.chance(0.45); n.freezeT = H.lerp(T.congelar - 0.3, T.bloquearse + 0.5, r()); });
+  return { nodes };
+ })();
+
+ // ---------- cadena de bloques (capa de red) ----------
+ const BLOCKS = Array.from({ length: 5 }, (_, i) => ({ x: -1.56 + i * 0.78, z: 1.5 }));
+ const SEALB = 2;
+
+ // ---------- luz ----------
+ function lighting(t) {
+  const L = {
+   key: (0.5 + 0.5 * sm(0.3, 2.0, t)) * (1 - 0.35 * sm(T.b4, T.b4 + 0.6, t) * (1 - sm(T.todo - 0.4, T.todo + 0.4, t))) * (1 - 0.3 * sm(T.sorpr0, T.sorpr, t) * (1 - sm(T.confirmada, T.confirmada + 1, t))),
+   rim: 0.45 + 0.55 * sm(0.0, 0.9, t), spec: -1, white: 0,
+  };
+  const sw = [[0.4, 2.2], [T.binance - 0.2, T.binance + 1.2], [T.billeteras - 0.2, T.calientes + 0.6], [T.confirmada, T.confirmada + 1.1], [T.recursos, T.recursos + 1.2], [T.leccion, T.leccion + 1.6]];
+  for (const [a, b] of sw) if (t > a - 0.3 && t < b + 0.3) L.spec = H.map(t, a, b, -0.25, 1.25);
+  return L;
+ }
+ function balance(t) {
+  const out = 0.82 * io(sm(T.retiros, T.autorizado + 0.8, t));
+  const refill = 0.9 * 0.82 * io(sm(T.recursos - 0.4, T.repuesto + 0.4, t));
+  return 1 - out + refill;
+ }
+
+ // ---------- estados / presencias ----------
+ const embA = (t) => 1 - sm(T.b4 - 0.25, T.b4 + 0.45, t);
+ const vaultA = (t) => sm(T.b4 - 0.2, T.b4 + 0.35, t) * (1 - sm(T.como + 0.6, T.como + 0.8, t));
+ const devA = (t) => Math.max(fadeIO(t, T.todo - 0.3, T.sorpr0 + 0.9, 0.7), fadeIO(t, T.cubrir0 - 0.3, sweep1 + 0.02, 0.6));
+ const devScale = (t) => H.lerp(1, 0.86, sm(T.rapid + 0.2, T.movs, t)) * (t > T.cubrir0 - 0.4 ? 0.82 / 0.86 : 1);
+ const tilesA = (t) => Math.max(fadeIO(t, T.pero10 - 0.1, T.sorpr0 + 0.4, 0.5), fadeIO(t, T.leccion0 - 0.2, sweep1, 0.6));
+ const chainA = (t) => fadeIO(t, T.pero10, T.fondos + 0.6, 0.6);
+ const towerA = (t) => fadeIO(t, T.cubrir0 - 0.2, T.leccion0 + 0.3, 0.5);
+ const VAULT = { x: -0.45, y: 0.04, z: 0, R: 0.95 };
+ const devObj = (t) => ({ x: 0, y: 0.05, z: 0, ry: 0.0, scale: devScale(t) });
+ const TILES = (t) => ({ x: 0, y: 2.25, z: 0.25, ry: 0, scale: 0.9, t });
+
+ function deviceState(t) {
+  let state = 'idle', icon = 'dot', col = null, lockOpen = 0;
+  if (t > T.autoriz && t < T.retiros) { state = 'idle'; icon = 'key'; col = BGOLD; }
+  if (t >= T.retiros && t < T.cubrir0) { state = 'alert'; icon = 'x'; col = RED; }
+  if (t >= T.cubrir0) { state = 'gold'; icon = 'check'; col = BGOLD; }
+  if (t >= T.leccion0) { state = 'idle'; icon = 'lock'; col = BGOLD; lockOpen = 1 - sm(T.minutos2, T.minutos2 + 0.5, t); if (t > T.autoriz2 && t < T.minutos2) { col = RED; } }
+  const flow = Math.max(sm(T.mover - 0.4, T.mover + 0.2, t) * (1 - sm(T.movs - 0.6, T.movs, t)), fadeIO(t, T.retiros, T.autorizado + 1.0, 0.3));
+  return { state, ringIcon: icon, ringCol: col, lockOpen, flow, online: fadeIO(t, T.sistemas - 0.3, T.movs, 0.4) };
+ }
+
+ // ================= ESCENA OSCURA =================
+ function darkScene(x, W, Hh, t, c, L) {
+  S.stage(x, W, Hh, c, Object.assign({ bokeh: 1 }, L), t);
+  const ctx = { W, Hh };
+  // --- 01-02 emblema de Binance
+  const ea = embA(t);
+  let emb = null;
+  if (ea > 0.003) {
+   const rec = io(sm(T.b4 - 0.25, T.b4 + 0.5, t));
+   const spin = io(sm(T.binance - 0.1, T.binance + 1.1, t)) * PI * 2;
+   const glitch = Math.exp(-Math.max(0, t - wt(0, 'ocurrió')) * 5) * (t > wt(0, 'ocurrió') ? 1 : 0) + Math.exp(-Math.max(0, t - wt(0, 'increíble')) * 6) * (t > wt(0, 'increíble') ? 0.7 : 0);
+   emb = { x: 0, y: 0.18 + 0.03 * Math.sin(t * 1.3), z: -3.2 * rec, size: 2.05, depth: 0.34, ry: 0.32 * Math.sin(t * 0.32) + spin, a: ea, key: L.key, rim: L.rim, spec: L.spec, glow: 0.35 + 0.5 * sm(T.seis, T.dolares, t) + 0.6 * Math.exp(-Math.max(0, t - T.binance - 1.1) * 2) * (t > T.binance + 1.1 ? 1 : 0), glitch: Math.min(1, glitch), t };
+   PR.contact(x, c, 0, emb.z, 1.3, ea);
+   PR.reflect(x, c, W, Hh, (r) => PR.emblem3D(r, c, emb, true), 0.32 * ea * Math.max(0.3, L.key), c.P(0, 0, emb.z)[1]);
+   // anillo temporal en el suelo (02)
+   timeRing(x, c, t, emb, 'back');
+   PR.emblem3D(x, c, emb, false);
+   timeRing(x, c, t, emb, 'front');
+   coinsOrbit(x, c, t, emb);
+  }
+  // --- 03 bóveda + fajos (metáfora) y dial
+  b03(x, c, t);
+  // --- capa de red: cadena de bloques
+  const ca = chainA(t);
+  if (ca > 0) drawChain(x, c, t, ca);
+  // --- grafo
+  if (t > T.retiros - 0.3) drawGraph(x, c, t);
+  // --- reservas de Binance (fuente independiente)
+  const ta = towerA(t);
+  if (ta > 0) drawTower(x, c, t, ta, W, Hh, L);
+  // --- billetera caliente
+  const da = devA(t);
+  let dev = null;
+  if (da > 0.003) {
+   const o = Object.assign(devObj(t), deviceState(t), { a: da, bal: balance(t), t, key: L.key, spec: L.spec });
+   // materialización: sube desde el suelo y se ensambla
+   const mat = sm(T.todo - 0.3, T.billeteras + 0.2, t);
+   if (t < T.billeteras + 0.3) { o.y -= (1 - eo(mat)) * 0.6; o.a *= mat; }
+   o.ringA = t < T.cubrir0 - 0.5 ? sm(T.billeteras - 0.05, T.billeteras + 0.15, t) : 1;
+   PR.contact(x, c, o.x, o.z, 1.0 * o.scale, o.a);
+   PR.reflect(x, c, W, Hh, (r) => PR.device(r, c, o, true), 0.35 * o.a * Math.max(0.3, L.key), c.P(o.x, 0, o.z)[1]);
+   dev = PR.device(x, c, o, false);
+   if (dev) dev.o = o;
+  }
+  // dial volando del match cut (03 -> 04)
+  matchDial(x, c, t, dev);
+  // --- módulo de autorización
+  const tA = tilesA(t);
+  let tiles = null;
+  if (tA > 0.003) tiles = drawTiles(x, c, t, tA, dev);
+  // --- flujos de oro de reservas a la billetera
+  if (ta > 0 && dev) goldFlow(x, c, t, ta, dev);
+  overlays(x, W, Hh, t, c, L, { emb, dev, tiles });
+ }
+
+ // anillo de 20 minutos en el suelo alrededor del emblema: flujo de valor
+ function timeRing(x, c, t, emb, half) {
+  const a = fadeIO(t, T.veinte - 0.3, T.b4 + 0.2, 0.4) * emb.a;
+  if (a <= 0) return;
+  const R = 1.75, N = 120, p = io(sm(T.veinte, T.minutos + 0.8, t)) / 3;
+  const cd = c.P(0, 0, emb.z)[2];
+  x.save(); x.globalAlpha *= a; x.lineCap = 'round';
+  // pista completa (60 min) tenue + marcas de 5 min
+  for (let i = 0; i < N; i++) {
+   const a0 = -PI / 2 + i / N * PI * 2, a1 = -PI / 2 + (i + 1) / N * PI * 2;
+   const P0 = c.P(Math.cos(a0) * R, 0.01, emb.z + Math.sin(a0) * R), P1 = c.P(Math.cos(a1) * R, 0.01, emb.z + Math.sin(a1) * R);
+   if ((P0[2] > cd) !== (half === 'front')) continue;
+   const lit = i / N < p;
+   x.strokeStyle = lit ? 'rgba(240,185,11,0.95)' : 'rgba(255,255,255,0.14)'; x.lineWidth = lit ? 6 : 3;
+   if (lit) { x.shadowColor = 'rgba(240,185,11,0.8)'; x.shadowBlur = 12; } else x.shadowBlur = 0;
+   x.beginPath(); x.moveTo(P0[0], P0[1]); x.lineTo(P1[0], P1[1]); x.stroke();
+   if (i % 10 === 0) { const Q = c.P(Math.cos(a0) * (R + 0.12), 0.01, emb.z + Math.sin(a0) * (R + 0.12)); x.fillStyle = 'rgba(255,255,255,0.4)'; x.beginPath(); x.arc(Q[0], Q[1], 3, 0, 7); x.fill(); }
+  }
+  // partículas: el valor sale del emblema y recorre el anillo; tras "atacantes" se vuelve rojo y abandona el sistema
+  if (half === 'front') {
+   const red = sm(T.atac, T.atac + 0.6, t), r = H.rng(88);
+   for (let k = 0; k < 26; k++) {
+    const ph = ((t - T.veinte) * 0.35 + r()) % 1; if (t < T.veinte) break;
+    const an = -PI / 2 + ph * p * PI * 2, out = red * Math.max(0, ph - 0.6) * 2.5;
+    const P0 = c.P(Math.cos(an) * (R + out * 1.2), 0.05 + 0.05 * Math.sin(k), emb.z + Math.sin(an) * (R + out * 1.2));
+    glowDot(x, P0[0], P0[1], 4, red > 0.5 && ph > 0.5 ? '255,69,58' : '240,185,11', 0.9 * (1 - out * 0.5));
+   }
+  }
+  x.restore();
+ }
+ // ecosistema: fichas genuinas de BTC, ETH, USDT y BNB orbitando (ejemplos, no activos robados)
+ function coinsOrbit(x, c, t, emb) {
+  const a = fadeIO(t, T.plat - 0.3, T.veinte - 0.2, 0.5) * emb.a;
+  if (a <= 0) return;
+  const kinds = ['btc', 'eth', 'usdt', 'bnb'];
+  const items = kinds.map((k, i) => { const an = t * 0.55 + i / 4 * PI * 2, P = c.P(Math.cos(an) * 1.75, 1.15 + 0.25 * Math.sin(an * 2), emb.z + Math.sin(an) * 1.75); return { k, P, i }; });
+  items.sort((u, v) => u.P[2] - v.P[2]);
+  items.forEach((it) => { const ap = sm(T.plat - 0.3 + it.i * 0.22, T.plat + 0.2 + it.i * 0.22, t); PR.coin(x, it.P[0], it.P[1], 62 * (0.8 + 0.25 * (it.P[2] + 2) / 4), it.k, { a: a * ap, glow: 0.6, squash: 0.96, spin: Math.sin(t * 1.4 + it.i) * 0.5 }); });
+ }
+
+ // 03: bóveda y fajos -> desintegración -> el dial sobrevive
+ function vaultHub(c) { return PR.xf(c, VAULT)(0, VAULT.R, 0.27); }
+ function b03(x, c, t) {
+  const va = vaultA(t);
+  if (va <= 0.003) return;
+  const rise = eo(sm(T.b4 - 0.2, T.b4 + 0.5, t));
+  const dis = sm(T.entonces, T.como + 0.6, t);
+  const o = Object.assign({}, VAULT, { y: VAULT.y - (1 - rise) * 0.5, a: va, wheel: t * 0.6 + io(sm(T.boveda, T.boveda + 0.6, t)) * 1.2, dissolve: dis, target: vaultHub(c) });
+  if (dis <= 0) { PR.contact(x, c, VAULT.x, VAULT.z, 1.1, va); }
+  PR.vault(x, c, o);
+  // fajos de billetes (aparecen con "billetes")
+  const ba = sm(T.b5 - 0.1, T.b5 + 0.4, t);
+  if (ba > 0) {
+   if (dis <= 0) { PR.contact(x, c, 1.25, 0.7, 0.8, ba); PR.cash(x, c, { x: 1.25, y: (1 - eo(ba)) * 0.4, z: 0.7, ry: -0.3, a: ba }); }
+   else { // fajos se desintegran en partículas hacia el dial
+    const r = H.rng(91), hub = vaultHub(c);
+    for (let i = 0; i < 160; i++) { const j = r(), d = H.clamp((dis - j * 0.45) / 0.55); if (d >= 1) continue; const p0 = c.P(1.25 + r.range(-0.9, 0.9), r.range(0, 0.6), 0.7 + r.range(-0.2, 0.2)); const dd = io(d); x.save(); x.globalAlpha *= ba * (1 - dd * 0.85); x.fillStyle = d > 0.05 ? '#ffd76a' : '#c4ccbe'; x.beginPath(); x.arc(H.lerp(p0[0], hub[0], dd), H.lerp(p0[1], hub[1], dd), 2.4, 0, 7); x.fill(); x.restore(); }
+   }
+  }
+  // tachones rojos sincronizados
+  const st1 = sm(T.boveda, T.boveda + 0.35, t) * (1 - dis), st2 = sm(T.billetes, T.billetes + 0.35, t) * (1 - dis);
+  const vb = PR.xf(c, VAULT), A0 = vb(-1.1, 0.2, 0.3), A1 = vb(1.1, 2.0, 0.3);
+  const cb0 = c.P(0.5, 0.0, 0.7), cb1 = c.P(2.0, 0.9, 0.7);
+  x.save(); x.strokeStyle = RED; x.lineWidth = 10; x.lineCap = 'round'; x.shadowColor = 'rgba(255,69,58,0.7)'; x.shadowBlur = 16;
+  if (st1 > 0) { x.beginPath(); x.moveTo(A0[0], A0[1]); x.lineTo(H.lerp(A0[0], A1[0], io(st1)), H.lerp(A0[1], A1[1], io(st1))); x.stroke(); }
+  if (st2 > 0) { x.beginPath(); x.moveTo(cb0[0], cb0[1]); x.lineTo(H.lerp(cb0[0], cb1[0], io(st2)), H.lerp(cb0[1], cb1[1], io(st2))); x.stroke(); }
+  x.restore();
+  // dial de la cerradura: se ilumina en oro al desintegrarse el metal
+  if (dis > 0) { const hub = vaultHub(c); PR.dial(x, hub[0], hub[1], 0.3 * c.unit, { a: sm(T.entonces, T.entonces + 0.5, t), col: BGOLD, icon: 'dot', rot: t * 0.6, p: 1 }); }
+ }
+ function matchDial(x, c, t, dev) {
+  if (t < T.como + 0.6 || t > T.billeteras + 0.2 || !dev) {
+   if (t >= T.como + 0.6 && t < T.billeteras + 0.2 && !dev) { const hub = vaultHub(c); PR.dial(x, hub[0], hub[1], 0.3 * c.unit, { a: 1, col: BGOLD, rot: t * 0.6 }); }
+   return;
+  }
+  const hub = vaultHub(c), tg = dev.ringAt();
+  const e = io(sm(T.todo - 0.4, T.billeteras, t));
+  const rad = H.lerp(0.3 * c.unit, 62 * Math.hypot(dev.screen[1][0] - dev.screen[0][0], dev.screen[1][1] - dev.screen[0][1]) / 600, e);
+  PR.dial(x, H.lerp(hub[0], tg[0], e), H.lerp(hub[1], tg[1], e) - Math.sin(e * PI) * 120, rad, { a: 1 - sm(T.billeteras - 0.05, T.billeteras + 0.15, t), col: BGOLD, rot: t * 0.6 });
+ }
+
+ // capa de red: bloques con registros; la operación se convierte en anotación y se confirma
+ function drawChain(x, c, t, a) {
+  x.save(); x.globalAlpha *= a;
+  const seal = sm(T.confirmada, T.confirmada + 0.5, t), stamp = t > T.confirmada ? Math.exp(-(t - T.confirmada) * 4) : 0;
+  const tops = [];
+  BLOCKS.forEach((b, i) => {
+   const appear = sm(T.pero10 + i * 0.12, T.pero10 + 0.5 + i * 0.12, t);
+   const isS = i === SEALB, isNew = i > SEALB;
+   const ex = isNew ? 1 - sm(T.transf - 0.6, T.transf, t) * 0 : 1;
+   const top = isS ? (seal > 0 ? `rgba(56,189,248,${0.25 + 0.45 * seal})` : 'rgba(40,44,56,0.7)') : 'rgba(40,44,56,0.92)';
+   const r = PR.box3r(x, c, { x: b.x, y: 0.02, z: b.z }, 0.6, 0.42 * appear + 0.001, 0.6, { alpha: appear * ex, top, edge: isS && seal > 0 ? `rgba(160,225,255,${0.55 + 0.45 * stamp})` : 'rgba(235,238,255,0.35)', lw: isS ? 2.2 : 1.3 });
+   // anotaciones del registro en la cara frontal
+   if (appear > 0.6) PR.onFace(x, r.front, 100, 70, (u) => {
+    u.globalAlpha = appear;
+    for (let k = 0; k < 4; k++) { const w = 30 + ((i * 7 + k * 13) % 40); u.fillStyle = 'rgba(200,210,240,0.35)'; u.fillRect(14, 12 + k * 13, w, 6); }
+    if (isS) { const rec = sm(T.transf + 0.4, T.confirmada, t); if (rec > 0) { u.fillStyle = `rgba(255,69,58,${rec})`; u.fillRect(14, 12 + 4 * 13 - 2, 72 * rec, 8); } }
+   });
+   tops.push(r.c);
+  });
+  // enlaces criptográficos entre bloques (cada bloque referencia al anterior)
+  for (let i = 0; i < BLOCKS.length - 1; i++) {
+   const p = c.P(BLOCKS[i].x + 0.3, 0.21, BLOCKS[i].z), q = c.P(BLOCKS[i + 1].x - 0.3, 0.21, BLOCKS[i + 1].z);
+   const lit = i < SEALB || (i === SEALB && seal > 0) ? 1 : 0.35;
+   x.strokeStyle = `rgba(160,225,255,${0.25 + 0.5 * lit})`; x.lineWidth = 3; x.beginPath(); x.moveTo(p[0], p[1]); x.lineTo(q[0], q[1]); x.stroke();
+   glowDot(x, (p[0] + q[0]) / 2, (p[1] + q[1]) / 2, 4, '160,225,255', 0.4 + 0.5 * lit);
+  }
+  // la operación (roja) entra al bloque como anotación
+  const tp = sm(T.transf, T.confirmada, t);
+  if (tp > 0 && tp < 1) { const from = c.P(-2.6, 0.9, 0.2), to = tops[SEALB]; glowDot(x, H.lerp(from[0], to[0], io(tp)), H.lerp(from[1], to[1], io(tp)) - Math.sin(tp * PI) * 90, 8, '255,69,58', 1); }
+  // confirmaciones: 6 marcas sobre el bloque
+  const cf = sm(T.confirmada - 0.1, T.bloques + 0.6, t);
+  if (cf > 0) {
+   const top = tops[SEALB];
+   for (let k = 0; k < 6; k++) { const on = cf * 6 > k + 0.5 ? 1 : 0.15, X = top[0] - 75 + k * 30, Y = top[1] - 70; x.fillStyle = on > 0.5 ? CYAN : 'rgba(255,255,255,0.2)'; if (on > 0.5) { x.shadowColor = CYAN; x.shadowBlur = 10; } x.beginPath(); x.roundRect(X - 9, Y - 9, 18, 18, 4); x.fill(); x.shadowBlur = 0; }
+   if (seal > 0) { const cx = top[0], cy = top[1] - 140 - 20 * (1 - eo(seal)); PR.dial(x, cx, cy, 42, { a: seal, col: CYAN, icon: 'lock', p: 1, rot: 0 }); }
+  }
   x.restore();
  }
 
  function drawGraph(x, c, t) {
-  const fadeEnd = 1 - 0.75 * sm(T.leccion0, T.leccion0 + 1, t) * (1 - sm(T.leccion, T.minutos2, t) * 0) ;
+  const fade = (1 - 0.65 * sm(T.cubrir0 - 0.3, T.cubrir0 + 0.6, t)) * (1 - 0.5 * sm(T.leccion0, T.leccion0 + 1, t));
   const traceGlow = sm(T.rastro - 0.2, T.rastro + 0.5, t);
   const P0 = (n) => c.P(n.x, 0.02, n.z);
-  x.save(); x.globalAlpha = fadeEnd * (1 - sm(sweep0, sweep1, t));
+  x.save(); x.globalAlpha = fade * (1 - sm(sweep0, sweep1, t));
+  // origen de las salidas (no un objeto genérico): anillo rojo pulsante
+  if (t > T.fondos - 0.5 && t < T.cubrir0) {
+   const o = c.P(0, 0.02, 0), pu = 0.5 + 0.5 * Math.sin(t * 4);
+   x.strokeStyle = `rgba(255,69,58,${0.6 + 0.3 * pu})`; x.lineWidth = 4; x.beginPath(); x.ellipse(o[0], o[1], 34 + 6 * pu, (34 + 6 * pu) * Math.max(0.3, Math.sin(c.pitch)), 0, 0, 7); x.stroke();
+   glowDot(x, o[0], o[1], 8, '255,69,58', 0.9);
+  }
   for (const n of GRAPH.nodes) {
    const p = sm(n.t0, n.t1, t); if (p <= 0) continue;
    const A = n.parent.hop === 0 ? c.P(0, 0.02, 0) : P0(n.parent), Bp = P0(n);
@@ -282,210 +380,213 @@
    const fr = n.freeze ? sm(n.freezeT, n.freezeT + 0.4, t) : 0;
    const base = red ? '255,69,58' : '56,189,248';
    const col = fr > 0 ? rgbOf(TEAL) : (traceGlow > 0 && !red ? '125,211,252' : base);
-   const lw = (red ? 3 : 2) + traceGlow * 1.5;
-   // trazo con ligera curva
+   const lw = (red ? 3.5 : 2.4) + traceGlow * 1.5;
    const mid = [(A[0] + Bp[0]) / 2, (A[1] + Bp[1]) / 2 - 18];
    const pts = S.bez(A, mid, mid, Bp, 18);
    x.save(); if (traceGlow > 0 && !red) { x.shadowColor = 'rgba(56,189,248,0.8)'; x.shadowBlur = 12 * traceGlow; }
    S.arrow(x, pts, p, `rgba(${col},${0.55 + 0.35 * traceGlow})`, lw, false); x.restore();
-   // paquete viajando (cambio de saldo, no monedas físicas)
    if (p < 1) { const hp = pts[Math.min(pts.length - 1, Math.round(p * (pts.length - 1)))]; glowDot(x, hp[0], hp[1], 5, base, 1); }
    if (p > 0.9) {
-    // nodo dirección con saldo acreditado (anillo que se llena)
-    const fill = sm(n.t1 - 0.1, n.t1 + 0.4, t);
-    const rad = n.hop === 1 ? 13 : 10;
+    const fill = sm(n.t1 - 0.1, n.t1 + 0.4, t), rad = n.hop === 1 ? 14 : 11;
     x.fillStyle = 'rgba(6,7,10,0.9)'; x.beginPath(); x.arc(Bp[0], Bp[1], rad + 3, 0, 7); x.fill();
-    x.strokeStyle = `rgba(${col},0.95)`; x.lineWidth = 3; x.beginPath(); x.arc(Bp[0], Bp[1], rad, -PI / 2, -PI / 2 + fill * PI * 2); x.stroke();
+    x.strokeStyle = `rgba(${col},0.95)`; x.lineWidth = 3.5; x.beginPath(); x.arc(Bp[0], Bp[1], rad, -PI / 2, -PI / 2 + fill * PI * 2); x.stroke();
     if (fr > 0) {
-     // congelado: hexágono teal + escarcha
-     x.save(); x.globalAlpha *= fr; x.strokeStyle = TEAL; x.lineWidth = 3; x.shadowColor = 'rgba(45,212,191,0.9)'; x.shadowBlur = 16;
+     x.save(); x.globalAlpha *= fr; x.strokeStyle = TEAL; x.lineWidth = 3.5; x.shadowColor = 'rgba(45,212,191,0.9)'; x.shadowBlur = 16;
      x.beginPath(); for (let k = 0; k <= 6; k++) { const an = k / 6 * PI * 2 + PI / 6, rr = rad + 9 + 6 * (1 - fr); k ? x.lineTo(Bp[0] + rr * Math.cos(an), Bp[1] + rr * Math.sin(an)) : x.moveTo(Bp[0] + rr * Math.cos(an), Bp[1] + rr * Math.sin(an)); }
-     x.stroke(); x.restore();
+     x.stroke();
+     // candado mínimo dentro del hexágono
+     x.lineWidth = 2.5; x.beginPath(); x.roundRect(Bp[0] - 6, Bp[1] - 2, 12, 9, 2); x.stroke(); x.beginPath(); x.arc(Bp[0], Bp[1] - 2, 4.5, PI, 0); x.stroke();
+     x.restore();
     } else if (!red && t > T.carrera0) {
-     // sigue moviéndose: latido cian
-     const pu = 0.5 + 0.5 * Math.sin(t * 5 + n.x * 3);
-     glowDot(x, Bp[0], Bp[1], 3 + 2 * pu, '56,189,248', 0.6);
+     // sigue moviéndose: un pulso escapa hacia fuera
+     const ph = ((t * 0.8 + n.x * 0.37) % 1), out = c.P(n.x * (1 + ph * 0.25), 0.02, n.z * (1 + ph * 0.25));
+     glowDot(x, out[0], out[1], 4, '56,189,248', 0.8 * (1 - ph));
     }
    }
   }
-  x.restore();
- }
-
- function drawAuth(x, c, t, a, yT) {
-  // capa 1: autorización (empresa) — placa de vidrio flotando sobre el objeto
-  const y0 = yT + 0.55 + 0.03 * Math.sin(t * 1.5);
-  const sig = sm(T.autoriz, T.autoriz + 0.6, t);
-  const broken = sm(T.retiros, T.retiros + 0.5, t);
-  const edge = broken > 0 ? `rgba(255,69,58,${0.5 + 0.4 * broken})` : `rgba(240,185,11,${0.35 + 0.5 * sig})`;
-  const r = box3(x, c, 0, y0, 0, 1.3, 0.06, 1.3, { alpha: a * 0.9, top: 'rgba(30,32,42,0.55)', front: 'rgba(20,22,30,0.6)', side: 'rgba(16,18,24,0.6)', edge, lw: 2 });
-  // llave / firma en la placa
-  const k = r.c;
-  x.save(); x.globalAlpha = a * (0.4 + 0.6 * sig);
-  x.strokeStyle = broken > 0 ? RED : BGOLD; x.lineWidth = 5; x.shadowColor = broken > 0 ? 'rgba(255,69,58,0.8)' : 'rgba(240,185,11,0.8)'; x.shadowBlur = 18 * sig;
-  x.beginPath(); x.arc(k[0] - 30, k[1], 18, 0, 7); x.stroke();
-  x.beginPath(); x.moveTo(k[0] - 12, k[1]); x.lineTo(k[0] + 40, k[1]); x.moveTo(k[0] + 24, k[1]); x.lineTo(k[0] + 24, k[1] + 14); x.moveTo(k[0] + 36, k[1]); x.lineTo(k[0] + 36, k[1] + 10); x.stroke();
-  x.restore();
-  // flecha: autorización -> objeto -> cadena (capa 2)
-  const ap = sm(T.seguras - 0.2, T.seguras + 0.5, t) * (1 - broken);
-  if (ap > 0) {
-   const from = c.P(0.6, y0, 0.2), mid = c.P(0.9, yT, 0), to = c.P(BLOCKS[SEALB].x, 0.4, BLOCKS[SEALB].z);
-   x.save(); x.globalAlpha = a; S.arrow(x, S.bez(from, [from[0] + 120, from[1]], [to[0] + 60, to[1] - 140], to, 30), ap, 'rgba(240,185,11,0.85)', 3); x.restore();
-   void mid;
-  }
-  // desvío: orden que sale hacia direcciones externas (rojo)
-  if (broken > 0) {
-   const from = c.P(-0.4, y0, 0), to = c.P(-1.4, 0.3, 0.8);
-   x.save(); x.globalAlpha = a; S.arrow(x, S.bez(from, [from[0] - 80, from[1] - 30], [to[0] - 20, to[1] - 120], to, 30), sm(T.retiros, T.retiros + 0.6, t), 'rgba(255,69,58,0.9)', 3.5); x.restore();
-  }
-  return r;
- }
-
- function drawReserves(x, c, t, a, yT) {
-  // reservas propias: bloque oro independiente a la derecha, NO conectado con las rutas del robo
-  const rise = eo(sm(T.cubrir0, T.cubriria + 0.3, t));
-  const rx = 2.25, rz = 0.4;
-  const r = box3(x, c, rx, 0.02, rz, 0.95, 0.75 * rise + 0.01, 0.95, { alpha: a, top: 'rgba(240,185,11,0.30)', front: 'rgba(120,90,10,0.45)', side: 'rgba(80,60,8,0.45)', edge: `rgba(255,224,138,${0.6})`, lw: 2 });
-  // flujo oro: reservas -> saldo de usuarios
-  const fp = sm(T.recursos - 0.3, T.repuesto + 0.4, t);
-  if (fp > 0) {
-   const from = r.c, to = c.P(0.3, yT, 0.1);
-   const pts = S.bez(from, [from[0], from[1] - 160], [to[0] + 140, to[1] - 180], to, 40);
-   x.save(); x.globalAlpha = a; x.shadowColor = 'rgba(240,185,11,0.8)'; x.shadowBlur = 14;
-   S.arrow(x, pts, Math.min(1, fp * 1.6), 'rgba(240,185,11,0.9)', 3.5); x.restore();
-   for (let i = 0; i < 4; i++) { const u = ((t * 0.9 + i / 4) % 1); if (fp > 0.5) { const q = pts[Math.round(u * (pts.length - 1))]; glowDot(x, q[0], q[1], 5, '240,185,11', a * 0.9); } }
-  }
-  return r;
- }
-
- // ================= RÓTULOS Y DATOS =================
- function overlays(x, W, Hh, t, c, L, yT) {
-  // ---- B01: fecha + nombre (sincronizados con la locución)
-  {
-   const a = 1 - sm(T.veinte - 0.5, T.veinte, t);
-   if (a > 0) {
-    x.save(); x.globalAlpha = a;
-    S.words(x, [{ s: '29', t: T.date - 0.62, fill: 'grad' }, { s: 'OCT', t: T.date + 0.7, fill: 'grad' }, { s: '2026', t: wt(0, '2026,'), fill: 'grad' }], 540, 350, 800, 112, t, { align: 'center', stops: GOLD });
-    S.words(x, [{ s: 'Algo', t: wt(0, 'algo') }, { s: 'increíble', t: wt(0, 'increíble') }, { s: 'ocurrió', t: wt(0, 'ocurrió') }], 540, 470, 800, 76, t, { align: 'center' });
-    kicker(x, 'BINANCE · PLATAFORMA DE CRIPTOMONEDAS', 560, sm(T.binance, T.binance + 0.5, t), BGOLD);
-    kicker(x, 'ROBO DE CRIPTOMONEDAS', 250, 1 - sm(T.binance - 0.4, T.binance, t), RED);
-    x.restore();
-    // callout al objeto: billetera de custodia (dato que engancha desde el inicio)
-    const an = c.P(DIE[2][0], yT, DIE[2][1]);
-    S.callout(x, [an, [an[0] + 30, an[1] - 170], [560, an[1] - 170]], sm(0.6, 1.6, t) * a, 'custodia digital', 'billetera de la plataforma', 'r', { px: 38 });
+  // indicadores de rastreo: retícula que salta de nodo en nodo
+  if (t > T.rastro - 0.3 && t < T.cubrir0) {
+   const list = GRAPH.nodes.filter((n) => n.hop >= 2 && t > n.t1);
+   if (list.length) {
+    const k = Math.floor((t - T.rastro) * 2.2) % list.length, n = list[(k + list.length) % list.length], P = P0(n), f = ((t - T.rastro) * 2.2) % 1;
+    x.strokeStyle = 'rgba(56,189,248,0.95)'; x.lineWidth = 2.5; const r0 = 30 - 10 * eo(f);
+    for (let q = 0; q < 4; q++) { const an = q * PI / 2 + PI / 4; x.beginPath(); x.arc(P[0], P[1], r0, an - 0.35, an + 0.35); x.stroke(); }
    }
   }
-  // ---- B02: ≈20 min (TRM) + ≈US$6.300 M (Binance)
+  x.restore();
+ }
+
+ // módulo de autorización: solicitud -> verificación -> firma; luego haz hacia la billetera y la red
+ function drawTiles(x, c, t, a, dev) {
+  const o = TILES(t);
+  const st = [sm(T.pero10 + 0.5, T.pero10 + 0.8, t), sm(T.movs, T.movs + 0.3, t), sm(T.autoriz, T.autoriz + 0.3, t)];
+  let cols = [BGOLD, BGOLD, BGOLD], mark = [0, 'v', 0];
+  if (t > T.retiros) { cols = [RED, RED, RED]; mark = [0, 'x', 0]; }
+  if (t > T.leccion0) { const red = sm(T.autoriz2, T.autoriz2 + 0.3, t) * (1 - sm(T.minutos2, T.minutos2 + 0.4, t)); cols = red > 0.5 ? [RED, RED, RED] : [BGOLD, BGOLD, BGOLD]; mark = red > 0.5 ? [0, 'x', 0] : [0, 'v', 0]; st[0] = st[1] = st[2] = sm(T.leccion0, T.leccion0 + 0.6, t); }
+  const r = PR.tiles(x, c, Object.assign(o, { a, st, cols, mark }));
+  // pulso que recorre las losetas
+  const sp = sm(T.pero10 + 0.5, T.autoriz + 0.3, t);
+  if (sp > 0 && sp < 1 && r.length === 3) { const seg = Math.min(1.999, sp * 2), i = Math.floor(seg), f = seg - i; const A = r[i].c, B = r[i + 1].c; glowDot(x, H.lerp(A[0], B[0], f), H.lerp(A[1], B[1], f) - 10, 7, '240,185,11', 1); }
+  // haz desde la firma hasta la billetera; después la billetera emite la transacción a la red
+  if (dev && r.length === 3) {
+   const red = t > T.retiros && t < T.leccion0;
+   const bp = sm(T.autoriz + 0.3, T.autoriz + 0.9, t) * (1 - sm(T.sorpr0, T.sorpr0 + 0.4, t));
+   if (bp > 0) { const A = r[2].c, B = dev.ringAt(); x.save(); x.globalAlpha *= a; S.arrow(x, S.bez(A, [A[0] + 40, A[1] + 60], [B[0] + 120, B[1] - 120], B, 26), bp, red ? 'rgba(255,69,58,0.9)' : 'rgba(240,185,11,0.9)', 3.5); x.restore(); }
+   const np = sm(T.seguras - 0.2, T.seguras + 0.5, t) * (1 - sm(T.retiros - 0.2, T.retiros, t));
+   if (np > 0) { const A = c.P(0.4, 0.3, 0.2), B = c.P(BLOCKS[SEALB].x, 0.55, BLOCKS[SEALB].z); x.save(); x.globalAlpha *= a; S.arrow(x, S.bez(A, [A[0] + 80, A[1] + 30], [B[0] + 60, B[1] - 80], B, 26), np, 'rgba(56,189,248,0.9)', 3.5); x.restore(); }
+  }
+  return r;
+ }
+
+ // reservas corporativas: torre de lingotes digitales con el emblema; fuente independiente de las rutas del robo
+ const TOWER = { x: 1.75, z: 0.3 };
+ function drawTower(x, c, t, a, W, Hh, L) {
+  PR.contact(x, c, TOWER.x, TOWER.z, 0.9, a);
+  for (let k = 0; k < 4; k++) {
+   const up = eo(sm(T.cubrir0 + k * 0.18, T.cubrir0 + 0.5 + k * 0.18, t));
+   if (up <= 0) continue;
+   PR.box3r(x, c, { x: TOWER.x, y: k * 0.3 + (1 - up) * 0.8, z: TOWER.z, ry: 0.35 }, 0.95, 0.27, 0.95, { alpha: a * up, top: 'rgba(240,185,11,0.55)', front: 'rgba(150,108,8,0.85)', side: 'rgba(104,74,6,0.85)', edge: 'rgba(255,224,138,0.75)', lw: 1.6 });
+  }
+  const ea = sm(T.cubriria - 0.2, T.cubriria + 0.4, t);
+  if (ea > 0) PR.emblem3D(x, c, { x: TOWER.x, y: 1.25 + 0.04 * Math.sin(t * 1.5), z: TOWER.z, size: 0.8, depth: 0.16, ry: 0.35 + t * 0.4, a: a * ea, key: 1, rim: 1, spec: L.spec, glow: 0.7 }, false);
+ }
+ function goldFlow(x, c, t, a, dev) {
+  const fp = sm(T.recursos - 0.3, T.repuesto + 0.4, t);
+  if (fp <= 0) return;
+  const from = c.P(TOWER.x, 1.25, TOWER.z), to = dev.ringAt();
+  const pts = S.bez(from, [from[0], from[1] - 200], [to[0] + 160, to[1] - 220], to, 40);
+  x.save(); x.globalAlpha *= a; x.shadowColor = 'rgba(240,185,11,0.8)'; x.shadowBlur = 14;
+  S.arrow(x, pts, Math.min(1, fp * 1.6), 'rgba(240,185,11,0.95)', 4); x.restore();
+  if (fp > 0.5) for (let i = 0; i < 6; i++) { const u = ((t * 0.9 + i / 6) % 1); const q = pts[Math.round(u * (pts.length - 1))]; glowDot(x, q[0], q[1], 6, '240,185,11', a * 0.9); }
+ }
+
+ // ================= RÓTULOS (no repiten el subtítulo salvo énfasis deliberado) =================
+ function overlays(x, W, Hh, t, c, L, ob) {
+  const { emb, dev, tiles } = ob;
+  // ---- 01 acontecimiento
+  {
+   const a = 1 - sm(T.veinte - 0.6, T.veinte - 0.1, t);
+   if (a > 0) {
+    x.save(); x.globalAlpha = a;
+    const pu = 0.65 + 0.35 * Math.sin(t * 5);
+    kicker(x, 'ALERTA DE SEGURIDAD', 250, (1 - sm(T.plat - 0.4, T.plat, t)) * pu + sm(T.plat - 0.4, T.plat, t) * 0, RED);
+    S.words(x, [{ s: '29', t: T.date - 0.62, fill: 'grad' }, { s: 'OCT', t: T.date + 0.7, fill: 'grad' }, { s: '2026', t: wt(0, '2026,'), fill: 'grad' }], 540, 360, 800, 112, t, { align: 'center', stops: GOLD });
+    const ba = sm(T.binance, T.binance + 0.5, t);
+    if (ba > 0) { x.save(); x.globalAlpha *= ba; S.setF(x, 800, 52); try { x.letterSpacing = '14px'; } catch (e) {} x.fillStyle = BGOLD; x.textAlign = 'center'; x.fillText('BINANCE', 548, 450); x.restore(); }
+    S.label(x, 'fichas: ejemplos del ecosistema cripto', 540, 520, 600, 34, GREY2, 'center', fadeIO(t, T.plat, T.veinte - 0.2, 0.4));
+    x.restore();
+   }
+  }
+  // ---- 02 veinte minutos y miles de millones
   {
    const a = sm(T.veinte - 0.3, T.veinte + 0.2, t) * (1 - sm(T.b4 - 0.1, T.b4 + 0.4, t));
    if (a > 0) {
     x.save(); x.globalAlpha = a;
-    // reloj: arco de 20 minutos (1/3 de vuelta)
-    const cx = 540, cy = 330, R = 92, p = io(sm(T.veinte, T.minutos + 0.7, t));
-    x.strokeStyle = 'rgba(255,255,255,0.14)'; x.lineWidth = 10; x.beginPath(); x.arc(cx, cy, R, 0, 7); x.stroke();
-    x.strokeStyle = S.grad(x, cx - R, cx + R, GT); x.lineCap = 'round'; x.shadowColor = 'rgba(56,189,248,0.7)'; x.shadowBlur = 18;
+    const cx = 330, cy = 300, R = 62, p = io(sm(T.veinte, T.minutos + 0.8, t));
+    x.strokeStyle = 'rgba(255,255,255,0.14)'; x.lineWidth = 9; x.beginPath(); x.arc(cx, cy, R, 0, 7); x.stroke();
+    x.strokeStyle = BGOLD; x.lineCap = 'round'; x.shadowColor = 'rgba(240,185,11,0.7)'; x.shadowBlur = 16;
     x.beginPath(); x.arc(cx, cy, R, -PI / 2, -PI / 2 + p * PI * 2 / 3); x.stroke(); x.shadowBlur = 0;
-    S.label(x, '≈20 min', cx, cy + 22, 800, 64, INK, 'center', sm(T.veinte, T.veinte + 0.4, t));
-    S.label(x, 'la mayor parte de los fondos · según TRM Labs', 540, 480, 400, 32, GREY, 'center', sm(T.minutos, T.minutos + 0.5, t));
+    x.strokeStyle = INK; x.lineWidth = 4; x.beginPath(); x.moveTo(cx, cy); x.lineTo(cx + Math.sin(p * PI * 2 / 3) * R * 0.7, cy - Math.cos(p * PI * 2 / 3) * R * 0.7); x.stroke();
+    S.label(x, '≈20 min', cx + R + 24, cy + 22, 800, 72, INK, 'left', sm(T.veinte, T.veinte + 0.4, t));
+    S.label(x, 'la mayor parte de los fondos · TRM Labs', 540, 412, 600, 32, GREY2, 'center', sm(T.minutos, T.minutos + 0.5, t));
     x.restore();
-    // cifra monumental
-    const np = eo(sm(T.seis, T.dolares + 0.2, t)), lk = t > T.dolares ? Math.exp(-(t - T.dolares) * 2.2) : 0;
-    const na = sm(T.seis - 0.25, T.seis + 0.1, t);
+    const np = eo(sm(T.seis, T.dolares + 0.2, t)), lk = t > T.dolares ? Math.exp(-(t - T.dolares) * 2.2) : 0, na = sm(T.seis - 0.25, T.seis + 0.1, t);
     if (na > 0) {
      const val = Math.round(6300 * np), s = 'US$' + String(val).replace(/\B(?=(\d{3})+(?!\d))/g, '.') + ' M';
-     x.save(); x.globalAlpha = a * na; S.setF(x, 800, 132);
-     const w = x.measureText(s).width + 132 * 0.62, X0 = 540 - w / 2, zoom = 1 + 0.04 * lk;
-     x.translate(540, 700); x.scale(zoom, zoom); x.translate(-540, -700);
-     const fill = S.grad(x, X0, X0 + w, GOLD);
+     x.save(); x.globalAlpha = a * na; S.setF(x, 800, 124);
+     const w = x.measureText(s).width + 124 * 0.62, X0 = 540 - w / 2, Y = 545, zoom = 1 + 0.04 * lk;
+     x.translate(540, Y); x.scale(zoom, zoom); x.translate(-540, -Y);
      x.shadowColor = `rgba(240,185,11,${0.45 + 0.4 * lk})`; x.shadowBlur = 40 + 60 * lk;
-     S.approx(x, X0, 700 - 132 * 0.36, 132 * 0.56, '#ffe08a');
-     x.fillStyle = fill; x.textAlign = 'left'; x.fillText(s, X0 + 132 * 0.62, 700);
-     x.shadowBlur = 0; x.fillText(s, X0 + 132 * 0.62, 700);
+     S.approx(x, X0, Y - 124 * 0.36, 124 * 0.56, '#ffe08a');
+     x.fillStyle = S.grad(x, X0, X0 + w, GOLD); x.textAlign = 'left'; x.fillText(s, X0 + 124 * 0.62, Y); x.shadowBlur = 0; x.fillText(s, X0 + 124 * 0.62, Y);
      x.restore();
-     S.label(x, 'estimación de Binance · TRM Labs calcula ≈6.360 M', 540, 770, 400, 30, GREY, 'center', a * sm(T.dolares, T.dolares + 0.5, t));
-     S.label(x, 'en 10 redes, al valor del momento', 540, 812, 400, 30, GREY, 'center', a * sm(T.dolares + 0.1, T.dolares + 0.6, t));
+     S.label(x, 'cálculo de Binance · TRM: ≈6.360 M en 10 redes', 540, 605, 400, 32, GREY2, 'center', a * sm(T.dolares, T.dolares + 0.5, t));
+     // el valor sube del emblema a la cifra (flujo integrado con el número)
+     if (emb && t < T.dolares + 0.6) { const from = c.P(0, emb.y + emb.size * 0.6, emb.z), r = H.rng(12); for (let k = 0; k < 14; k++) { const ph = ((t - T.seis) * 0.9 + r()) % 1; if (t < T.seis) break; const X = H.lerp(from[0] + (r() - 0.5) * 160, 540 + (r() - 0.5) * 300, io(ph)), Y2 = H.lerp(from[1], 560, io(ph)); glowDot(x, X, Y2, 3.5, '240,185,11', a * (1 - ph) * na); } }
     }
    }
   }
-  // ---- B03: no es una bóveda, no son billetes
-  b03(x, t, c, yT);
-  // ---- B04: billetera caliente
+  // ---- 03 no fue un robo físico
+  {
+   const a = fadeIO(t, T.b4 - 0.1, T.todo, 0.3);
+   if (a > 0) {
+    kicker(x, 'NO FUE UN ROBO FÍSICO', 250, a * sm(T.b4, T.b4 + 0.4, t) * (1 - sm(T.como - 0.3, T.como, t)), GREY2);
+    const qa = sm(T.como - 0.05, T.como + 0.35, t) * (1 - sm(T.todo - 0.3, T.todo, t));
+    if (qa > 0) S.words(x, [{ s: '¿Cómo?', t: T.como, fill: 'grad' }], 540, 380, 800, 150, t, { align: 'center', stops: GOLD });
+   }
+  }
+  // ---- 04 billetera caliente
   {
    const a = fadeIO(t, T.todo, T.pero10 + 0.2, 0.5);
    if (a > 0) {
-    x.save(); x.globalAlpha = a;
-    kicker(x, 'TODO COMIENZA AQUÍ', 250, sm(T.todo, T.todo + 0.5, t));
-    S.words(x, [{ s: 'Billetera', t: T.billeteras }, { s: 'caliente', t: T.calientes, fill: 'grad' }], 540, 350, 800, 100, t, { align: 'center', stops: GOLD });
-    S.label(x, '(hot wallet)', 540, 410, 400, 36, GREY, 'center', sm(T.calientes, T.calientes + 0.5, t));
+    const ha = a * (1 - sm(T.sistemas + 0.2, T.sistemas + 0.7, t));
+    x.save(); x.globalAlpha = ha;
+    S.words(x, [{ s: 'Billetera', t: T.billeteras }, { s: 'caliente', t: T.calientes, fill: 'grad' }], 540, 330, 800, 100, t, { align: 'center', stops: GOLD });
+    S.label(x, 'hot wallet: fondos listos para mover', 540, 395, 600, 36, GREY2, 'center', sm(T.calientes, T.calientes + 0.5, t));
     x.restore();
-    // red: líneas desde los puertos del die hacia "internet"
-    const net = sm(T.internet - 0.6, T.internet + 0.6, t);
-    if (net > 0) {
-     const ctr = c.P(0, yT, 0);
-     const r = H.rng(31);
-     x.save(); x.globalAlpha = a;
-     for (let i = 0; i < 12; i++) {
-      const an = i / 12 * PI * 2, p = c.P(Math.cos(an) * 0.56, yT, Math.sin(an) * 0.56);
-      const ex = 540 + Math.cos(an + 0.2) * r.range(430, 520), ey = 1000 + Math.sin(an + 0.2) * r.range(520, 640) * 0.9;
-      const pts = S.bez(p, [p[0] + (p[0] - ctr[0]) * 1.5, p[1] + (p[1] - ctr[1]) * 1.5], [ex, ey], [ex, ey], 24);
-      S.arrow(x, pts, sm(T.internet - 0.6 + i * 0.04, T.internet + 0.3 + i * 0.04, t), 'rgba(56,189,248,0.45)', 1.6, false);
-      // tráfico rápido (beat "mover rápidamente")
-      if (t > T.mover) { const u = ((t - T.mover) * 1.4 + i * 0.13) % 1; const q = pts[Math.round(u * (pts.length - 1))]; glowDot(x, q[0], q[1], 4, '56,189,248', 0.9 * (1 - sm(T.movs - 0.4, T.movs, t))); }
+    // dentro de la pantalla: conexiones a internet que salen por los bordes
+    if (dev && t > T.internet - 0.8) {
+     const na = a * sm(T.internet - 0.8, T.internet, t) * (1 - sm(T.movs - 0.5, T.movs, t));
+     const [TL, TR, BL, BR] = dev.screen, r = H.rng(31);
+     x.save(); x.globalAlpha = na;
+     for (let i = 0; i < 14; i++) {
+      const side = i % 4, u = r();
+      const P0 = side === 0 ? [H.lerp(TL[0], TR[0], u), H.lerp(TL[1], TR[1], u)] : side === 1 ? [H.lerp(TR[0], BR[0], u), H.lerp(TR[1], BR[1], u)] : side === 2 ? [H.lerp(BL[0], BR[0], u), H.lerp(BL[1], BR[1], u)] : [H.lerp(TL[0], BL[0], u), H.lerp(TL[1], BL[1], u)];
+      const an = Math.atan2(P0[1] - 960, P0[0] - 540), E = [540 + Math.cos(an) * 1300, 960 + Math.sin(an) * 1300];
+      const pts = S.bez(P0, P0, E, E, 20);
+      S.arrow(x, pts, sm(T.internet - 0.8 + i * 0.03, T.internet + 0.2 + i * 0.03, t), 'rgba(56,189,248,0.55)', 2, false);
+      if (t > T.mover) { const ph = ((t - T.mover) * 1.3 + i * 0.17) % 1, q = pts[Math.round(ph * (pts.length - 1))]; if (i % 3 === 0) PR.coin(x, q[0], q[1], 22, ['btc', 'eth', 'usdt', 'bnb'][i % 4], { a: na * (1 - ph), th: 0.1 }); else glowDot(x, q[0], q[1], 4, '56,189,248', na * (1 - ph)); }
      }
      x.restore();
-     S.label(x, 'conectada a internet', 540, 500, 600, 44, CYAN, 'center', a * sm(T.internet, T.internet + 0.5, t) * (1 - sm(T.mover - 0.2, T.mover + 0.2, t)));
-     S.label(x, 'mueve fondos rápido', 540, 500, 600, 44, CYAN, 'center', a * sm(T.mover, T.mover + 0.4, t));
+     S.label(x, 'EN LÍNEA · CONECTADA A INTERNET', 540, 250, 800, 40, CYAN, 'center', na * (1 - sm(T.mover - 0.2, T.mover + 0.2, t)));
+     S.label(x, 'MOVIMIENTOS RÁPIDOS', 540, 250, 800, 40, CYAN, 'center', na * sm(T.mover, T.mover + 0.3, t));
+     S.label(x, 'activos de ejemplo', 540, 300, 600, 32, GREY2, 'center', na * sm(T.mover, T.mover + 0.3, t));
     }
    }
   }
-  // ---- B05: dos capas distintas
+  // ---- 05 autorización digital: dos capas
   {
    const a = fadeIO(t, T.pero10 + 0.1, T.durante + 0.3, 0.4);
    if (a > 0) {
     x.save(); x.globalAlpha = a;
-    S.words(x, [{ s: 'Autorización', t: T.autoriz, fill: 'grad' }, { s: 'digital', t: T.autoriz + 0.35 }], 540, 330, 800, 92, t, { align: 'center', stops: GOLD });
+    S.words(x, [{ s: 'Autorización', t: T.autoriz, fill: 'grad' }, { s: 'digital', t: T.autoriz + 0.35 }], 540, 300, 800, 84, t, { align: 'center', stops: GOLD });
     x.restore();
-    const y0 = yT + 0.55;
-    const p1 = c.P(-0.65, y0 + 0.06, 0.65), p2 = c.P(BLOCKS[0].x, 0.35, BLOCKS[0].z);
-    S.callout(x, [p1, [p1[0] - 30, 560], [440, 560]], sm(T.movs - 0.2, T.movs + 0.6, t) * a, '1 · Orden firmada', 'capa de la empresa', 'l', { px: 38, ink: '240,185,11' });
-    S.callout(x, [p2, [p2[0] + 20, 640], [640, 640]], sm(T.seguras - 0.3, T.seguras + 0.5, t) * a, '2 · Registro on-chain', 'capa de la red', 'r', { px: 38, ink: '125,211,252' });
+    if (tiles && tiles.length === 3) {
+     const names = [['1', 'Solicitud', T.pero10 + 0.5], ['2', 'Verificación', T.movs], ['3', 'Firma', T.autoriz]];
+     tiles.forEach((r, i) => { const bl = r.front[2], br = r.v[r.id(1, 0, 1)]; S.label(x, names[i][0] + ' · ' + names[i][1], (bl[0] + br[0]) / 2, Math.max(bl[1], br[1]) + 38, 600, 30, BGOLD, 'center', a * sm(names[i][2], names[i][2] + 0.4, t)); });
+     S.label(x, 'CAPA 1 · BINANCE (interna)', 540, 420, 800, 36, BGOLD, 'center', a * sm(T.pero10 + 0.4, T.pero10 + 0.9, t));
+    }
+    const ch = c.P(0, 0, BLOCKS[0].z + 0.5);
+    S.label(x, 'CAPA 2 · RED BLOCKCHAIN (pública)', 540, Math.min(1380, ch[1] + 40), 800, 36, CYAN, 'center', a * sm(T.seguras - 0.3, T.seguras + 0.4, t));
+    S.label(x, 'la red acepta transacciones bien firmadas', 540, Math.min(1420, ch[1] + 84), 400, 32, GREY2, 'center', a * sm(T.seguras, T.seguras + 0.5, t));
    }
   }
-  // ---- B06: retiros no autorizados (recreación conceptual)
+  // ---- 06 retiros no autorizados
   {
    const a = fadeIO(t, T.durante, T.sorpr0 + 0.2, 0.4);
    if (a > 0) {
     x.save(); x.globalAlpha = a;
-    S.words(x, [{ s: 'Retiros', t: T.retiros }, { s: 'no', t: T.noaut, fill: RED }, { s: 'autorizados', t: T.autorizado, fill: RED }], 540, 330, 800, 84, t, { align: 'center' });
+    S.words(x, [{ s: 'Retiros', t: T.retiros }, { s: 'no', t: T.noaut, fill: RED }, { s: 'autorizados', t: T.autorizado, fill: RED }], 540, 300, 800, 84, t, { align: 'center' });
     x.restore();
-    chipTag(x, 'RECREACIÓN CONCEPTUAL', 540, 420, 26, '#a1a1a6', a * sm(T.durante, T.durante + 0.5, t));
-    // la causa sigue en investigación
+    chipTag(x, 'RECREACIÓN CONCEPTUAL', 540, 380, 28, GREY2, a * sm(T.durante, T.durante + 0.5, t));
     const ia = sm(T.investiga, T.investiga + 0.5, t);
-    if (ia > 0) {
-     x.save(); x.globalAlpha = a * ia;
-     const q = 0.5 + 0.5 * Math.sin(t * 4);
-     S.label(x, '?', 540, 620, 800, 150, `rgba(255,69,58,${0.55 + 0.35 * q})`, 'center');
-     S.label(x, 'Causa: en investigación', 540, 690, 600, 42, INK, 'center');
-     S.label(x, 'Binance, 30-31 oct 2026', 540, 736, 400, 30, GREY, 'center');
-     x.restore();
-    }
+    if (ia > 0) { x.save(); x.globalAlpha = a * ia; S.label(x, 'Mecanismo: en investigación', 540, 470, 600, 42, INK, 'center'); S.label(x, 'según Binance, 30-31 oct 2026', 540, 515, 400, 32, GREY2, 'center'); x.restore(); }
    }
   }
-  // ---- B07: confirmación irreversible
+  // ---- 07 confirmación en blockchain
   {
    const a = fadeIO(t, T.sorpr0, T.fondos + 0.2, 0.4);
    if (a > 0) {
     x.save(); x.globalAlpha = a;
-    kicker(x, 'LO MÁS SORPRENDENTE', 260, sm(T.sorpr0, T.sorpr0 + 0.6, t), INK);
-    S.words(x, [{ s: 'Confirmada', t: T.confirmada, fill: 'grad' }], 540, 360, 800, 96, t, { align: 'center', stops: GT });
-    S.label(x, 'en una cadena de bloques', 540, 420, 400, 38, GREY, 'center', sm(T.bloques - 0.1, T.bloques + 0.4, t));
+    kicker(x, 'REGISTRO DISTRIBUIDO', 250, sm(T.sorpr0, T.sorpr0 + 0.6, t), INK);
+    S.words(x, [{ s: 'Confirmada', t: T.confirmada, fill: 'grad' }], 540, 350, 800, 96, t, { align: 'center', stops: GT });
+    S.label(x, 'confirmaciones (ilustrativo)', 540, 405, 600, 32, GREY2, 'center', sm(T.confirmada + 0.3, T.confirmada + 0.8, t));
     x.restore();
-    // botón deshacer, tachado
     const ba = sm(T.normalmente, T.normalmente + 0.5, t);
     if (ba > 0) {
-     const cx = 540, cy = 590, w = 400, h = 104;
+     const cx = 540, cy = 1215, w = 400, h = 100;
      x.save(); x.globalAlpha = a * ba;
-     x.beginPath(); x.roundRect(cx - w / 2, cy - h / 2, w, h, h / 2); x.fillStyle = 'rgba(29,32,40,0.9)'; x.fill(); x.strokeStyle = 'rgba(255,255,255,0.35)'; x.lineWidth = 2; x.stroke();
-     // flecha circular de deshacer (dibujada)
+     x.beginPath(); x.roundRect(cx - w / 2, cy - h / 2, w, h, h / 2); x.fillStyle = 'rgba(29,32,40,0.92)'; x.fill(); x.strokeStyle = 'rgba(255,255,255,0.35)'; x.lineWidth = 2; x.stroke();
      x.strokeStyle = INK; x.lineWidth = 5; x.lineCap = 'round'; x.beginPath(); x.arc(cx - 110, cy, 22, PI * 1.15, PI * 2.75); x.stroke();
      const ae = PI * 1.15, hx = cx - 110 + 22 * Math.cos(ae), hy = cy + 22 * Math.sin(ae);
      x.beginPath(); x.moveTo(hx - 12, hy - 2); x.lineTo(hx, hy); x.lineTo(hx + 2, hy - 13); x.stroke();
@@ -493,196 +594,133 @@
      const st = sm(T.boton, T.deshacer + 0.25, t);
      if (st > 0) { x.strokeStyle = RED; x.lineWidth = 8; x.shadowColor = 'rgba(255,69,58,0.6)'; x.shadowBlur = 14; x.beginPath(); x.moveTo(cx - w / 2 - 10, cy + 6); x.lineTo(cx - w / 2 - 10 + (w + 20) * io(st), cy - 6); x.stroke(); x.shadowBlur = 0; }
      x.restore();
-     S.label(x, '*normalmente: no existe una reversión automática', 540, 690, 400, 30, GREY, 'center', a * sm(T.deshacer, T.deshacer + 0.5, t));
+     S.label(x, '*normalmente no hay reversión automática', 540, 1312, 600, 32, GREY2, 'center', a * sm(T.deshacer, T.deshacer + 0.5, t));
     }
    }
   }
-  // ---- B08: dispersión y rastro
+  // ---- 08 dispersión y rastreo
   {
    const a = fadeIO(t, T.fondos, T.carrera0 + 0.2, 0.4);
    if (a > 0) {
     x.save(); x.globalAlpha = a;
-    S.words(x, [{ s: 'Fondos', t: T.fondos + 0.1 }, { s: 'dispersos', t: T.distrib, fill: 'grad' }], 540, 300, 800, 88, t, { align: 'center', stops: GT });
-    S.label(x, 'hacia direcciones de los atacantes · varias redes', 540, 360, 400, 32, GREY, 'center', sm(T.direcc, T.direcc + 0.5, t) * (1 - sm(T.cada - 0.2, T.cada + 0.2, t)));
-    S.label(x, 'cada movimiento deja un rastro público', 540, 360, 600, 36, CYAN, 'center', sm(T.rastro - 0.2, T.rastro + 0.4, t) * (1 - sm(T.seguir - 0.3, T.seguir, t)));
-    // VER ≠ REVERTIR
+    S.words(x, [{ s: 'Rastro', t: T.distrib }, { s: 'público', t: T.distrib + 0.4, fill: 'grad' }], 540, 290, 800, 88, t, { align: 'center', stops: GT });
+    S.label(x, 'direcciones de los atacantes · varias redes', 540, 350, 600, 32, GREY2, 'center', sm(T.direcc, T.direcc + 0.5, t) * (1 - sm(T.seguir - 0.4, T.seguir, t)));
     const va = sm(T.nosig - 0.1, T.nosig + 0.4, t);
     if (va > 0) {
-     x.globalAlpha = a * va; S.setF(x, 800, 60);
-     const s1 = 'Seguir', s2 = 'recuperar', w1 = x.measureText(s1).width, w2 = x.measureText(s2).width, gw = 64, tot = w1 + w2 + gw + 40, X0 = 540 - tot / 2;
-     x.fillStyle = CYAN; x.textAlign = 'left'; x.fillText(s1, X0, 380);
-     S.neq(x, X0 + w1 + 20, 380 - 22, 40, RED);
-     x.fillStyle = INK; x.fillText(s2, X0 + w1 + gw + 20, 380);
+     x.globalAlpha = a * va;
+     S.label(x, 'SEGUIR UNA TRANSACCIÓN', 540, 400, 800, 52, CYAN, 'center');
+     S.setF(x, 800, 52); const s2 = 'RECUPERAR EL DINERO', w2 = x.measureText(s2).width, X0 = 540 - (w2 + 70) / 2;
+     S.neq(x, X0, 470 - 19, 46, RED); x.fillStyle = INK; x.textAlign = 'left'; x.fillText(s2, X0 + 70, 470);
     }
     x.restore();
-    // saldo de la billetera: baja; receptores suben (contabilidad, no monedas creadas)
    }
   }
-  // ---- B09: carrera + congelados
+  // ---- 09 rastreo + congelamiento
   {
    const a = fadeIO(t, T.carrera0, T.cubrir0 + 0.1, 0.4);
    if (a > 0) {
     x.save(); x.globalAlpha = a;
-    S.words(x, [{ s: 'Carrera', t: T.carrera }, { s: 'contra', t: T.carrera + 0.5 }, { s: 'el', t: T.carrera + 0.8 }, { s: 'tiempo', t: T.tiempo, fill: 'grad' }], 540, 300, 800, 80, t, { align: 'center', stops: GT });
-    // cronómetro
-    const cx = 540, cy = 430, R = 44, sp = (t - T.carrera0) * 0.9;
-    x.strokeStyle = 'rgba(255,255,255,0.18)'; x.lineWidth = 6; x.beginPath(); x.arc(cx, cy, R, 0, 7); x.stroke();
+    S.words(x, [{ s: 'Rastrear', t: T.carrera, fill: CYAN }, { s: 'y', t: T.carrera + 0.3 }, { s: 'congelar', t: T.localizar, fill: TEAL }], 540, 290, 800, 84, t, { align: 'center' });
+    const cx = 540, cy = 380, R = 30, sp = (t - T.carrera0) * 0.9;
+    x.strokeStyle = 'rgba(255,255,255,0.25)'; x.lineWidth = 5; x.beginPath(); x.arc(cx, cy, R, 0, 7); x.stroke();
     x.strokeStyle = CYAN; x.lineCap = 'round'; x.beginPath(); x.moveTo(cx, cy); x.lineTo(cx + R * 0.8 * Math.sin(sp * PI * 2), cy - R * 0.8 * Math.cos(sp * PI * 2)); x.stroke();
     x.restore();
     const fa = sm(T.congelar - 0.1, T.congelar + 0.6, t);
     if (fa > 0) {
-     x.save(); x.globalAlpha = a * fa; S.setF(x, 800, 110);
-     const s = 'US$3.000 M', w = x.measureText(s).width + 110 * 0.62, X0 = 540 - w / 2;
+     x.save(); x.globalAlpha = a * fa; S.setF(x, 800, 100);
+     const s = 'US$3.000 M', w = x.measureText(s).width + 100 * 0.62, X0 = 540 - w / 2;
      x.shadowColor = 'rgba(45,212,191,0.6)'; x.shadowBlur = 40;
-     S.approx(x, X0, 600 - 110 * 0.36, 110 * 0.56, '#7cf0b8');
-     x.fillStyle = S.grad(x, X0, X0 + w, GG); x.textAlign = 'left'; x.fillText(s, X0 + 110 * 0.62, 600); x.shadowBlur = 0; x.fillText(s, X0 + 110 * 0.62, 600);
-     S.label(x, 'congelados on-chain', 540, 662, 600, 44, TEAL, 'center');
-     S.label(x, 'solo algunos activos · Binance, 30 oct', 540, 708, 400, 30, GREY, 'center');
+     S.approx(x, X0, 520 - 100 * 0.36, 100 * 0.56, '#7cf0b8');
+     x.fillStyle = S.grad(x, X0, X0 + w, GG); x.textAlign = 'left'; x.fillText(s, X0 + 100 * 0.62, 520); x.shadowBlur = 0; x.fillText(s, X0 + 100 * 0.62, 520);
+     S.label(x, 'congelados on-chain: solo una parte', 540, 575, 600, 38, TEAL, 'center');
+     S.label(x, 'Binance, 30 oct', 540, 615, 400, 32, GREY2, 'center');
      x.restore();
     }
-    // leyenda
-    chipTag(x, 'CONGELADO', 380, 790, 28, TEAL, a * sm(T.congelar, T.congelar + 0.4, t));
-    chipTag(x, 'SIGUE MOVIÉNDOSE', 700, 790, 28, CYAN, a * sm(T.congelar + 0.2, T.congelar + 0.6, t));
+    chipTag(x, 'CONGELADO', 370, 690, 30, TEAL, a * sm(T.congelar, T.congelar + 0.4, t));
+    chipTag(x, 'SIGUE MOVIÉNDOSE', 710, 690, 30, CYAN, a * sm(T.congelar + 0.2, T.congelar + 0.6, t));
    }
   }
-  // ---- B10/B11: cobertura con fondos propios; 90 % repuesto ≠ recuperado
+  // ---- 10 reposición desde fuente independiente
   {
-   const a = fadeIO(t, T.cubrir0, T.leccion0 + 0.2, 0.4);
+   const a = fadeIO(t, T.cubrir0, T.oct31, 0.4);
    if (a > 0) {
-    x.save(); x.globalAlpha = a * (1 - sm(T.oct31 - 0.3, T.oct31, t));
-    S.words(x, [{ s: 'Cubre', t: T.cubriria }, { s: 'las', t: T.cubriria + 0.3 }, { s: 'pérdidas', t: wt(20, 'pérdidas') }], 540, 330, 800, 88, t, { align: 'center' });
-    S.label(x, 'con recursos propios', 540, 400, 600, 44, BGOLD, 'center', sm(T.recursos, T.recursos + 0.4, t));
+    x.save(); x.globalAlpha = a;
+    S.words(x, [{ s: 'Fuente', t: T.cubrir0 + 0.2 }, { s: 'independiente', t: T.cubriria, fill: 'grad' }], 540, 300, 800, 84, t, { align: 'center', stops: GOLD });
+    S.label(x, 'no viene de los atacantes', 540, 365, 600, 38, GREY2, 'center', sm(T.cubriria + 0.2, T.cubriria + 0.7, t));
     x.restore();
-    const rr = c.P(2.25, 0.8, 0.4);
-    S.callout(x, [rr, [rr[0] - 30, rr[1] - 150], [Math.min(rr[0] - 70, 720), rr[1] - 150]], sm(T.cubriria, T.cubriria + 0.8, t) * a * (1 - sm(T.oct31 - 0.3, T.oct31, t)), 'reservas de Binance', 'SAFU + tesorería', 'l', { px: 36, ink: '240,185,11' });
-    // 90 %
-    const n9 = sm(T.oct31, T.oct31 + 0.4, t);
-    if (n9 > 0) {
-     x.save(); x.globalAlpha = a * n9;
-     kicker(x, '31 OCT 2026', 250, 1, BGOLD);
-     const p = eo(sm(T.noventa - 0.4, T.noventa + 0.5, t)), val = Math.round(90 * p), lk = t > T.noventa + 0.5 ? Math.exp(-(t - T.noventa - 0.5) * 2.2) : 0;
-     const at = t > T.atencion ? Math.exp(-(t - T.atencion) * 3) : 0;
-     const s = val + ' %';
-     x.save(); x.translate(540, 470); const z = 1 + 0.05 * lk; x.scale(z, z); S.setF(x, 800, 190);
-     const w = x.measureText(s).width; x.fillStyle = S.grad(x, -w / 2, w / 2, GOLD); x.textAlign = 'center';
-     x.shadowColor = `rgba(240,185,11,${0.5 + 0.4 * lk})`; x.shadowBlur = 50 + 60 * lk; x.fillText(s, 0, 0); x.shadowBlur = 0; x.fillText(s, 0, 0); x.restore();
-     S.label(x, 'REPUESTO', 540, 550, 800, 56, INK, 'center', sm(T.repuesto, T.repuesto + 0.4, t));
-     S.label(x, 'de los activos afectados, con fondos propios', 540, 600, 400, 32, GREY, 'center', sm(T.afectados - 0.2, T.afectados + 0.3, t));
-     // atención: pulso rojo
-     if (at > 0.01) { x.globalAlpha = a * at * 0.5; const g = x.createRadialGradient(540, 470, 0, 540, 470, 520); g.addColorStop(0, 'rgba(255,69,58,0.5)'); g.addColorStop(1, 'rgba(255,69,58,0)'); x.fillStyle = g; x.fillRect(0, 0, W, 1100); x.globalAlpha = a * n9; }
-     // ≠ RECUPERADO
-     const ra = sm(T.recuperado - 0.1, T.recuperado + 0.4, t);
-     if (ra > 0) {
-      x.globalAlpha = a * ra;
-      S.setF(x, 800, 64); const s2 = 'recuperado', w2 = x.measureText(s2).width, X0 = 540 - (w2 + 80) / 2;
-      S.neq(x, X0, 690 - 23, 52, RED); x.fillStyle = RED; x.textAlign = 'left'; x.fillText(s2, X0 + 80, 690);
-      S.label(x, 'del atacante', 540, 738, 400, 34, GREY, 'center');
-      // comparación sin mezclar unidades
-      chipTag(x, '90 % REPUESTO', 330, 820, 28, BGOLD, sm(T.noventa2, T.noventa2 + 0.4, t));
-      chipTag(x, '≈3.000 M CONGELADOS', 750, 820, 28, TEAL, sm(T.noventa2 + 0.2, T.noventa2 + 0.6, t));
-     }
-     x.restore();
-    }
+    const tp = c.P(TOWER.x, 1.7, TOWER.z);
+    S.callout(x, [tp, [tp[0] - 30, tp[1] - 160], [Math.min(tp[0] - 70, 760), tp[1] - 160]], sm(T.cubriria, T.cubriria + 0.8, t) * a, 'Reservas de Binance', 'SAFU · tesorería · seguros', 'l', { px: 38, ink: '240,185,11', subFill: GREY2 });
+    S.label(x, 'rutas del robo: siguen fuera', 280, 1310, 600, 34, RED, 'center', a * sm(T.recursos, T.recursos + 0.5, t));
    }
   }
-  // ---- B12: lección
+  // ---- 11 el 90 %
+  {
+   const a = fadeIO(t, T.oct31 - 0.2, T.leccion0 + 0.2, 0.4);
+   if (a > 0) {
+    x.save(); x.globalAlpha = a;
+    kicker(x, '31 OCT 2026', 230, 1, BGOLD);
+    const gp = io(sm(T.noventa - 0.3, T.noventa + 0.7, t)) * 0.9, cx = 540, cy = 430, R = 170;
+    const lk = t > T.noventa + 0.7 ? Math.exp(-(t - T.noventa - 0.7) * 2.2) : 0, at = t > T.atencion ? Math.exp(-(t - T.atencion) * 3) : 0;
+    // indicador: llega a su valor definitivo (sin etapas numéricas intermedias)
+    x.strokeStyle = 'rgba(255,255,255,0.12)'; x.lineWidth = 18; x.beginPath(); x.arc(cx, cy, R, 0, 7); x.stroke();
+    if (gp > 0) { x.strokeStyle = S.grad(x, cx - R, cx + R, GOLD); x.lineCap = 'round'; x.shadowColor = 'rgba(240,185,11,0.8)'; x.shadowBlur = 24 + 30 * lk; x.beginPath(); x.arc(cx, cy, R, -PI / 2, -PI / 2 + gp * PI * 2); x.stroke(); x.shadowBlur = 0; }
+    // el 10 % restante, en rojo tenue: aún por reponer
+    if (gp >= 0.89) { x.strokeStyle = 'rgba(255,69,58,0.55)'; x.lineWidth = 18; x.beginPath(); x.arc(cx, cy, R, -PI / 2 + 0.9 * PI * 2 + 0.06, PI * 1.5 - 0.06); x.stroke(); }
+    const na = sm(T.noventa + 0.2, T.noventa + 0.6, t);
+    if (na > 0) { x.save(); x.globalAlpha = a * na; x.filter = na < 0.95 ? `blur(${((1 - na) * 10).toFixed(1)}px)` : 'none'; S.setF(x, 800, 150); x.textAlign = 'center'; x.fillStyle = S.grad(x, cx - 160, cx + 160, GOLD); x.shadowColor = `rgba(240,185,11,${0.5 + 0.4 * lk})`; x.shadowBlur = 40 + 50 * lk; x.fillText('90 %', cx, cy + 52); x.shadowBlur = 0; x.fillText('90 %', cx, cy + 52); x.restore(); }
+    S.label(x, 'REPUESTO CON RECURSOS PROPIOS', 540, 670, 800, 46, INK, 'center', sm(T.repuesto, T.repuesto + 0.4, t));
+    if (at > 0.01) { x.globalAlpha = a * at * 0.5; const g = x.createRadialGradient(cx, cy, 0, cx, cy, 560); g.addColorStop(0, 'rgba(255,69,58,0.55)'); g.addColorStop(1, 'rgba(255,69,58,0)'); x.fillStyle = g; x.fillRect(0, 0, W, 1100); x.globalAlpha = a; }
+    const ra = sm(T.recuperado - 0.1, T.recuperado + 0.4, t);
+    if (ra > 0) {
+     x.globalAlpha = a * ra;
+     S.label(x, 'NO SIGNIFICA', 540, 735, 800, 40, RED, 'center');
+     S.label(x, '90 % RECUPERADO DEL ROBO', 540, 790, 800, 50, RED, 'center');
+     chipTag(x, '90 % REPUESTO', 330, 870, 30, BGOLD, sm(T.noventa2, T.noventa2 + 0.4, t));
+     chipTag(x, '≈3.000 M CONGELADOS', 750, 870, 30, TEAL, sm(T.noventa2 + 0.2, T.noventa2 + 0.6, t));
+    }
+    x.restore();
+   }
+  }
+  // ---- 12 conclusión
   {
    const a = fadeIO(t, T.leccion0, sweep0 + 0.2, 0.4);
    if (a > 0) {
     x.save(); x.globalAlpha = a;
-    kicker(x, 'UNA LECCIÓN INQUIETANTE', 260, sm(T.leccion0 + 0.3, T.leccion + 0.3, t), GREY);
-    S.words(x, [{ s: 'Una', t: wt(25, 'una') }, { s: 'autorización', t: T.autoriz2, fill: 'grad' }], 540, 370, 800, 84, t, { align: 'center', stops: GOLD });
-    S.words(x, [{ s: 'comprometida', t: wt(25, 'comprometida'), fill: RED }], 540, 460, 800, 84, t, { align: 'center' });
-    S.words(x, [{ s: 'miles', t: T.miles }, { s: 'de', t: T.miles + 0.3 }, { s: 'millones', t: wt(25, 'millones') }], 540, 580, 800, 70, t, { align: 'center' });
-    S.words(x, [{ s: 'en', t: wt(25, 'cuestión') }, { s: 'minutos', t: T.minutos2, fill: 'grad' }], 540, 660, 800, 70, t, { align: 'center', stops: GT });
+    kicker(x, 'LA LECCIÓN', 250, sm(T.leccion0 + 0.2, T.leccion + 0.2, t), GREY2);
+    S.words(x, [{ s: 'Autorización', t: T.autoriz2, fill: 'grad' }], 540, 345, 800, 84, t, { align: 'center', stops: GOLD });
+    S.words(x, [{ s: 'comprometida', t: wt(25, 'comprometida'), fill: RED }], 540, 432, 800, 84, t, { align: 'center' });
+    S.words(x, [{ s: 'miles', t: T.miles }, { s: 'de', t: T.miles + 0.25 }, { s: 'millones', t: wt(25, 'millones') }, { s: '·', t: wt(25, 'cuestión'), fill: GREY2 }, { s: 'minutos', t: T.minutos2, fill: 'grad' }], 540, 525, 800, 56, t, { align: 'center', stops: GT });
     x.restore();
-    // el acceso seguro se cierra: candado sobre el die
-    const lockA = sm(T.minutos2, T.minutos2 + 0.6, t);
-    if (lockA > 0) {
-     const p = c.P(0, yT + 0.25, 0);
-     x.save(); x.globalAlpha = a * lockA; x.strokeStyle = INK; x.lineWidth = 6; x.shadowColor = 'rgba(255,255,255,0.6)'; x.shadowBlur = 16;
-     const drop = 30 * (1 - eo(lockA));
-     x.beginPath(); x.roundRect(p[0] - 34, p[1] - 10, 68, 54, 10); x.stroke();
-     x.beginPath(); x.arc(p[0], p[1] - 10 - drop, 20, PI, 0); x.stroke(); x.restore();
+    // rastro luminoso: firma -> billetera -> salidas no autorizadas (consecuencia)
+    if (tiles && tiles.length === 3 && dev) {
+     const tp = sm(T.autoriz2, T.miles + 0.4, t) * (1 - sm(T.minutos2 + 0.3, T.minutos2 + 0.9, t));
+     if (tp > 0) {
+      const A0 = tiles[2].c, B0 = dev.ringAt(), base = c.P(0, 0.05, 0.1);
+      const pts = S.bez(A0, [A0[0] + 60, A0[1] + 80], [B0[0] + 140, B0[1] - 120], B0, 20).concat(S.bez(B0, [B0[0], B0[1] + 60], [base[0], base[1] - 40], base, 10));
+      GRAPH.nodes.filter((n) => n.hop === 1).slice(0, 4).forEach((n) => { const E = c.P(n.x * 0.8, 0.02, n.z * 0.8); pts.push(...S.bez(base, base, E, E, 6)); pts.push(base); });
+      x.save(); x.globalAlpha = a; x.shadowColor = 'rgba(255,120,90,0.9)'; x.shadowBlur = 18; S.arrow(x, pts, tp, 'rgba(255,140,110,0.9)', 4, false); x.restore();
+     }
     }
    }
   }
  }
 
- // ---- B03: bóveda y billetes (descartes), "¿Cómo?", desmaterialización hacia el die
- function b03(x, t, c, yT) {
-  const a = fadeIO(t, T.b4 - 0.1, T.todo + 0.3, 0.3);
-  if (a <= 0) return;
-  const die = c.P(0, yT, 0);
-  const dis = sm(T.entonces, T.como + 0.6, t);
-  const r = H.rng(303);
-  // bóveda (círculo con pernos) — izquierda
-  const vA = sm(T.b4, T.b4 + 0.4, t), vx = 300, vy = 560, R = 150;
-  const pts = [];
-  for (let i = 0; i < 90; i++) { const an = i / 90 * PI * 2; pts.push([vx + R * Math.cos(an), vy + R * Math.sin(an)]); }
-  for (let i = 0; i < 40; i++) { const an = i / 40 * PI * 2; pts.push([vx + R * 0.62 * Math.cos(an), vy + R * 0.62 * Math.sin(an)]); }
-  for (let k = 0; k < 6; k++) { const an = k / 6 * PI * 2; for (let i = 0; i < 8; i++) pts.push([vx + (i / 8) * R * 0.6 * Math.cos(an), vy + (i / 8) * R * 0.6 * Math.sin(an)]); }
-  // billetes (rectángulos apilados) — derecha
-  const bA = sm(T.b5, T.b5 + 0.4, t), bx = 780, by = 560;
-  const pts2 = [];
-  for (let k = 0; k < 4; k++) { const oy = by + 50 - k * 26; for (let i = 0; i < 30; i++) { const u = i / 30; pts2.push([bx - 130 + u * 260, oy - 55]); pts2.push([bx - 130 + u * 260, oy + 55]); } for (let i = 0; i < 10; i++) { const u = i / 10; pts2.push([bx - 130, oy - 55 + u * 110]); pts2.push([bx + 130, oy - 55 + u * 110]); } }
-  const drawPts = (list, A0, col, seed) => {
-   const rr = H.rng(seed);
-   x.save();
-   for (const p of list) {
-    const j = rr(), d = H.clamp((dis - j * 0.45) / 0.55);
-    if (d >= 1) continue;
-    const dd = io(d), sx = p[0] + rr.range(-60, 60) * Math.sin(d * PI), sy = p[1] + rr.range(-60, 60) * Math.sin(d * PI);
-    const X = H.lerp(sx, die[0], dd), Y = H.lerp(sy, die[1], dd);
-    x.globalAlpha = a * A0 * (d > 0 ? (1 - dd) * 0.9 + 0.1 : 0.85);
-    x.fillStyle = d > 0 ? 'rgba(240,185,11,1)' : col; x.beginPath(); x.arc(X, Y, d > 0 ? 3 : 2.4, 0, 7); x.fill();
-   }
-   x.restore();
-  };
-  // contornos sólidos antes de desmaterializar
-  if (dis <= 0) {
-   x.save(); x.globalAlpha = a * vA; x.strokeStyle = 'rgba(245,245,247,0.8)'; x.lineWidth = 3;
-   x.beginPath(); x.arc(vx, vy, R, 0, 7); x.stroke(); x.beginPath(); x.arc(vx, vy, R * 0.62, 0, 7); x.stroke();
-   for (let k = 0; k < 6; k++) { const an = k / 6 * PI * 2 + t * 0.3; x.beginPath(); x.moveTo(vx, vy); x.lineTo(vx + R * 0.6 * Math.cos(an), vy + R * 0.6 * Math.sin(an)); x.stroke(); }
-   for (let k = 0; k < 12; k++) { const an = k / 12 * PI * 2; x.beginPath(); x.arc(vx + R * 0.84 * Math.cos(an), vy + R * 0.84 * Math.sin(an), 6, 0, 7); x.stroke(); }
-   x.restore();
-   if (bA > 0) {
-    x.save(); x.globalAlpha = a * bA; x.strokeStyle = 'rgba(245,245,247,0.8)'; x.lineWidth = 3;
-    for (let k = 0; k < 4; k++) { const oy = by + 50 - k * 26 + (1 - eo(bA)) * 40; x.fillStyle = 'rgba(10,11,14,0.9)'; x.beginPath(); x.roundRect(bx - 130, oy - 55, 260, 110, 8); x.fill(); x.stroke(); x.beginPath(); x.arc(bx, oy, 26, 0, 7); x.stroke(); }
-    x.restore();
-   }
-   S.label(x, 'bóveda', vx, vy + R + 56, 600, 38, GREY, 'center', a * vA);
-   if (bA > 0) S.label(x, 'billetes', bx, by + 150, 600, 38, GREY, 'center', a * bA);
-  } else {
-   drawPts(pts, vA, 'rgba(245,245,247,0.8)', 1);
-   drawPts(pts2, bA, 'rgba(245,245,247,0.8)', 2);
-  }
-  // tachones rojos sincronizados
-  const st1 = sm(T.boveda, T.boveda + 0.35, t) * (1 - dis), st2 = sm(T.billetes, T.billetes + 0.35, t) * (1 - dis);
-  x.save(); x.strokeStyle = RED; x.lineWidth = 9; x.lineCap = 'round'; x.shadowColor = 'rgba(255,69,58,0.6)'; x.shadowBlur = 14;
-  if (st1 > 0) { x.globalAlpha = a; x.beginPath(); x.moveTo(vx - R - 20, vy + R * 0.7); x.lineTo(vx - R - 20 + (2 * R + 40) * io(st1), vy + R * 0.7 - (1.4 * R) * io(st1)); x.stroke(); }
-  if (st2 > 0) { x.globalAlpha = a; x.beginPath(); x.moveTo(bx - 150, by + 110); x.lineTo(bx - 150 + 300 * io(st2), by + 110 - 200 * io(st2)); x.stroke(); }
-  x.restore();
-  // ¿Cómo?
-  const qa = sm(T.como - 0.05, T.como + 0.35, t) * (1 - sm(T.todo - 0.3, T.todo, t));
-  if (qa > 0) S.words(x, [{ s: '¿Cómo?', t: T.como, fill: 'grad' }], 540, 360, 800, 150, t, { align: 'center', stops: GOLD });
-  void r;
- }
-
- // ================= ESCENA BLANCA (cierre, barrido de luz propio del estilo) =================
+ // ================= ESCENA BLANCA (barrido de luz propio del estilo) =================
  function whiteScene(x, W, Hh, t, c, L) {
-  const Lw = Object.assign({}, L, { white: 1, key: 1, rim: 1, ring: 0, dieDraw: null });
+  const Lw = Object.assign({}, L, { white: 1, key: 1, rim: 1 });
   S.stage(x, W, Hh, c, Lw, t);
-  // rastro que permanece: traza cian fina en el suelo
-  x.save(); x.globalAlpha = 0.5; x.strokeStyle = 'rgba(14,165,233,0.7)'; x.lineWidth = 2.5;
+  // el rastro permanece: trazas finas en el suelo
+  x.save(); x.globalAlpha = 0.45; x.strokeStyle = 'rgba(14,165,233,0.7)'; x.lineWidth = 2.5;
   for (const n of GRAPH.nodes) if (n.hop === 1) { const a = c.P(0, 0.01, 0), b = c.P(n.x, 0.01, n.z); x.beginPath(); x.moveTo(a[0], a[1]); x.lineTo(b[0], b[1]); x.stroke(); }
   x.restore();
-  S.chip(x, c, Lw, W, Hh);
+  // el acceso queda cerrado: dial-candado en oro sobre el escenario blanco
+  const p = c.P(0, 1.2, 0);
+  PR.contact(x, c, 0, 0, 0.8, 0.5);
+  PR.dial(x, p[0], p[1] + 40, 150, { a: 1, col: '#d9a400', icon: 'lock', rot: t * 0.2, glow: 0.4, lockOpen: 0 });
   S.words(x, [{ s: 'La', t: wt(27, 'la'), fill: '#1d1d1f' }, { s: 'ciencia', t: wt(27, 'ciencia'), fill: '#1d1d1f' }, { s: 'oculta', t: wt(27, 'oculta'), fill: '#1d1d1f' }], 540, 400, 800, 92, t, { align: 'center' });
   S.words(x, [{ s: 'de', t: wt(27, 'de'), fill: '#1d1d1f' }, { s: 'lo', t: wt(27, 'lo'), fill: '#1d1d1f' }, { s: 'imposible.', t: wt(27, 'imposible'), fill: 'grad' }], 540, 510, 800, 92, t, { align: 'center', stops: ['#c99400', '#f0b90b', '#ff7a2f'] });
  }
 
- // ================= SUBTÍTULOS + MARCA =================
  function subtitles(x, W, Hh, t) {
   const ph = A.phrases.find((p) => t >= p.s && t < p.e);
   if (!ph) return;
@@ -726,6 +764,8 @@
  }
 
  // ================= ENTRADA =================
+
+ // ================= ENTRADA =================
  function explainer(ctx, W, Hh, t) {
   const c = S.cam(S.keyed(KEYS, t));
   const L = lighting(t);
@@ -747,5 +787,5 @@
   subtitles(ctx, W, Hh, t);
  }
 
- window.BINANCE = { explainer, T, B, KEYS, DURATION, wt, sweep0, sweep1, GRAPH, balance };
+ window.BINANCE = { explainer, T, B, KEYS, DURATION, wt, sweep0, sweep1, GRAPH, balance, BLOCKS, TOWER };
 })();

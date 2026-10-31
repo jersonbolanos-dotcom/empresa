@@ -1,4 +1,6 @@
-# Informe QC · ASOMBROTECA_BINANCE_FINAL.mp4
+# Informe QC · ASOMBROTECA_BINANCE_FINAL_V3.mp4
+
+(Repetido sobre la V3. El QC de la V2 está en 08_VERSION_ANTERIOR_V2/QC_V2.md y sus capturas en 07_QC/capturas_V2/.)
 
 Fecha: 31 oct 2026. Solo figura lo que se ejecutó de verdad. La evidencia está en esta carpeta.
 
@@ -35,19 +37,22 @@ Fecha: 31 oct 2026. Solo figura lo que se ejecutó de verdad. La evidencia está
 | Prueba | Resultado | Estado |
 |---|---|---|
 | Fotograma 0 con actividad y dato | Objeto con luz de contorno, rótulo «ROBO DE CRIPTOMONEDAS» y fecha que ya aparece | PASS |
-| 12 beats capturados del MP4 | beat00–beat12 | PASS |
-| Transiciones capturadas | 10 capturas en cambios de beat y en el barrido a blanco | PASS |
+| Capturas del MP4 | 33 momentos (capturas/v3_*.png, contacto_V3.png) | PASS |
+| Protagonista por concepto | Emblema → bóveda/fajos → dial (match cut) → billetera → tarjetas de autorización → cadena de bloques → grafo → nodos congelados → torre de reservas → indicador 90 % → candado. La placa del ejemplo ya no se usa (`S.chip`/`S.body` no se llaman en binance.js) | PASS |
+| Logos fieles | Trazados SVG oficiales sin modificar (Simple Icons, cryptocurrency-icons), dibujados con Path2D o extruidos desde el trazado | PASS |
+| Fondos ≠ dinero físico | Los billetes solo aparecen en la metáfora de la escena 03, tachados y desintegrados. Las transferencias son cambios de saldo y anotaciones | PASS |
+| Estados distinguibles | Autorización oro · retiro rojo · confirmación cian con candado · rastreo cian con retícula · congelado turquesa con hexágono y candado · reposición oro desde otra fuente | PASS |
 | Legibilidad a escala de teléfono | Revisada en hojas de contacto a 360×640: titulares, cifras y subtítulos legibles; rótulos secundarios de 30–32 px en el límite | PASS |
-| Márgenes y solapes | Corregidos en esta sesión: callout cortado, rótulos fuera de alfa y alineación rota por un comentario. Tras la corrección no se ven textos cortados en las capturas | PASS |
+| Márgenes y solapes | Corregidos en V3: tarjetas vistas de canto, nombres superpuestos, torre cortada, titular sobre las tarjetas en la escena 12. Tras la corrección no se ven solapes en las 33 capturas | PASS |
 | Logo de Asombroteca | No hay. Solo el texto «ASOMBROTECA» en la esquina superior izquierda | PASS |
-| Continuidad del objeto héroe | El mismo módulo de custodia aparece en los 12 beats; una sola cámara continua y un barrido de luz final | PASS |
+| Continuidad | Una sola cámara continua; transiciones motivadas (alejamiento, match cut del dial, atravesar el cristal, retroceso, travelling, subida a cenital, barrido de luz) | PASS |
 
 ## Criterios de aceptación (sección G)
 
 | Criterio | Estado |
 |---|---|
-| La primera imagen engancha (actividad + dato) | PASS (la cifra grande llega con su mención, a 16,6 s) |
-| Cada beat muestra una transformación y el protagonista es continuo | PASS |
+| La primera imagen engancha (actividad + dato) | PASS (emblema de Binance iluminado, «ALERTA DE SEGURIDAD» y fecha desde el fotograma 0) |
+| Cada beat muestra una transformación con su propio protagonista | PASS |
 | Voz no generada ni alterada, sin palabras perdidas | PASS (archivo idéntico, duración completa; ganancia uniforme y limitador solo en la mezcla) |
 | Duraciones sacadas del audio | PASS |
 | Textos y subtítulos legibles, con margen para la interfaz | PASS |

@@ -1,4 +1,4 @@
-== ffprobe streams
+== ffprobe streams (V3)
 index=0
 codec_name=h264
 profile=High
@@ -8,7 +8,7 @@ pix_fmt=yuv420p
 r_frame_rate=30/1
 avg_frame_rate=30/1
 duration=115.500000
-bit_rate=4031389
+bit_rate=4048852
 nb_frames=3465
 index=1
 codec_name=aac
@@ -18,11 +18,11 @@ channels=2
 r_frame_rate=0/0
 avg_frame_rate=0/0
 duration=115.487000
-bit_rate=262088
+bit_rate=261802
 nb_frames=5415
 duration=115.500000
-size=62115852
-bit_rate=4302396
+size=62363816
+bit_rate=4319571
 == moov antes de mdat
 True
 == fotogramas decodificados

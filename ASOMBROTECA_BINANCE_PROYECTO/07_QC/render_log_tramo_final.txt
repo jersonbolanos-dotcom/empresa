@@ -1,0 +1,4 @@
+DURATION 115.487313 frames 3465
+3000/3465 1 s
+3300/3465 13 s
+listo 3465 fotogramas en 18 s
