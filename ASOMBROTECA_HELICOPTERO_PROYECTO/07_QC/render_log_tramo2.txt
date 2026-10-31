@@ -1,0 +1,2 @@
+DURATION 63.668 frames 1911
+listo 1911 fotogramas en 4 s

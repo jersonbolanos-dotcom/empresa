@@ -1,0 +1,161 @@
+1
+00:00:00,050 --> 00:00:01,807
+Un helicóptero
+está volando a
+
+2
+00:00:01,807 --> 00:00:03,474
+cientos de
+metros de altura…
+
+3
+00:00:03,598 --> 00:00:04,595
+y de repente,
+
+4
+00:00:04,595 --> 00:00:06,021
+su motor se apaga.
+
+5
+00:00:06,126 --> 00:00:07,934
+¿Se desploma
+inmediatamente?
+
+6
+00:00:08,020 --> 00:00:09,601
+No necesariamente.
+
+7
+00:00:09,664 --> 00:00:11,031
+Aunque parezca
+imposible,
+
+8
+00:00:11,031 --> 00:00:13,325
+un helicóptero puede
+seguir volando sin
+
+9
+00:00:13,325 --> 00:00:15,477
+que su motor
+impulse las hélices.
+
+10
+00:00:15,552 --> 00:00:16,669
+El secreto está en
+
+11
+00:00:16,669 --> 00:00:19,185
+un fenómeno llamado
+autorrotación.
+
+12
+00:00:19,264 --> 00:00:20,381
+Cuando el motor falla,
+
+13
+00:00:20,381 --> 00:00:22,511
+el piloto debe
+reducir rápidamente
+
+14
+00:00:22,511 --> 00:00:24,231
+la inclinación
+de las palas.
+
+15
+00:00:24,232 --> 00:00:26,410
+El helicóptero
+comienza a descender,
+
+16
+00:00:26,436 --> 00:00:28,647
+pero ocurre algo
+sorprendente.
+
+17
+00:00:28,674 --> 00:00:30,976
+El aire atraviesa
+el rotor desde
+
+18
+00:00:30,976 --> 00:00:32,770
+abajo y mantiene
+las aspas girando,
+
+19
+00:00:32,770 --> 00:00:35,012
+incluso sin la
+fuerza del motor.
+
+20
+00:00:35,068 --> 00:00:36,272
+En otras palabras,
+
+21
+00:00:36,272 --> 00:00:38,428
+el helicóptero
+utiliza la energía
+
+22
+00:00:38,428 --> 00:00:39,725
+de su propio
+descenso para
+
+23
+00:00:39,725 --> 00:00:41,674
+mantener el rotor
+en movimiento.
+
+24
+00:00:41,681 --> 00:00:43,071
+Y cuando se
+acerca al suelo,
+
+25
+00:00:43,071 --> 00:00:45,509
+el piloto puede
+aprovechar esa energía
+
+26
+00:00:45,509 --> 00:00:47,046
+para reducir
+la velocidad de
+
+27
+00:00:47,046 --> 00:00:49,333
+caída y amortiguar
+el aterrizaje.
+
+28
+00:00:49,383 --> 00:00:51,280
+Pero no siempre
+funciona:
+
+29
+00:00:51,320 --> 00:00:52,034
+la altura,
+
+30
+00:00:52,034 --> 00:00:53,805
+la velocidad
+y la reacción
+
+31
+00:00:53,805 --> 00:00:55,907
+del piloto son
+fundamentales.
+
+32
+00:00:55,907 --> 00:00:57,501
+Así que perder
+el motor no
+
+33
+00:00:57,501 --> 00:01:00,500
+significa necesariamente
+perder el control.
+
+34
+00:01:00,813 --> 00:01:02,668
+Esto es Asombroteca.

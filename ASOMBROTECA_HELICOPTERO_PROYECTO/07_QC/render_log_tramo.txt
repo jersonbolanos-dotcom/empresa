@@ -1,0 +1,6 @@
+DURATION 63.668 frames 1911
+900/1911 5 s
+1200/1911 13 s
+1500/1911 22 s
+1800/1911 31 s
+listo 1911 fotogramas en 34 s

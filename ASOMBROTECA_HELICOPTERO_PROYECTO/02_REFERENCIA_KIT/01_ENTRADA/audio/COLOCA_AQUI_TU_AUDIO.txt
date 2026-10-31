@@ -1,0 +1,2 @@
+Deposita aquí la narración original en WAV/MP3/M4A. Claude NO puede generarla, recrearla, regrabarla, recortarla, acelerarla ni modificarla.
+El audio es el reloj maestro. Si no está presente, preparar storyboard sin fijar duración e indicar que falta audio antes de exportar.

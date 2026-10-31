@@ -1,0 +1,33 @@
+== ffprobe
+index=0
+codec_name=h264
+profile=High
+width=1080
+height=1920
+pix_fmt=yuv420p
+r_frame_rate=30/1
+duration=63.666667
+nb_frames=1910
+index=1
+codec_name=aac
+profile=LC
+sample_rate=48000
+channels=2
+r_frame_rate=0/0
+duration=63.668000
+nb_frames=2986
+duration=63.668000
+size=43640881
+bit_rate=5483556
+== moov antes de mdat
+True
+== fotogramas decodificados
+1910
+== EBU R128 (mezcla)
+    I:         -14.6 LUFS
+    LRA:         2.1 LU
+    Peak:       -1.1 dBFS
+== voz original intacta
+32aeea283d42ad811e771ca371b18fc52136e8dcf0edb918aafa54eb8c2090a9  ../01_ENTRADA/audio/voz_original_helicoptero.mp3
+32aeea283d42ad811e771ca371b18fc52136e8dcf0edb918aafa54eb8c2090a9  ../05_AUDIO/voz_original.mp3
+32aeea283d42ad811e771ca371b18fc52136e8dcf0edb918aafa54eb8c2090a9  /root/.claude/uploads/bd0c5430-868d-5a95-9cc8-40710df7134b/ced960ea-Audio_de_helic_ptero
