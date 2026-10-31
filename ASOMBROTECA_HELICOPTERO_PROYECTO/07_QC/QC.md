@@ -1,3 +1,18 @@
+# QC · V2 (ASOMBROTECA_HELICOPTERO_AUTORROTACION_V2.mp4)
+
+| Prueba | Resultado | Estado |
+|---|---|---|
+| Formato | H.264 High, 1080×1920, yuv420p, 30 fps, 1910 fotogramas decodificados, 63,67 s; AAC 48 kHz estéreo; moov al inicio; 44 MB (`ffprobe_V2.txt`) | PASS |
+| Decodificación completa | 0 errores | PASS |
+| Fotogramas negros o congelados | Ninguno | PASS |
+| Audio | Pista idéntica bit a bit a la V1 (mismo MD5); voz con SHA-256 igual al original | PASS |
+| Aterrizaje: 13 fotogramas de 43 a 49 s (`contacto_aterrizaje_V2.png`) | Aproximación → morro arriba (44,5–45,5) → nivelación (46–46,5) → colectivo arriba (47–47,5) → contacto (48,3) → asentado. Sin saltos; el rotor gira en todo momento | PASS |
+| Escenas corregidas (`contacto_V2.png`) | Inicio con nubes y estelas, corte de potencia y sacudón; tres estados del tren de potencia; dos palas con «el disco no se inclina»; baja/aire con el disco del rotor | PASS |
+| Sincronía | El aterrizaje sigue a las palabras («aprovechar», «amortiguar», «aterrizaje») y el golpe de patines del audio coincide con el contacto (48,3 s) | PASS |
+| Errores JS durante el render | 0 | PASS |
+
+---
+
 # QC · ASOMBROTECA_HELICOPTERO_AUTORROTACION_FINAL.mp4
 
 | Prueba | Resultado | Estado |

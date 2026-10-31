@@ -55,14 +55,35 @@
   { t: T.descender, hx: 560, hy: 740, hs: 1.0, gy: 1940, nose: -0.04 },
   { t: T.aire, hx: 560, hy: 760, hs: 1.12, gy: 1860, nose: -0.04 },
   { t: TR.energy[1], hx: 560, hy: 760, hs: 1.12, gy: 1780, nose: -0.04 },
-  { t: TR.field[0], hx: 790, hy: 430, hs: 0.58, gy: 1330, nose: -0.05 },
-  { t: T.aprovechar, hx: 680, hy: 860, hs: 0.66, gy: 1330, nose: -0.03 },
-  { t: T.caida, hx: 600, hy: 1080, hs: 0.68, gy: 1330, nose: 0.16 },
-  { t: T.aterrizaje, hx: 560, hy: 1330 - 136 * 0.7, hs: 0.7, gy: 1330, nose: 0.0 },
-  { t: T.fundam, hx: 560, hy: 1330 - 136 * 0.72, hs: 0.72, gy: 1330, nose: 0.0 },
-  { t: DURATION, hx: 560, hy: 1330 - 136 * 0.8, hs: 0.8, gy: 1330, nose: 0.0 },
+  { t: TR.field[0], hx: 790, hy: 430, hs: 0.66, gy: 1330, nose: -0.05 },
+  { t: T.aprovechar, hx: 680, hy: 860, hs: 0.76, gy: 1330, nose: -0.03 },
+  { t: T.caida, hx: 600, hy: 1080, hs: 0.8, gy: 1330, nose: 0.16 },
+  { t: T.aterrizaje, hx: 560, hy: 1330 - 136 * 0.82, hs: 0.82, gy: 1330, nose: 0.0 },
+  { t: T.fundam, hx: 560, hy: 1330 - 136 * 0.82, hs: 0.82, gy: 1330, nose: 0.0 },
+  { t: DURATION, hx: 560, hy: 1330 - 136 * 0.86, hs: 0.86, gy: 1330, nose: 0.0 },
  ];
+ // ---- maniobra final (V2): aproximación -> flare (cíclico atrás) -> nivelación -> colectivo arriba -> contacto y asentamiento
+ const LD = (() => { const tA = TR.field[0], tF = T.aprovechar, tF2 = T.aprovechar + 2.2, tL2 = T.amortiguar - 0.3, tT = T.aterrizaje; const yC = 1330 - 136 * 0.82;
+  const P0 = [800, 430], P1 = [660, 880], vA = [(P1[0] - P0[0]) / (tF - tA), (P1[1] - P0[1]) / (tF - tA)];
+  return { tA, tF, tF2, tL2, tT, yC, segs: [
+   { t0: tA, t1: tF, p0: P0, v0: vA, p1: P1, v1: vA },
+   { t0: tF, t1: tF2, p0: P1, v0: vA, p1: [588, 1092], v1: [-14, 42] },
+   { t0: tF2, t1: tL2, p0: [588, 1092], v0: [-14, 42], p1: [566, 1150], v1: [-8, 50] },
+   { t0: tL2, t1: tT, p0: [566, 1150], v0: [-8, 50], p1: [560, yC], v1: [0, 0] },
+  ] }; })();
+ function landPos(t) {
+  for (const g of LD.segs) if (t <= g.t1) { const d = g.t1 - g.t0, u = H.clamp((t - g.t0) / d), u2 = u * u, u3 = u2 * u; const h00 = 2 * u3 - 3 * u2 + 1, h10 = u3 - 2 * u2 + u, h01 = -2 * u3 + 3 * u2, h11 = u3 - u2; return [0, 1].map((k) => h00 * g.p0[k] + h10 * d * g.v0[k] + h01 * g.p1[k] + h11 * d * g.v1[k]); }
+  return [560, LD.yC];
+ }
+ function landNose(t) { return -0.05 * (1 - sm(LD.tF - 0.3, LD.tF, t)) + 0.22 * io(sm(LD.tF, LD.tF + 1.4, t)) * (1 - io(sm(LD.tF2 - 0.2, LD.tL2, t))) + 0.0; }
+ function landVel(t) { const a = landPos(t - 0.05), b = landPos(t + 0.05); return [(b[0] - a[0]) / 0.1, (b[1] - a[1]) / 0.1]; }
  function ext(t) {
+  if (t >= LD.tA && t <= T.fundam) { const o = ext0(t), p = landPos(Math.min(t, LD.tT)); o.hx = p[0]; o.hy = p[1]; o.nose = landNose(t);
+   if (t > LD.tT) o.hy += 9 * Math.exp(-(t - LD.tT) * 6) * Math.sin((t - LD.tT) * 18); // asentamiento de los patines
+   return o; }
+  return ext0(t);
+ }
+ function ext0(t) {
   if (t <= EXT[0].t) return Object.assign({}, EXT[0]);
   for (let i = 0; i < EXT.length - 1; i++) { const a = EXT[i], b = EXT[i + 1]; if (t <= b.t) { const e = io((t - a.t) / (b.t - a.t)), o = {}; for (const k in a) o[k] = H.lerp(a[k], b[k], e); return o; } }
   return Object.assign({}, EXT[EXT.length - 1]);
@@ -103,6 +124,7 @@
   };
   const mp = motorPow(t), w = omega(t) / 1.0;
   dial(140, 270, mp * 0.92, mp > 0.05 ? C.orange[1] : '#6c7aa0', 'MOTOR', false);
+  if (mp < 0.05) glow(ctx, 330, 270, 120, C.cyan, 0.25 * (0.7 + 0.3 * Math.sin(t * 5)));
   dial(330, 270, w * 0.85, C.cyan, 'ROTOR', true);
   if (mp < 0.05 && t < TR.dive[0]) { ctx.strokeStyle = C.red; ctx.lineWidth = 8; ctx.beginPath(); ctx.moveTo(105, 235); ctx.lineTo(175, 305); ctx.moveTo(175, 235); ctx.lineTo(105, 305); ctx.stroke(); }
   ctx.restore();
@@ -119,10 +141,50 @@
   ctx.save(); ctx.translate(x + 30, (top + bot) / 2); ctx.rotate(-Math.PI / 2); text(ctx, 'ALTURA', 0, 0, F.nu(30), '#bde5f8'); ctx.restore();
   ctx.restore();
  }
+ // mandos del piloto durante la maniobra final (cíclico y colectivo), cualitativos
+ function controls(ctx, t) {
+  const a = fadeIO(t, LD.tF - 0.4, LD.tT + 0.8, 0.3); if (a <= 0.01) return;
+  ctx.save(); ctx.globalAlpha *= a;
+  ctx.fillStyle = 'rgba(9,11,44,.55)'; rr(ctx, 650, 190, 380, 210, 34); ctx.fill();
+  const cy = sm(LD.tF, LD.tF + 1.2, t) * (1 - sm(LD.tF2 - 0.2, LD.tL2, t)); // cíclico atrás (hacia la cola = derecha)
+  const co = sm(LD.tL2 - 0.1, LD.tT, t) * (1 - sm(LD.tT + 0.5, LD.tT + 1.3, t)); // colectivo arriba
+  // cíclico: palanca vertical que se inclina hacia atrás
+  ctx.save(); ctx.translate(750, 345); ctx.rotate(0.45 * cy); const g1 = ctx.createLinearGradient(0, -110, 0, 0); g1.addColorStop(0, '#a4fbef'); g1.addColorStop(1, '#1d64b0'); ctx.fillStyle = g1; rr(ctx, -10, -110, 20, 110, 10); ctx.fill(); ball(ctx, 0, -112, 20, ['#ffe9a0', '#ffd23f', '#c78a00']); ctx.restore(); ball(ctx, 750, 345, 14, ['#c6cde6', '#7a85ad', '#3a4470']);
+  if (cy > 0.05) arrow(ctx, [[775, 225], [805, 222], [825, 232], [838, 250]], cy, C.yellow, 8);
+  text(ctx, 'CÍCLICO', 750, 386, F.nu(28, 900), '#bde5f8');
+  // colectivo: palanca lateral que sube
+  ctx.save(); ctx.translate(890, 330); ctx.rotate(-0.15 - 0.5 * co); const g2 = ctx.createLinearGradient(0, -10, 120, 10); g2.addColorStop(0, '#a4fbef'); g2.addColorStop(1, '#1d64b0'); ctx.fillStyle = g2; rr(ctx, 0, -10, 120, 20, 10); ctx.fill(); ball(ctx, 120, 0, 18, ['#ffe9a0', '#ffd23f', '#c78a00']); ctx.restore(); ball(ctx, 890, 330, 14, ['#c6cde6', '#7a85ad', '#3a4470']);
+  if (co > 0.05) arrow(ctx, [[1000, 330], [1008, 300], [1004, 270], [990, 245]], co, C.orange[1], 8);
+  text(ctx, 'COLECTIVO', 950, 386, F.nu(28, 900), '#bde5f8');
+  ctx.restore();
+ }
+ // reacción visual a la falla del motor: pequeño sacudón amortiguado (sin accidente)
+ function joltAt(t) { if (t < T.motor || t > T.motor + 2) return { x: 0, y: 0, n: 0 }; const d = t - T.motor, k = Math.exp(-d * 2.6); return { x: 6 * k * Math.sin(d * 23), y: 16 * k * Math.sin(d * 11), n: -0.05 * k * Math.sin(d * 7 + 0.4) }; }
+ // inicio: nubes y estelas para sensación de desplazamiento y profundidad
+ const CLOUDS = (() => { const r = H.rng(990); return Array.from({ length: 9 }, (_, i) => ({ y: r.range(250, 1350), w: r.range(160, 420), z: r.range(0.3, 1.4), x0: r.range(0, 1600), front: i % 3 === 0 })); })();
+ function clouds(ctx, t, a, front) {
+  if (a <= 0.01) return;
+  for (const c of CLOUDS) { if (c.front !== front) continue;
+   const x = ((c.x0 + t * 260 * c.z) % 1700) - 300, y = c.y, w = c.w * (0.6 + 0.5 * c.z);
+   ctx.save(); ctx.globalAlpha *= a * (front ? 0.32 : 0.22) * Math.min(1, c.z);
+   const g = ctx.createLinearGradient(0, y - w * 0.3, 0, y + w * 0.2); g.addColorStop(0, '#c8b8ff'); g.addColorStop(1, '#5a4aa8'); ctx.fillStyle = g;
+   ctx.beginPath(); ctx.ellipse(x, y, w, w * 0.22, 0, 0, TAU); ctx.ellipse(x - w * 0.35, y - w * 0.12, w * 0.45, w * 0.2, 0, 0, TAU); ctx.ellipse(x + w * 0.3, y - w * 0.15, w * 0.5, w * 0.22, 0, 0, TAU); ctx.fill(); ctx.restore(); }
+  if (front) { const r = H.rng(321); ctx.save(); ctx.globalAlpha *= a * 0.35; ctx.strokeStyle = '#eaf7ff'; ctx.lineCap = 'round'; for (let i = 0; i < 14; i++) { const y = r.range(300, 1300), L = r.range(80, 220), sp = r.range(500, 900), x = ((r.range(0, 1400) + t * sp) % 1500) - 200; ctx.lineWidth = r.range(2, 4); ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x + L, y); ctx.stroke(); } ctx.restore(); }
+ }
+ // flujo de potencia del motor al rotor (puntos naranjas) antes de la falla
+ function powerFlow(ctx, e, t) {
+  const pa = 1 - sm(T.motor - 0.05, T.motor + 0.25, t); if (pa <= 0.01 || t > TR.dive[0]) return;
+  const cs = Math.cos(-e.nose), sn = Math.sin(-e.nose), S = (lx, ly) => [e.hx + jolt.x + (lx * cs - ly * sn) * e.hs, e.hy + jolt.y + (lx * sn + ly * cs) * e.hs];
+  for (let i = 0; i < 6; i++) { const u = ((t * 1.6 + i / 6) % 1); const lx = H.lerp(80, -10, Math.min(1, u * 1.6)), ly = u < 0.62 ? -108 : H.lerp(-108, -158, (u - 0.62) / 0.38); const p = S(lx, ly); glow(ctx, p[0], p[1], 16, C.orange[1], 0.5 * pa); ctx.fillStyle = H.rgba(C.orange[0], pa); ctx.beginPath(); ctx.arc(p[0], p[1], 5, 0, TAU); ctx.fill(); }
+  if (t < T.motor + 0.6 && t > T.motor - 0.05) { const p = S(70, -108), f = (t - T.motor) / 0.6; ctx.save(); ctx.globalAlpha *= (1 - f); ctx.strokeStyle = C.red; ctx.lineWidth = 6; ctx.beginPath(); ctx.arc(p[0], p[1], 30 + 90 * f, 0, TAU); ctx.stroke(); ctx.restore(); }
+ }
+ let jolt = { x: 0, y: 0, n: 0 };
  function exterior(ctx, t) {
   const e = ext(t), field = t > TR.energy[0];
+  jolt = joltAt(t);
   sky(ctx, W, HH, t, { sun: field ? 1050 : 1350, vx: t * 60 * (field ? 0.3 : 1), vy: (2150 - e.gy) * 1.2, warm: field });
   terrain(ctx, e.gy, t * 90 * (field ? 0.25 : 1), field);
+  const ca0 = 1 - sm(T.desploma, T.desploma + 0.6, t); if (t < TR.dive[1]) clouds(ctx, t, ca0, false);
   // trayectorias del gancho: caída imposible (tachada) vs descenso en autorrotación
   const ta = fadeIO(t, T.desploma, TR.dive[0] + 0.2, 0.3);
   if (ta > 0) {
@@ -150,7 +212,8 @@
   const flair = fadeIO(t, T.mantiene, TR.energy[0], 0.4);
   if (flair > 0) glow(ctx, e.hx - 10 * e.hs, rotorY, R * 1.1, C.cyan, 0.18 * flair);
   if (t > T.aterrizaje - 0.1 && t < T.aterrizaje + 1.6) { const d = sm(T.aterrizaje - 0.1, T.aterrizaje + 1.6, t), r = H.rng(66); for (let i = 0; i < 16; i++) { const dir = i < 8 ? -1 : 1, sp = r.range(60, 200); ctx.fillStyle = `rgba(200,230,240,${0.35 * (1 - d)})`; ctx.beginPath(); ctx.ellipse(e.hx + dir * (40 + sp * d), e.gy + 6 - 30 * d * r(), 30 + 50 * d, 14 + 10 * d, 0, 0, TAU); ctx.fill(); } }
-  helicopter(ctx, e.hx, e.hy + Math.sin(t * 1.6) * 6 * (t < T.aterrizaje ? 1 : 0), e.hs, { phase: phase(t), spin: Math.min(1, omega(t) * 1.1), power: motorPow(t), fail: fadeIO(t, T.motor, TR.dive[0], 0.2), nose: e.nose, t, tail: phase(t) * 4.5, xray: fadeIO(t, T.necesar + 0.2, TR.dive[1], 0.4) });
+  helicopter(ctx, e.hx + jolt.x, e.hy + jolt.y + Math.sin(t * 1.6) * 6 * (t < LD.tF ? 1 : 1 - sm(LD.tF, LD.tF + 1, t)) * (t < T.aterrizaje ? 1 : 0), e.hs, { phase: phase(t), spin: Math.min(1, omega(t) * 1.1), power: motorPow(t), fail: fadeIO(t, T.motor, TR.dive[0], 0.2), nose: e.nose + jolt.n, t, tail: phase(t) * 4.5, xray: fadeIO(t, T.necesar + 0.2, TR.dive[1], 0.4) });
+  powerFlow(ctx, e, t); if (t < TR.dive[1]) clouds(ctx, t, ca0, true);
   // rótulos ligados a los mecanismos
   const eng = [e.hx + 70 * e.hs, e.hy - 108 * e.hs];
   pill(ctx, 'MOTOR APAGADO', eng[0] + 40, eng[1] - 150 * Math.max(0.7, e.hs), 44, { bg: C.red, fg: '#fff', a: fadeIO(t, T.apaga - 0.1, T.desploma + 0.4, 0.2), s: pop(t, T.apaga - 0.1) });
@@ -158,19 +221,33 @@
   // descenso
   const da = fadeIO(t, T.comienza, T.aire + 0.3, 0.3);
   if (da > 0) { arrow(ctx, [[e.hx + 360, e.hy - 140], [e.hx + 360, e.hy - 20], [e.hx + 360, e.hy + 100], [e.hx + 360, e.hy + 240]], sm(T.comienza, T.descender + 0.5, t), C.yellow, 14, { alpha: da }); pill(ctx, 'DESCIENDE', 560, 480, 46, { bg: C.yellow, a: da, s: pop(t, T.comienza) }); }
+  { const ra = fa * sm(T.atraviesa - 0.2, T.atraviesa + 0.3, t); if (ra > 0) { const dxh = e.hx + 400 * e.hs; arrow(ctx, [[dxh, e.hy - 120], [dxh, e.hy - 20], [dxh, e.hy + 80], [dxh, e.hy + 180]], 1, C.yellow, 14, { alpha: ra }); text(ctx, 'baja', dxh, e.hy - 150, F.nu(34, 900), C.yellow, { a: ra }); const dxa = e.hx - 400 * e.hs; arrow(ctx, [[dxa, e.hy + 200], [dxa, e.hy + 100], [dxa, e.hy], [dxa, e.hy - 110]], 1, C.cyan, 14, { alpha: ra }); text(ctx, 'aire', dxa, e.hy + 250, F.nu(34, 900), C.cyan, { a: ra });
+   ctx.save(); ctx.globalAlpha *= ra; ctx.strokeStyle = H.rgba(C.cyan, 0.9); ctx.lineWidth = 5; ctx.setLineDash([16, 12]); ctx.beginPath(); ctx.ellipse(e.hx - 10 * e.hs, rotorY, R * 1.02, R * 0.09, 0, 0, TAU); ctx.stroke(); ctx.restore(); text(ctx, 'DISCO DEL ROTOR', e.hx - 10 * e.hs - R * 0.55, rotorY - 34, F.nu(30, 900), C.cyan2, { a: ra }); } }
   pill(ctx, 'FLUJO RELATIVO DEL AIRE', 540, 480, 44, { bg: C.cyan, a: fa * sm(T.atraviesa, T.atraviesa + 0.3, t), s: pop(t, T.atraviesa) });
   const nb = fa * sm(T.abajo, T.abajo + 0.4, t) * (1 - sm(T.incluso - 0.35, T.incluso - 0.05, t));
   if (nb > 0) { text(ctx, 'el helicóptero baja, así que el aire', 540, 568, F.nu(34, 800), C.txt, { a: nb }); text(ctx, 'lo atraviesa de abajo hacia arriba', 540, 610, F.nu(34, 800), C.txt, { a: nb }); }
   pill(ctx, 'SIN POTENCIA DEL MOTOR', eng[0] + 150, eng[1] - 30, 34, { bg: '#6c7aa0', fg: '#fff', a: fa * sm(T.incluso, T.incluso + 0.3, t), s: pop(t, T.incluso) });
   // aproximación: flare y contacto
-  const la = fadeIO(t, T.aprovechar - 0.1, T.aterrizaje + 0.05, 0.3);
-  if (la > 0) {
-   pill(ctx, 'FLARE', 540, 490, 64, { bg: C.yellow, a: la, s: pop(t, T.aprovechar) });
-   text(ctx, 'morro arriba: frena el descenso y el avance', 540, 590, F.nu(36, 800), C.txt, { a: la * sm(T.aprovechar + 0.4, T.aprovechar + 0.8, t) });
-   const v = H.lerp(1, 0.25, sm(T.reducir13, T.amortiguar, t)) * (1 - sm(T.aterrizaje - 0.2, T.aterrizaje, t));
-   if (v > 0.03) arrow(ctx, [[e.hx - 260 * e.hs, e.hy - 40], [e.hx - 260 * e.hs, e.hy + 40], [e.hx - 260 * e.hs, e.hy + 120], [e.hx - 260 * e.hs, e.hy + 60 + 260 * v]], 1, H.rgba(H.mix(C.cyan, C.red, v), 1), 14, { alpha: la });
-   text(ctx, 'velocidad de caída', e.hx - 260 * e.hs, e.hy - 70, F.nu(30, 800), C.txt2, { a: la * sm(T.reducir13, T.reducir13 + 0.4, t) * (1 - sm(T.aterrizaje - 0.2, T.aterrizaje, t)) });
+  // maniobra final: flechas de velocidad (avance y descenso) proporcionales al movimiento real del helicóptero
+  const va = fadeIO(t, LD.tA + 0.4, LD.tT + 0.05, 0.3);
+  if (va > 0) {
+   const v = landVel(Math.min(t, LD.tT - 0.02)), nx = e.hx - 230 * e.hs, ny = e.hy + 10;
+   const lh = Math.min(220, Math.abs(v[0]) * 3.2), lv = Math.min(240, Math.abs(v[1]) * 1.25);
+   if (lh > 12) { arrow(ctx, [[nx, ny], [nx - lh * 0.33, ny], [nx - lh * 0.66, ny], [nx - lh, ny]], 1, C.yellow, 12, { alpha: va }); text(ctx, 'avance', nx - lh / 2, ny - 26, F.nu(32, 900), C.yellow, { a: va }); }
+   const dx = e.hx + 345 * e.hs, dy = e.hy + 10;
+   if (lv > 12) { arrow(ctx, [[dx, dy], [dx, dy + lv * 0.33], [dx, dy + lv * 0.66], [dx, dy + lv]], 1, C.cyan, 12, { alpha: va }); text(ctx, 'descenso', dx + 10, dy - 22, F.nu(32, 900), C.cyan, { a: va }); }
   }
+  const la = fadeIO(t, LD.tF - 0.1, LD.tT + 0.05, 0.3);
+  if (la > 0) {
+   pill(ctx, 'FLARE', 540, 490, 70, { bg: C.yellow, a: la, s: pop(t, LD.tF) });
+   text(ctx, 'cíclico atrás: morro arriba, frena avance y descenso', 540, 590, F.nu(36, 800), C.txt, { a: la * sm(LD.tF + 0.3, LD.tF + 0.7, t) * (1 - sm(LD.tF2 - 0.3, LD.tF2, t)) });
+   text(ctx, 'se nivela para tocar el suelo', 540, 590, F.nu(38, 800), C.txt, { a: la * sm(LD.tF2, LD.tF2 + 0.3, t) * (1 - sm(LD.tL2 - 0.2, LD.tL2, t)) });
+   pill(ctx, 'COLECTIVO ARRIBA', 540, 595, 46, { bg: C.orange[1], fg: '#fff', a: la * sm(LD.tL2, LD.tL2 + 0.2, t), s: pop(t, LD.tL2) });
+   text(ctx, 'la energía del rotor amortigua el contacto', 540, 680, F.nu(36, 800), C.txt, { a: la * sm(LD.tL2 + 0.2, LD.tL2 + 0.5, t) });
+   // la energía almacenada en el rotor se consume: brillo naranja que se apaga
+   const ea = sm(LD.tL2, LD.tL2 + 0.3, t) * (1 - sm(LD.tT, LD.tT + 0.6, t)); if (ea > 0) glow(ctx, e.hx - 10 * e.hs, e.hy - 160 * e.hs, 260 * e.hs, C.orange[1], 0.28 * ea);
+  }
+  controls(ctx, t);
   pill(ctx, 'CONTACTO AMORTIGUADO', 540, 490, 44, { bg: C.green, a: fadeIO(t, T.aterrizaje, T.pero14 + 0.1, 0.25), s: pop(t, T.aterrizaje) });
   text(ctx, 'recreación conceptual · no es garantía', 540, 580, F.nu(32, 800), C.txt2, { a: fadeIO(t, T.aterrizaje + 0.3, T.pero14 + 0.1, 0.25) });
   // límites
@@ -218,7 +295,10 @@
   ctx.save(); ctx.translate(fx, y0); ctx.rotate(ph * 0.35); ctx.fillStyle = 'rgba(9,11,44,.75)'; ctx.beginPath(); ctx.arc(0, 0, 112, 0, TAU); ctx.fill();
   for (let i = 0; i < 12; i++) { const a = i / 12 * TAU; ctx.save(); ctx.rotate(a); ctx.translate(92, 0); ctx.rotate(0.5); ctx.fillStyle = '#ffd23f'; rr(ctx, -10, -18, 20, 36, 8); ctx.fill(); ctx.restore(); }
   ctx.restore();
-  ball(ctx, fx, y0, 70, ['#c6cde6', '#7a85ad', '#3a4470']);
+  // desacople visible: el cubo del motor se separa del aro (holgura amarilla) mientras el aro sigue girando
+  ctx.save(); ctx.fillStyle = 'rgba(9,11,44,.9)'; ctx.beginPath(); ctx.arc(fx, y0, 70 + 14 * sepT, 0, TAU); ctx.fill(); ctx.setLineDash([10, 10]); ctx.strokeStyle = H.rgba(C.yellow, 0.4 + 0.6 * sepT); ctx.lineWidth = 5; ctx.beginPath(); ctx.arc(fx, y0, 70 + 8 * sepT, 0, TAU); ctx.stroke(); ctx.restore();
+  ball(ctx, fx, y0, 70 - 6 * sepT, ['#c6cde6', '#7a85ad', '#3a4470']);
+  text(ctx, '0', fx, y0 + 16, F.fr(46), '#3a4470');
   glow(ctx, fx, y0, 260, C.yellow, 0.2 * sepT * (0.6 + 0.4 * Math.sin(t * 6)));
   // flechas de giro: aro (sí) / cubo (no)
   arrow(ctx, [[fx - 170, y0 - 80], [fx - 150, y0 - 190], [fx + 40, y0 - 230], [fx + 150, y0 - 150]], 0.4 + 0.6 * ((t * 0.8) % 1) * 0 + 0.6, C.cyan, 10, { alpha: 0.9 });
@@ -229,11 +309,13 @@
   for (let i = 0; i < 5; i++) { const u = ((ph * 0.3 + i / 5) % 1); ctx.strokeStyle = 'rgba(9,11,44,.45)'; ctx.lineWidth = 6; ctx.beginPath(); ctx.moveTo(gx - 15, 520 + u * (y0 - 300 - 520)); ctx.lineTo(gx + 15, 520 + u * (y0 - 300 - 520) + 8); ctx.stroke(); }
   rotorSide(ctx, 540, 500, 470, ph, Math.min(1, omega(t) * 1.1)); ctx.strokeStyle = '#a4fbef'; ctx.lineWidth = 30; ctx.beginPath(); ctx.moveTo(gx, 520); ctx.lineTo(540, 500); ctx.stroke();
   // rótulos
-  text(ctx, 'MOTOR', 180, y0 + 165, F.nu(42), '#c6cde6');
-  pill(ctx, 'RUEDA LIBRE', fx, y0 + 235, 50, { bg: C.yellow, s: pop(t, T.seguir), a: sm(T.seguir, T.seguir + 0.2, t) });
-  text(ctx, 'desacopla el motor del rotor', 540, y0 + 320, F.nu(38, 800), C.txt, { a: sm(T.sin5, T.sin5 + 0.4, t) });
-  text(ctx, 'TRANSMISIÓN', gx + 90, y0 + 165, F.nu(38), C.txt2);
-  pill(ctx, 'EL ROTOR SIGUE GIRANDO', 540, 410, 42, { bg: C.cyan, s: pop(t, T.aunque + 0.3), a: sm(T.aunque + 0.3, T.aunque + 0.5, t) });
+  pill(ctx, '1 · MOTOR APAGADO', 225, y0 + 162, 36, { bg: C.red, fg: '#fff', s: pop(t, T.aunque + 0.1), a: sm(T.aunque + 0.1, T.aunque + 0.3, t) });
+  // flechas de giro del lado del rotor (aro, transmisión, mástil)
+  [[gx, y0, 150], [gx, y0 - 230, 100]].forEach(([x, y, r], i) => { const a0 = ph * 0.5 * (i ? -1.6 : 1); ctx.save(); ctx.strokeStyle = H.rgba(C.cyan, 0.85); ctx.lineWidth = 8; ctx.lineCap = 'round'; ctx.beginPath(); ctx.arc(x, y, r, a0, a0 + 1.2); ctx.stroke(); const ex = x + Math.cos(a0 + 1.2) * r, ey = y + Math.sin(a0 + 1.2) * r, an = a0 + 1.2 + Math.PI / 2; ctx.fillStyle = C.cyan; ctx.beginPath(); ctx.moveTo(ex + Math.cos(an) * 16, ey + Math.sin(an) * 16); ctx.lineTo(ex + Math.cos(an + 2.4) * 14, ey + Math.sin(an + 2.4) * 14); ctx.lineTo(ex + Math.cos(an - 2.4) * 14, ey + Math.sin(an - 2.4) * 14); ctx.closePath(); ctx.fill(); ctx.restore(); });
+  pill(ctx, '2 · RUEDA LIBRE', fx + 40, y0 + 252, 54, { bg: C.yellow, s: pop(t, T.seguir), a: sm(T.seguir, T.seguir + 0.2, t) });
+  text(ctx, 'desacopla el motor de la transmisión', 540, y0 + 340, F.nu(38, 800), C.txt, { a: sm(T.sin5, T.sin5 + 0.4, t) });
+  text(ctx, 'TRANSMISIÓN', gx + 110, y0 + 172, F.nu(38), C.txt2);
+  pill(ctx, '3 · EL ROTOR SIGUE GIRANDO', 540, 410, 42, { bg: C.cyan, s: pop(t, T.aunque + 0.3), a: sm(T.aunque + 0.3, T.aunque + 0.5, t) });
   // MOTOR ≠ ROTOR
   const ne = sm(T.motor5, T.motor5 + 0.3, t);
   if (ne > 0) { const s2 = pop(t, T.motor5); text(ctx, 'MOTOR', 330, 290, F.fr(84), '#c6cde6', { a: ne }); ctx.save(); ctx.globalAlpha *= ne; ctx.translate(540, 260); ctx.scale(s2, s2); ctx.strokeStyle = C.yellow; ctx.lineWidth = 12; ctx.lineCap = 'round'; ctx.beginPath(); ctx.moveTo(-45, -15); ctx.lineTo(45, -15); ctx.moveTo(-45, 15); ctx.lineTo(45, 15); ctx.moveTo(18, -42); ctx.lineTo(-18, 42); ctx.stroke(); ctx.restore(); text(ctx, 'ROTOR', 760, 290, F.fr(84), C.cyan, { a: ne, glow: 'rgba(86,232,255,.5)' }); }
@@ -257,24 +339,27 @@
   const ang = H.lerp(0.22, 0.07, io(sm(T.reducir, T.reducir + 1.0, t)));
   // plano de rotación
   ctx.save(); ctx.setLineDash([18, 16]); ctx.strokeStyle = 'rgba(189,229,248,.55)'; ctx.lineWidth = 4; ctx.beginPath(); ctx.moveTo(80, 860); ctx.lineTo(1000, 860); ctx.stroke(); ctx.restore();
-  text(ctx, 'plano de giro', 860, 900, F.nu(30, 800), C.txt2);
+  text(ctx, 'PLANO DE GIRO', 850, 912, F.nu(40, 900), C.txt2);
   airfoil(ctx, 560, 860, 2.2, ang);
   // arco del ángulo de paso
   ctx.save(); ctx.strokeStyle = C.yellow; ctx.lineWidth = 8; ctx.lineCap = 'round'; ctx.beginPath(); ctx.arc(560 - 360, 860, 300, -ang, 0); ctx.stroke(); ctx.restore();
   ctx.save(); ctx.strokeStyle = 'rgba(255,210,63,.8)'; ctx.lineWidth = 4; ctx.beginPath(); ctx.moveTo(560 - 380, 860 + 380 * Math.sin(ang) * 0); ctx.lineTo(560 + 440 * Math.cos(ang) * 1, 860 - 440 * Math.sin(ang) - 380 * Math.sin(ang) * 0); ctx.stroke(); ctx.restore();
-  text(ctx, 'ÁNGULO DE PASO', 300, 760 - 300 * ang, F.nu(32), C.yellow);
+  text(ctx, 'ÁNGULO DE PASO', 300, 752 - 300 * ang, F.nu(40, 900), C.yellow);
   // flecha que rota la pala hacia abajo
   if (t > T.reducir) arrow(ctx, [[880, 640], [960, 700], [970, 780], [930, 840]], sm(T.reducir, T.reducir + 0.7, t), C.orange[1], 12);
-  pill(ctx, 'BAJAR EL PASO COLECTIVO', 540, 380, 46, { bg: C.yellow, a: sm(T.reducir, T.reducir + 0.2, t), s: pop(t, T.reducir) });
-  text(ctx, 'menor ángulo en todas las palas a la vez', 540, 470, F.nu(36, 800), C.txt, { a: sm(T.inclin, T.inclin + 0.4, t) });
+  pill(ctx, 'BAJAR EL PASO COLECTIVO', 540, 380, 52, { bg: C.yellow, a: sm(T.reducir, T.reducir + 0.2, t), s: pop(t, T.reducir) });
+  text(ctx, 'mismo ángulo menor en TODAS las palas', 540, 470, F.nu(38, 900), C.txt, { a: sm(T.inclin, T.inclin + 0.4, t) });
+  text(ctx, 'para conservar las RPM del rotor', 540, 520, F.nu(36, 800), C.txt2, { a: sm(T.inclin + 0.3, T.inclin + 0.7, t) });
+  // las dos palas cambian igual y el disco NO se inclina
+  { const ma = sm(T.reducir + 0.2, T.reducir + 0.6, t); if (ma > 0) { ctx.save(); ctx.globalAlpha *= ma; [[700, 'PALA 1'], [930, 'PALA 2']].forEach(([x, lb]) => { ctx.save(); ctx.setLineDash([8, 8]); ctx.strokeStyle = 'rgba(189,229,248,.5)'; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(x - 110, 1110); ctx.lineTo(x + 110, 1110); ctx.stroke(); ctx.restore(); airfoil(ctx, x, 1110, 0.55, ang); text(ctx, lb, x, 1185, F.nu(30, 900), C.txt2); }); text(ctx, 'el disco no se inclina', 815, 1250, F.nu(32, 900), C.cyan); ctx.restore(); } }
   // palanca del colectivo
   const lv = H.lerp(-0.95, -0.35, io(sm(T.reducir, T.reducir + 1.0, t)));
   ctx.save(); ctx.translate(250, 1250);
   ctx.fillStyle = 'rgba(9,11,44,.5)'; rr(ctx, -110, -10, 300, 40, 18); ctx.fill();
   ctx.rotate(lv); const lg = ctx.createLinearGradient(0, -20, 240, 20); lg.addColorStop(0, '#a4fbef'); lg.addColorStop(1, '#1d64b0'); ctx.fillStyle = lg; rr(ctx, 0, -14, 240, 28, 14); ctx.fill(); ball(ctx, 240, 0, 30, ['#ffe9a0', '#ffd23f', '#c78a00']); ctx.restore();
   ball(ctx, 250, 1250, 22, ['#c6cde6', '#7a85ad', '#3a4470']);
-  if (t > T.reducir) arrow(ctx, [[520, 1000], [560, 1060], [560, 1120], [520, 1170]], sm(T.reducir, T.reducir + 0.6, t), C.orange[1], 10);
-  text(ctx, 'palanca del colectivo', 300, 1340, F.nu(32, 800), C.txt2);
+  if (t > T.reducir) arrow(ctx, [[480, 1060], [510, 1110], [505, 1160], [470, 1200]], sm(T.reducir, T.reducir + 0.6, t), C.orange[1], 10);
+  text(ctx, 'PALANCA DEL COLECTIVO', 300, 1340, F.nu(34, 900), C.txt2);
   pill(ctx, 'PILOTO', 250, 600, 40, { bg: '#e7fbff', a: fadeIO(t, T.piloto7, T.reducir + 0.4, 0.2), s: pop(t, T.piloto7) });
  }
  // ---------- energía: altura -> aire -> giro ----------

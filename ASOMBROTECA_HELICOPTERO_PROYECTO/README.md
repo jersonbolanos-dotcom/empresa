@@ -1,6 +1,7 @@
 # ASOMBROTECA · ¿Qué pasa si un helicóptero pierde su motor? (Flat-Vector Science)
 
-- Video: `07_OUTPUT/ASOMBROTECA_HELICOPTERO_AUTORROTACION_FINAL.mp4` (1080×1920, 30 fps, 63,7 s).
+- Video actual: `07_OUTPUT/ASOMBROTECA_HELICOPTERO_AUTORROTACION_V2.mp4` (1080×1920, 30 fps, 63,7 s); cambios en `CAMBIOS_V2.md`.
+- Versión anterior: `07_OUTPUT/ASOMBROTECA_HELICOPTERO_AUTORROTACION_V1.mp4` y código en `09_VERSION_ANTERIOR_V1/`.
 - Miniatura: `07_OUTPUT/miniatura.png`.
 - Subtítulos: `06_SUBTITULOS/subtitulos.srt`.
 
