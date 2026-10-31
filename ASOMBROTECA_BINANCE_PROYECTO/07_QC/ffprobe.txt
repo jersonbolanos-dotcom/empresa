@@ -1,0 +1,40 @@
+== ffprobe streams
+index=0
+codec_name=h264
+profile=High
+width=1080
+height=1920
+pix_fmt=yuv420p
+r_frame_rate=30/1
+avg_frame_rate=30/1
+duration=115.500000
+bit_rate=4031389
+nb_frames=3465
+index=1
+codec_name=aac
+profile=LC
+sample_rate=48000
+channels=2
+r_frame_rate=0/0
+avg_frame_rate=0/0
+duration=115.487000
+bit_rate=262088
+nb_frames=5415
+duration=115.500000
+size=62115852
+bit_rate=4302396
+== moov antes de mdat
+True
+== fotogramas decodificados
+3465
+== audio EBU R128 (mezcla final)
+    I:         -14.8 LUFS
+    LRA:         2.0 LU
+    Peak:       -1.0 dBFS
+== voz original (fuente)
+codec_name=mp3
+sample_rate=44100
+channels=1
+duration=115.487313
+e8be7b76a26e1c5e071c2ae54c73492ff8e9c5e4b2dd76aad3352950501365b0  ../01_ENTRADA/audio/voz_original_Audio_de_Binance.mp3
+e8be7b76a26e1c5e071c2ae54c73492ff8e9c5e4b2dd76aad3352950501365b0  ../05_AUDIO/voice_original.mp3
