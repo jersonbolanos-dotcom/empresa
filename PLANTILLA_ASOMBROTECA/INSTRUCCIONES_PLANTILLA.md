@@ -157,6 +157,19 @@ La piel se elige con `skin: 'plana' | 'oscura'` en `PLANTILLA.make`. Los bloques
 | `laborer`, `porter`, `oxcart`, `packAnimal` | Trabajador con ropa y sombrero variados; porteador con pértiga y dos cestas; carro de dos ruedas con buey y ruedas que giran; mula con alforjas. Cargas: `tierra`, `piedra` o `ladrillos` |
 | `dust(ctx, x, y, t, t0, {s})` | Nube de polvo determinista |
 
+**Añadidos y mejoras v1.14.1 (revisión final de «Gran Muralla»):**
+
+| Bloque | Uso |
+|---|---|
+| `figure(ctx, x, y, h, ph, {pose, var, dir, lift, target})` | **Persona proporcionada** (cabeza, torso, brazos y piernas articulados con IK) con túnica cruzada, faja, pantalón y calzado, y sombrero de paja, pañuelo, moño o gorro según `var`. **El pie más bajo toca siempre `y`**. Poses: `walk`, `stand`, `carry` (pértiga), `ram` (pisón con las dos manos, `lift` 0..1), `chisel` (`target`), `look` y `lead`. Para que no patine: `ph = distancia recorrida / (h · 0,85)`. Devuelve las manos, la cabeza, el hombro y los pies |
+| `laborer`, `porter` (mejorados) | Usan `figure`; el porteador lleva la pértiga al hombro y la sujeta con la mano |
+| `wallPath` (rediseñado) | Muralla 2,5D: sombra proyectada, cimiento que baja a la ladera, adarve con grosor, pretil interior, almenas con cara, techo y lateral, troneras, zócalo de piedra (ladrillo), mampostería (piedra) o capas erosionadas (tierra), cara final con grosor y torres integradas cuya base llega al terreno. `pavilion` añade un pabellón con tejado a las torres indicadas |
+| `watchtower` (rediseñado) | Cara frontal, cara lateral con puerta al nivel del adarve, ventanas arqueadas, almenas con volumen y pabellón opcional; humo o fuego desde la azotea |
+| `matFill(ctx, pts, mat, {layer, reeds, bh, glow})` | Relleno de material para cortes: `tierra` (capas), `grava` (cascajo), `piedra`, `ladrillo` (aparejo), `madera` y cañas |
+| `wallSection(ctx, x, y, w, h, t, kind, {reeds, build, glow})` | **Cortes comparables**: `tierra` (apisonada, con capas de cañas opcionales), `piedra` (mampostería con relleno) y `ming` (cimiento de piedra, núcleo de tierra y cascajo, paramentos de ladrillo que se colocan hilada a hilada, adarve y parapeto). Devuelve puntos para rótulos |
+| `ranges` (`part`) | `part: 'back'` / `'front'` para dibujar las capas lejanas con una cámara atenuada (**paralaje**) |
+| `rammedEarth` (mejorado) | Trabajadores `figure` con pisón sujeto con las dos manos; anillo de impacto y polvo al tocar; capa suelta solo un 35 % más alta que la compactada; encofrado con travesaño atado |
+
 Efectos `FX` de v1.14: `apisonar` (golpes de pisón), `vertido` (tierra), `ruedas`, `cascos`, `ladrillo`, `hoguera` y `pasosTierra`.
 
 **Bloques v1.13 (episodio «Vikingos en América»)** — mar cinematográfico, barco nórdico, mapas de rutas, arqueología y tiempo:

@@ -13,5 +13,5 @@ channels=2
 r_frame_rate=0/0
 nb_frames=5379
 duration=114.711000
-size=83406493
-bit_rate=5816808
+size=84521539
+bit_rate=5894572

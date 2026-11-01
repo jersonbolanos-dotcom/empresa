@@ -1,7 +1,9 @@
 # ASOMBROTECA · ¿Cómo construyeron la Gran Muralla China sin maquinaria moderna?
 
-- **Video:** `07_OUTPUT/ASOMBROTECA_MURALLA_CHINA.mp4` (1080×1920, 30 fps, 114,7 s). Miniatura en `07_OUTPUT/miniatura.jpg`.
-- **Base:** `PLANTILLA_ASOMBROTECA` v1.14. Este episodio añadió:
+- **Video final (V2):** `07_OUTPUT/ASOMBROTECA_GRAN_MURALLA_FINAL.mp4` (1080×1920, 30 fps, 114,7 s, 84,5 MB). Miniatura en `07_OUTPUT/miniatura.jpg`.
+- **Respaldo V1:** `07_OUTPUT/V1/`, `05_AUDIO/V1/`, `07_QC/V1/` y `04_CODIGO/V1_respaldo/`.
+- **Revisión final (V2):** muralla y torres con volumen (adarve, almenas 2,5D, sombras, cimiento, torres integradas con puertas y pabellón); personajes proporcionados que caminan sin patinar; compactación golpe a golpe con indicador claro; épocas diferenciadas; mapas grandes con cámara; cortes con materiales; transporte por curvas de nivel; vigilancia en 4 pasos con línea de visión; paralaje.
+- **Base:** `PLANTILLA_ASOMBROTECA` v1.14.1. Este episodio añadió:
   - cordilleras con cresta (`ranges`);
   - la muralla que sigue el terreno (`wallPath`);
   - torres con humo o fuego (`watchtower`);

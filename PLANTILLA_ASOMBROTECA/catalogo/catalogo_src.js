@@ -91,6 +91,8 @@
   ['Mapa del norte de China por periodos (v1.14)', (c, t) => { const pr = P.chinaMap(c, 0, 0, 400, 300, t, {}); P.mapWall(c, P.CNWALLS.qin[0].map(pr), 1, t, { c: '#D5AC62', w: 3 }); P.CNWALLS.han.forEach((s) => P.mapWall(c, s.map(pr), 1, t, { c: '#4fb3a8', w: 3 })); P.CNWALLS.ming.forEach((s) => P.mapWall(c, s.map(pr), 1, t, { c: '#d9634a', w: 3 })); }],
   ['Carro, mula y porteador (v1.14)', (c, t) => { c.fillStyle = '#c9b48e'; c.fillRect(0, 0, 400, 300); P.oxcart(c, 120, 260, 200, t, { load: 'ladrillos', phase: 0.2 }); P.packAnimal(c, 270, 260, 80, 0.3, { load: 'piedra' }); P.porter(c, 350, 260, 110, 0.2, { load: 'tierra', var: 2 }); }],
   ['Torres de vigilancia y de señales (v1.14)', (c, t) => { c.fillStyle = '#86A9BD'; c.fillRect(0, 0, 400, 300); P.watchtower(c, 120, 280, 160, t, { style: 'ladrillo', smoke: 1 }); P.watchtower(c, 300, 280, 140, t, { style: 'tierra', fire: 1 }); }],
+  ['Personas proporcionadas (v1.14.1)', (c, t) => { c.fillStyle = '#d9cfb4'; c.fillRect(0, 0, 400, 300); c.fillStyle = '#8a6a45'; c.fillRect(0, 262, 400, 4); P.figure(c, 60, 262, 150, 0.2, { pose: 'walk', var: 0 }); P.porter(c, 170, 262, 150, 0.3, { load: 'piedra', var: 1 }); P.figure(c, 270, 262, 150, 0, { pose: 'ram', lift: 0.7, var: 3 }); P.laborer(c, 350, 262, 150, 0.2, { pose: 'chisel', var: 5 }); }],
+  ['Cortes: tierra · piedra · Ming (v1.14.1)', (c, t) => { c.fillStyle = '#1b2a2c'; c.fillRect(0, 0, 400, 300); P.wallSection(c, 70, 270, 110, 220, t, 'tierra', { reeds: true }); P.wallSection(c, 200, 270, 110, 220, t, 'piedra', {}); P.wallSection(c, 330, 270, 110, 220, t, 'ming', {}); }],
  ];
  window.drawCatalog = function () {
   document.querySelectorAll('canvas[data-i]').forEach((cv) => {

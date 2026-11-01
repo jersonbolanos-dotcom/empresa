@@ -27,3 +27,18 @@
 - **Escena de piedra local:** reconstrucción plausible (cantera en la ladera, porteador con piedra), rotulada como tal.
 - **Mapa:** contornos simplificados (costa de Bohai, Shandong y Liaodong; río Amarillo; Gobi, Ordos y Badain Jaran). Rotulado «esquema aproximado de algunos tramos».
 - **Música:** orquestal sintética original (`MUS.epica`), en modo menor y dórico, sin escalas ni timbres «orientales» de cliché. Percusión rítmica en la escena de la tierra apisonada.
+
+## Revisión final (V2): fuentes patrimoniales
+- **UNESCO, sitio 438 «The Great Wall»** ([whc.unesco.org/en/list/438](https://whc.unesco.org/en/list/438); consultado mediante buscador, porque la red de esta sesión no permite abrir el dominio):
+  - hacia 220 a. C., con Qin Shi Huang, se unieron fortificaciones anteriores;
+  - la construcción continuó hasta los Ming (1368–1644);
+  - el sistema incluye murallas, fortalezas, pasos y torres de señales;
+  - en Gansu se conservan tramos de tierra apisonada de los Han occidentales.
+- **Britannica** ([Great Wall of China](https://www.britannica.com/topic/Great-Wall-of-China)): el estado de Chu empezó un sistema defensivo permanente hacia el s. VII a. C.; otros estados siguieron entre los s. VI y IV a. C. → rótulo «s. VII–III a. C.».
+- **Newcastle University · WallCAP** ([documento](https://researcharchive.ncl.ac.uk/wallcap/wp-content/uploads/2021/03/20210303_HWVND-Wall-to-Wall-Project.pdf)): los materiales variaban según lo disponible (ladrillo, piedra o tierra apisonada maciza, o núcleo de tierra revestido de ladrillo o piedra) → columnas comparables y nota «cortes plausibles, no universales».
+- **Decisiones V2:**
+  - **Épocas:** muros de tierra en la etapa antigua, piedra y tierra en varias dinastías, ladrillo y piedra Ming. Ya no se usa la misma muralla de ladrillo para todo.
+  - **Señales:** observar → detectar → humo → transmitir, con torres en cumbres y líneas de visión de cima a cima. Rótulo «humo de día, fuego de noche».
+  - **Pasos:** se identifican Jiayuguan y Shanhaiguan.
+- **No hay cifras inventadas:** la compactación se expresa como progreso de la capa (0–100 %), no como una medida física.
+

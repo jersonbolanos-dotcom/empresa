@@ -1,5 +1,5 @@
 // =====================================================================================================
-// episodio.js — «¿Cómo construyeron la Gran Muralla China sin maquinaria moderna?» · Asombroteca · PLANTILLA v1.14
+// episodio.js — «¿Cómo construyeron la Gran Muralla China sin maquinaria moderna?» · Asombroteca · PLANTILLA v1.14.1 · V2 (revisión final)
 // Arco: muralla sobre las crestas (sin máquinas) → constructores (reconstrucción) → ingeniería + materiales + trabajo →
 // no se construyó de una sola vez (mapa por periodos) → más de 2.000 años → tierra · piedra · ladrillo → moldes de madera
 // → compactación capa por capa → tierra apisonada (corte) → piedra local → dinastía Ming (ladrillo y piedra, núcleo) →
@@ -33,7 +33,7 @@
   pero16: SG(16).s, transportaban: wt(17, 'transportaban'), toneladas: wt(17, 'toneladas'), dificiles: wt(17, 'difíciles'),
   utilizaban18: SG(18).s, carros: wt(18, 'carros'), animales: wt(18, 'animales'), cantidades: wt(18, 'cantidades'), trabajo18: wt(18, 'trabajo'),
   en19: SG(19).s, empinadas: wt(19, 'empinadas'), manualmente: wt(19, 'manualmente'),
-  y20: SG(20).s, desafio: wt(20, 'desafío'), construir21: SG(21).s, torres: wt(21, 'torres'), vigilancia: wt(21, 'vigilancia'), fortificaciones: wt(21, 'fortificaciones'), observar: wt(21, 'observar'), comunicar: wt(21, 'comunicar'), amenazas: wt(21, 'amenazas'),
+  y20: SG(20).s, desafio: wt(20, 'desafío'), construir21: SG(21).s, torres: wt(21, 'torres'), vigilancia: wt(21, 'vigilancia'), fortificaciones: wt(21, 'fortificaciones'), observar: wt(21, 'observar'), territorio: wt(21, 'territorio'), comunicar: wt(21, 'comunicar'), amenazas: wt(21, 'amenazas'),
   asi22: SG(22).s, siglos22: wt(22, 'siglos'), generaciones: wt(22, 'generaciones'), ampliando: wt(22, 'ampliando'), transformando: wt(22, 'transformando'), sistema22: wt(22, 'sistema'),
   y23: SG(23).s, sorprendente23: wt(23, 'sorprendente'), unica: wt(23, 'única'), continua: wt(23, 'continua'), emperador: wt(23, 'emperador'),
   lo24: SG(24).s, gran24: wt(24, 'gran'), resultado: wt(24, 'resultado'), innumerables: wt(24, 'innumerables'), historia24: wt(24, 'historia'),
@@ -60,25 +60,30 @@
  const icoGear = (ctx, x, y, r) => { ctx.save(); ctx.fillStyle = '#7a8790'; ctx.beginPath(); for (let i = 0; i < 16; i++) { const a = i / 16 * TAU, rr = i % 2 ? r * 0.42 : r * 0.55; ctx.lineTo(x + Math.cos(a) * rr, y + Math.sin(a) * rr); } ctx.closePath(); ctx.fill(); ctx.fillStyle = '#e8ecef'; ctx.beginPath(); ctx.arc(x, y, r * 0.18, 0, TAU); ctx.fill(); ctx.restore(); };
  const camPt = (cam, p) => [(p[0] - cam[0]) * cam[2] + 540, (p[1] - cam[1]) * cam[2] + 960];
 
- // ---------------- paisaje compartido: cordillera + muralla Ming en las crestas ----------------
- // o: { cam, sun, sky, hor, seed, arid, style, build, ruin, smoke, fire, towers, season (0 primavera → 3 invierno), fogA, night }
+ // ---------------- paisaje compartido con PARALAJE: capas lejanas con cámara atenuada; cresta, muralla y torres con cámara completa ----------------
+ // o: { cam, sun, sky, hor, seed, arid, style, build, ruin, smokeAt, smoke, towers, towerS, pavilion, fogA, snow, before, after, prev:{style, ruin} }
  function ridgeShot(ctx, t, o = {}) {
-  ctx.save(); if (o.cam) P.camApply(ctx, o.cam);
-  const rg = P.ranges(ctx, t, { hor: o.hor ?? 760, sun: o.sun === null ? null : (o.sun || [820, 470]), sunA: o.sunA, sky: o.sky, seed: o.seed ?? 5, arid: o.arid || 0, x0: -1800, x1: 2900, front: { y: o.fy ?? 1180, amp: o.famp ?? 400 }, fogA: o.fogA ?? 0.7, nearC: o.nearC, farC: o.farC });
-  const pts = []; for (let x = -1800; x <= 2900; x += 18) pts.push([x, rg.ridge(x)]);
+  const cam = o.cam || [540, 960, 1], pc = [540 + (cam[0] - 540) * 0.3, 960 + (cam[1] - 960) * 0.35, Math.pow(cam[2], 0.35)];
+  const R0 = { hor: o.hor ?? 760, sun: o.sun === null ? null : (o.sun || [820, 470]), sunA: o.sunA, sky: o.sky, seed: o.seed ?? 5, arid: o.arid || 0, x0: -2200, x1: 3300, front: { y: o.fy ?? 1180, amp: o.famp ?? 400 }, fogA: o.fogA ?? 0.7, nearC: o.nearC, farC: o.farC };
+  ctx.save(); P.camApply(ctx, pc); P.ranges(ctx, t, { ...R0, part: 'back' }); ctx.restore();
+  ctx.save(); P.camApply(ctx, cam); const rg = P.ranges(ctx, t, { ...R0, part: 'front' });
+  const pts = []; for (let x = -2200; x <= 3300; x += 16) pts.push([x, rg.ridge(x)]);
   if (o.before) o.before(ctx, rg);
-  const pa = P.wallPath(ctx, pts, t, { style: o.style || 'ladrillo', h: o.wh ?? 46, build: o.build ?? 1, towers: o.towers || [0.33, 0.405, 0.48, 0.555, 0.63, 0.705], towerS: o.towerS ?? 112, ruin: o.ruin || 0, smokeAt: o.smokeAt, smoke: o.smoke || 0, glow: o.glow });
-  if (o.snow) { ctx.save(); ctx.globalAlpha *= o.snow; ctx.fillStyle = 'rgba(240,244,246,0.85)'; ctx.beginPath(); ctx.moveTo(-1800, 2400); for (let x = -1800; x <= 2900; x += 18) ctx.lineTo(x, rg.ridge(x) + 10 + 18 * Math.sin(x * 0.03)); ctx.lineTo(2900, 2400); ctx.closePath(); ctx.globalAlpha *= 0.35; ctx.fill(); ctx.restore(); }
-  if (o.after) o.after(ctx, rg, pa);
-  ctx.restore(); return { rg, pa };
+  if (o.prev) P.wallPath(ctx, pts, t, { style: o.prev.style, h: o.wh ?? 48, ruin: o.prev.ruin || 0, towers: o.prev.towers || [], towerS: o.towerS ?? 120, crenel: o.prev.style === 'ladrillo' });
+  const pa = P.wallPath(ctx, pts, t, { style: o.style || 'ladrillo', h: o.wh ?? 48, build: o.build ?? 1, towers: o.towers || [0.33, 0.405, 0.48, 0.555, 0.63, 0.705], towerS: o.towerS ?? 120, ruin: o.ruin || 0, smokeAt: o.smokeAt, smoke: o.smoke || 0, glow: o.glow, pavilion: o.pavilion || [0.48] });
+  if (o.snow) { ctx.save(); ctx.globalAlpha *= o.snow * 0.35; ctx.fillStyle = 'rgba(240,244,246,0.85)'; ctx.beginPath(); ctx.moveTo(-2200, 2600); for (let x = -2200; x <= 3300; x += 18) ctx.lineTo(x, rg.ridge(x) + 10 + 18 * Math.sin(x * 0.03)); ctx.lineTo(3300, 2600); ctx.closePath(); ctx.fill(); ctx.restore(); }
+  if (o.after) o.after(ctx, rg, pa, pts);
+  ctx.restore(); return { rg, pa, pts };
  }
- // obra de tierra apisonada en un valle árido (reconstrucción): suelo, encofrado, trabajadores y porteadores
+ // valle árido de la obra de tierra apisonada (reconstrucción)
  const groundSite = (ctx, t, o = {}) => { P.ranges(ctx, t, { hor: o.hor ?? 820, sun: [840, 520], sky: ['#8fb0c2', '#e6dcc4'], seed: 12, arid: 0.75, layers: 4, x0: -800, x1: 1900, front: { y: 1020, amp: 160 }, fogA: 0.6 });
   const g = ctx.createLinearGradient(0, 1040, 0, 2000); g.addColorStop(0, '#b08a5c'); g.addColorStop(1, '#6d5034'); ctx.fillStyle = g; ctx.fillRect(-800, 1040, 2700, 1200); const R = H.rng(31); ctx.fillStyle = 'rgba(90,64,40,0.35)'; for (let i = 0; i < 260; i++) ctx.fillRect(R.range(-700, 1800), R.range(1050, 1950), R.range(2, 6), 2); };
+ // porteadores que llegan a la obra: avanzan sin patinar (fase = distancia / zancada), aparecen y desaparecen fuera del foco
+ const porters = (ctx, t, n, x0, x1, y, h, speed, loadF) => { for (let i = 0; i < n; i++) { const L = x1 - x0, s = ((t * speed + i * L / n) % L), x = x0 + s, a = sm(0, 0.12, s / L) * (1 - sm(0.86, 1, s / L)); if (a <= 0) continue; ctx.save(); ctx.globalAlpha *= a; P.porter(ctx, x, y + i * 26, h, s / (h * 0.85), { load: loadF(i), var: i + 2 }); ctx.restore(); } };
 
  const B = [];
- // 1 · GANCHO: vuelo sobre la cordillera; desciende hacia una torre y recorre el muro
- const camHook = (t) => P.camAt([[0, 600, 760, 0.55], [2.6, 520, 880, 0.85], [T.imposibles, 330, 980, 1.6], [T.maquinaria + 0.4, 160, 1000, 2.1], [TB.constr, 60, 1010, 2.3]], t);
+ // 1 · GANCHO: vuelo sobre la cordillera; desciende hacia una torre con pabellón y recorre el muro
+ const camHook = (t) => P.camAt([[0, 600, 760, 0.55], [2.6, 520, 880, 0.85], [T.imposibles, 330, 980, 1.6], [T.maquinaria + 0.4, 160, 1000, 2.1], [TB.constr, 40, 1010, 2.3]], t);
  B.push({ t0: 0, t1: TB.constr, draw(ctx, t) {
   ridgeShot(ctx, t, { cam: camHook(t), fogA: 0.8 });
   pill(ctx, '¿CÓMO CONSTRUYERON ESTO?', 540, 270, 54, t, T.gigantesca, C.oro, C.fondo, T.sin1);
@@ -88,31 +93,27 @@
   scrim(ctx);
  }, sfx(k) { FX.viento(k, 0, TB.constr + 0.4, 1.3); k.play('whoosh', 0.1, { dur: 2.5, top: 900, gain: 0.3 }); k.play('whoosh', T.imposibles - 0.6, { dur: 1.2, top: 1600, gain: 0.3, minor: true }); FX.aparece(k, T.gigantesca); FX.tachado(k, T.excavadoras + 0.15); FX.tachado(k, T.gruas + 0.15); FX.tachado(k, T.maquinaria + 0.15); MUS.golpe(k, T.muralla0, { gain: 0.7, chord: ['A2', 'E3', 'A3', 'C4'] }); } });
 
- // 2 · LOS CONSTRUCTORES: nube de polvo → reconstrucción: personas con ropa distinta, encofrados y herramientas
- const workersScene = (ctx, t, focus = 0) => { groundSite(ctx, t);
-  P.rammedEarth(ctx, 700, 1300, 520, 300, t, { total: 8, done: 3, loose: 1, compact: 0.5 + 0.5 * Math.sin(t * 0.7) * 0, form: 1, workers: 3, hit: t * 1.4, seed: 5 });
-  for (let i = 0; i < 3; i++) { const u = ((t * 0.07 + i * 0.33) % 1); P.porter(ctx, lerp(-80, 420, u), 1400 + i * 40, 190, t * 1.2 + i * 0.3, { load: 'tierra', var: i + 2 }); }
-  P.laborer(ctx, 180, 1650, 230, t * 1.5, { pose: 'chisel', var: 4 }); ctx.fillStyle = '#8a6440'; ctx.beginPath(); ctx.ellipse(260, 1660, 70, 18, 0, Math.PI, TAU); ctx.fill();
-  P.laborer(ctx, 960, 1600, 220, 0, { pose: 'stand', var: 5 }); ctx.fillStyle = '#795335'; ctx.fillRect(860, 1560, 70, 40); };
+ // 2 · LOS CONSTRUCTORES: nube de polvo → reconstrucción con personas distintas, encofrados y herramientas
+ const workersScene = (ctx, t, o = {}) => { groundSite(ctx, t);
+  porters(ctx, t, 3, -260, 420, 1390, 200, 36, (i) => (i === 1 && o.stone ? 'piedra' : 'tierra'));
+  const R = P.rammedEarth(ctx, 720, 1300, 540, 300, t, { total: 8, done: o.done ?? 3, loose: o.loose ?? 1, compact: 0.45, form: o.form ?? 1, workers: o.workers ?? 3, hit: t * 1.6, cut: o.cut || 0, glowLayer: o.glowLayer, seed: 5 });
+  P.laborer(ctx, 170, 1660, 240, t * 1.4, { pose: 'chisel', var: 4, target: [250, 1640] }); ctx.fillStyle = '#8a6440'; ctx.beginPath(); ctx.ellipse(270, 1662, 70, 18, 0, Math.PI, TAU); ctx.fill();
+  P.figure(ctx, 1000, 1610, 230, 0, { pose: 'look', var: 6 }); return R; };
  B.push({ t0: TB.constr, t1: TB.desafio, in: { type: 'fade', d: 0.35 }, draw(ctx, t) {
-  const cam = P.camAt([[TB.constr, 480, 1260, 1.35], [TB.desafio, 600, 1240, 1.1]], t);
+  const cam = P.camAt([[TB.constr, 480, 1280, 1.4], [TB.desafio, 620, 1250, 1.12]], t);
   ctx.save(); P.camApply(ctx, cam); workersScene(ctx, t); ctx.restore();
   const du = win(t, TB.constr, TB.constr + 1.2); if (du < 1) { ctx.save(); ctx.globalAlpha = 1 - du; ctx.fillStyle = 'rgba(206,182,140,1)'; ctx.fillRect(0, 0, W, HH); ctx.restore(); for (let i = 0; i < 6; i++) P.dust(ctx, 180 + i * 150, 900 + (i % 2) * 200, t, TB.constr - 0.2 + i * 0.05, { s: 260, seed: i + 1 }); }
   pill(ctx, 'RECONSTRUCCIÓN HISTÓRICA', 540, 270, 46, t, T.antiguos - 0.3, C.oro, C.fondo);
   tag(ctx, 'herramientas, ropa y técnicas cambiaban según la época y la región', 540, 380, 32, sm(T.chinos, T.chinos + 0.4, t));
   scrim(ctx);
- }, sfx(k) { k.noise(TB.constr - 0.2, { dur: 1.6, color: 'pink', filter: 'lowpass', f: [[0, 2500], [1.6, 400]], gain: 0.12, a: 0.05 }); FX.apisonar(k, TB.constr + 0.8, 5, 0.36, 0.7); FX.pasosTierra(k, TB.constr + 0.5, 6, 0.42, 0.8); FX.viento(k, TB.constr, TB.desafio - TB.constr, 0.5); } });
+ }, sfx(k) { k.noise(TB.constr - 0.2, { dur: 1.6, color: 'pink', filter: 'lowpass', f: [[0, 2500], [1.6, 400]], gain: 0.12, a: 0.05 }); FX.apisonar(k, TB.constr + 0.8, 5, 0.31, 0.6); FX.pasosTierra(k, TB.constr + 0.5, 6, 0.42, 0.8); FX.viento(k, TB.constr, TB.desafio - TB.constr, 0.5); } });
 
  // 3 · EL DESAFÍO: la cámara sube sobre la obra; el muro se vuelve transparente y muestra sus capas
  B.push({ t0: TB.desafio, t1: TB.mapa, in: { type: 'fade', d: 0.3 }, draw(ctx, t) {
-  const cam = P.camAt([[TB.desafio, 600, 1150, 0.95], [T.la5, 640, 1220, 1.25], [TB.mapa, 700, 1180, 1.55]], t);
-  ctx.save(); P.camApply(ctx, cam); groundSite(ctx, t);
+  const cam = P.camAt([[TB.desafio, 600, 1150, 0.95], [T.la5, 660, 1220, 1.25], [TB.mapa, 720, 1180, 1.6]], t);
   const cut = sm(T.combinacion, T.combinacion + 0.6, t);
-  for (let i = 0; i < 3; i++) { const u = ((t * 0.07 + i * 0.33) % 1); P.porter(ctx, lerp(-80, 420, u), 1400 + i * 40, 190, t * 1.2 + i * 0.3, { load: i === 1 ? 'piedra' : 'tierra', var: i + 2 }); }
-  P.rammedEarth(ctx, 700, 1300, 520, 300, t, { total: 8, done: 5, loose: 0, form: 1 - cut, workers: cut > 0.5 ? 0 : 3, hit: t * 1.4, cut, glowLayer: cut > 0.5 ? 2 : null, seed: 5 });
-  ctx.restore();
-  const q = camPt(cam, [700, 1180]);
-  callout(ctx, q[0], q[1], 760, 620, 'CAPAS', cut, C.oro, 'left');
+  ctx.save(); P.camApply(ctx, cam); workersScene(ctx, t, { done: 5, loose: 0, form: 1 - cut, workers: cut > 0.5 ? 0 : 3, cut, glowLayer: cut > 0.5 ? 2 : null, stone: true }); ctx.restore();
+  const q = camPt(cam, [720, 1180]); callout(ctx, q[0], q[1], 760, 620, 'CAPAS', cut, C.oro, 'left');
   const words = [['INGENIERÍA', T.ingenieria, 230], ['MATERIALES', T.materiales5, 540], ['TRABAJO', T.trabajo5, 850]];
   words.forEach(([s, t0, x], i) => { const a = sm(t0 - 0.15, t0 + 0.15, t); if (a <= 0) return; ctx.save(); ctx.globalAlpha *= a; P.rr(ctx, x - 150, 370, 300, 84, 42, i === 1 ? C.oro : 'rgba(17,26,28,0.85)'); txt(ctx, s, x, 413, 34, i === 1 ? C.fondo : C.blanco); if (i < 2) txt(ctx, '+', x + 155, 413, 46, C.oro); ctx.restore(); });
   pill(ctx, '¿CÓMO LO LOGRARON?', 540, 260, 54, t, T.como4, C.blanco, C.fondo, T.la5);
@@ -120,199 +121,235 @@
   scrim(ctx);
  }, sfx(k) { FX.viento(k, TB.desafio, TB.mapa - TB.desafio, 0.6); FX.aparece(k, T.como4); FX.revelar(k, T.combinacion); FX.etiqueta(k, T.ingenieria); FX.etiqueta(k, T.materiales5); FX.etiqueta(k, T.trabajo5); } });
 
- // ---------------- mapa esquemático del norte de China (tramos por periodos) ----------------
- const MAPR = { x: 20, y: 430, w: 1040, h: 620 };
- const PER = [['estados', 'REINOS COMBATIENTES · s. VII–III a. C.', C.estados], ['qin', 'QIN · s. III a. C.', C.qin], ['han', 'HAN · s. II a. C.–II d. C.', C.han], ['ming', 'MING · 1368–1644', C.ming]];
+ // ---------------- MAPA GRANDE del norte de China: cámara que recorre los periodos; etiquetas a tamaño fijo ----------------
+ const MAPR = { x: 20, y: 470, w: 1040, h: 640 };
+ const cnK = Math.cos(39 * Math.PI / 180), cnS = Math.min(MAPR.w / ((126 - 88) * cnK), MAPR.h / (46 - 32)), cnOx = MAPR.x + (MAPR.w - (126 - 88) * cnK * cnS) / 2, cnOy = MAPR.y + (MAPR.h - (46 - 32) * cnS) / 2;
+ const projCN = (p) => [cnOx + (p[0] - 88) * cnK * cnS, cnOy + (46 - p[1]) * cnS]; // misma proyección que P.chinaMap con estos parámetros
+ const PER = [['estados', 'REINOS COMBATIENTES', 's. VII–III a. C.', C.estados, [105.0, 35.4]], ['qin', 'QIN', 's. III a. C.', C.qin, [113.5, 43.2]], ['han', 'HAN', 's. II a. C.–II d. C.', C.han, [93.8, 42.7]], ['ming', 'MING', '1368–1644', C.ming, [113.8, 38.3]]];
+ const mapLabel = (ctx, s, x, y, px, c, a = 1, bg = 'rgba(17,26,28,0.85)') => { if (a <= 0) return; ctx.save(); ctx.globalAlpha *= a; ctx.font = `800 ${px}px Nunito`; const w = ctx.measureText(s).width + px * 0.9; const xx = cl(x, w / 2 + 20, W - w / 2 - 20); P.rr(ctx, xx - w / 2, y - px * 0.72, w, px * 1.44, px * 0.72, bg); txt(ctx, s, xx, y + 2, px, c); ctx.restore(); };
  function chinaShot(ctx, t, o = {}) {
-  bgTech(ctx); const pr = P.chinaMap(ctx, MAPR.x, MAPR.y, MAPR.w, MAPR.h, t, {}); ctx.save(); ctx.strokeStyle = 'rgba(200,210,190,0.4)'; ctx.lineWidth = 3; ctx.strokeRect(MAPR.x, MAPR.y, MAPR.w, MAPR.h); ctx.restore();
-  const lab = (ll, s, a, px = 30, c = C.blanco, dy = 0) => { if (a <= 0) return; const p = pr(ll); ctx.save(); ctx.globalAlpha *= a; txt(ctx, s, p[0], p[1] + dy, px, c, { w: 800 }); ctx.restore(); };
-  const la = o.labels ?? 1; lab([101, 43.2], 'DESIERTO DE GOBI', la * 0.9, 30, '#5a4a30'); lab([108.5, 35.6], 'río Amarillo', la, 28, '#9fd0e8'); lab([122.5, 38.3], 'mar de Bohai', la * 0.9, 26, '#cfe3ea');
-  const city = (ll, s, a, dx = 0, dy = -30) => { if (a <= 0) return; const p = pr(ll); ctx.save(); ctx.globalAlpha *= a; ctx.fillStyle = C.blanco; ctx.beginPath(); ctx.arc(p[0], p[1], 8, 0, TAU); ctx.fill(); ctx.strokeStyle = C.fondo; ctx.lineWidth = 3; ctx.stroke(); ctx.restore(); ctx.save(); ctx.globalAlpha *= a; txt(ctx, s, p[0] + dx, p[1] + dy, 30, C.blanco); ctx.restore(); };
-  city([116.4, 39.9], 'Pekín', la, 0, 34); city([98.2, 39.8], 'Jiayuguan', o.ends ?? 0, 0, 34); city([119.8, 40.0], 'Shanhaiguan', o.ends ?? 0, 50, -34);
-  const pp = o.periods || {}; PER.forEach(([k, s, c]) => { const p = pp[k] || 0; if (p <= 0) return; P.CNWALLS[k].forEach((seg) => P.mapWall(ctx, seg.map(pr), p, t, { c, w: 7 })); });
-  if (o.legend) { ctx.save(); ctx.globalAlpha *= o.legend; P.rr(ctx, 40, 1080, 1000, 250, 26, 'rgba(17,26,28,0.85)'); PER.forEach(([k, s, c], i) => { const a = cl((pp[k] || 0) * 3); ctx.save(); ctx.globalAlpha *= 0.35 + 0.65 * a; ctx.fillStyle = c; ctx.fillRect(80, 1118 + i * 54, 60, 12); txt(ctx, s, 160, 1125 + i * 54, 32, C.blanco, { al: 'left', w: 800 }); ctx.restore(); }); ctx.restore(); }
-  ctx.save(); ctx.globalAlpha *= 0.9; txt(ctx, 'esquema aproximado de algunos tramos', MAPR.x + MAPR.w - 18, MAPR.y + MAPR.h - 24, 26, 'rgba(244,245,241,0.85)', { al: 'right', w: 600 }); ctx.restore();
-  return pr;
+  bgTech(ctx); const cam = o.cam || [540, 790, 1]; const per = o.periods || {};
+  ctx.save(); ctx.beginPath(); ctx.rect(0, 380, W, 910); ctx.clip(); P.camApply(ctx, cam); P.chinaMap(ctx, MAPR.x, MAPR.y, MAPR.w, MAPR.h, t, {}); ctx.strokeStyle = 'rgba(200,210,190,0.4)'; ctx.lineWidth = 3 / cam[2]; ctx.strokeRect(MAPR.x, MAPR.y, MAPR.w, MAPR.h);
+  PER.forEach(([k, , , c]) => { const p = per[k] || 0; if (p <= 0) return; const hi = o.hi === k ? 1.5 : 1; P.CNWALLS[k].forEach((seg) => P.mapWall(ctx, seg.map(projCN), p, t, { c, w: 12 / cam[2] * hi })); });
+  ctx.restore();
+  const Q = (ll) => camPt(cam, projCN(ll));
+  // lugares y pasos fortificados (a tamaño fijo en pantalla)
+  const la = o.labels ?? 1; const pl = (ll, s, dy, a, c = C.blanco) => { if (a <= 0) return; const p = Q(ll); if (p[0] < -50 || p[0] > W + 50 || p[1] < 400 || p[1] > 1270) return; ctx.save(); ctx.globalAlpha *= a; ctx.fillStyle = C.blanco; ctx.beginPath(); ctx.arc(p[0], p[1], 9, 0, TAU); ctx.fill(); ctx.strokeStyle = C.fondo; ctx.lineWidth = 3; ctx.stroke(); ctx.restore(); mapLabel(ctx, s, p[0], p[1] + dy, 30, c, a); };
+  pl([116.4, 39.9], 'Pekín', 40, la); pl([98.2, 39.8], 'paso de Jiayuguan', 42, o.ends ?? 0); pl([119.8, 40.0], 'paso de Shanhaiguan', -40, o.ends ?? 0); pl([94.7, 40.1], 'Dunhuang', -40, o.dun ?? 0);
+  const ga = Q([101, 43.6]), ra = Q([109.3, 35.4]); if (la > 0) { ctx.save(); ctx.globalAlpha *= la * 0.9; if (ga[1] > 410 && ga[1] < 1265) txt(ctx, 'DESIERTO DE GOBI', ga[0], ga[1], 30, '#4a3c26', { w: 800 }); if (ra[1] > 410 && ra[1] < 1265) txt(ctx, 'río Amarillo', ra[0], ra[1], 28, '#cfe8f4', { w: 700 }); ctx.restore(); }
+  // nombre de cada periodo junto a sus tramos
+  PER.forEach(([k, name, date, c, ll]) => { const a = cl((per[k] || 0) * 2.5) * (o.names ?? 1); if (a <= 0) return; const p = Q(ll); if (p[1] < 410 || p[1] > 1265) return; mapLabel(ctx, `${name} · ${date}`, p[0], p[1], 32, c, a); });
+  // leyenda simplificada
+  if (o.legend) { ctx.save(); ctx.globalAlpha *= o.legend; P.rr(ctx, 40, 1300, 1000, 115, 24, 'rgba(17,26,28,0.9)'); PER.forEach(([k, name, , c], i) => { const x = 70 + (i % 2) * 520, y = 1332 + Math.floor(i / 2) * 52, a = 0.3 + 0.7 * cl((per[k] || 0) * 3); ctx.save(); ctx.globalAlpha *= a; ctx.fillStyle = c; P.rr(ctx, x, y - 12, 70, 24, 12, c); txt(ctx, name, x + 86, y + 2, 32, C.blanco, { al: 'left' }); ctx.restore(); }); ctx.restore(); }
+  mapLabel(ctx, 'esquema aproximado · distintos sistemas en distintas épocas', 540, 1262, 26, 'rgba(244,245,241,0.9)', o.note ?? 1, 'rgba(17,26,28,0.7)');
  }
- // 4-5 · NO SE CONSTRUYÓ DE UNA SOLA VEZ · MÁS DE 2.000 AÑOS
+ const camCN = (lon, lat, z) => { const p = projCN([lon, lat]); return [p[0], p[1], z]; };
+ // 4-5 · NO SE CONSTRUYÓ DE UNA SOLA VEZ · MÁS DE 2.000 AÑOS: la cámara recorre el mapa mientras aparecen los tramos de cada periodo
  B.push({ t0: TB.mapa, t1: TB.mat, in: { type: 'zoom', d: 0.5, x: 540, y: 800 }, draw(ctx, t) {
-  const z = 1.12 - 0.12 * E.out(win(t, TB.mapa, TB.mapa + 2)); ctx.save(); ctx.translate(540, 760); ctx.scale(z, z); ctx.translate(-540, -760);
-  chinaShot(ctx, t, { periods: { estados: sm(T.sola7 - 0.3, T.vez7 + 0.4, t), qin: sm(T.dinastias, T.levantaron + 0.6, t), han: sm(T.levantaron + 0.4, T.reconstruyeron + 0.6, t), ming: sm(T.reconstruyeron + 0.5, T.n2000 - 0.4, t) }, legend: sm(T.diferentes8, T.diferentes8 + 0.5, t), ends: sm(T.n2000 - 0.6, T.n2000 - 0.2, t) }); ctx.restore();
+  const kE = camCN(115, 40.6, 1.75), kQ = camCN(112, 39.8, 1.45), kH = camCN(99, 39.8, 1.6), kA = camCN(107, 39.0, 1.22);
+  const cam = P.camAt([[TB.mapa, ...kE], [T.sola7, ...kE], [T.dinastias + 0.2, ...kQ], [T.levantaron + 0.4, ...kH], [T.reconstruyeron + 0.5, ...kH], [T.n2000 - 0.6, ...kA], [TB.mat, ...kA]], t);
+  chinaShot(ctx, t, { cam, periods: { estados: sm(T.sola7 - 0.4, T.vez7 + 0.5, t), qin: sm(T.dinastias, T.levantaron + 0.5, t), han: sm(T.levantaron + 0.5, T.reconstruyeron + 0.5, t), ming: sm(T.reconstruyeron + 0.6, T.n2000 - 0.2, t) }, legend: sm(T.n2000 - 0.5, T.n2000, t), ends: sm(T.n2000 - 0.4, T.n2000, t), dun: sm(T.levantaron + 0.8, T.reconstruyeron, t) * (1 - sm(T.n2000 - 0.6, T.n2000 - 0.2, t)), names: 1 - sm(T.n2000 - 0.5, T.n2000, t) });
   pill(ctx, 'NO SE CONSTRUYÓ DE UNA SOLA VEZ', 540, 200, 44, t, T.gran7, C.oro, C.fondo, T.diferentes8);
   pill(ctx, 'MÁS DE 2.000 AÑOS DE HISTORIA', 540, 200, 46, t, T.n2000 - 0.2, C.oro, C.fondo);
-  tag(ctx, 'proyectos separados de distintos gobiernos, no una obra continua', 540, 320, 32, sm(T.dinastias, T.dinastias + 0.4, t));
+  tag(ctx, 'proyectos separados de distintos estados y dinastías', 540, 300, 30, sm(T.dinastias, T.dinastias + 0.4, t));
   scrim(ctx);
- }, sfx(k) { FX.mapa(k, TB.mapa + 0.1); FX.flecha(k, T.sola7 - 0.2, 1); FX.flecha(k, T.dinastias, 1); FX.flecha(k, T.levantaron + 0.4, 1); FX.flecha(k, T.reconstruyeron + 0.5, 1.2); FX.sello(k, T.n2000 - 0.2); FX.tiempo(k, T.diferentes8, 2.2, 0.6); } });
+ }, sfx(k) { FX.mapa(k, TB.mapa + 0.1); FX.flecha(k, T.sola7 - 0.3, 1.2); FX.flecha(k, T.dinastias, 1.2); FX.flecha(k, T.levantaron + 0.5, 1.2); FX.flecha(k, T.reconstruyeron + 0.6, 1.4); FX.sello(k, T.n2000 - 0.2); FX.tiempo(k, T.diferentes8, 2.2, 0.6); } });
 
- // 6 · DIFERENTES MATERIALES: tres tramos (tierra en zona árida, piedra en montaña, ladrillo y piedra Ming)
- const panel = (ctx, t, i, a, draw) => { if (a <= 0) return; const x = i * 360, w = 360; ctx.save(); ctx.globalAlpha *= a; ctx.beginPath(); ctx.rect(x, 0, w, HH); ctx.clip(); ctx.translate(x + w / 2, 0); ctx.scale(0.62, 0.62); ctx.translate(-540, 300); draw(ctx); ctx.restore(); if (i > 0) { ctx.fillStyle = 'rgba(17,26,28,0.9)'; ctx.fillRect(x - 3, 0, 6, HH); } };
+ // 6 · DIFERENTES MATERIALES: tres columnas comparables (alzado + corte): tierra apisonada · piedra · ladrillo y piedra (Ming)
+ const miniWall = (ctx, t, cx, style, seed) => { ctx.save(); const g = ctx.createLinearGradient(0, 380, 0, 700); g.addColorStop(0, style === 'tierra' ? '#cbbd9c' : '#9fb7c2'); g.addColorStop(1, style === 'tierra' ? '#e4d3ac' : '#d6d8c8'); ctx.fillStyle = g; ctx.fillRect(cx - 175, 380, 350, 320); const gy = (x) => 610 - 40 * Math.sin((x - cx) * 0.012 + seed) - (style === 'tierra' ? -20 : 10);
+  ctx.fillStyle = style === 'tierra' ? '#b8955f' : style === 'piedra' ? '#617a52' : '#58744a'; ctx.beginPath(); ctx.moveTo(cx - 180, 710); for (let x = cx - 180; x <= cx + 180; x += 10) ctx.lineTo(x, gy(x)); ctx.lineTo(cx + 180, 710); ctx.closePath(); ctx.fill();
+  const pts = []; for (let x = cx - 200; x <= cx + 200; x += 10) pts.push([x, gy(x)]); P.wallPath(ctx, pts, t, { style, h: 44, towers: [0.62], towerS: 110, crenel: style === 'ladrillo', pavilion: [] }); ctx.restore(); };
  B.push({ t0: TB.mat, t1: TB.moldes, in: { type: 'slide', d: 0.45 }, draw(ctx, t) {
-  bgTech(ctx);
-  const a1 = sm(T.mismos - 0.2, T.mismos + 0.2, t), a2 = sm(T.materiales10 - 0.1, T.materiales10 + 0.3, t), a3 = sm(T.partes - 0.3, T.partes + 0.1, t), a0 = 1 - Math.max(a1, a2, a3) * 0.0;
-  ridgeShot(ctx, t, { cam: [540, 980, 1.0 + 0.3 * win(t, TB.mat, TB.moldes)], style: 'ladrillo' });
-  panel(ctx, t, 0, a1, (c) => { ridgeShot(c, t, { cam: [540, 980, 1.6], style: 'tierra', arid: 0.9, seed: 9, towers: [0.45], towerS: 120, wh: 60, sky: ['#9bb8c6', '#eadcc0'] }); });
-  panel(ctx, t, 1, a2, (c) => { ridgeShot(c, t, { cam: [540, 980, 1.6], style: 'piedra', seed: 21, towers: [0.45], towerS: 120, wh: 56 }); });
-  panel(ctx, t, 2, a3, (c) => { ridgeShot(c, t, { cam: [540, 980, 1.6], style: 'ladrillo', seed: 5, towers: [0.45], towerS: 120, wh: 56 }); });
-  [['TIERRA', a1, 180, C.tierra], ['PIEDRA', a2, 540, C.piedraL], ['LADRILLO', a3, 900, C.ladrillo]].forEach(([s, a, x, c]) => { if (a <= 0) return; ctx.save(); ctx.globalAlpha *= a; P.rr(ctx, x - 140, 1260, 280, 84, 42, 'rgba(17,26,28,0.88)'); txt(ctx, s, x, 1303, 40, c, { w: 900 }); ctx.restore(); });
-  pill(ctx, 'LO INTERESANTE', 540, 270, 50, t, T.interesante - 0.2, C.blanco, C.fondo, T.no10);
-  pill(ctx, 'NO EN TODAS PARTES IGUAL', 540, 270, 48, t, T.no10, C.oro, C.fondo);
-  tag(ctx, 'según la región, los materiales disponibles y la época', 540, 380, 32, sm(T.partes, T.partes + 0.4, t));
+  ridgeShot(ctx, t, { cam: [520 + 80 * win(t, TB.mat, TB.moldes), 960, 0.95], fogA: 0.8 }); { const dk = sm(T.mismos - 0.5, T.mismos, t); ctx.fillStyle = `rgba(17,26,28,${0.88 * dk})`; ctx.fillRect(0, 0, W, HH); }
+  const cols = [['tierra', 'TIERRA APISONADA', C.tierra, T.mismos, 180, 3], ['piedra', 'PIEDRA', C.piedraL, T.materiales10, 540, 7], ['ming', 'LADRILLO Y PIEDRA', '#e08a6a', T.partes - 0.3, 900, 11]];
+  cols.forEach(([k, name, c, t0, cx, seed]) => { const a = sm(t0 - 0.25, t0 + 0.1, t); if (a <= 0) return; ctx.save(); ctx.globalAlpha *= a; ctx.beginPath(); ctx.rect(cx - 175, 380, 350, 320); ctx.clip(); miniWall(ctx, t, cx, k === 'ming' ? 'ladrillo' : k, seed); ctx.restore(); ctx.save(); ctx.globalAlpha *= a; ctx.strokeStyle = 'rgba(244,245,241,0.5)'; ctx.lineWidth = 3; ctx.strokeRect(cx - 175, 380, 350, 320); P.wallSection(ctx, cx, 1230, 300, 430, t, k === 'ming' ? 'ming' : k, { reeds: k === 'tierra' }); ctx.restore(); mapLabel(ctx, name, cx, 1300, 32, c, a); });
+  const lb = (s, x, y, a) => mapLabel(ctx, s, x, y, 28, C.blanco, a, 'rgba(17,26,28,0.75)');
+  lb('capas compactadas', 180, 740, sm(T.mismos + 0.3, T.mismos + 0.6, t)); lb('mampostería + relleno', 540, 740, sm(T.materiales10 + 0.3, T.materiales10 + 0.6, t)); lb('ladrillo sobre núcleo', 900, 740, sm(T.partes, T.partes + 0.3, t));
+  pill(ctx, 'LO INTERESANTE', 540, 250, 50, t, T.interesante - 0.2, C.blanco, C.fondo, T.no10);
+  pill(ctx, 'NO EN TODAS PARTES IGUAL', 540, 250, 48, t, T.no10, C.oro, C.fondo);
+  tag(ctx, 'según la región, los materiales y la época · cortes plausibles, no universales', 540, 1385, 30, sm(T.partes, T.partes + 0.4, t));
   scrim(ctx);
- }, sfx(k) { FX.aparece(k, T.interesante - 0.2); k.play('swish', T.mismos - 0.2, { dur: 0.35, gain: 0.4 }); k.play('swish', T.materiales10 - 0.1, { dur: 0.35, gain: 0.4 }); k.play('swish', T.partes - 0.3, { dur: 0.35, gain: 0.4 }); FX.etiqueta(k, T.mismos); FX.etiqueta(k, T.materiales10); FX.etiqueta(k, T.partes - 0.2); } });
+ }, sfx(k) { FX.aparece(k, T.interesante - 0.2); k.play('swish', T.mismos - 0.25, { dur: 0.35, gain: 0.4 }); k.play('swish', T.materiales10 - 0.25, { dur: 0.35, gain: 0.4 }); k.play('swish', T.partes - 0.55, { dur: 0.35, gain: 0.4 }); FX.etiqueta(k, T.mismos); FX.etiqueta(k, T.materiales10); FX.etiqueta(k, T.partes - 0.3); } });
 
- // 7-9 · MOLDES DE MADERA → COMPACTACIÓN CAPA POR CAPA → TIERRA APISONADA (corte)
- // ciclo por capa: vertido (0,5 s) → muchos golpes (≈1,2 s) → capa terminada
- const CYC = 1.75, LAYER0 = T.despues12 - 0.1;
- function rammedState(t) { if (t < LAYER0) { const lo = sm(T.capas11, T.tierra11 + 0.6, t); return { done: 2, loose: lo, compact: 0 }; } const u = (t - LAYER0) / CYC, k = Math.floor(u), f = u - k; const done = Math.min(8, 2 + k); if (done >= 8) return { done: 8, loose: 0, compact: 0 }; if (k === 0) return { done: 2, loose: 1, compact: sm(0, 0.85, f) }; return { done, loose: sm(0, 0.25, f), compact: sm(0.3, 0.92, f) }; }
+ // 7-9 · MOLDES DE MADERA → COMPACTACIÓN (cada golpe compacta un poco; una capa termina antes de la siguiente) → TIERRA APISONADA
+ const NL = 7, POUR = 0.45, RATE = 2.2, NEED = 9, NW = 3, LAYER0 = T.despues12 - 0.1;
+ const contacts = (u) => { if (u <= 0) return 0; let n = 0; for (let i = 0; i < NW; i++) n += Math.max(0, Math.floor(u * RATE + i * 0.37 - 0.5) + 1); return n; };
+ const RAMDUR = (() => { let u = 0; while (contacts(u) < NEED && u < 5) u += 0.01; return u + 0.12; })(), CYC = POUR + RAMDUR;
+ function rammedState(t) {
+  if (t < LAYER0) return { done: 2, loose: sm(T.capas11, T.tierra11 + 0.6, t), compact: 0, hit: 0.25, ram: false, layer: 3, cp: 0 };
+  const u = t - LAYER0, k = Math.floor(u / CYC), f = u - k * CYC, done = Math.min(NL, 2 + k); if (done >= NL) return { done: NL, loose: 0, compact: 0, hit: 0.25, ram: false, layer: NL, cp: 1 };
+  if (f < POUR) return { done, loose: k === 0 ? 1 : sm(0, POUR * 0.9, f), compact: 0, hit: 0.25, ram: false, layer: done + 1, cp: 0 };
+  const ur = f - POUR, cp = cl(contacts(ur) / NEED); return { done, loose: 1, compact: cp, hit: ur * RATE, ram: true, layer: done + 1, cp };
+ }
  B.push({ t0: TB.moldes, t1: TB.piedra, in: { type: 'zoom', d: 0.45, x: 540, y: 1100 }, draw(ctx, t) {
   const st = rammedState(t), endP = sm(T.esta13 - 0.2, T.esta13 + 0.5, t), cut = sm(T.tierra13, T.apisonada + 0.3, t);
-  const camY = lerp(1210, 1080, sm(LAYER0, T.esta13, t)); const cam = P.camAt([[TB.moldes, 640, 1210, 1.85], [T.moldes, 560, 1180, 1.55], [LAYER0, 540, 1210, 1.5], [T.esta13, 540, 1080, 1.35], [TB.piedra, 540, 1060, 1.2]], t);
+  const cam = P.camAt([[TB.moldes, 640, 1230, 1.9], [T.moldes, 560, 1200, 1.6], [LAYER0, 540, 1190, 1.7], [T.esta13, 540, 1110, 1.35], [TB.piedra, 540, 1080, 1.2]], t);
   ctx.save(); P.camApply(ctx, cam); groundSite(ctx, t);
-  const hitting = t > LAYER0 && st.compact > 0.02 && st.compact < 0.95 && endP < 1;
-  const R = P.rammedEarth(ctx, 540, 1400, 600, 480, t, { total: 8, done: st.done, loose: st.loose, compact: st.compact, form: 1 - endP, workers: endP > 0.5 ? 0 : 3, hit: hitting ? t * 2.2 : 0.25, cut, glowLayer: cut > 0.5 ? 4 : null, seed: 5 });
-  // vertido: porteadores que vacían cestas en el molde
-  if (t < LAYER0 + 0.2) { const a = sm(T.trabajadores11 - 0.3, T.trabajadores11, t) * (1 - sm(LAYER0, LAYER0 + 0.2, t)); ctx.save(); ctx.globalAlpha *= a; P.porter(ctx, 160, 1400, 210, t * 1.1, { load: 'tierra', var: 3 }); ctx.restore(); if (st.loose > 0 && st.loose < 1) { ctx.fillStyle = 'rgba(169,132,90,0.9)'; for (let i = 0; i < 18; i++) { const u = ((t * 2.5 + i / 18) % 1); ctx.beginPath(); ctx.arc(300 + i * 2 + u * 60, 1060 + u * (R.surf - 1060), 6 + (i % 3) * 2, 0, TAU); ctx.fill(); } } }
+  const R = P.rammedEarth(ctx, 540, 1400, 600, 480, t, { total: NL, done: st.done, loose: st.loose, compact: st.compact, form: 1 - endP, workers: endP > 0.5 ? 0 : NW, hit: st.hit, cut, glowLayer: cut > 0.5 ? 3 : null, seed: 5 });
+  if (t < LAYER0 + 0.3) { const a = sm(T.trabajadores11 - 0.3, T.trabajadores11, t) * (1 - sm(LAYER0, LAYER0 + 0.3, t)); ctx.save(); ctx.globalAlpha *= a; P.porter(ctx, 150, 1400, 230, (t - TB.moldes) * 0.0, { load: 'tierra', var: 3 }); ctx.restore(); if (st.loose > 0 && st.loose < 1) { ctx.fillStyle = 'rgba(169,132,90,0.9)'; for (let i = 0; i < 18; i++) { const u = ((t * 2.5 + i / 18) % 1); ctx.beginPath(); ctx.arc(320 + i * 2 + u * 50, 1080 + u * (R.surf - 1080), 6 + (i % 3) * 2, 0, TAU); ctx.fill(); } } }
   ctx.restore();
-  // rótulos
-  const pM = camPt(cam, [540 + 320, 1400 - 400]), pL = camPt(cam, [540, R.surf + 10]);
-  callout(ctx, pM[0], pM[1], 760, 600, 'MOLDE DE MADERA', sm(T.moldes - 0.2, T.moldes + 0.2, t) * (1 - endP), C.oro, 'right');
-  if (t > LAYER0 && t < T.esta13) { const hl = st.loose > 0 ? lerp(1.75, 1, st.compact) : 1; tag(ctx, `altura de la capa: ${Math.round(hl * 100)} %`, 540, 1330, 32, sm(LAYER0 + 0.3, LAYER0 + 0.6, t)); }
+  const pM = camPt(cam, [540 + 320, 1400 - 420]);
+  callout(ctx, pM[0], pM[1], 780, 640, 'MOLDE DE MADERA', sm(T.moldes - 0.2, T.moldes + 0.2, t) * (1 - endP), C.oro, 'right');
+  const pT = camPt(cam, [540 - 330, 1400 - 380]); callout(ctx, pT[0], pT[1], 120, 760, 'tablón en corte', sm(T.madera11, T.madera11 + 0.3, t) * (1 - sm(LAYER0, LAYER0 + 0.3, t)), C.blanco);
+  // indicador claro: número de capa y compactación de la capa actual (0–100 %)
+  const ia = sm(LAYER0 + 0.2, LAYER0 + 0.5, t) * (1 - sm(T.esta13 - 0.3, T.esta13, t)); if (ia > 0) { ctx.save(); ctx.globalAlpha *= ia; P.rr(ctx, 240, 1285, 600, 110, 24, 'rgba(17,26,28,0.88)'); txt(ctx, `CAPA ${Math.min(st.layer, NL)} DE ${NL}`, 270, 1318, 32, C.oro, { al: 'left' }); txt(ctx, `compactación ${Math.round(st.cp * 10) * 10} %`, 810, 1318, 30, C.blanco, { al: 'right', w: 700 }); ctx.fillStyle = 'rgba(244,245,241,0.18)'; ctx.fillRect(270, 1352, 540, 18); ctx.fillStyle = C.oro; ctx.fillRect(270, 1352, 540 * st.cp, 18); ctx.restore(); }
   pill(ctx, 'CAPAS DE TIERRA', 540, 270, 54, t, T.capas11, C.oro, C.fondo, LAYER0);
   pill(ctx, 'COMPACTACIÓN CAPA POR CAPA', 540, 270, 46, t, LAYER0, C.oro, C.fondo, T.esta13);
   pill(ctx, 'TIERRA APISONADA', 540, 270, 58, t, T.tierra13 - 0.1, C.oro, C.fondo);
-  tag(ctx, 'muchos golpes por capa: la tierra suelta pierde volumen y se vuelve densa', 540, 390, 30, sm(T.repetidamente, T.repetidamente + 0.4, t) * (1 - sm(T.esta13 - 0.3, T.esta13, t)));
+  tag(ctx, 'muchos golpes por capa: cada impacto la compacta un poco', 540, 390, 30, sm(T.repetidamente, T.repetidamente + 0.4, t) * (1 - sm(T.esta13 - 0.3, T.esta13, t)));
   tag(ctx, 'sin cemento · en algunos tramos se intercalaban ramas o cañas', 540, 390, 30, sm(T.apisonada, T.apisonada + 0.4, t));
   scrim(ctx);
- }, sfx(k) { FX.madera(k, TB.moldes + 0.2, 2, 0.8); FX.vertido(k, T.capas11, 1.4, 1); const n = Math.floor((T.esta13 - 0.2 - LAYER0) / CYC); for (let i = 0; i <= n; i++) { const t0 = LAYER0 + i * CYC; if (i > 0) FX.vertido(k, t0, 0.45, 0.6); FX.apisonar(k, t0 + 0.5, 4, 0.28, 0.9); } FX.revelar(k, T.tierra13); FX.sello(k, T.apisonada + 0.2); } });
+ }, sfx(k) { FX.madera(k, TB.moldes + 0.2, 2, 0.8); FX.vertido(k, T.capas11, 1.4, 1);
+  for (let L = 0; ; L++) { const t0 = LAYER0 + L * CYC; if (t0 > T.esta13 - 0.3 || 2 + L >= NL) break; if (L > 0) FX.vertido(k, t0, POUR, 0.6); let prev = 0; for (let u = 0; u < RAMDUR; u += 0.01) { const c = contacts(u); if (c > prev && c <= NEED) { k.tone(t0 + POUR + u, { f: [[0, 120], [0.08, 55]], dur: 0.16, gain: 0.26, a: 0.002 }); k.noise(t0 + POUR + u, { dur: 0.16, color: 'brown', filter: 'lowpass', f: 500, gain: 0.1, a: 0.002, minor: true }); } prev = c; } }
+  FX.revelar(k, T.tierra13); FX.sello(k, T.apisonada + 0.2); } });
 
- // 10 · PIEDRA EN LAS MONTAÑAS: piedra local se prepara, se sube y se coloca en el muro
+ // 10 · PIEDRA EN LAS MONTAÑAS: cantera en una cornisa, pila apoyada, porteador que sube la piedra hasta el muro
  B.push({ t0: TB.piedra, t1: TB.ming, in: { type: 'fade', d: 0.4 }, draw(ctx, t) {
   const cam = P.camAt([[TB.piedra, 260, 1240, 1.6], [T.piedra14, 460, 1160, 1.3], [TB.ming, 600, 1080, 1.15]], t);
+  const pc = [540 + (cam[0] - 540) * 0.3, 960 + (cam[1] - 960) * 0.35, Math.pow(cam[2], 0.35)]; ctx.save(); P.camApply(ctx, pc); P.ranges(ctx, t, { hor: 720, sun: [860, 430], seed: 21, layers: 4, x0: -1200, x1: 2300, front: { y: 980, amp: 260 }, fogA: 0.6 }); ctx.restore();
   ctx.save(); P.camApply(ctx, cam);
-  P.ranges(ctx, t, { hor: 720, sun: [860, 430], seed: 21, layers: 4, x0: -800, x1: 1900, front: { y: 980, amp: 260 }, fogA: 0.6 });
-  // ladera rocosa delantera: cornisa (cantera) y pendiente hasta la cresta donde se levanta el muro
   const gy = (x) => x < 470 ? 1380 - (x + 200) * 0.03 : 1360 - (x - 470) * 0.62;
-  ctx.fillStyle = '#556b48'; ctx.beginPath(); ctx.moveTo(-300, 2200); for (let x = -300; x <= 1400; x += 20) ctx.lineTo(x, Math.max(820, gy(x))); ctx.lineTo(1400, 2200); ctx.closePath(); ctx.fill();
+  ctx.fillStyle = '#556b48'; ctx.beginPath(); ctx.moveTo(-400, 2300); for (let x = -400; x <= 1500; x += 20) ctx.lineTo(x, Math.max(820, gy(x))); ctx.lineTo(1500, 2300); ctx.closePath(); ctx.fill();
   const Rr = H.rng(8); ctx.fillStyle = 'rgba(124,130,125,0.55)'; for (let i = 0; i < 26; i++) { const x = Rr.range(-250, 1350), y = Math.max(820, gy(x)) + Rr.range(30, 500); ctx.beginPath(); ctx.ellipse(x, y, Rr.range(14, 40), Rr.range(8, 20), 0, 0, TAU); ctx.fill(); }
-  P.granite(ctx, [[-260, 1385], [-200, 1150], [-60, 1090], [120, 1130], [220, 1250], [260, 1372]], { seed: 4, c1: '#a5aaa2', c2: '#6e756f' }); // afloramiento de piedra
-  // muro de piedra en construcción sobre la pendiente (termina donde están trabajando)
-  const wp = []; for (let x = 520; x <= 1400; x += 16) wp.push([x, Math.max(820, gy(x)) + 6]); P.wallPath(ctx, wp, t, { style: 'piedra', h: 70, build: 0.18 + 0.82 * sm(TB.piedra, TB.ming, t) * 0.25 + 0.6, towers: [0.62], towerS: 150, crenel: false });
-  // pila de piedras con sombra, apoyada en la cornisa
+  P.granite(ctx, [[-260, 1385], [-200, 1150], [-60, 1090], [120, 1130], [220, 1250], [260, 1372]], { seed: 4, c1: '#a5aaa2', c2: '#6e756f' });
+  const wp = []; for (let x = 520; x <= 1500; x += 14) wp.push([x, Math.max(820, gy(x)) + 6]); P.wallPath(ctx, wp, t, { style: 'piedra', h: 70, build: 0.78 + 0.2 * win(t, TB.piedra, TB.ming), towers: [0.62], towerS: 160, crenel: false });
   ctx.fillStyle = 'rgba(25,30,22,0.4)'; ctx.beginPath(); ctx.ellipse(360, 1370, 120, 16, 0, 0, TAU); ctx.fill();
-  for (let i = 0; i < 9; i++) { const sx = 270 + (i % 4) * 46 + Math.floor(i / 4) * 22, sy = 1360 - Math.floor(i / 4) * 30; P.granite(ctx, [[sx - 24, sy], [sx - 18, sy - 26], [sx + 16, sy - 30], [sx + 24, sy - 4], [sx + 10, sy + 4]], { seed: 20 + i, c1: '#9aa098', c2: '#646b65' }); }
-  P.laborer(ctx, 60, gy(60), 170, t * 1.6, { pose: 'chisel', var: 1 }); P.granite(ctx, [[96, gy(96)], [104, gy(96) - 30], [150, gy(96) - 34], [160, gy(96)]], { seed: 3, c1: '#a5aaa2', c2: '#6e756f' });
-  P.laborer(ctx, 200, gy(200), 170, t * 1.6 + 0.45, { pose: 'chisel', var: 4 });
-  // porteador que sube una piedra por la pendiente hasta el muro
-  const pu = ((t - TB.piedra) * 0.16) % 1, px = lerp(470, 760, pu), py = gy(px); P.porter(ctx, px, py, 160, t * 1.1, { load: 'piedra', var: 2 });
+  for (let i = 0; i < 9; i++) { const sx = 270 + (i % 4) * 46 + Math.floor(i / 4) * 22, sy = 1360 - Math.floor(i / 4) * 30; if (Math.floor(i / 4) > 1) continue; P.granite(ctx, [[sx - 24, sy], [sx - 18, sy - 26], [sx + 16, sy - 30], [sx + 24, sy - 4], [sx + 10, sy + 4]], { seed: 20 + i, c1: '#9aa098', c2: '#646b65' }); }
+  P.granite(ctx, [[96, gy(96)], [104, gy(96) - 30], [150, gy(96) - 34], [160, gy(96)]], { seed: 3, c1: '#a5aaa2', c2: '#6e756f' }); P.laborer(ctx, 40, gy(40), 180, t * 1.6, { pose: 'chisel', var: 1, target: [120, gy(96) - 30] });
+  P.laborer(ctx, 200, gy(200), 180, t * 1.6 + 0.45, { pose: 'chisel', var: 4, target: [270, 1335] });
+  const L = 330, s = ((t - TB.piedra) * 42) % L, px = 470 + s * Math.cos(Math.atan(0.62)), py = gy(px); P.porter(ctx, px, py, 165, s / (165 * 0.85), { load: 'piedra', var: 2 });
   ctx.restore();
   pill(ctx, 'PIEDRA LOCAL', 540, 270, 58, t, T.piedra14 - 0.1, C.oro, C.fondo);
   tag(ctx, 'reconstrucción plausible: se usaba la roca del propio terreno', 540, 380, 32, sm(T.piedra14 + 0.3, T.piedra14 + 0.7, t));
   scrim(ctx);
  }, sfx(k) { FX.viento(k, TB.piedra, TB.ming - TB.piedra, 0.7); FX.golpePiedra(k, T.montanas14); FX.golpePiedra(k, T.montanas14 + 0.6); FX.golpePiedra(k, T.piedra14 + 0.3); FX.aparece(k, T.piedra14 - 0.1); } });
 
- // 11 · DINASTÍA MING: corte técnico; hiladas de ladrillo sobre cimiento de piedra y núcleo de tierra y cascajo
+ // 11 · DINASTÍA MING: corte plausible de un tramo; las hiladas de ladrillo se colocan sobre el cimiento de piedra
  B.push({ t0: TB.ming, t1: TB.transp, in: { type: 'zoom', d: 0.45, x: 540, y: 1000 }, draw(ctx, t) {
-  bgTech(ctx); const bd = sm(T.reforzados - 0.6, T.ladrillos + 0.6, t), cr = sm(T.ming, T.ming + 0.5, t);
-  ctx.save(); const sc = 1 + 0.05 * win(t, TB.ming, TB.transp); ctx.translate(540, 1100); ctx.scale(sc, sc); ctx.translate(-540, -1100);
-  const pts = P.mingSection(ctx, 540, 1320, 760, 620, t, { build: bd, glow: { core: cr * (1 - sm(T.reforzados, T.reforzados + 0.3, t)), brick: sm(T.ladrillos, T.ladrillos + 0.3, t) * (1 - sm(T.piedra15, T.piedra15 + 0.3, t)), stone: sm(T.piedra15, T.piedra15 + 0.3, t) } });
-  if (bd > 0 && bd < 1) { const hy = lerp(1320 - 100, 1320 - 620, bd); P.laborer(ctx, 905 - 50 * bd, hy + 10, 120, 0, { pose: 'chisel', var: 3 }); }
+  bgTech(ctx); const bd = sm(T.reforzados - 0.6, T.ladrillos + 0.6, t);
+  const ge = sm(T.ming, T.ming + 0.4, t) * (1 - sm(T.reforzados, T.reforzados + 0.3, t)), gb = sm(T.ladrillos, T.ladrillos + 0.3, t) * (1 - sm(T.piedra15, T.piedra15 + 0.3, t)), gs = sm(T.piedra15, T.piedra15 + 0.3, t);
+  ctx.save(); const sc = 1 + 0.05 * win(t, TB.ming, TB.transp); ctx.translate(540, 1050); ctx.scale(sc, sc); ctx.translate(-540, -1050);
+  const pts = P.wallSection(ctx, 540, 1300, 780, 700, t, 'ming', { build: bd, glow: { earth: ge > 0.3, fill: ge > 0.3, brick: gb > 0.3, stone: gs > 0.3 } });
+  if (bd > 0.05 && bd < 1) { const hy = lerp(1300 - 105, 1300 - 700 * 0.95, bd); P.figure(ctx, 930 - 40 * bd, hy, 140, 0, { pose: 'chisel', var: 3, dir: -1, target: [880 - 40 * bd, hy - 30] }); ctx.fillStyle = '#A45C42'; ctx.fillRect(860 - 40 * bd, hy - 36, 40, 16); }
   ctx.restore();
-  callout(ctx, pts.core[0], pts.core[1], 120, 560, 'NÚCLEO DE TIERRA Y CASCAJO', cr, C.oro);
-  callout(ctx, pts.brick[0], pts.brick[1], 980, 820, 'LADRILLO', sm(T.ladrillos, T.ladrillos + 0.3, t), C.blanco, 'right');
-  callout(ctx, pts.stone[0], pts.stone[1], 980, 1400, 'CIMIENTO DE PIEDRA', sm(T.piedra15, T.piedra15 + 0.3, t), C.blanco, 'right');
-  pill(ctx, 'DINASTÍA MING · 1368–1644', 540, 270, 48, t, T.dinastia15, C.oro, C.fondo);
-  tag(ctx, 'la estructura variaba según el lugar y la función del tramo', 540, 380, 32, sm(T.reforzados - 0.3, T.reforzados, t));
+  callout(ctx, pts.earth[0], pts.earth[1], 110, 1180, 'TIERRA COMPACTADA', sm(T.ming, T.ming + 0.4, t), C.tierra);
+  callout(ctx, pts.fill[0], pts.fill[1], 110, 600, 'CASCAJO Y PIEDRA', sm(T.ming + 0.3, T.ming + 0.7, t), C.blanco);
+  callout(ctx, pts.brick[0], pts.brick[1], 990, 800, 'LADRILLO', sm(T.ladrillos, T.ladrillos + 0.3, t), '#e08a6a', 'right');
+  callout(ctx, pts.stone[0], pts.stone[1], 990, 1400, 'CIMIENTO DE PIEDRA', gs, C.piedraL, 'right');
+  pill(ctx, 'DINASTÍA MING · 1368–1644', 540, 250, 48, t, T.dinastia15, C.oro, C.fondo);
+  tag(ctx, 'sección plausible: la estructura variaba según la región y el tramo', 540, 360, 30, sm(T.reforzados - 0.3, T.reforzados, t));
   scrim(ctx);
  }, sfx(k) { FX.tiempo(k, TB.ming, 1.0, 0.6); FX.revelar(k, T.ming); FX.ladrillo(k, T.reforzados - 0.4, 6, 0.3); FX.golpePiedra(k, T.piedra15); } });
 
- // 12 · ¿CÓMO SUBÍAN LOS MATERIALES?: de la pila del valle a la cresta por un sendero en zigzag
- const PATH = [[180, 1560], [520, 1470], [300, 1360], [640, 1250], [380, 1130], [700, 1020], [460, 900], [760, 790]];
- const slopeScene = (ctx, t, o = {}) => { const rg = P.ranges(ctx, t, { hor: 640, sun: [860, 420], seed: 33, layers: 4, x0: -800, x1: 1900, front: { y: 900, amp: 300 }, fogA: 0.7 });
-  // ladera delantera empinada con la muralla en lo alto
-  ctx.fillStyle = '#4a6340'; ctx.beginPath(); ctx.moveTo(-200, 1900); ctx.lineTo(-200, 1640); ctx.quadraticCurveTo(300, 1500, 560, 1100); ctx.quadraticCurveTo(700, 860, 820, 760); ctx.lineTo(1300, 700); ctx.lineTo(1300, 1900); ctx.closePath(); ctx.fill(); ctx.fillStyle = 'rgba(30,45,28,0.35)'; ctx.beginPath(); ctx.moveTo(820, 760); ctx.lineTo(1300, 700); ctx.lineTo(1300, 1900); ctx.lineTo(900, 1900); ctx.closePath(); ctx.fill();
-  const R = H.rng(4); ctx.fillStyle = 'rgba(40,60,36,0.6)'; for (let i = 0; i < 120; i++) ctx.beginPath(), ctx.arc(R.range(-150, 1250), R.range(780, 1880), R.range(4, 10), 0, TAU), ctx.fill();
-  ctx.strokeStyle = 'rgba(190,160,120,0.85)'; ctx.lineWidth = 16; ctx.lineJoin = 'round'; ctx.lineCap = 'round'; P.strokePath(ctx, PATH, 16, 'rgba(176,144,104,0.9)');
-  P.wallPath(ctx, [[700, 790], [820, 762], [960, 735], [1120, 712], [1300, 700]], t, { style: 'ladrillo', h: 54, build: o.build ?? 1, towers: [0.35], towerS: 120 });
-  ctx.fillStyle = '#a45c42'; for (let r = 0; r < 3; r++) for (let i = 0; i < 6 - r; i++) ctx.fillRect(60 + i * 26 + r * 13, 1600 - r * 14, 24, 12); ctx.fillStyle = '#8f958e'; for (let i = 0; i < 5; i++) { ctx.beginPath(); ctx.ellipse(240 + i * 22, 1612 - (i % 2) * 10, 18, 12, 0, 0, TAU); ctx.fill(); }
-  return rg; };
+ // ---------------- MONTAÑA DEL TRANSPORTE: valle con camino de carros, sendero en zigzag que sigue las curvas de nivel, escalones arriba ----------------
+ const PATH = P.spline([[300, 1626], [640, 1566], [700, 1530], [340, 1462], [290, 1428], [660, 1352], [712, 1318], [370, 1248], [330, 1214], [640, 1138], [684, 1104], [452, 1036], [432, 1002], [690, 928], [722, 896], [610, 850], [740, 792]], 8), PA = P.path(PATH);
+ const crestY = (x) => x < 520 ? 760 : x < 760 ? lerp(760, 782, (x - 520) / 240) : lerp(782, 700, (x - 760) / 540);
+ function slopeScene(ctx, t, cam, o = {}) {
+  const pc = [540 + (cam[0] - 540) * 0.3, 960 + (cam[1] - 960) * 0.35, Math.pow(cam[2], 0.35)]; ctx.save(); P.camApply(ctx, pc); P.ranges(ctx, t, { hor: 640, sun: [860, 420], seed: 33, layers: 4, x0: -1400, x1: 2500, front: { y: 900, amp: 300 }, fogA: 0.7 }); ctx.restore();
+  ctx.save(); P.camApply(ctx, cam);
+  // valle y camino de carros (llano)
+  ctx.fillStyle = '#6f8a55'; ctx.fillRect(-1400, 1600, 3800, 1400); ctx.fillStyle = 'rgba(176,144,104,0.95)'; ctx.fillRect(-1400, 1626, 1800, 44); ctx.fillStyle = 'rgba(120,96,66,0.5)'; ctx.fillRect(-1400, 1666, 1800, 4);
+  // montaña: flanco curvo, cresta y bandas de relieve (curvas de nivel)
+  const mpoly = () => { ctx.beginPath(); ctx.moveTo(0, 1640); ctx.quadraticCurveTo(300, 1300, 520, 760); ctx.lineTo(760, 782); ctx.lineTo(1500, 690); ctx.lineTo(1500, 1640); ctx.closePath(); };
+  mpoly(); const mg = ctx.createLinearGradient(0, 760, 0, 1640); mg.addColorStop(0, '#5b7548'); mg.addColorStop(1, '#4a6340'); ctx.fillStyle = mg; ctx.fill();
+  ctx.save(); mpoly(); ctx.clip(); for (let i = 0; i < 12; i++) { const y = 820 + i * 70; ctx.fillStyle = i % 2 ? 'rgba(255,240,210,0.05)' : 'rgba(20,30,18,0.07)'; ctx.beginPath(); ctx.moveTo(-100, y); for (let x = -100; x <= 1500; x += 30) ctx.lineTo(x, y + Math.sin(x * 0.01 + i) * 10); ctx.lineTo(1500, y + 70); ctx.lineTo(-100, y + 70); ctx.closePath(); ctx.fill(); }
+   const lg = ctx.createLinearGradient(0, 0, 900, 0); lg.addColorStop(0, 'rgba(255,236,200,0.14)'); lg.addColorStop(1, 'rgba(0,0,0,0.18)'); ctx.fillStyle = lg; ctx.fillRect(-100, 700, 1700, 1000);
+   const R = H.rng(4); for (let i = 0; i < 140; i++) { const x = R.range(0, 1450), y = R.range(800, 1620); ctx.fillStyle = i % 5 ? 'rgba(40,60,36,0.55)' : 'rgba(124,130,125,0.7)'; ctx.beginPath(); ctx.ellipse(x, y, R.range(4, 12), R.range(3, 8), 0, 0, TAU); ctx.fill(); }
+  ctx.restore();
+  // sendero con ancho, borde en sombra y escalones en el tramo más empinado
+  ctx.lineJoin = 'round'; ctx.lineCap = 'round'; P.strokePath(ctx, PATH.map(([x, y]) => [x + 3, y + 7]), 24, 'rgba(30,40,24,0.35)'); P.strokePath(ctx, PATH, 22, '#b9976b'); P.strokePath(ctx, PATH, 6, 'rgba(220,196,160,0.45)');
+  ctx.strokeStyle = 'rgba(90,70,48,0.8)'; ctx.lineWidth = 2.5; for (let s = PA.L * 0.78; s < PA.L; s += 11) { const q = PA.at(s), nx = -Math.sin(q[2]), ny = Math.cos(q[2]); ctx.beginPath(); ctx.moveTo(q[0] - nx * 10, q[1] - ny * 10); ctx.lineTo(q[0] + nx * 10, q[1] + ny * 10); ctx.stroke(); }
+  // muralla en la cresta (en construcción) con torre
+  const wp = []; for (let x = 700; x <= 1500; x += 14) wp.push([x, crestY(x)]); P.wallPath(ctx, wp, t, { style: 'ladrillo', h: 58, build: o.build ?? 1, towers: [0.4], towerS: 140, pavilion: [] });
+  // pila de materiales en el valle
+  ctx.fillStyle = 'rgba(25,30,22,0.35)'; ctx.beginPath(); ctx.ellipse(160, 1622, 150, 14, 0, 0, TAU); ctx.fill(); ctx.fillStyle = '#a45c42'; for (let r = 0; r < 3; r++) for (let i = 0; i < 6 - r; i++) ctx.fillRect(40 + i * 26 + r * 13, 1608 - r * 14, 24, 12); for (let i = 0; i < 5; i++) P.granite(ctx, [[200 + i * 24, 1620], [204 + i * 24, 1600], [222 + i * 24, 1598], [226 + i * 24, 1620]], { seed: 40 + i, c1: '#9aa098', c2: '#646b65' });
+  if (o.after) o.after(ctx);
+  ctx.restore();
+ }
+ const walkOnPath = (ctx, s, h, kind, v, load) => { const q = PA.at(s), dir = Math.cos(q[2]) >= 0 ? 1 : -1; if (kind === 'animal') P.packAnimal(ctx, q[0], q[1] + 6, h, s / (h * 0.9), { load, dir }); else P.porter(ctx, q[0], q[1] + 6, h, s / (h * 0.85), { load, var: v, dir }); };
+ // 12 · ¿CÓMO SUBÍAN LOS MATERIALES?: de la pila del valle a la cresta, siguiendo el sendero; el desnivel se mide
  B.push({ t0: TB.transp, t1: TB.medios, in: { type: 'fade', d: 0.4 }, draw(ctx, t) {
-  const cam = P.camAt([[TB.transp, 300, 1560, 1.6], [T.toneladas, 380, 1300, 1.05], [TB.medios, 520, 1180, 0.85]], t);
-  ctx.save(); P.camApply(ctx, cam); slopeScene(ctx, t, { build: 0.7 }); const pa = P.path(PATH), pr = sm(T.toneladas, T.dificiles + 0.4, t); if (pr > 0) { const sub = []; for (let s = 0; s <= pa.L * pr; s += 8) { const q = pa.at(s); sub.push([q[0], q[1]]); } ctx.save(); ctx.setLineDash([18, 12]); ctx.lineDashOffset = -t * 40; P.strokePath(ctx, sub, 8, C.oro); ctx.restore(); } ctx.restore();
-  const a = sm(T.dificiles - 0.3, T.dificiles + 0.2, t); if (a > 0) { const p0 = camPt(cam, [140, 1600]), p1 = camPt(cam, [760, 790]); ctx.save(); ctx.globalAlpha *= a; ctx.strokeStyle = C.blanco; ctx.lineWidth = 6; ctx.beginPath(); ctx.moveTo(980, p0[1]); ctx.lineTo(980, p1[1]); ctx.stroke(); for (const y of [p0[1], p1[1]]) { ctx.beginPath(); ctx.moveTo(950, y); ctx.lineTo(1010, y); ctx.stroke(); } ctx.restore(); tag(ctx, 'gran desnivel', 860, (p0[1] + p1[1]) / 2, 32, a); }
+  const pr = sm(T.toneladas, T.dificiles + 0.5, t), cq = PA.at(PA.L * pr);
+  const cam = P.camAt([[TB.transp, 260, 1560, 1.7], [T.toneladas, 380, 1500, 1.5], [T.dificiles, cq[0], cq[1] + 60, 1.25], [TB.medios, 560, 1200, 0.78]], t);
+  slopeScene(ctx, t, cam, { build: 0.7, after: (c) => { if (pr > 0) { const sub = []; for (let s = 0; s <= PA.L * pr; s += 8) { const q = PA.at(s); sub.push([q[0], q[1]]); } c.save(); c.setLineDash([18, 12]); c.lineDashOffset = -t * 40; P.strokePath(c, sub, 8, C.oro); c.restore(); c.fillStyle = C.oro; c.beginPath(); c.arc(cq[0], cq[1], 14, 0, TAU); c.fill(); } } });
+  const a = sm(TB.medios - 1.0, TB.medios - 0.5, t); if (a > 0) { const p0 = camPt(cam, [140, 1626]), p1 = camPt(cam, [760, 790]); ctx.save(); ctx.globalAlpha *= a; ctx.strokeStyle = C.blanco; ctx.lineWidth = 6; ctx.beginPath(); ctx.moveTo(1000, p0[1]); ctx.lineTo(1000, p1[1]); ctx.stroke(); for (const y of [p0[1], p1[1]]) { ctx.beginPath(); ctx.moveTo(970, y); ctx.lineTo(1030, y); ctx.stroke(); } ctx.restore(); mapLabel(ctx, 'GRAN DESNIVEL', 880, (p0[1] + p1[1]) / 2, 32, C.blanco, a); }
   pill(ctx, '¿CÓMO SUBÍAN LOS MATERIALES?', 540, 270, 48, t, T.transportaban - 0.1, C.oro, C.fondo);
   scrim(ctx);
  }, sfx(k) { FX.viento(k, TB.transp, TB.medios - TB.transp, 1); k.play('riser', T.toneladas, { dur: 1.8, gain: 0.25 }); FX.aparece(k, T.transportaban - 0.1); FX.flecha(k, T.toneladas, 1.4); } });
 
- // 13 · CARROS, ANIMALES Y TRABAJO HUMANO: cada medio en el terreno que le corresponde
+ // 13 · CARROS, ANIMALES Y TRABAJO HUMANO: carros solo en el camino llano, animales en el sendero suave, personas en lo empinado
  B.push({ t0: TB.medios, t1: TB.pend, in: { type: 'slide', d: 0.45 }, draw(ctx, t) {
-  const cam = P.camAt([[TB.medios, 300, 1500, 1.5], [T.animales, 380, 1330, 1.35], [T.cantidades, 520, 1100, 1.25], [TB.pend, 560, 1000, 1.15]], t);
-  ctx.save(); P.camApply(ctx, cam); slopeScene(ctx, t, { build: 0.75 });
-  // carro por el camino llano del valle
-  ctx.fillStyle = 'rgba(176,144,104,0.9)'; ctx.fillRect(-300, 1640, 900, 34); P.oxcart(ctx, lerp(-160, 260, win(t, TB.medios, T.animales + 0.5)), 1660, 260, t, { load: 'ladrillos', phase: t * 0.6 });
-  // animales de carga por el primer tramo del sendero
-  const pa = P.path(PATH); for (let i = 0; i < 2; i++) { const s = pa.L * (0.12 + 0.12 * win(t, TB.medios, TB.pend) + i * 0.05), q = pa.at(s); P.packAnimal(ctx, q[0], q[1] + 4, 110, t * 1.4 + i * 0.5, { load: i ? 'piedra' : 'ladrillos', dir: Math.cos(q[2]) >= 0 ? 1 : -1 }); }
-  // personas en el tramo más empinado
-  for (let i = 0; i < 4; i++) { const s = pa.L * (0.55 + i * 0.1 + 0.05 * win(t, TB.medios, TB.pend)), q = pa.at(s); P.porter(ctx, q[0], q[1] + 4, 120, t * 1.1 + i * 0.27, { load: i % 2 ? 'ladrillos' : 'piedra', var: i }); }
-  ctx.restore();
-  [['CARROS', T.carros, 200], ['ANIMALES', T.animales, 540], ['PERSONAS', T.trabajo18 - 0.4, 880]].forEach(([s, t0, x]) => { const a = sm(t0 - 0.15, t0 + 0.15, t); if (a <= 0) return; ctx.save(); ctx.globalAlpha *= a; P.rr(ctx, x - 150, 360, 300, 84, 42, C.oro); txt(ctx, s, x, 403, 36, C.fondo); ctx.restore(); });
-  pill(ctx, 'TRANSPORTE MANUAL Y ANIMAL', 540, 260, 48, t, T.utilizaban18, C.blanco, C.fondo);
-  tag(ctx, 'cada medio, según el terreno y la época', 540, 1330, 32, sm(T.cantidades, T.cantidades + 0.4, t));
+  const cam = P.camAt([[TB.medios, 220, 1520, 1.45], [T.animales, 470, 1450, 1.35], [T.cantidades, 560, 1180, 1.2], [TB.pend, 600, 1060, 1.12]], t);
+  slopeScene(ctx, t, cam, { build: 0.75, after: (c) => {
+   const cx = -260 + 60 * (t - TB.medios); P.oxcart(c, cx, 1650, 280, t, { load: 'ladrillos', phase: cx / (TAU * 0.13 * 280) });
+   for (let i = 0; i < 2; i++) { const s = 30 + 28 * (t - TB.medios) + i * 120; walkOnPath(c, s, 120, 'animal', 0, i ? 'piedra' : 'ladrillos'); }
+   for (let i = 0; i < 4; i++) { const s = PA.L * 0.52 + 30 * (t - TB.medios) + i * 150; if (s < PA.L - 10) walkOnPath(c, s, 120, 'p', i, i % 2 ? 'ladrillos' : 'piedra'); } } });
+  [['CARROS', T.carros, 200, 'camino llano'], ['ANIMALES', T.animales, 540, 'sendero suave'], ['PERSONAS', T.trabajo18 - 0.4, 880, 'tramos empinados']].forEach(([s, t0, x, sub]) => { const a = sm(t0 - 0.15, t0 + 0.15, t); if (a <= 0) return; ctx.save(); ctx.globalAlpha *= a; P.rr(ctx, x - 160, 345, 320, 120, 30, 'rgba(17,26,28,0.85)'); txt(ctx, s, x, 385, 36, C.oro); txt(ctx, sub, x, 432, 28, C.blanco, { w: 700 }); ctx.restore(); });
+  pill(ctx, 'TRANSPORTE MANUAL Y ANIMAL', 540, 250, 48, t, T.utilizaban18, C.blanco, C.fondo);
   scrim(ctx);
  }, sfx(k) { FX.ruedas(k, T.carros - 0.3, 2.4, 1); FX.cascos(k, T.animales - 0.1, 8, 0.32, 1); FX.pasosTierra(k, T.cantidades, 8, 0.38, 0.9); FX.etiqueta(k, T.carros); FX.etiqueta(k, T.animales); FX.etiqueta(k, T.trabajo18 - 0.4); } });
 
- // 14 · PENDIENTES EXTREMAS: escalones tallados, cargas manejables, la muralla en construcción en la cresta
+ // 14 · PENDIENTES EXTREMAS: escalones; cargas manejables; la cámara sube y revela el muro en construcción en la cresta
  B.push({ t0: TB.pend, t1: TB.torres, in: { type: 'rise', d: 0.45 }, draw(ctx, t) {
-  const cam = P.camAt([[TB.pend, 420, 1420, 1.9], [T.empinadas + 0.5, 520, 1150, 1.45], [T.manualmente, 650, 900, 1.15], [TB.torres, 700, 860, 1.0]], t);
-  ctx.save(); P.camApply(ctx, cam); slopeScene(ctx, t, { build: 0.6 + 0.1 * win(t, TB.pend, TB.torres) });
-  const pa = P.path(PATH); for (let i = 0; i < 7; i++) { const s = pa.L * ((0.25 + i * 0.11 + 0.04 * (t - TB.pend) * 0.25) % 1), q = pa.at(s); P.porter(ctx, q[0], q[1] + 4, 120, t * 1.0 + i * 0.31, { load: ['piedra', 'ladrillos', 'tierra'][i % 3], var: i }); }
-  P.laborer(ctx, 860, 765, 110, t * 1.6, { pose: 'chisel', var: 3 }); P.laborer(ctx, 930, 755, 110, t * 1.6 + 0.5, { pose: 'chisel', var: 1 });
-  ctx.restore();
+  const cam = P.camAt([[TB.pend, 560, 1060, 2.0], [T.empinadas + 0.5, 620, 960, 1.7], [T.manualmente, 760, 860, 1.3], [TB.torres, 800, 840, 1.1]], t);
+  slopeScene(ctx, t, cam, { build: 0.62 + 0.1 * win(t, TB.pend, TB.torres), after: (c) => {
+   for (let i = 0; i < 6; i++) { const s = PA.L * 0.6 + 26 * (t - TB.pend) + i * 95; if (s < PA.L - 8) walkOnPath(c, s, 112, 'p', i, ['piedra', 'ladrillos', 'tierra'][i % 3]); }
+   const bx = 700 + 800 * (0.62 + 0.1 * win(t, TB.pend, TB.torres)) * 0.98; P.figure(c, bx - 30, crestY(bx - 30) + 2, 110, 0, { pose: 'chisel', var: 3, target: [bx - 6, crestY(bx) - 40] }); P.figure(c, bx - 120, crestY(bx - 120) + 2, 110, 0, { pose: 'look', var: 1 }); } });
   pill(ctx, 'A MANO POR LAS PENDIENTES', 540, 270, 48, t, T.empinadas - 0.2, C.oro, C.fondo);
   tag(ctx, 'cargas que una persona podía llevar, en muchos viajes', 540, 380, 32, sm(T.manualmente - 0.3, T.manualmente + 0.1, t));
   scrim(ctx);
  }, sfx(k) { FX.pasosTierra(k, TB.pend + 0.2, 10, 0.5, 1); FX.viento(k, TB.pend, TB.torres - TB.pend, 1.1); FX.aparece(k, T.empinadas - 0.2); FX.golpePiedra(k, T.manualmente + 0.3); } });
 
- // 15 · TORRES Y VIGILANCIA: la cámara sigue el muro hasta una torre, sube y conecta con otra torre que da la señal
+ // 15 · TORRES Y VIGILANCIA: observar → detectar → señal de humo → transmisión de torre en torre con línea de visión despejada
+ const peaksOf = (rg, x0, x1) => { let bx = x0, by = 1e9; for (let x = x0; x <= x1; x += 4) { const y = rg.ridge(x); if (y < by) { by = y; bx = x; } } return bx; };
  B.push({ t0: TB.torres, t1: TB.gener, in: { type: 'fade', d: 0.4 }, draw(ctx, t) {
-  const cam = P.camAt([[TB.torres, 420, 1050, 1.9], [T.torres, 520, 980, 1.6], [T.observar, 720, 880, 0.9], [TB.gener, 760, 860, 0.75]], t);
-  const sig = sm(T.comunicar - 0.3, T.comunicar + 0.5, t);
-  const r = ridgeShot(ctx, t, { cam, sun: [880, 380], towers: [0.37, 0.43, 0.49, 0.55], towerS: 120, smokeAt: 0.55, smoke: sig });
-  // conexión entre torres (vista)
-  const pa = r.pa, tA = pa.at(0.43 * pa.L), tB = pa.at(0.55 * pa.L), A2 = camPt(cam, [tA[0], tA[1] - 120]), B2 = camPt(cam, [tB[0], tB[1] - 120]);
-  const la = sm(T.observar, T.observar + 0.4, t); if (la > 0) { ctx.save(); ctx.globalAlpha *= la; ctx.strokeStyle = C.oro; ctx.lineWidth = 5; ctx.setLineDash([16, 12]); ctx.lineDashOffset = -t * 50; ctx.beginPath(); ctx.moveTo(A2[0], A2[1]); ctx.quadraticCurveTo((A2[0] + B2[0]) / 2, Math.min(A2[1], B2[1]) - 140, B2[0], B2[1]); ctx.stroke(); ctx.restore(); }
-  callout(ctx, A2[0], A2[1] + 40, 200, 600, 'TORRE DE VIGILANCIA', sm(T.vigilancia, T.vigilancia + 0.3, t), C.blanco);
-  callout(ctx, B2[0], B2[1] - 40, 900, 560, 'SEÑAL DE HUMO', sig, C.oro, 'right');
-  pill(ctx, 'OTRO DESAFÍO', 540, 270, 54, t, T.desafio - 0.2, C.blanco, C.fondo, T.construir21);
-  pill(ctx, 'VIGILANCIA Y COMUNICACIÓN', 540, 270, 48, t, T.construir21 + 0.2, C.oro, C.fondo);
-  tag(ctx, 'de torre en torre, avisos con humo o fuego', 540, 1330, 32, sm(T.comunicar + 0.3, T.comunicar + 0.7, t));
+  const cam = P.camAt([[TB.torres, 380, 1040, 1.8], [T.torres, 470, 980, 1.55], [T.observar, 620, 900, 0.95], [TB.gener, 660, 880, 0.82]], t);
+  const s1 = sm(T.comunicar - 0.3, T.comunicar + 0.3, t), s2 = sm(T.comunicar + 0.35, T.comunicar + 0.8, t), s3 = sm(T.amenazas - 0.1, T.amenazas + 0.35, t), det = sm(T.territorio - 0.2, T.territorio + 0.3, t);
+  let tops = []; const r = ridgeShot(ctx, t, { cam, sun: [880, 380], towers: [], fogA: 0.6, before: (c, rg) => { const xs = [peaksOf(rg, 300, 520), peaksOf(rg, 640, 900), peaksOf(rg, 1020, 1320)]; c.__xs = xs; },
+   after: (c, rg, pa, pts) => { const xs = c.__xs; const L = pa.L; xs.forEach((xx, i) => { let best = 0, bd = 1e9; for (let s = 0; s <= L; s += 6) { const q = pa.at(s); const d2 = Math.abs(q[0] - xx); if (d2 < bd) { bd = d2; best = s; } } const q = pa.at(best), ts = 130; const tw = P.watchtower(c, q[0], q[1] + 6, ts, t, { style: 'ladrillo', smoke: [s1, s2, s3][i], D: [48 * 0.55 * 0.7, -48 * 0.42 * 0.7] }); tops.push(tw.top); });
+    // centinela en la primera torre
+    const t0p = tops[0]; P.figure(c, t0p[0] - 10, t0p[1] + 4, 46, 0, { pose: 'look', var: 2 });
+    // amenaza lejana: polvo de jinetes en el valle
+    if (det > 0) { const dx = 1700, dy = rg.ridge(1700) + 260; c.save(); c.globalAlpha *= det; for (let i = 0; i < 9; i++) { const u = (t * 0.5 + i / 9) % 1; c.fillStyle = `rgba(200,176,136,${0.5 * (1 - u)})`; c.beginPath(); c.arc(dx - u * 160 + i * 6, dy - u * 40, 20 + u * 40, 0, TAU); c.fill(); } c.restore(); c.__thr = [dx, dy]; } } });
+  const T1 = tops.map((p) => camPt(cam, p));
+  // líneas de visión (de cima a cima, por encima del terreno)
+  const los = (a, b, al) => { if (al <= 0) return; ctx.save(); ctx.globalAlpha *= al; ctx.strokeStyle = C.oro; ctx.lineWidth = 5; ctx.setLineDash([16, 12]); ctx.lineDashOffset = -t * 50; ctx.beginPath(); ctx.moveTo(a[0], a[1] - 20); ctx.lineTo(b[0], b[1] - 20); ctx.stroke(); ctx.restore(); };
+  if (T1.length === 3) { los(T1[0], T1[1], s2); los(T1[1], T1[2], s3); const ob = sm(T.observar - 0.2, T.observar + 0.2, t) * (1 - sm(T.comunicar, T.comunicar + 0.3, t)); if (ob > 0) { ctx.save(); ctx.globalAlpha *= ob * 0.35; ctx.fillStyle = C.oro; ctx.beginPath(); ctx.moveTo(T1[0][0], T1[0][1] - 10); ctx.lineTo(W + 100, T1[0][1] - 200); ctx.lineTo(W + 100, T1[0][1] + 260); ctx.closePath(); ctx.fill(); ctx.restore(); } }
+  const steps = [['1 OBSERVAR', T.observar], ['2 DETECTAR', T.territorio], ['3 SEÑAL', T.comunicar], ['4 TRANSMITIR', T.comunicar + 0.5]];
+  steps.forEach(([s, t0], i) => { const a = sm(t0 - 0.15, t0 + 0.15, t); if (a <= 0) return; const x = 140 + i * 267; ctx.save(); ctx.globalAlpha *= a; P.rr(ctx, x - 125, 360, 250, 72, 36, i === 3 ? C.oro : 'rgba(17,26,28,0.88)'); txt(ctx, s, x, 397, 30, i === 3 ? C.fondo : C.blanco); ctx.restore(); });
+  pill(ctx, 'OTRO DESAFÍO', 540, 250, 54, t, T.desafio - 0.2, C.blanco, C.fondo, T.construir21);
+  pill(ctx, 'VIGILANCIA Y COMUNICACIÓN', 540, 250, 48, t, T.construir21 + 0.2, C.oro, C.fondo);
+  tag(ctx, 'humo de día, fuego de noche: de torre en torre, siempre a la vista', 540, 1340, 30, sm(T.comunicar + 0.4, T.comunicar + 0.8, t));
   scrim(ctx);
- }, sfx(k) { FX.viento(k, TB.torres, TB.gener - TB.torres, 1.2); FX.aparece(k, T.desafio - 0.2); FX.etiqueta(k, T.vigilancia); k.play('whoosh', T.observar - 0.3, { dur: 1.2, top: 1100, gain: 0.3 }); FX.hoguera(k, T.comunicar - 0.2, 2.4, 1); FX.etiqueta(k, T.comunicar + 0.1); } });
+ }, sfx(k) { FX.viento(k, TB.torres, TB.gener - TB.torres, 1.2); FX.aparece(k, T.desafio - 0.2); FX.etiqueta(k, T.observar); FX.etiqueta(k, T.territorio); k.play('whoosh', T.observar - 0.3, { dur: 1.2, top: 1100, gain: 0.3 }); FX.hoguera(k, T.comunicar - 0.2, 2.6, 1); FX.etiqueta(k, T.comunicar + 0.5); } });
 
- // 16 · GENERACIONES: la misma ladera a lo largo del tiempo (estaciones y épocas); tramos nuevos, ruinas y reparaciones
+ // 16 · GENERACIONES: la misma ladera a lo largo de las épocas; cada época construye a su manera sobre (o junto a) lo anterior
  B.push({ t0: TB.gener, t1: TB.mapa2, in: { type: 'fade', d: 0.45 }, draw(ctx, t) {
-  const u = win(t, TB.gener, TB.mapa2), cam = [540 + 80 * u, 950, 0.78 + 0.08 * u];
-  const season = u * 3, snow = sm(2.2, 2.7, season) * (1 - sm(2.9, 3, season)), autumn = sm(0.8, 1.4, season) * (1 - sm(2.0, 2.4, season));
-  const sky = season < 2 ? ['#6f97ad', '#d7d6c4'] : ['#8798a3', '#d8dbd8'];
-  ridgeShot(ctx, t, { cam, sky, style: u < 0.45 ? 'tierra' : 'ladrillo', build: lerp(0.35, 1, sm(0.1, 0.9, u)), ruin: u < 0.45 ? 0.2 : 0, nearC: autumn > 0.5 ? '#6b5a35' : undefined, snow, towers: [0.3, 0.38, 0.46, 0.54, 0.62, 0.7] });
-  const eras = [['s. VII–III a. C.', 0.0], ['QIN · HAN', 0.22], ['SIGLOS DESPUÉS…', 0.45], ['MING', 0.68]]; let cur = eras[0][0]; eras.forEach(([s, a]) => { if (u >= a) cur = s; });
-  ctx.save(); P.rr(ctx, 290, 360, 500, 80, 40, 'rgba(17,26,28,0.85)'); txt(ctx, cur, 540, 402, 38, C.oro, { w: 900 }); ctx.restore();
-  pill(ctx, 'SIGLOS DE CONSTRUCCIÓN', 540, 260, 50, t, T.siglos22 - 0.2, C.oro, C.fondo);
-  tag(ctx, 'tramos nuevos, abandonados y reparados en distintas épocas', 540, 1330, 32, sm(T.ampliando, T.ampliando + 0.4, t));
+  const u = win(t, TB.gener, TB.mapa2), cam = [520 + 120 * u, 950, 0.8 + 0.06 * u];
+  const eras = [{ a: 0, b: 0.34, style: 'tierra', label: 'MUROS DE TIERRA · s. VII–III a. C.', tw: [0.4, 0.52, 0.64] }, { a: 0.34, b: 0.62, style: 'piedra', label: 'PIEDRA Y TIERRA · varias dinastías', tw: [0.37, 0.47, 0.57, 0.67] }, { a: 0.62, b: 1, style: 'ladrillo', label: 'MING · LADRILLO Y PIEDRA · 1368–1644', tw: [0.33, 0.405, 0.48, 0.555, 0.63, 0.705] }];
+  let k = 0; eras.forEach((e, i) => { if (u >= e.a) k = i; }); const e = eras[k], pe = eras[k - 1], bu = sm(0, 0.75, (u - e.a) / (e.b - e.a));
+  const autumn = k === 1 ? sm(0.4, 0.6, (u - e.a) / (e.b - e.a)) : 0, snow = k === 2 ? sm(0.6, 0.9, (u - e.a) / (e.b - e.a)) * 0.8 : 0;
+  ridgeShot(ctx, t, { cam, style: e.style, build: k === 0 ? 0.25 + 0.75 * bu : bu, towers: e.tw, prev: pe ? { style: pe.style, ruin: 0.55, towers: [] } : null, ruin: 0, nearC: autumn > 0.5 ? '#6b5a35' : undefined, snow, pavilion: k === 2 ? [0.48] : [] });
+  mapLabel(ctx, e.label, 540, 400, 34, C.oro, 1);
+  pill(ctx, 'SIGLOS DE CONSTRUCCIÓN', 540, 280, 50, t, T.siglos22 - 0.2, C.oro, C.fondo);
+  tag(ctx, 'se ampliaban tramos, otros quedaban en ruinas y algunos se reparaban', 540, 1340, 30, sm(T.ampliando, T.ampliando + 0.4, t));
   scrim(ctx);
- }, sfx(k) { FX.tiempo(k, TB.gener + 0.1, 2.5, 0.8); FX.viento(k, TB.gener, TB.mapa2 - TB.gener, 0.8); FX.ladrillo(k, T.ampliando, 3, 0.4, 0.6); FX.tiempo(k, T.transformando, 1.8, 0.6); } });
+ }, sfx(k) { FX.tiempo(k, TB.gener + 0.1, 2.0, 0.8); FX.viento(k, TB.gener, TB.mapa2 - TB.gener, 0.8); const d = TB.mapa2 - TB.gener; FX.tiempo(k, TB.gener + d * 0.34, 1.2, 0.6); FX.tiempo(k, TB.gener + d * 0.62, 1.2, 0.6); FX.ladrillo(k, TB.gener + d * 0.7, 3, 0.4, 0.6); } });
 
- // 17 · NO EXISTE UNA ÚNICA MURALLA CONTINUA: mapa con periodos de colores, tramos separados y conectados
+ // 17 · NO EXISTE UNA ÚNICA MURALLA CONTINUA: vista general con todos los periodos; tramos separados y conectados resaltados
  B.push({ t0: TB.mapa2, t1: TB.final, in: { type: 'zoom', d: 0.5, x: 540, y: 760 }, draw(ctx, t) {
-  chinaShot(ctx, t, { periods: { estados: 1, qin: 1, han: 1, ming: 1 }, legend: 1, ends: 1, labels: 1 });
-  const hi = sm(T.unica, T.unica + 0.4, t); if (hi > 0) { ctx.save(); ctx.globalAlpha *= hi * (0.5 + 0.5 * Math.sin(t * 5)); ctx.strokeStyle = C.oro; ctx.lineWidth = 4; ctx.setLineDash([10, 8]); ctx.strokeRect(MAPR.x + 8, MAPR.y + 8, MAPR.w - 16, MAPR.h - 16); ctx.restore(); }
+  const cam = P.camAt([[TB.mapa2, ...camCN(107, 39.0, 1.32)], [TB.final, ...camCN(107, 39.0, 1.22)]], t);
+  const order = ['estados', 'qin', 'han', 'ming'], hiIdx = Math.floor(cl(win(t, T.unica - 0.3, T.emperador + 0.5)) * 3.999), hi = t > T.unica - 0.3 ? order[hiIdx] : null;
+  chinaShot(ctx, t, { cam, periods: { estados: 1, qin: 1, han: 1, ming: 1 }, legend: 1, ends: 1, names: 0, hi });
+  const ca = sm(T.continua - 0.2, T.continua + 0.3, t); if (ca > 0) { const a1 = camPt(cam, projCN([113.0, 42.3])), a2 = camPt(cam, projCN([107.6, 39.3])); ctx.save(); ctx.globalAlpha *= ca; ctx.strokeStyle = C.oro; ctx.lineWidth = 5; for (const p of [a1, a2]) { ctx.beginPath(); ctx.arc(p[0], p[1], 44, 0, TAU); ctx.stroke(); } ctx.restore(); mapLabel(ctx, 'tramos separados', a1[0], a1[1] - 70, 30, C.oro, ca); }
   pill(ctx, 'NO FUE UNA SOLA MURALLA', 540, 200, 50, t, T.sorprendente23 - 0.1, C.oro, C.fondo);
-  tag(ctx, 'ni obra de un solo emperador', 540, 320, 34, sm(T.emperador - 0.3, T.emperador + 0.1, t));
+  tag(ctx, 'ni obra de un solo emperador', 540, 300, 32, sm(T.emperador - 0.3, T.emperador + 0.1, t));
   scrim(ctx);
- }, sfx(k) { FX.mapa(k, TB.mapa2 + 0.1); MUS.golpe(k, T.unica, { gain: 0.8, chord: ['D3', 'A3', 'D4', 'F4'] }); FX.aparece(k, T.sorprendente23 - 0.1); FX.tachado(k, T.emperador); } });
+ }, sfx(k) { FX.mapa(k, TB.mapa2 + 0.1); MUS.golpe(k, T.unica, { gain: 0.8, chord: ['D3', 'A3', 'D4', 'F4'] }); FX.aparece(k, T.sorprendente23 - 0.1); FX.etiqueta(k, T.continua); FX.tachado(k, T.emperador); } });
 
- // 18-19 · REVELACIÓN FINAL y CIERRE: vuelo sobre la muralla al atardecer; cierre limpio
- const finale = (ctx, t) => { const cam = P.camAt([[TB.final, 300, 1000, 1.8], [T.resultado, 480, 920, 1.1], [T.historia24, 560, 860, 0.8], [DURATION, 600, 840, 0.7]], t);
-  ridgeShot(ctx, t, { cam, sun: [260, 620], sky: ['#5d7f98', '#f0c99a'], towers: [0.3, 0.36, 0.42, 0.48, 0.54, 0.6, 0.66, 0.72], fogA: 0.9 }); P.glow(ctx, 260, 560, 900, '255,200,140', 0.16); };
+ // 18-19 · FINAL: del detalle del ladrillo y la piedra al paisaje completo al atardecer; cierre limpio
+ const finale = (ctx, t) => { const cam = P.camAt([[TB.final, 250, 990, 2.6], [T.resultado, 420, 940, 1.4], [T.historia24, 560, 870, 0.85], [DURATION, 600, 850, 0.68]], t);
+  ridgeShot(ctx, t, { cam, sun: [260, 620], sky: ['#5d7f98', '#f0c99a'], towers: [0.3, 0.36, 0.42, 0.48, 0.54, 0.6, 0.66, 0.72], pavilion: [0.42, 0.6], fogA: 0.9 }); P.glow(ctx, 260, 560, 900, '255,200,140', 0.16); };
  B.push({ t0: TB.final, t1: TB.cierre, in: { type: 'fade', d: 0.45 }, draw(ctx, t) {
   finale(ctx, t);
   pill(ctx, 'UNA OBRA DE MUCHAS GENERACIONES', 540, 270, 44, t, T.innumerables - 0.1, C.oro, C.fondo);

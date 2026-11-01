@@ -1594,17 +1594,19 @@
   ctx.restore(); return { end: [x - Math.cos(o.rot ?? -0.12) * w / 2, y - Math.sin(o.rot ?? -0.12) * w / 2] }; };
  // ================= v1.14 · MURALLAS, TIERRA APISONADA Y LOGÍSTICA (episodio «Gran Muralla») =================
  const sn = (x, s) => Math.sin(x * 0.0071 + s) * 0.5 + Math.sin(x * 0.0173 + s * 1.7) * 0.3 + Math.sin(x * 0.041 + s * 2.3) * 0.2;
- // Cordilleras por capas con crestas rocosas. o: { hor, sky:[arriba, horizonte], sun, sunA, layers, seed, arid (0..1), fogA, x0, x1, front:{y, amp} }
+ // Cordilleras por capas con crestas rocosas. o: { hor, sky:[arriba, horizonte], sun, sunA, layers, seed, arid (0..1), fogA, x0, x1, front:{y, amp},
+ // part: 'back' (cielo y capas lejanas) | 'front' (solo la capa delantera) para dibujarlas con cámaras distintas (paralaje) }
  // Devuelve { ridge(x) } = altura (y) de la cresta delantera, para apoyar la muralla.
  P.ranges = (ctx, t, o = {}) => {
   const hor = o.hor ?? 900, x0 = o.x0 ?? -800, x1 = o.x1 ?? W + 800, ar = o.arid || 0, seed = o.seed ?? 3, nL = o.layers ?? 5;
-  const sky = o.sky || ['#6f97ad', '#d7d6c4']; const g = ctx.createLinearGradient(0, hor - 1500, 0, hor); g.addColorStop(0, sky[0]); g.addColorStop(1, sky[1]); ctx.fillStyle = g; ctx.fillRect(x0, hor - 3000, x1 - x0, 3000 + 2400);
-  if (o.sun) { P.glow(ctx, o.sun[0], o.sun[1], 520, '255,226,180', 0.5 * (o.sunA ?? 1)); P.glow(ctx, o.sun[0], o.sun[1], 110, '255,244,220', 0.95 * (o.sunA ?? 1)); }
+  const part = o.part; if (part !== 'front') { const sky = o.sky || ['#6f97ad', '#d7d6c4']; const g = ctx.createLinearGradient(0, hor - 1500, 0, hor); g.addColorStop(0, sky[0]); g.addColorStop(1, sky[1]); ctx.fillStyle = g; ctx.fillRect(x0, hor - 3000, x1 - x0, 3000 + 2400);
+  if (o.sun) { P.glow(ctx, o.sun[0], o.sun[1], 520, '255,226,180', 0.5 * (o.sunA ?? 1)); P.glow(ctx, o.sun[0], o.sun[1], 110, '255,244,220', 0.95 * (o.sunA ?? 1)); } }
   const mix = (a, b, u) => { const pa = parseInt(a.slice(1), 16), pb = parseInt(b.slice(1), 16), c = (s) => Math.round(lerp((pa >> s) & 255, (pb >> s) & 255, u)); return '#' + ((1 << 24) + (c(16) << 16) + (c(8) << 8) + c(0)).toString(16).slice(1); };
   const far = mix(o.farC || '#8fa6a8', '#c9b48e', ar), near = mix(o.nearC || '#425A39', '#8a6a45', ar), fr = o.front || {};
   let ridge = null;
   for (let L = 0; L < nL; L++) { const u = L / (nL - 1), base = lerp(hor - 60, fr.y ?? hor + 380, u), amp = lerp(140, fr.amp ?? 420, u) * (1 - ar * 0.35), s = seed + L * 3.1, sc = lerp(0.6, 1.25, u);
    const yAt = (x) => base - amp * (0.55 + 0.45 * sn(x / sc, s)) + amp * 0.18 * Math.abs(Math.sin(x * 0.011 / sc + s));
+   if ((part === 'back' && L === nL - 1) || (part === 'front' && L < nL - 1)) { if (L === nL - 1) ridge = yAt; continue; }
    ctx.beginPath(); ctx.moveTo(x0, HH + 1600); for (let x = x0; x <= x1; x += 12) ctx.lineTo(x, yAt(x)); ctx.lineTo(x1, HH + 1600); ctx.closePath();
    const lg = ctx.createLinearGradient(0, base - amp, 0, base + 400); lg.addColorStop(0, mix(far, near, u * 0.9 + 0.05)); lg.addColorStop(1, mix(far, near, Math.min(1, u * 1.1 + 0.2))); ctx.fillStyle = lg; ctx.fill();
    // luz en las laderas que miran al sol y vetas de roca
@@ -1616,61 +1618,167 @@
    if (L === nL - 1) ridge = yAt; }
   return { ridge };
  };
- // Muralla que sigue un recorrido (crestas). pts en pantalla (base del muro). o: { style ('tierra'|'piedra'|'ladrillo'), h, w (ancho aparente
- // del adarve), build (0..1 a lo largo del recorrido), towers:[fracción…], towerS, ruin (0..1), glow, seed, crenel }
- P.wallPath = (ctx, pts, t, o = {}) => {
-  const st = o.style || 'ladrillo', h = o.h ?? 40, w = o.w ?? h * 0.35, pa = P.path(pts), end = pa.L * cl(o.build ?? 1), ru = o.ruin || 0;
-  const col = st === 'tierra' ? ['#A4774C', '#68472F'] : st === 'piedra' ? ['#9ca29b', '#5e655f'] : ['#9e7a64', '#5f4636'];
-  const S = []; for (let s = 0; s <= end; s += Math.max(4, h * 0.25)) { const q = pa.at(s); S.push([q[0], q[1]]); } if (S.length < 2) return pa;
-  const top = S.map(([x, y], i) => [x, y - h * (1 - ru * 0.45 * (0.5 + 0.5 * Math.sin(i * 0.7)))]);
+ // ================= v1.14.1 · revisión maestra «Gran Muralla»: figuras, muralla con volumen, torres y cortes =================
+ // IK de dos segmentos: devuelve el codo/rodilla entre a (origen) y t (objetivo) con longitudes l1, l2; side = ±1 elige el lado del pliegue
+ const ik2 = (a, t, l1, l2, side) => { let dx = t[0] - a[0], dy = t[1] - a[1], d = Math.hypot(dx, dy); const dm = Math.min(Math.max(d, 1e-3), l1 + l2 - 1e-3); if (d > dm) { t = [a[0] + dx / d * dm, a[1] + dy / d * dm]; dx = t[0] - a[0]; dy = t[1] - a[1]; d = dm; } const ca = cl((l1 * l1 + d * d - l2 * l2) / (2 * l1 * d), -1, 1), ang = Math.atan2(dy, dx) + side * Math.acos(ca); return [[a[0] + Math.cos(ang) * l1, a[1] + Math.sin(ang) * l1], t]; };
+ const FIG_TUNIC = ['#6b5a46', '#4f5d58', '#7a5a3a', '#5b4a5e', '#857055', '#3f4d5a', '#6e4b3a', '#55603f'], FIG_SKIN = ['#b98a62', '#a87a55', '#c49a72', '#9c6f4c'];
+ // Persona estilizada con proporciones (cabeza, torso, brazos y piernas articulados), ropa de trabajo (túnica cruzada con faja,
+ // pantalón, calzado de tela) y sombrero o pañuelo variados. (x, y) = suelo bajo los pies: la figura se ajusta para que el pie más bajo
+ // toque y. pose: 'walk' | 'stand' | 'carry' (pértiga al hombro) | 'ram' (pisón con las dos manos; o.lift 0..1) | 'chisel' | 'look' | 'lead'.
+ // ph = fase de la marcha (usar distancia recorrida / zancada para que no patine). o: { var, dir, lift, target, scale }
+ P.figure = (ctx, x, y, h, ph = 0, o = {}) => {
+  const pose = o.pose || 'walk', v = o.var ?? 0, d = o.dir ?? 1, LT = h * 0.245, LS = h * 0.24, LU = h * 0.17, LF = h * 0.165, f = ph * TAU, lift = cl(o.lift ?? 0);
+  const tun = FIG_TUNIC[v % FIG_TUNIC.length], tunD = '#2f2a24', trou = ['#3d3a35', '#4a4136', '#2f3538'][v % 3], sash = ['#a4473a', '#2f4a5e', '#8a7a4a', '#5a3d5a'][v % 4], skin = FIG_SKIN[v % FIG_SKIN.length];
+  // piernas (ángulos desde la vertical; la rodilla se dobla hacia atrás)
+  let legs; if (pose === 'walk' || pose === 'carry' || pose === 'lead') legs = [0, Math.PI].map((o2) => { const a = Math.sin(f + o2) * 0.42; return [a, 0.1 + 0.55 * Math.max(0, Math.sin(f + o2 + 1.9))]; });
+  else if (pose === 'ram') legs = [[0.16, 0.12 + 0.12 * (1 - lift)], [-0.12, 0.12 + 0.12 * (1 - lift)]]; else if (pose === 'chisel') legs = [[0.3, 0.9], [-0.25, 0.25]]; else legs = [[0.05, 0.03], [-0.05, 0.03]];
+  const hip0 = [0, 0], knees = [], ankles = [], toes = []; legs.forEach(([a, k]) => { const kn = [Math.sin(a) * LT, Math.cos(a) * LT], an = [kn[0] + Math.sin(a - k) * LS, kn[1] + Math.cos(a - k) * LS]; knees.push(kn); ankles.push(an); toes.push([an[0] + h * 0.07, an[1] + h * 0.012]); });
+  const low = Math.max(ankles[0][1], ankles[1][1]) + h * 0.03, P_ = (p) => [x + d * p[0], y - low + p[1]]; // pie más bajo en el suelo
+  const lean = pose === 'carry' ? 0.07 : pose === 'ram' ? 0.12 + 0.12 * (1 - lift) : pose === 'chisel' ? 0.55 : pose === 'walk' ? 0.05 : 0.02;
+  const S = [Math.sin(lean) * h * 0.3, -Math.cos(lean) * h * 0.3], Hd = [S[0] + Math.sin(lean) * h * 0.11, S[1] - Math.cos(lean) * h * 0.115];
+  // objetivos de las manos
+  let tf, tb; if (pose === 'walk' || pose === 'lead') { tf = [S[0] + Math.sin(-f) * h * 0.13, S[1] + h * 0.29]; tb = [S[0] + Math.sin(-f + Math.PI) * h * 0.13, S[1] + h * 0.29]; if (pose === 'lead') tf = [S[0] + h * 0.28, S[1] + h * 0.12]; }
+  else if (pose === 'carry') { tf = [S[0] + h * 0.15, S[1] + h * 0.02]; tb = [S[0] + Math.sin(-f + Math.PI) * h * 0.12, S[1] + h * 0.28]; }
+  else if (pose === 'ram') { const px = h * 0.22, pb = low - lift * h * 0.24; tf = [px, pb - h * 0.5]; tb = [px, pb - h * 0.68]; }
+  else if (pose === 'chisel') { tf = o.target ? [(o.target[0] - x) * d, o.target[1] - y + low] : [S[0] + h * 0.3, S[1] + h * 0.42]; tb = [S[0] + h * 0.18, S[1] + h * (0.12 + 0.14 * Math.abs(Math.sin(f * 2)))]; }
+  else if (pose === 'look') { tf = [Hd[0] + h * 0.07, Hd[1] - h * 0.02]; tb = [S[0] - h * 0.02, S[1] + h * 0.3]; } else { tf = [S[0] + h * 0.03, S[1] + h * 0.31]; tb = [S[0] - h * 0.03, S[1] + h * 0.31]; }
+  const [ef, hf] = ik2(S, tf, LU, LF, d > 0 ? 1 : 1), [eb, hb] = ik2(S, tb, LU, LF, 1);
+  const L = (pts, w, c) => { ctx.strokeStyle = c; ctx.lineWidth = w; ctx.lineCap = 'round'; ctx.lineJoin = 'round'; ctx.beginPath(); pts.forEach((p, i) => { const q = P_(p); i ? ctx.lineTo(q[0], q[1]) : ctx.moveTo(q[0], q[1]); }); ctx.stroke(); };
   ctx.save();
-  // sombra de contacto sobre la ladera
-  ctx.strokeStyle = 'rgba(20,24,18,0.35)'; ctx.lineWidth = h * 0.35; ctx.lineJoin = 'round'; ctx.beginPath(); S.forEach((p, i) => (i ? ctx.lineTo(p[0], p[1] + h * 0.12) : ctx.moveTo(p[0], p[1] + h * 0.12))); ctx.stroke();
-  // cara del muro
-  ctx.beginPath(); top.forEach((p, i) => (i ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1]))); for (let i = S.length - 1; i >= 0; i--) ctx.lineTo(S[i][0], S[i][1] + 2); ctx.closePath();
-  const fg = ctx.createLinearGradient(0, Math.min(...top.map((p) => p[1])), 0, Math.max(...S.map((p) => p[1]))); fg.addColorStop(0, col[0]); fg.addColorStop(1, col[1]); ctx.fillStyle = fg; ctx.fill();
-  ctx.save(); ctx.clip(); ctx.strokeStyle = st === 'tierra' ? 'rgba(80,52,30,0.35)' : 'rgba(40,30,24,0.3)'; ctx.lineWidth = Math.max(1, h * 0.03);
-  const rows = st === 'tierra' ? 6 : st === 'piedra' ? 4 : 9; for (let r = 1; r < rows; r++) { ctx.beginPath(); S.forEach((p, i) => { const y = lerp(top[i][1], p[1], r / rows); i ? ctx.lineTo(p[0], y) : ctx.moveTo(p[0], y); }); ctx.stroke(); }
-  if (st !== 'tierra') { const step = st === 'piedra' ? h * 0.5 : h * 0.22; for (let k = 0; k < S.length; k += Math.max(1, Math.round(step / Math.max(4, h * 0.25)))) { const p = S[k]; for (let r = 0; r < rows; r++) { const y0 = lerp(top[k][1], p[1], r / rows), y1 = lerp(top[k][1], p[1], (r + 1) / rows), off = (r % 2) * step * 0.5; ctx.beginPath(); ctx.moveTo(p[0] + off, y0); ctx.lineTo(p[0] + off, y1); ctx.stroke(); } } }
+  const g0 = P_([0, low]); ctx.fillStyle = 'rgba(20,18,14,0.3)'; ctx.beginPath(); ctx.ellipse(g0[0], y + 2, h * 0.16, h * 0.025, 0, 0, TAU); ctx.fill(); // sombra de contacto
+  // pierna y brazo traseros (más oscuros)
+  L([hip0, knees[1], ankles[1]], h * 0.075, '#262320'); L([ankles[1], toes[1]], h * 0.05, '#1f1b17');
+  L([S, eb, hb], h * 0.062, '#3a3229'); { const q = P_(hb); ctx.fillStyle = '#8a6a50'; ctx.beginPath(); ctx.arc(q[0], q[1], h * 0.026, 0, TAU); ctx.fill(); }
+  // pierna delantera (pantalón y calzado)
+  L([hip0, knees[0], ankles[0]], h * 0.08, trou); L([ankles[0], toes[0]], h * 0.055, '#241f1a');
+  // túnica cruzada hasta medio muslo con faja
+  const tp = [[S[0] - h * 0.075, S[1] + h * 0.01], [S[0] + h * 0.07, S[1] + h * 0.01], [h * 0.1, h * 0.03], [h * 0.12, h * 0.16], [-h * 0.11, h * 0.16], [-h * 0.085, h * 0.02]];
+  ctx.fillStyle = tun; ctx.beginPath(); tp.forEach((p, i) => { const q = P_(p); i ? ctx.lineTo(q[0], q[1]) : ctx.moveTo(q[0], q[1]); }); ctx.closePath(); ctx.fill();
+  { const a = P_([S[0] + h * 0.05, S[1] + h * 0.02]), b = P_([h * 0.02, -h * 0.02]); ctx.strokeStyle = tunD; ctx.lineWidth = h * 0.012; ctx.beginPath(); ctx.moveTo(a[0], a[1]); ctx.lineTo(b[0], b[1]); ctx.stroke(); }
+  { const a = P_([-h * 0.095, -h * 0.01]), b = P_([h * 0.105, -h * 0.01]); ctx.strokeStyle = sash; ctx.lineWidth = h * 0.035; ctx.beginPath(); ctx.moveTo(a[0], a[1]); ctx.lineTo(b[0], b[1]); ctx.stroke(); }
+  // cuello, cabeza (perfil con nariz) y cabello
+  L([[S[0], S[1] + h * 0.01], [lerp(S[0], Hd[0], 0.6), lerp(S[1], Hd[1], 0.6)]], h * 0.045, skin);
+  const hq = P_(Hd), hr = h * 0.066; ctx.fillStyle = skin; ctx.beginPath(); ctx.arc(hq[0], hq[1], hr, 0, TAU); ctx.fill(); ctx.beginPath(); ctx.moveTo(hq[0] + d * hr * 0.9, hq[1] - hr * 0.1); ctx.lineTo(hq[0] + d * hr * 1.22, hq[1] + hr * 0.18); ctx.lineTo(hq[0] + d * hr * 0.85, hq[1] + hr * 0.3); ctx.fill();
+  ctx.fillStyle = '#1f1a16'; ctx.beginPath(); ctx.arc(hq[0] - d * hr * 0.15, hq[1] - hr * 0.15, hr * 0.95, Math.PI * (d > 0 ? 0.55 : -0.55) + Math.PI, Math.PI * (d > 0 ? 1.95 : 0.05) + Math.PI * (d > 0 ? 0 : 1)); ctx.fill();
+  const hat = v % 4; if (hat === 0) { ctx.fillStyle = '#c9b07a'; ctx.beginPath(); ctx.moveTo(hq[0] - hr * 2.1, hq[1] - hr * 0.35); ctx.lineTo(hq[0], hq[1] - hr * 1.55); ctx.lineTo(hq[0] + hr * 2.1, hq[1] - hr * 0.35); ctx.closePath(); ctx.fill(); ctx.strokeStyle = 'rgba(90,70,40,0.6)'; ctx.lineWidth = 1.2; ctx.stroke(); }
+  else if (hat === 1) { ctx.fillStyle = ['#d8cfb8', '#5a4a3a', '#7a8a8a'][v % 3]; ctx.beginPath(); ctx.ellipse(hq[0] - d * hr * 0.1, hq[1] - hr * 0.55, hr * 1.02, hr * 0.55, 0, Math.PI, TAU); ctx.fill(); ctx.fillRect(hq[0] - hr, hq[1] - hr * 0.62, hr * 2, hr * 0.3); }
+  else if (hat === 2) { ctx.fillStyle = '#1f1a16'; ctx.beginPath(); ctx.arc(hq[0] - d * hr * 0.1, hq[1] - hr * 1.05, hr * 0.38, 0, TAU); ctx.fill(); }
+  else { ctx.fillStyle = '#3d3a35'; ctx.beginPath(); ctx.ellipse(hq[0] - d * hr * 0.05, hq[1] - hr * 0.6, hr * 0.9, hr * 0.45, 0, Math.PI, TAU); ctx.fill(); }
+  // brazo delantero (manga) y mano
+  L([S, ef, hf], h * 0.065, tun); { const q = P_(hf); ctx.fillStyle = skin; ctx.beginPath(); ctx.arc(q[0], q[1], h * 0.028, 0, TAU); ctx.fill(); }
   ctx.restore();
-  // adarve (pasarela superior) visto en escorzo y almenas
-  ctx.fillStyle = st === 'tierra' ? '#b98d5f' : st === 'piedra' ? '#b3b8af' : '#a99482'; ctx.beginPath(); top.forEach((p, i) => (i ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1]))); for (let i = top.length - 1; i >= 0; i--) ctx.lineTo(top[i][0] + w * 0.25, top[i][1] - w * 0.55); ctx.closePath(); ctx.fill();
-  if ((o.crenel ?? st === 'ladrillo') && ru < 0.6) { ctx.fillStyle = col[0]; const cw = h * 0.22; for (let s = cw; s < end; s += cw * 2.2) { const q = pa.at(s), k = Math.min(top.length - 1, Math.round(s / Math.max(4, h * 0.25))), ty = top[k][1] - w * 0.55; ctx.fillRect(q[0] - cw / 2 + w * 0.25, ty - h * 0.2, cw, h * 0.22); } }
-  ctx.strokeStyle = 'rgba(255,240,215,0.35)'; ctx.lineWidth = Math.max(1, h * 0.04); ctx.beginPath(); top.forEach((p, i) => (i ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1]))); ctx.stroke();
+  return { hf: P_(hf), hb: P_(hb), head: hq, sh: P_(S), feet: [P_(ankles[0]), P_(ankles[1])], low };
+ };
+ // laborer y porter (v1.14) pasan a usar la figura proporcionada (misma firma)
+ P.laborer = (ctx, x, y, h, ph, o = {}) => { const pm = { walk: 'walk', chisel: 'chisel', stand: 'stand', pull: 'lead', look: 'look' }; const r = P.figure(ctx, x, y, h, ph, { pose: pm[o.pose || 'walk'] || 'walk', var: o.var, dir: o.dir, target: o.target });
+  if ((o.pose || 'walk') === 'chisel') { ctx.save(); ctx.strokeStyle = '#4a3a2a'; ctx.lineWidth = h * 0.02; ctx.lineCap = 'round'; ctx.beginPath(); ctx.moveTo(r.hb[0], r.hb[1]); ctx.lineTo(r.hb[0] + (o.dir ?? 1) * h * 0.04, r.hb[1] - h * 0.1); ctx.stroke(); ctx.fillStyle = '#5b5b58'; ctx.fillRect(r.hb[0] + (o.dir ?? 1) * h * 0.02 - h * 0.035, r.hb[1] - h * 0.13, h * 0.07, h * 0.04); ctx.strokeStyle = '#8a8f8a'; ctx.lineWidth = h * 0.015; ctx.beginPath(); ctx.moveTo(r.hf[0], r.hf[1]); ctx.lineTo(r.hf[0] + (o.dir ?? 1) * h * 0.02, r.hf[1] + h * 0.07); ctx.stroke(); ctx.restore(); }
+  return r.hf; };
+ P.porter = (ctx, x, y, h, ph, o = {}) => { const d = o.dir ?? 1, r = P.figure(ctx, x, y, h, ph, { pose: 'carry', var: o.var, dir: d }), sh = [r.sh[0], r.sh[1] - h * 0.02], bob = Math.sin(ph * TAU * 2) * h * 0.012;
+  ctx.save(); ctx.strokeStyle = '#6b4a2e'; ctx.lineWidth = h * 0.028; ctx.lineCap = 'round'; ctx.beginPath(); ctx.moveTo(sh[0] - h * 0.4, sh[1] + h * 0.035 + bob); ctx.quadraticCurveTo(sh[0], sh[1] - h * 0.025 + bob, sh[0] + h * 0.4, sh[1] + h * 0.035 + bob); ctx.stroke();
+  for (const sd of [-1, 1]) { const bx = sh[0] + sd * h * 0.38, by = Math.min(y - h * 0.08, sh[1] + h * 0.36 + bob + Math.sin(ph * TAU * 2 + sd) * h * 0.01); ctx.strokeStyle = 'rgba(80,60,40,0.9)'; ctx.lineWidth = h * 0.008; ctx.beginPath(); ctx.moveTo(bx - h * 0.07, by - h * 0.06); ctx.lineTo(bx, sh[1] + h * 0.035 + bob); ctx.lineTo(bx + h * 0.07, by - h * 0.06); ctx.stroke(); ctx.fillStyle = '#9a7b4f'; ctx.beginPath(); ctx.moveTo(bx - h * 0.09, by - h * 0.06); ctx.lineTo(bx + h * 0.09, by - h * 0.06); ctx.lineTo(bx + h * 0.07, by + h * 0.06); ctx.lineTo(bx - h * 0.07, by + h * 0.06); ctx.closePath(); ctx.fill(); ctx.strokeStyle = 'rgba(70,50,30,0.5)'; ctx.lineWidth = 1; for (let k = 0; k < 3; k++) { ctx.beginPath(); ctx.moveTo(bx - h * 0.085, by - h * 0.03 + k * h * 0.03); ctx.lineTo(bx + h * 0.08, by - h * 0.03 + k * h * 0.03); ctx.stroke(); }
+   if (o.load === 'piedra') { ctx.fillStyle = '#8f958e'; ctx.beginPath(); ctx.ellipse(bx - h * 0.025, by - h * 0.075, h * 0.045, h * 0.03, 0.2, 0, TAU); ctx.ellipse(bx + h * 0.035, by - h * 0.07, h * 0.04, h * 0.028, -0.2, 0, TAU); ctx.fill(); } else if (o.load === 'ladrillos') { ctx.fillStyle = '#a45c42'; ctx.fillRect(bx - h * 0.08, by - h * 0.1, h * 0.075, h * 0.035); ctx.fillRect(bx + h * 0.005, by - h * 0.1, h * 0.075, h * 0.035); ctx.fillStyle = '#93503a'; ctx.fillRect(bx - h * 0.045, by - h * 0.13, h * 0.075, h * 0.033); } else { ctx.fillStyle = '#8a6440'; ctx.beginPath(); ctx.ellipse(bx, by - h * 0.065, h * 0.085, h * 0.032, 0, Math.PI, TAU); ctx.fill(); } }
+  ctx.restore(); };
+ // Muralla con VOLUMEN que sigue el terreno (2,5D): sombra proyectada, cimiento que baja a la ladera, cara con fábrica según el material,
+ // adarve con grosor, parapeto exterior con almenas 2,5D (cara, techo y lateral), pretil interior, cara final donde termina la obra y
+ // torres integradas (el muro entra en la torre). o: { style, h, w, build, towers, towerS, ruin, crenel, smokeAt, smoke, glow, pavilion:[fracciones] }
+ P.wallPath = (ctx, pts, t, o = {}) => {
+  const st = o.style || 'ladrillo', h = o.h ?? 40, dep = o.w ?? h * 0.7, D = [dep * 0.55, -dep * 0.42], pa = P.path(pts), end = pa.L * cl(o.build ?? 1), ru = o.ruin || 0, step = Math.max(4, h * 0.22);
+  const col = st === 'tierra' ? { f: '#ad8456', d: '#6d4a30', t: '#c49a68', m: '#8a6440' } : st === 'piedra' ? { f: '#a3a99f', d: '#5e655f', t: '#bcc0b6', m: '#7c827d' } : { f: '#9a7462', d: '#5f4636', t: '#b29b88', m: '#7d5a48' };
+  const S = []; for (let s = 0; s <= end + 0.01; s += step) { const q = pa.at(Math.min(s, end)); S.push([q[0], q[1]]); } if (S.length < 2) return pa;
+  const er = (i) => st === 'tierra' ? (0.88 + 0.12 * Math.sin(i * 0.9)) * (1 - ru * 0.35 * (0.5 + 0.5 * Math.sin(i * 0.37))) : 1 - ru * 0.45 * (0.5 + 0.5 * Math.sin(i * 0.7));
+  const top = S.map(([x, y], i) => [x, y - h * er(i)]), poly = (pp, c) => { ctx.beginPath(); pp.forEach((p, i) => (i ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1]))); ctx.closePath(); ctx.fillStyle = c; ctx.fill(); };
+  ctx.save();
+  // sombra proyectada sobre la ladera (sol a la izquierda)
+  poly([...S.map(([x, y]) => [x, y + h * 0.05]), ...S.slice().reverse().map(([x, y]) => [x + h * 0.55, y + h * 0.42])], 'rgba(18,24,16,0.22)');
+  // cimiento que se adapta a la ladera (franja más ancha y oscura)
+  poly([...S.map(([x, y]) => [x, y - h * 0.15]), ...S.slice().reverse().map(([x, y]) => [x + h * 0.06, y + h * 0.16])], st === 'tierra' ? '#7a5a3c' : '#6f756f');
+  // adarve (superficie superior con grosor) y pretil interior
+  poly([...top, ...top.slice().reverse().map(([x, y]) => [x + D[0], y + D[1]])], col.t);
+  if (st !== 'tierra') { ctx.strokeStyle = col.d; ctx.lineWidth = Math.max(2, h * 0.12); ctx.lineJoin = 'round'; ctx.beginPath(); top.forEach(([x, y], i) => (i ? ctx.lineTo(x + D[0], y + D[1] - h * 0.05) : ctx.moveTo(x + D[0], y + D[1] - h * 0.05))); ctx.stroke(); }
+  if (st === 'ladrillo') { ctx.strokeStyle = 'rgba(90,70,55,0.35)'; ctx.lineWidth = 1; for (let i = 0; i < top.length; i += 2) { const [x, y] = top[i]; ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x + D[0], y + D[1]); ctx.stroke(); } }
+  // cara frontal del muro
+  const fp = [...top, ...S.slice().reverse()]; ctx.beginPath(); fp.forEach((p, i) => (i ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1]))); ctx.closePath();
+  const ymin = Math.min(...top.map((p) => p[1])), ymax = Math.max(...S.map((p) => p[1])), fg = ctx.createLinearGradient(0, ymin, 0, ymax); fg.addColorStop(0, col.f); fg.addColorStop(1, col.d); ctx.fillStyle = fg; ctx.fill();
+  ctx.save(); ctx.clip(); const Rm = H.rng(o.seed || 7);
+  if (st === 'tierra') { ctx.strokeStyle = 'rgba(80,52,30,0.4)'; ctx.lineWidth = Math.max(1, h * 0.025); for (let r = 1; r < 7; r++) { ctx.beginPath(); S.forEach((p, i) => { const yy = lerp(top[i][1], p[1], r / 7); i ? ctx.lineTo(p[0], yy) : ctx.moveTo(p[0], yy); }); ctx.stroke(); } }
+  else if (st === 'piedra') { ctx.strokeStyle = 'rgba(40,44,40,0.45)'; ctx.lineWidth = Math.max(1, h * 0.022); for (let i = 0; i < S.length - 1; i++) { const [x, y] = S[i], tY = top[i][1]; for (let r = 0; r < 3; r++) { const y0 = lerp(tY, y, r / 3), y1 = lerp(tY, y, (r + 1) / 3), j = Rm.range(-0.3, 0.3) * step; ctx.beginPath(); ctx.moveTo(x + j, y0); ctx.lineTo(x + j + Rm.range(-2, 2), y1); ctx.stroke(); } } for (let r = 1; r < 3; r++) { ctx.beginPath(); S.forEach((p, i) => { const yy = lerp(top[i][1], p[1], r / 3) + Math.sin(i * 1.3) * h * 0.04; i ? ctx.lineTo(p[0], yy) : ctx.moveTo(p[0], yy); }); ctx.stroke(); } }
+  else { // ladrillo sobre zócalo de piedra
+   poly([...S.map(([x, y], i) => [x, lerp(top[i][1], y, 0.62)]), ...S.slice().reverse()], 'rgba(150,152,140,0.55)');
+   ctx.strokeStyle = 'rgba(55,40,30,0.32)'; ctx.lineWidth = 1; for (let r = 1; r < 8; r++) { ctx.beginPath(); S.forEach((p, i) => { const yy = lerp(top[i][1], p[1], r / 13); i ? ctx.lineTo(p[0], yy) : ctx.moveTo(p[0], yy); }); ctx.stroke(); }
+   for (let i = 0; i < S.length; i += 2) for (let r = 0; r < 8; r++) { const [x, y] = S[i], y0 = lerp(top[i][1], y, r / 13), y1 = lerp(top[i][1], y, (r + 1) / 13), off = (r % 2) * step * 0.5; ctx.beginPath(); ctx.moveTo(x + off, y0); ctx.lineTo(x + off, y1); ctx.stroke(); }
+   ctx.strokeStyle = 'rgba(40,44,40,0.45)'; for (let r = 0; r < 2; r++) { ctx.beginPath(); S.forEach((p, i) => { const yy = lerp(top[i][1], p[1], 0.62 + r * 0.19); i ? ctx.lineTo(p[0], yy) : ctx.moveTo(p[0], yy); }); ctx.stroke(); } }
+  const sg = ctx.createLinearGradient(0, ymin, 0, ymin + h * 0.4); sg.addColorStop(0, 'rgba(0,0,0,0.18)'); sg.addColorStop(1, 'rgba(0,0,0,0)'); ctx.fillStyle = sg; ctx.fillRect(-5000, ymin, 10000, h * 0.4);
+  ctx.restore();
+  // borde iluminado
+  ctx.strokeStyle = 'rgba(255,240,215,0.4)'; ctx.lineWidth = Math.max(1, h * 0.035); ctx.beginPath(); top.forEach((p, i) => (i ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1]))); ctx.stroke();
+  // parapeto exterior con almenas 2,5D
+  if ((o.crenel ?? st === 'ladrillo') && ru < 0.6) { const cw = h * 0.24, chh = h * 0.26, gap = cw * 2.1, dd = [D[0] * 0.18, D[1] * 0.18];
+   for (let s = cw; s < end - cw; s += gap) { const k = Math.min(top.length - 1, Math.round(s / step)), q = top[k]; const x0 = q[0] - cw / 2, y0 = q[1];
+    poly([[x0 + cw, y0], [x0 + cw + dd[0], y0 + dd[1]], [x0 + cw + dd[0], y0 - chh + dd[1]], [x0 + cw, y0 - chh]], col.d);
+    poly([[x0, y0 - chh], [x0 + cw, y0 - chh], [x0 + cw + dd[0], y0 - chh + dd[1]], [x0 + dd[0], y0 - chh + dd[1]]], col.t);
+    poly([[x0, y0], [x0 + cw, y0], [x0 + cw, y0 - chh], [x0, y0 - chh]], col.m); if (cw > 8) { ctx.fillStyle = 'rgba(25,18,12,0.7)'; ctx.fillRect(q[0] - cw * 0.08, y0 - chh * 0.62, cw * 0.16, chh * 0.3); } } }
+  // cara final (donde se detiene la obra): muestra el grosor
+  if ((o.build ?? 1) < 0.999) { const a = S[S.length - 1], b = top[top.length - 1]; poly([a, b, [b[0] + D[0], b[1] + D[1]], [a[0] + D[0], a[1] + D[1]]], col.d); }
   if (o.glow) { ctx.strokeStyle = `rgba(255,212,71,${o.glow})`; ctx.lineWidth = 5; ctx.beginPath(); top.forEach((p, i) => (i ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1]))); ctx.stroke(); }
   ctx.restore();
-  // torres
-  for (const f of o.towers || []) { if (f * pa.L > end) continue; const q = pa.at(f * pa.L); P.watchtower(ctx, q[0], q[1] + 4, o.towerS ?? h * 1.9, t, { style: st, ruin: ru, smoke: o.smokeAt === f ? o.smoke : 0 }); }
+  // torres integradas: base hasta el terreno y puerta al nivel del adarve
+  const groundAt = (xq) => { let best = null, bd = 1e9; for (const p of pts) { const dx = Math.abs(p[0] - xq); if (dx < bd) { bd = dx; best = p[1]; } } return best; };
+  for (const fr of o.towers || []) { if (fr * pa.L > end) continue; const q = pa.at(fr * pa.L), ts = o.towerS ?? h * 2.2, tw = ts * 0.72; const gy = Math.max(groundAt(q[0] - tw / 2), groundAt(q[0] + tw / 2)) + h * 0.1;
+   P.watchtower(ctx, q[0], gy, ts + (gy - q[1]), t, { style: st, ruin: ru, smoke: o.smokeAt === fr ? o.smoke : 0, fire: o.fireAt === fr ? o.fire : 0, walk: gy - (q[1] - h), D, pavilion: (o.pavilion || []).includes(fr) }); }
   return pa;
  };
- // Torre de vigilancia / de señales. (x, y) = base. s = alto. o: { style ('ladrillo'|'piedra'|'tierra'), smoke (0..1), fire (0..1), ruin, glow }
+ // Torre 2,5D: cara frontal, cara lateral con puerta al nivel del adarve, ventanas arqueadas, almenas con volumen y, opcionalmente,
+ // pabellón con tejado. style 'tierra' = torre de señales ataludada y maciza. o: { style, smoke, fire, ruin, glow, walk (altura del adarve sobre la base), D, pavilion }
  P.watchtower = (ctx, x, y, s, t, o = {}) => {
-  const st = o.style || 'ladrillo', w = s * (st === 'tierra' ? 0.62 : 0.72), top = y - s, ru = o.ruin || 0;
-  const c = st === 'tierra' ? ['#b48655', '#6d4a30'] : st === 'piedra' ? ['#a8aea6', '#60675f'] : ['#a07c66', '#5f4636'];
-  ctx.save(); ctx.fillStyle = 'rgba(20,24,18,0.3)'; ctx.beginPath(); ctx.ellipse(x + w * 0.1, y + 2, w * 0.75, s * 0.05, 0, 0, TAU); ctx.fill();
-  const tp = st === 'tierra' ? w * 0.18 : w * 0.05; // talud
-  // cara lateral (profundidad) y frontal
-  ctx.fillStyle = c[1]; ctx.beginPath(); ctx.moveTo(x + w / 2, y); ctx.lineTo(x + w / 2 + w * 0.22, y - w * 0.12); ctx.lineTo(x + w / 2 + w * 0.22 - tp, top - w * 0.12); ctx.lineTo(x + w / 2 - tp, top); ctx.closePath(); ctx.fill();
-  const g = ctx.createLinearGradient(0, top, 0, y); g.addColorStop(0, c[0]); g.addColorStop(1, c[1]); ctx.fillStyle = g; ctx.beginPath(); ctx.moveTo(x - w / 2, y); ctx.lineTo(x + w / 2, y); ctx.lineTo(x + w / 2 - tp, top); ctx.lineTo(x - w / 2 + tp, top); ctx.closePath(); ctx.fill();
-  ctx.fillStyle = 'rgba(255,240,215,0.25)'; ctx.fillRect(x - w / 2 + tp, top, w - 2 * tp, s * 0.02);
-  ctx.strokeStyle = 'rgba(40,28,20,0.3)'; ctx.lineWidth = Math.max(1, s * 0.012); const rows = st === 'tierra' ? 8 : 12; for (let r = 1; r < rows; r++) { const yy = lerp(top, y, r / rows), inset = lerp(tp, 0, r / rows); ctx.beginPath(); ctx.moveTo(x - w / 2 + inset, yy); ctx.lineTo(x + w / 2 - inset, yy); ctx.stroke(); }
-  if (st !== 'tierra') { ctx.fillStyle = '#2a201a'; for (const row of [0.3, 0.6]) for (const fx of [-0.25, 0.25]) { const wx = x + fx * w, wy = lerp(top, y, row), ww = w * 0.13, wh = s * 0.12; ctx.beginPath(); ctx.moveTo(wx - ww / 2, wy + wh / 2); ctx.lineTo(wx - ww / 2, wy - wh / 4); ctx.arc(wx, wy - wh / 4, ww / 2, Math.PI, 0); ctx.lineTo(wx + ww / 2, wy + wh / 2); ctx.closePath(); ctx.fill(); }
-   if (ru < 0.5) { ctx.fillStyle = c[0]; const n = 5, cw = (w - 2 * tp) / (n * 2 - 1); for (let i = 0; i < n; i++) ctx.fillRect(x - w / 2 + tp + i * cw * 2, top - s * 0.08, cw, s * 0.08); } }
-  if (o.glow) { ctx.strokeStyle = `rgba(255,212,71,${o.glow})`; ctx.lineWidth = 4; ctx.strokeRect(x - w / 2 - 6, top - s * 0.1, w + 12, s * 1.1); }
-  // señal: humo de día / fuego de noche (columna determinista)
-  const sm2 = o.smoke || 0; if (sm2 > 0) { for (let i = 0; i < 14; i++) { const u = (t * 0.35 + i / 14) % 1, a = sm2 * (1 - u) * 0.8; ctx.fillStyle = `rgba(70,66,62,${a})`; ctx.beginPath(); ctx.arc(x + Math.sin(u * 4 + i) * s * 0.08 + u * s * 0.25, top - s * 0.1 - u * s * 2.2, s * (0.08 + u * 0.28), 0, TAU); ctx.fill(); } }
-  const fi = o.fire || 0; if (fi > 0) { P.glow(ctx, x, top - s * 0.12, s * 0.9, '255,170,60', 0.6 * fi); for (let i = 0; i < 6; i++) { const u = (t * 2 + i / 6) % 1; ctx.fillStyle = `rgba(255,${180 - u * 120},40,${fi * (1 - u)})`; ctx.beginPath(); ctx.ellipse(x + Math.sin(t * 9 + i) * s * 0.05, top - s * 0.1 - u * s * 0.35, s * 0.07 * (1 - u * 0.6), s * 0.14 * (1 - u * 0.4), 0, 0, TAU); ctx.fill(); } }
-  ctx.restore(); return { top: [x, top], w };
+  const st = o.style || 'ladrillo', w = s * (st === 'tierra' ? 0.58 : 0.66), top = y - s, ru = o.ruin || 0, D = o.D || [s * 0.2, -s * 0.15], dk = [D[0] * 1.3, D[1] * 1.3];
+  const c = st === 'tierra' ? { f: '#b48655', s: '#7d5a3a', t: '#c9a070' } : st === 'piedra' ? { f: '#a8aea6', s: '#6d746c', t: '#c4c8bf' } : { f: '#a07c66', s: '#6a4f3e', t: '#b8a08c' };
+  const tp = st === 'tierra' ? w * 0.16 : w * 0.03, poly = (pp, col) => { ctx.beginPath(); pp.forEach((p, i) => (i ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1]))); ctx.closePath(); ctx.fillStyle = col; ctx.fill(); };
+  const A = [x - w / 2, y], B = [x + w / 2, y], Bt = [x + w / 2 - tp, top], At = [x - w / 2 + tp, top];
+  ctx.save();
+  poly([[A[0], y], [B[0] + dk[0], y + dk[1]], [B[0] + dk[0] + s * 0.4, y + s * 0.12], [A[0] + s * 0.3, y + s * 0.1]], 'rgba(18,24,16,0.25)');
+  // cara lateral (derecha) y techo
+  poly([B, [B[0] + dk[0], B[1] + dk[1]], [Bt[0] + dk[0], Bt[1] + dk[1]], Bt], c.s);
+  poly([At, Bt, [Bt[0] + dk[0], Bt[1] + dk[1]], [At[0] + dk[0], At[1] + dk[1]]], c.t);
+  // cara frontal con hiladas
+  const g = ctx.createLinearGradient(0, top, 0, y); g.addColorStop(0, c.f); g.addColorStop(1, c.s); poly([A, B, Bt, At], g);
+  ctx.save(); ctx.beginPath(); ctx.moveTo(A[0], A[1]); ctx.lineTo(B[0], B[1]); ctx.lineTo(Bt[0], Bt[1]); ctx.lineTo(At[0], At[1]); ctx.closePath(); ctx.clip(); ctx.strokeStyle = 'rgba(40,28,20,0.28)'; ctx.lineWidth = Math.max(1, s * 0.008); const rows = st === 'tierra' ? 9 : 16; for (let r = 1; r < rows; r++) { const yy = lerp(top, y, r / rows); ctx.beginPath(); ctx.moveTo(A[0], yy); ctx.lineTo(B[0], yy); ctx.stroke(); } if (st === 'ladrillo') { ctx.fillStyle = 'rgba(150,152,140,0.5)'; ctx.fillRect(A[0], lerp(top, y, 0.72), w, s * 0.28); } ctx.restore();
+  ctx.fillStyle = 'rgba(255,240,215,0.28)'; ctx.fillRect(At[0], top, Bt[0] - At[0], Math.max(2, s * 0.012));
+  if (st !== 'tierra') {
+   // ventanas arqueadas (frontal y lateral) y puerta al nivel del adarve en la cara lateral
+   const arch = (cx, cy, ww, hh, col) => { ctx.fillStyle = col; ctx.beginPath(); ctx.moveTo(cx - ww / 2, cy + hh / 2); ctx.lineTo(cx - ww / 2, cy - hh / 2 + ww / 2); ctx.arc(cx, cy - hh / 2 + ww / 2, ww / 2, Math.PI, 0); ctx.lineTo(cx + ww / 2, cy + hh / 2); ctx.closePath(); ctx.fill(); };
+   const wy = top + s * 0.28; for (const fx of [-0.27, 0, 0.27]) arch(x + fx * w, wy, w * 0.11, s * 0.11, '#241a14');
+   const walkY = o.walk != null ? y - o.walk : y - s * 0.45; if (ru < 0.8) { const dx = B[0] + dk[0] * 0.45, dy = walkY + dk[1] * 0.45; ctx.save(); ctx.transform(1, dk[1] / dk[0], 0, 1, 0, 0); ctx.restore(); arch(dx, dy - s * 0.09, w * 0.13, s * 0.18, '#1d1510'); }
+   // almenas con volumen en el borde superior
+   if (ru < 0.5) { const n = 5, cw = (w - 2 * tp) / (n * 2 - 1), chh = s * 0.075, dd = [dk[0] * 0.2, dk[1] * 0.2]; for (let i = 0; i < n; i++) { const x0 = At[0] + i * cw * 2; poly([[x0 + cw, top], [x0 + cw + dd[0], top + dd[1]], [x0 + cw + dd[0], top - chh + dd[1]], [x0 + cw, top - chh]], c.s); poly([[x0, top - chh], [x0 + cw, top - chh], [x0 + cw + dd[0], top - chh + dd[1]], [x0 + dd[0], top - chh + dd[1]]], c.t); poly([[x0, top], [x0 + cw, top], [x0 + cw, top - chh], [x0, top - chh]], c.f); } for (let i = 0; i < 3; i++) { const u = (i + 0.5) / 3, bx = Bt[0] + dk[0] * u, by = Bt[1] + dk[1] * u; poly([[bx - cw * 0.3, by], [bx + cw * 0.3, by], [bx + cw * 0.3, by - chh], [bx - cw * 0.3, by - chh]], c.s); } }
+   // pabellón con tejado de alero curvo (algunas torres Ming)
+   if (o.pavilion && ru < 0.3) { const pw = w * 0.62, ph = s * 0.16, px = x + dk[0] * 0.5, py = top + dk[1] * 0.5; poly([[px - pw / 2, py], [px + pw / 2, py], [px + pw / 2, py - ph], [px - pw / 2, py - ph]], '#7a3a2e'); ctx.fillStyle = '#3f4a46'; ctx.beginPath(); ctx.moveTo(px - pw * 0.78, py - ph + 4); ctx.quadraticCurveTo(px - pw * 0.5, py - ph - 6, px - pw * 0.3, py - ph - s * 0.12); ctx.lineTo(px + pw * 0.3, py - ph - s * 0.12); ctx.quadraticCurveTo(px + pw * 0.5, py - ph - 6, px + pw * 0.78, py - ph + 4); ctx.closePath(); ctx.fill(); } }
+  if (o.glow) { ctx.strokeStyle = `rgba(255,212,71,${o.glow})`; ctx.lineWidth = 4; ctx.strokeRect(x - w / 2 - 6, top - s * 0.1, w + dk[0] + 12, s * 1.1); }
+  const sm2 = o.smoke || 0; if (sm2 > 0) { const sx = x + dk[0] * 0.5, sy = top + dk[1] * 0.5; for (let i = 0; i < 16; i++) { const u = (t * 0.32 + i / 16) % 1, a = sm2 * (1 - u) * 0.8 * cl(u * 6); ctx.fillStyle = `rgba(72,68,64,${a})`; ctx.beginPath(); ctx.arc(sx + Math.sin(u * 4 + i) * s * 0.08 + u * s * 0.3, sy - s * 0.08 - u * s * 2.4 * cl(sm2 * 1.5), s * (0.07 + u * 0.3), 0, TAU); ctx.fill(); } }
+  const fi = o.fire || 0; if (fi > 0) { const sx = x + dk[0] * 0.5, sy = top + dk[1] * 0.5; P.glow(ctx, sx, sy - s * 0.1, s * 0.9, '255,170,60', 0.6 * fi); for (let i = 0; i < 6; i++) { const u = (t * 2 + i / 6) % 1; ctx.fillStyle = `rgba(255,${180 - u * 120},40,${fi * (1 - u)})`; ctx.beginPath(); ctx.ellipse(sx + Math.sin(t * 9 + i) * s * 0.05, sy - s * 0.08 - u * s * 0.35, s * 0.07 * (1 - u * 0.6), s * 0.14 * (1 - u * 0.4), 0, 0, TAU); ctx.fill(); } }
+  ctx.restore(); return { top: [x + dk[0] * 0.5, top + dk[1] * 0.5], w };
  };
- // Persona trabajadora con variación de ropa (sin uniformes idénticos). Usa P.worker y añade sombrero o pañuelo.
- const CLOTH = ['#6b5a46', '#4f5d58', '#7a5a3a', '#5b4a5e', '#857055', '#3f4d5a'];
- P.laborer = (ctx, x, y, h, ph, o = {}) => { const k = o.var ?? 0; const hand = P.worker(ctx, x, y, h, ph, { pose: o.pose || 'walk', c: o.skin || '#5a3d29', cloth: CLOTH[k % CLOTH.length] });
-  const hx = x + (o.pose === 'pull' ? h * 0.18 : h * 0.02), hy = y - h * 0.92; ctx.save(); ctx.fillStyle = k % 3 === 0 ? '#c9b48a' : k % 3 === 1 ? '#3d3a35' : '#8a7a5a'; if (k % 3 === 0) { ctx.beginPath(); ctx.ellipse(hx, hy - h * 0.03, h * 0.12, h * 0.03, 0, 0, TAU); ctx.fill(); ctx.beginPath(); ctx.moveTo(hx - h * 0.05, hy - h * 0.03); ctx.lineTo(hx, hy - h * 0.09); ctx.lineTo(hx + h * 0.05, hy - h * 0.03); ctx.fill(); } else { ctx.beginPath(); ctx.arc(hx, hy - h * 0.01, h * 0.075, Math.PI, TAU); ctx.fill(); } ctx.restore(); return hand; };
- // Porteador con pértiga al hombro y dos cestas (carga manejable). o: { load ('tierra'|'piedra'|'ladrillos'), var }
- P.porter = (ctx, x, y, h, ph, o = {}) => { const bob = Math.sin(ph * TAU * 2) * h * 0.015, sh = [x + h * 0.02, y - h * 0.8 + bob];
-  P.laborer(ctx, x, y, h, ph, { pose: 'walk', var: o.var }); ctx.save(); ctx.strokeStyle = '#6b4a2e'; ctx.lineWidth = h * 0.03; ctx.lineCap = 'round'; ctx.beginPath(); ctx.moveTo(sh[0] - h * 0.42, sh[1] + h * 0.03); ctx.quadraticCurveTo(sh[0], sh[1] - h * 0.03, sh[0] + h * 0.42, sh[1] + h * 0.03); ctx.stroke();
-  for (const sd of [-1, 1]) { const bx = sh[0] + sd * h * 0.4, by = sh[1] + h * 0.32 + Math.sin(ph * TAU * 2 + sd) * h * 0.01; ctx.strokeStyle = 'rgba(80,60,40,0.9)'; ctx.lineWidth = h * 0.008; ctx.beginPath(); ctx.moveTo(bx - h * 0.07, by - h * 0.06); ctx.lineTo(bx, sh[1] + h * 0.03); ctx.lineTo(bx + h * 0.07, by - h * 0.06); ctx.stroke(); ctx.fillStyle = '#9a7b4f'; ctx.beginPath(); ctx.moveTo(bx - h * 0.09, by - h * 0.06); ctx.lineTo(bx + h * 0.09, by - h * 0.06); ctx.lineTo(bx + h * 0.07, by + h * 0.06); ctx.lineTo(bx - h * 0.07, by + h * 0.06); ctx.closePath(); ctx.fill(); ctx.fillStyle = o.load === 'piedra' ? '#8f958e' : o.load === 'ladrillos' ? '#a45c42' : '#8a6440'; ctx.beginPath(); ctx.ellipse(bx, by - h * 0.065, h * 0.085, h * 0.03, 0, Math.PI, TAU); ctx.fill(); }
-  ctx.restore(); };
+ // Texturas de materiales para cortes: tierra compactada (capas), grava/cascajo, piedra, ladrillo (aparejo con juntas), madera
+ P.matFill = (ctx, pts, mat, o = {}) => { const R = H.rng(o.seed || 9); ctx.save(); ctx.beginPath(); pts.forEach((p, i) => (i ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1]))); ctx.closePath(); const xs = pts.map((p) => p[0]), ys = pts.map((p) => p[1]), x0 = Math.min(...xs), x1 = Math.max(...xs), y0 = Math.min(...ys), y1 = Math.max(...ys);
+  const base = { tierra: '#A4774C', grava: '#8d8a7c', piedra: '#9ca29b', ladrillo: '#A45C42', madera: '#8f6643', cana: '#8a8a52' }[mat] || '#888'; ctx.fillStyle = o.glow ? '#d0a070' : base; ctx.fill(); ctx.clip();
+  if (mat === 'tierra') { const lh = o.layer || 22; for (let y = y1; y > y0; y -= lh) { ctx.fillStyle = 'rgba(70,46,26,0.45)'; ctx.fillRect(x0, y - 2, x1 - x0, 2); ctx.fillStyle = 'rgba(255,230,190,0.08)'; ctx.fillRect(x0, y - lh, x1 - x0, lh * 0.4); } ctx.fillStyle = 'rgba(80,55,32,0.4)'; for (let i = 0; i < (x1 - x0) * (y1 - y0) / 120; i++) ctx.fillRect(R.range(x0, x1), R.range(y0, y1), 2, 2); if (o.reeds) { for (let y = y1 - lh * 3; y > y0; y -= lh * 3) { ctx.fillStyle = 'rgba(130,140,70,0.9)'; ctx.fillRect(x0, y - 4, x1 - x0, 5); ctx.strokeStyle = 'rgba(80,90,40,0.8)'; ctx.lineWidth = 1; for (let x = x0; x < x1; x += 7) { ctx.beginPath(); ctx.moveTo(x, y - 4); ctx.lineTo(x + 5, y); ctx.stroke(); } } } }
+  else if (mat === 'grava') { for (let i = 0; i < (x1 - x0) * (y1 - y0) / 140; i++) { ctx.fillStyle = ['#6f6c60', '#a8a596', '#7c827d', '#5f5a50'][i % 4]; ctx.beginPath(); ctx.ellipse(R.range(x0, x1), R.range(y0, y1), R.range(3, 9), R.range(2, 6), R.range(0, 3), 0, TAU); ctx.fill(); } }
+  else if (mat === 'piedra') { for (let i = 0; i < (x1 - x0) * (y1 - y0) / 1400; i++) { const cx = R.range(x0, x1), cy = R.range(y0, y1), r = R.range(12, 26); ctx.fillStyle = ['#a8aea6', '#8f958e', '#b6bab0'][i % 3]; ctx.beginPath(); for (let k = 0; k < 6; k++) { const a = k / 6 * TAU + R() * 0.4; ctx.lineTo(cx + Math.cos(a) * r * R.range(0.7, 1.1), cy + Math.sin(a) * r * 0.7 * R.range(0.7, 1.1)); } ctx.closePath(); ctx.fill(); ctx.strokeStyle = 'rgba(50,52,48,0.6)'; ctx.lineWidth = 1.5; ctx.stroke(); } }
+  else if (mat === 'ladrillo') { const bh = o.bh || 14, bw = bh * 2.6; for (let y = y1, r = 0; y > y0 - bh; y -= bh, r++) for (let x = x0 - (r % 2) * bw / 2; x < x1; x += bw) { ctx.fillStyle = (Math.round(x * 7 + y * 3) % 3) ? '#A45C42' : '#96523c'; ctx.fillRect(x + 1, y - bh + 1, bw - 2, bh - 2); } ctx.fillStyle = 'rgba(220,214,196,0.35)'; }
+  else if (mat === 'madera') { ctx.strokeStyle = 'rgba(60,40,24,0.45)'; ctx.lineWidth = 1.5; for (let y = y0 + 4; y < y1; y += 6) { ctx.beginPath(); ctx.moveTo(x0, y); for (let x = x0; x < x1; x += 20) ctx.lineTo(x, y + Math.sin(x * 0.05 + y) * 1.5); ctx.stroke(); } }
+  ctx.restore(); ctx.save(); ctx.beginPath(); pts.forEach((p, i) => (i ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1]))); ctx.closePath(); ctx.strokeStyle = o.glow ? 'rgba(255,212,71,0.95)' : 'rgba(30,22,16,0.6)'; ctx.lineWidth = o.glow ? 5 : 2; ctx.stroke(); ctx.restore(); };
+ // Cortes comparables de tres tipos de muro. kind: 'tierra' (apisonada, con capas de cañas opcionales), 'piedra' (mampostería
+ // con relleno), 'ming' (núcleo de tierra compactada y cascajo, paramentos de ladrillo sobre cimiento de piedra, adarve y parapeto).
+ // Devuelve puntos para rótulos. o: { reeds, glow:{…}, build (0..1, solo ming: hiladas) }
+ P.wallSection = (ctx, x, y, w, h, t, kind, o = {}) => { const gl = o.glow || {}, pts = {}; ctx.save(); ctx.fillStyle = 'rgba(20,18,14,0.35)'; ctx.beginPath(); ctx.ellipse(x, y + 6, w * 0.62, h * 0.05, 0, 0, TAU); ctx.fill();
+  if (kind === 'tierra') { const tw = w * 0.62; P.matFill(ctx, [[x - w / 2, y], [x + w / 2, y], [x + tw / 2, y - h], [x - tw / 2, y - h]], 'tierra', { layer: h / 14, reeds: o.reeds, glow: gl.earth }); pts.earth = [x, y - h * 0.45]; pts.reed = [x + w * 0.2, y - h * (3 / 14) - 2]; }
+  else if (kind === 'piedra') { const tw = w * 0.7, bt = w * 0.16; P.matFill(ctx, [[x - w / 2 + bt, y], [x + w / 2 - bt, y], [x + tw / 2 - bt * 0.8, y - h], [x - tw / 2 + bt * 0.8, y - h]], 'grava', { glow: gl.fill }); P.matFill(ctx, [[x - w / 2, y], [x - w / 2 + bt, y], [x - tw / 2 + bt * 0.8, y - h], [x - tw / 2, y - h]], 'piedra', { seed: 3, glow: gl.stone }); P.matFill(ctx, [[x + w / 2 - bt, y], [x + w / 2, y], [x + tw / 2, y - h], [x + tw / 2 - bt * 0.8, y - h]], 'piedra', { seed: 5, glow: gl.stone }); pts.fill = [x, y - h * 0.5]; pts.stone = [x + w * 0.4, y - h * 0.35]; }
+  else { const tw = w * 0.78, bt = w * 0.1, fh = h * 0.15, bd = o.build ?? 1; P.matFill(ctx, [[x - w / 2 - 12, y], [x + w / 2 + 12, y], [x + w / 2 + 12, y - fh], [x - w / 2 - 12, y - fh]], 'piedra', { seed: 2, glow: gl.stone });
+   const cL = (u) => lerp(x - w / 2 + bt, x - tw / 2 + bt * 0.8, u), cR = (u) => lerp(x + w / 2 - bt, x + tw / 2 - bt * 0.8, u), hy = (u) => y - fh - u * (h - fh - h * 0.05);
+   P.matFill(ctx, [[cL(0), hy(0)], [cR(0), hy(0)], [cR(0.55), hy(0.55)], [cL(0.55), hy(0.55)]], 'tierra', { layer: h / 16, glow: gl.earth }); P.matFill(ctx, [[cL(0.55), hy(0.55)], [cR(0.55), hy(0.55)], [cR(1), hy(1)], [cL(1), hy(1)]], 'grava', { glow: gl.fill });
+   for (const sd of [-1, 1]) { const ub = Math.max(0.02, bd); const ox = (u) => sd < 0 ? lerp(x - w / 2, x - tw / 2, u) : lerp(x + w / 2, x + tw / 2, u), ix = (u) => ox(u) - sd * bt; P.matFill(ctx, [[ox(0), hy(0)], [ix(0), hy(0)], [ix(ub), hy(ub)], [ox(ub), hy(ub)]], 'ladrillo', { bh: h / 34, glow: gl.brick }); }
+   if (bd >= 1) { P.matFill(ctx, [[x - tw / 2, hy(1)], [x + tw / 2, hy(1)], [x + tw / 2, hy(1) - h * 0.035], [x - tw / 2, hy(1) - h * 0.035]], 'ladrillo', { bh: h * 0.035 }); const ph = h * 0.15; P.matFill(ctx, [[x + tw / 2 - bt * 0.7, hy(1) - h * 0.035], [x + tw / 2, hy(1) - h * 0.035], [x + tw / 2, hy(1) - ph], [x + tw / 2 - bt * 0.7, hy(1) - ph]], 'ladrillo', { bh: h / 34 }); P.matFill(ctx, [[x + tw / 2 - bt * 0.7, hy(1) - ph - h * 0.02], [x + tw / 2, hy(1) - ph - h * 0.02], [x + tw / 2, hy(1) - ph * 1.45], [x + tw / 2 - bt * 0.7, hy(1) - ph * 1.45]], 'ladrillo', { bh: h / 34 }); P.matFill(ctx, [[x - tw / 2, hy(1) - h * 0.035], [x - tw / 2 + bt * 0.6, hy(1) - h * 0.035], [x - tw / 2 + bt * 0.6, hy(1) - ph * 0.6], [x - tw / 2, hy(1) - ph * 0.6]], 'ladrillo', { bh: h / 34 }); }
+   pts.earth = [x - w * 0.05, hy(0.25)]; pts.fill = [x + w * 0.05, hy(0.78)]; pts.brick = [lerp(x + w / 2, x + tw / 2, 0.5) - bt * 0.5, hy(0.5)]; pts.stone = [x + w * 0.32, y - fh / 2]; pts.parapet = [x + tw / 2 - bt * 0.35, hy(1) - h * 0.15]; }
+  ctx.restore(); return pts; };
  // Carro de dos ruedas tirado por un buey. (x, y) = suelo bajo el centro. s = largo total. o: { load, phase (giro de ruedas), dir (1 derecha) }
  P.oxcart = (ctx, x, y, s, t, o = {}) => { const d = o.dir ?? 1, ph = o.phase || 0; ctx.save(); ctx.translate(x, y); ctx.scale(d, 1);
   ctx.fillStyle = 'rgba(20,20,15,0.3)'; ctx.beginPath(); ctx.ellipse(0, 4, s * 0.5, s * 0.04, 0, 0, TAU); ctx.fill();
@@ -1703,15 +1811,17 @@
   for (let i = 0; i < done; i++) { const yt = y - (i + 1) * th; const g = ctx.createLinearGradient(0, yt, 0, yt + th); const tone = (i % 2 ? 6 : -6) + R.range(-5, 5); g.addColorStop(0, `rgb(${170 + tone},${124 + tone},${80 + tone})`); g.addColorStop(1, `rgb(${136 + tone},${96 + tone},${60 + tone})`); ctx.fillStyle = g; ctx.fillRect(x0, yt, w, th + 0.5);
    ctx.fillStyle = 'rgba(80,55,32,0.35)'; for (let k = 0; k < w * th / 90; k++) ctx.fillRect(x0 + R() * w, yt + R() * th, 2, 2); ctx.fillStyle = 'rgba(70,46,26,0.55)'; ctx.fillRect(x0, yt + th - 2, w, 2); if (o.glowLayer === i) { ctx.strokeStyle = 'rgba(255,212,71,0.95)'; ctx.lineWidth = 4; ctx.strokeRect(x0, yt, w, th); } }
   // capa actual: tierra suelta que, al compactarse, baja de altura y se vuelve más densa
-  let surf = y - done * th; if (lo > 0) { const hl = th * lerp(1.75, 1, cp) * lo, yt = surf - hl; ctx.fillStyle = cp > 0.5 ? '#9c7046' : '#a9845a'; ctx.beginPath(); ctx.moveTo(x0, surf); for (let k = 0; k <= 30; k++) { const xx = x0 + w * k / 30, bump = (1 - cp) * th * 0.25 * (0.5 + 0.5 * Math.sin(k * 1.7 + done)); ctx.lineTo(xx, yt + bump); } ctx.lineTo(x1, surf); ctx.closePath(); ctx.fill();
+  let surf = y - done * th; if (lo > 0) { const hl = th * lerp(1.35, 1, cp) * lo, yt = surf - hl; ctx.fillStyle = cp > 0.5 ? '#9c7046' : '#a9845a'; ctx.beginPath(); ctx.moveTo(x0, surf); for (let k = 0; k <= 30; k++) { const xx = x0 + w * k / 30, bump = (1 - cp) * th * 0.25 * (0.5 + 0.5 * Math.sin(k * 1.7 + done)); ctx.lineTo(xx, yt + bump); } ctx.lineTo(x1, surf); ctx.closePath(); ctx.fill();
    ctx.fillStyle = `rgba(90,62,36,${0.25 + 0.4 * cp})`; for (let k = 0; k < w * hl / (70 - 40 * cp); k++) { ctx.beginPath(); ctx.arc(x0 + R() * w, yt + th * 0.15 + R() * (hl - th * 0.15), (1 - cp) * 2.5 + 1, 0, TAU); ctx.fill(); } surf = yt; }
   // encofrado: postes verticales y tablones horizontales que rodean las capas superiores
-  if (fm > 0) { ctx.save(); ctx.globalAlpha *= fm; const fy0 = Math.min(surf, y - done * th) - th * 0.4, fy1 = y - Math.max(0, done - 1) * th; ctx.fillStyle = '#795335'; for (const px of [x0 - 14, x1 + 2]) { ctx.fillRect(px, fy0 - th * 1.2, 12, (y - fy0) + th * 1.2); } for (let b = 0; b < 3; b++) { const by = fy0 + b * th * 0.75; if (by > y) break; ctx.fillStyle = 'rgba(143,102,67,0.28)'; ctx.fillRect(x0 - 20, by, w + 40, th * 0.5); ctx.strokeStyle = 'rgba(121,83,53,0.95)'; ctx.lineWidth = 3; ctx.strokeRect(x0 - 20, by, w + 40, th * 0.5); } ctx.strokeStyle = '#5a3d29'; ctx.lineWidth = 4; ctx.beginPath(); ctx.moveTo(x0 - 8, fy0 - th); ctx.lineTo(x1 + 8, fy0 - th); ctx.stroke(); ctx.restore(); }
+  if (fm > 0) { ctx.save(); ctx.globalAlpha *= fm; const fy0 = Math.min(surf, y - done * th) - th * 0.4, fy1 = y - Math.max(0, done - 1) * th; ctx.fillStyle = '#795335'; for (const px of [x0 - 14, x1 + 2]) { ctx.fillRect(px, fy0 - th * 1.2, 12, (y - fy0) + th * 1.2); } for (let b = 0; b < 3; b++) { const by = fy0 + b * th * 0.75; if (by > y) break; ctx.fillStyle = 'rgba(143,102,67,0.28)'; ctx.fillRect(x0 - 20, by, w + 40, th * 0.5); ctx.strokeStyle = 'rgba(121,83,53,0.95)'; ctx.lineWidth = 3; ctx.strokeRect(x0 - 20, by, w + 40, th * 0.5); } ctx.strokeStyle = '#5a3d29'; ctx.lineWidth = 6; ctx.beginPath(); ctx.moveTo(x0 - 20, fy0 - th * 1.15); ctx.lineTo(x1 + 20, fy0 - th * 1.15); ctx.stroke(); ctx.strokeStyle = '#c9b48a'; ctx.lineWidth = 3; for (const px of [x0 - 8, x1 + 8]) { ctx.beginPath(); ctx.moveTo(px - 8, fy0 - th * 1.25); ctx.lineTo(px + 8, fy0 - th * 1.05); ctx.moveTo(px + 8, fy0 - th * 1.25); ctx.lineTo(px - 8, fy0 - th * 1.05); ctx.stroke(); } ctx.restore(); }
   // trabajadores con pisones: el pisón toca la superficie en cada golpe y levanta polvo
-  const nw = o.workers ?? 0, wh = th * 3.2, hits = []; for (let i = 0; i < nw; i++) { const wx = x0 + w * (i + 0.5) / nw, ph = (o.hit || 0) + i * 0.37, lift = Math.max(0, Math.sin(ph * TAU)), down = 1 - lift; const feet = surf; const k = i;
-   P.laborer(ctx, wx - wh * 0.2, feet, wh, 0, { pose: 'stand', var: k + 1 }); const px = wx + wh * 0.05, pb = feet - lift * wh * 0.28; ctx.strokeStyle = '#6b4a2e'; ctx.lineWidth = wh * 0.04; ctx.lineCap = 'round'; ctx.beginPath(); ctx.moveTo(px, pb - wh * 0.75); ctx.lineTo(px, pb - wh * 0.05); ctx.stroke(); ctx.fillStyle = '#5a3d29'; ctx.fillRect(px - wh * 0.06, pb - wh * 0.08, wh * 0.12, wh * 0.08);
-   ctx.strokeStyle = '#5a3d29'; ctx.lineWidth = wh * 0.05; ctx.beginPath(); ctx.moveTo(wx - wh * 0.18, feet - wh * 0.72); ctx.lineTo(px, pb - wh * 0.55); ctx.stroke();
-   if (down > 0.85) { hits.push([px, feet]); for (let q = 0; q < 5; q++) { const a = q / 5 * Math.PI, rr = wh * 0.08 * (down - 0.85) * 8; ctx.fillStyle = `rgba(190,160,120,${0.5 * (1 - (down - 0.85) * 4)})`; ctx.beginPath(); ctx.arc(px + Math.cos(a) * rr * 2, feet - Math.sin(a) * rr, rr * 0.6 + 3, 0, TAU); ctx.fill(); } } }
+  const nw = o.workers ?? 0, wh = Math.min(th * 3.4, w * 0.36), hits = []; for (let i = 0; i < nw; i++) { const wx = x0 + w * (i + 0.5) / nw - wh * 0.12, ph = (o.hit || 0) + i * 0.37, lift = Math.pow(Math.max(0, Math.sin(ph * TAU)), 0.7), feet = surf;
+   const fr = P.figure(ctx, wx, feet, wh, 0, { pose: 'ram', lift, var: i + 1 }); const px = wx + wh * 0.22, pb = feet - lift * wh * 0.24;
+   ctx.strokeStyle = '#6b4a2e'; ctx.lineWidth = wh * 0.035; ctx.lineCap = 'round'; ctx.beginPath(); ctx.moveTo(px, pb - wh * 0.86); ctx.lineTo(px, pb - wh * 0.06); ctx.stroke(); ctx.fillStyle = '#4e3a28'; ctx.beginPath(); ctx.moveTo(px - wh * 0.07, pb); ctx.lineTo(px + wh * 0.07, pb); ctx.lineTo(px + wh * 0.05, pb - wh * 0.08); ctx.lineTo(px - wh * 0.05, pb - wh * 0.08); ctx.closePath(); ctx.fill();
+   // manos sobre el mango (se vuelven a dibujar encima del palo)
+   ctx.fillStyle = FIG_SKIN[(i + 1) % FIG_SKIN.length]; for (const hh of [fr.hf, fr.hb]) { ctx.beginPath(); ctx.arc(px, hh[1], wh * 0.03, 0, TAU); ctx.fill(); }
+   const frp = ((ph % 1) + 1) % 1, contact = frp >= 0.5 ? 1 - Math.min(1, (frp - 0.5) * 4) : 0; if (contact > 0.2) { hits.push([px, feet]); ctx.strokeStyle = `rgba(255,236,200,${0.6 * contact})`; ctx.lineWidth = 3; ctx.beginPath(); ctx.ellipse(px, feet, wh * 0.12 * (1.4 - contact), wh * 0.03, 0, 0, TAU); ctx.stroke(); for (let q = 0; q < 6; q++) { const a = q / 5 * Math.PI, rr = wh * 0.05 * (1.5 - contact); ctx.fillStyle = `rgba(196,168,126,${0.55 * contact})`; ctx.beginPath(); ctx.arc(px + Math.cos(a) * rr * 2.2, feet - Math.sin(a) * rr, rr * 0.6 + 3, 0, TAU); ctx.fill(); } } }
   // corte: capas marcadas
   const ct = o.cut || 0; if (ct > 0) { ctx.save(); ctx.globalAlpha *= ct; ctx.strokeStyle = 'rgba(255,240,210,0.9)'; ctx.lineWidth = 3; for (let i = 1; i <= done; i++) { const yy = y - i * th; ctx.beginPath(); ctx.moveTo(x0, yy); ctx.lineTo(x1, yy); ctx.stroke(); } ctx.restore(); }
   ctx.restore(); return { surf, th, top: y - done * th, hits };
