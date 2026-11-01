@@ -14,6 +14,10 @@
   ['Personas (respeto)', (c, t) => { for (let i = 0; i < 24; i++) P.person(c, 70 + (i % 8) * 38, 90 + Math.floor(i / 8) * 60, 34, '#cfe6ff'); }],
   ['Botón «Seguir» + dedo', (c, t) => { P.rr(c, 90, 110, 220, 80, 40, PL.SKINS[c.__sk].c.accent, { sy: 8 }); P.text(c, 'SEGUIR', 200, 152, 38, '#1d1b3a'); P.finger(c, 250, 170, 90, 1); }],
   ['Burbujas / partículas', (c, t) => P.bubbles(c, 40, 20, 320, 260, t, 4, 16, 1)],
+  ['Onda electromagnética (v1.2)', (c, t) => P.wave(c, [[30, 150], [370, 150]], t, { amp: 40, lam: 140 })],
+  ['Molécula de agua (v1.2)', (c, t) => { P.water(c, 130, 150, 60, -1.2); P.water(c, 280, 150, 60, 0.6, { hot: 1 }); }],
+  ['Rampa térmica (v1.2)', (c, t) => { for (let i = 0; i < 300; i++) { c.fillStyle = H.rgba(P.heat(i / 299)); c.fillRect(50 + i, 120, 1, 60); } P.text(c, 'FRÍO → CALIENTE', 200, 220, 26, '#ffffff'); }],
+  ['Brillo / luz (v1.2)', (c, t) => { P.glow(c, 140, 150, 120, '255,190,120', 0.9); P.glow(c, 270, 150, 90, '80,220,255', 0.9); }],
  ];
  window.drawCatalog = function () {
   document.querySelectorAll('canvas[data-i]').forEach((cv) => {
