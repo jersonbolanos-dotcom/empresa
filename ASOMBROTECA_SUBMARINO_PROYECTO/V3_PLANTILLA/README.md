@@ -21,3 +21,8 @@
   ```
 
   Después se mezcla y se codifica como indica `PLANTILLA_ASOMBROTECA/INSTRUCCIONES_PLANTILLA.md`.
+
+## V3.1 · Foto real
+- **Video:** `07_OUTPUT/ASOMBROTECA_SUBMARINO_PLANTILLA_V3_1_FOTO_REAL.mp4`. La V3 se conserva sin cambios.
+- **Cambio:** en la escena de 1963 (≈30,6–38,6 s), la ficha de archivo ya no lleva un submarino ilustrado. En su lugar va la **foto real del USS Thresher** que aportó el usuario: `../01_ENTRADA/fotos/uss_thresher_original.jpg`, embebida en `04_CODIGO/js/foto_thresher.js`. La foto tiene un acercamiento lento y el pie dice «FOTO REAL · USS THRESHER · U.S. NAVY».
+- **Lo que no cambió:** el resto de fotogramas, el audio y los tiempos. Solo se volvieron a renderizar los fotogramas 915–1165.

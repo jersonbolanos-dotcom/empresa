@@ -25,6 +25,7 @@
   aveces: SG(14).s, basta: wt(14, 'basta'), sistema14: wt(14, 'sistema'), nofunc: wt(14, 'no'), necesita: wt(14, 'necesita'),
   asombro: SG(15).s, tag: SG(16).s, end: A.speech_end,
  };
+ const FOTO = { img: null };
  const C = { navy: '#1d1b3a', sea0: [74, 190, 214], sea1: [32, 120, 168], sea2: [16, 58, 104], sea3: [8, 22, 48], hull: '#34465f', hullHi: '#46607f', hullLo: '#26334a', sail: '#2d3d55', bronze: '#d2a03f', water: '#3fa9f5', waterHi: '#7cc8ff', air: '#eaf6ff', inside: '#e8eef6', tankWall: '#53647e', bottle: '#f5b82e', valve: '#e8505b', pipe: '#8a98ad' };
 
  // ---------------- fondo marino plano ----------------
@@ -242,8 +243,10 @@
   const ca = E.out(win(t, T.nuclear - 0.3, T.nuclear + 0.2));
   if (ca > 0) { ctx.save(); ctx.translate(540, 920 + (1 - ca) * 80); ctx.rotate(-0.04); ctx.globalAlpha = ca;
    P.rr(ctx, -400, -230, 800, 470, 18, '#f4efe2', { sy: 16 }); ctx.save(); ctx.beginPath(); ctx.rect(-370, -200, 740, 360); ctx.clip(); ctx.translate(-540, -920);
-   const sk = (a, b) => a; sea(ctx, t, 0.35, { scroll: 0 }); sub(ctx, 560, 930 + 30 * sm(T.hundio, T.hundio + 1.5, t), 600, 0.08 * sm(T.hundio, T.hundio + 1.5, t), t, { num: '593', nav: 1 }); ctx.restore();
-   ctx.fillStyle = '#1d1b3a'; ctx.font = '800 30px Nunito'; ctx.textAlign = 'left'; ctx.fillText('ARCHIVO · SUBMARINO NUCLEAR · EE. UU.', -370, 205); ctx.restore(); }
+   // foto real (el usuario la aportó): encuadre 740x360 con un acercamiento lento (Ken Burns)
+   if (FOTO.img) { const iw = FOTO.img.width, ih = FOTO.img.height, z = 1.04 + 0.08 * win(t, T.nuclear, T.invest), sc = Math.max(740 / iw, 360 / ih) * z, dw = iw * sc, dh = ih * sc; ctx.drawImage(FOTO.img, 540 - dw / 2 - 30 * win(t, T.nuclear, T.invest), 920 - 20 - dh / 2, dw, dh); }
+   ctx.restore();
+   ctx.fillStyle = '#1d1b3a'; ctx.font = '800 28px Nunito'; ctx.textAlign = 'left'; ctx.fillText('FOTO REAL · USS THRESHER · U.S. NAVY', -370, 205); ctx.restore(); }
   P.withPop(ctx, t, T.thresher - 0.05, 540, 1240, () => { ctx.save(); ctx.translate(540, 1240); ctx.rotate(-0.05); P.rr(ctx, -330, -60, 660, 120, 22, '#e8505b', { sy: 10 }); P.text(ctx, 'USS THRESHER', 0, 4, 64, '#ffffff', { kind: 'title' }); ctx.restore(); });
   pill(ctx, 'PRUEBAS DE INMERSIÓN', 540, 1390, 36, t, T.pruebas, { bg: '#ffffff' });
   pill(ctx, '10 DE ABRIL · OCÉANO ATLÁNTICO', 540, 1490, 34, t, T.atlantico, { bg: '#25b8a8', fg: '#ffffff' });
@@ -355,6 +358,6 @@
    k.music('pad', T.asombro - 0.3, DURATION, { bpm: 66, gain: 0.4, chords: [['D2', 'A2', 'F#3', 'E4'], ['G2', 'D3', 'B3', 'F#4']] });
   },
  });
- window.EPISODIO = { explainer: EP.explainer, init: async () => {}, T, DURATION };
+ window.EPISODIO = { explainer: EP.explainer, init: async () => { if (window.FOTO_THRESHER_SRC) { const im = new Image(); im.src = window.FOTO_THRESHER_SRC; await im.decode(); FOTO.img = im; } }, T, DURATION };
  window.scoreSound = EP.scoreSound; window.scoreMusic = EP.scoreMusic;
 })();
