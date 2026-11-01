@@ -77,3 +77,25 @@ Nota sobre la distancia: la cifra más citada es ≈ 2,5 millones de años luz; 
   - Mezcla a −14 LUFS.
   - Retrocompatibilidad y limpieza de disco en el QC.
   - Nueva sección «Reglas aprendidas en los episodios» con 12 reglas.
+
+## V2 · Rediseño cinematográfico (a pedido del usuario)
+Se trabajó sobre el mismo proyecto. La V1 se conserva en `04_CODIGO/V1_respaldo/`, `05_AUDIO/V1/`, `07_OUTPUT/V1/` y `07_QC/V1/`. La narración, la sincronización y la simulación física no cambian.
+- **Nave:** nueva `P.starship`, un modelo 3D real de diseño original, la misma en todas las escenas.
+  - Partes: escudo frontal contra el polvo interestelar, espina de titanio con carenado, módulo de mando con franja cian, anillo habitable que gira (gravedad artificial), depósitos, radiadores térmicos con líneas cálidas, bloque de propulsión con 3 toberas, chorro de partículas y luces de navegación.
+  - Vistas: lateral, 3/4, proa hacia arriba al acelerar, giro de 180° para frenar y órbita lenta al final.
+- **Espacio:**
+  - `deepSpace`: nebulosa tenue y 3 capas de estrellas con paralaje.
+  - `galaxyHD`: disco, brazos, bulbo, regiones HII, polvo y bloom.
+  - La aberración (estrellas agrupadas al frente) sigue rotulada como efecto estilizado. Las estelas laterales son un recurso cinematográfico y no se presentan como física.
+- **Relatividad:**
+  - **Einstein:** diagrama espacio-tiempo de los 3 primeros años a bordo, calculado con `P.REL`. La línea de la nave se curva hacia la de la luz y marca cada año a bordo («3 años a bordo ≈ 10,7 años en la Tierra»).
+  - **Dilatación:**
+    1. Dos observadores en composición dividida (Tierra / cabina), cada uno con su reloj avanzando NORMAL.
+    2. Después, una gráfica «años en la nave» frente a «años en la Tierra» en escala logarítmica, con la diagonal «sin relatividad» como referencia.
+  - **Relojes holográficos** (`holoClock`), siempre con datos de la simulación.
+- **Velocidad:**
+  - Progresión: motores que se encienden poco a poco → la nave apunta al frente y acelera → aberración creciente y partículas cercanas → giro y frenado.
+  - Velocímetro con tamaño de texto adaptativo.
+- **Energía:** la nave se rotula por sistemas (propulsión hipotética, combustible, radiadores para disipar el calor, soporte vital, escudo contra radiación y polvo) con líneas a puntos reales de la malla 3D.
+- **Tipografía:** los rótulos tienen un mínimo de 22–24 px, fondo oscuro y un ancho máximo adaptativo; nada importante queda bajo y ≈ 1430.
+- **Sonido:** nuevos FX `encendido`, `pasada` y `holo`. La música y el resto de efectos se mantienen.

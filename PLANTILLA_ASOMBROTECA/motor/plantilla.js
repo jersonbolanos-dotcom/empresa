@@ -945,6 +945,116 @@
   ctx.beginPath(); ctx.moveTo(x - h * 0.1, y - h * 0.66); ctx.quadraticCurveTo(x - h * 0.26, y - h * 0.5, x - h * 0.24, y); ctx.lineTo(x + h * 0.24, y); ctx.quadraticCurveTo(x + h * 0.26, y - h * 0.5, x + h * 0.1, y - h * 0.66); ctx.closePath(); ctx.fill(); ctx.restore();
  };
 
+ // ======================= v1.11 · MALLA 3D, NAVE CINEMATOGRÁFICA, ESPACIO PROFUNDO Y GRÁFICAS CIENTÍFICAS =======================
+ // Motor 3D mínimo para Canvas: mallas de caras (polígonos) con sombreado lambert + luz de contorno, orden por profundidad (pintor)
+ // y descarte de caras traseras. Ejes del objeto: +x hacia delante, +y arriba, +z hacia la cámara. Rotaciones: yaw (eje y), pitch (eje z), roll (eje x).
+ P.M3 = (() => {
+  const rot = (v, yaw, pitch, roll) => { let [x, y, z] = v; let c = Math.cos(roll), s = Math.sin(roll); [y, z] = [y * c - z * s, y * s + z * c]; c = Math.cos(pitch); s = Math.sin(pitch); [x, y] = [x * c - y * s, x * s + y * c]; c = Math.cos(yaw); s = Math.sin(yaw); [x, z] = [x * c + z * s, -x * s + z * c]; return [x, y, z]; };
+  // loft: estaciones [[x, ry, rz]] con «sides» lados → caras; color base; caps cierra los extremos
+  const loft = (st, sides, col, o = {}) => { const ring = st.map(([x, ry, rz]) => { const r = []; for (let k = 0; k < sides; k++) { const a = (k + 0.5) / sides * TAU + (o.rot || 0); r.push([x, Math.cos(a) * ry + (o.oy || 0), Math.sin(a) * rz + (o.oz || 0)]); } return r; }); const F = [];
+   for (let i = 0; i < st.length - 1; i++) for (let k = 0; k < sides; k++) { const k2 = (k + 1) % sides; F.push({ v: [ring[i][k], ring[i + 1][k], ring[i + 1][k2], ring[i][k2]], c: (o.bands && i % o.bands === 0) ? (o.c2 || col) : col, line: o.line, tag: o.tag }); }
+   if (o.caps !== false) { F.push({ v: ring[0].slice().reverse(), c: o.capC || col, tag: o.tag, cap: 'back' }); F.push({ v: ring[st.length - 1].slice(), c: o.capC2 || o.capC || col, tag: o.tag, cap: 'front' }); } return F; };
+  const box = (cx, cy, cz, sx, sy, sz, col, tag, two) => { const p = (a, b, c) => [cx + a * sx, cy + b * sy, cz + c * sz]; const V = [p(-1, -1, -1), p(1, -1, -1), p(1, 1, -1), p(-1, 1, -1), p(-1, -1, 1), p(1, -1, 1), p(1, 1, 1), p(-1, 1, 1)]; const q = (a, b, c, d) => ({ v: [V[a], V[b], V[c], V[d]], c: col, tag, two }); return [q(0, 3, 2, 1), q(4, 5, 6, 7), q(0, 1, 5, 4), q(2, 3, 7, 6), q(1, 2, 6, 5), q(0, 4, 7, 3)]; };
+  // dibuja: o = { x, y, s (px por unidad), yaw, pitch, roll, light [x,y,z], persp (0 = ortográfica), xf(v, face) transformación previa por cara }
+  const draw = (ctx, faces, o) => { const L = o.light || [-0.45, 0.55, 0.7], ln = Math.hypot(...L), Ln = L.map((q) => q / ln), d = o.persp ?? 6, out = [];
+   for (const f of faces) { const vs = f.v.map((v) => rot(o.xf ? o.xf(v, f) : v, o.yaw || 0, o.pitch || 0, o.roll || 0)); const a = vs[0], b = vs[1], c = vs[2]; const u = [b[0] - a[0], b[1] - a[1], b[2] - a[2]], w = [c[0] - a[0], c[1] - a[1], c[2] - a[2]]; let n = [u[1] * w[2] - u[2] * w[1], u[2] * w[0] - u[0] * w[2], u[0] * w[1] - u[1] * w[0]]; const nl = Math.hypot(...n) || 1; n = n.map((q) => q / nl);
+    if (!f.two && n[2] < 0) continue; if (f.two && n[2] < 0) n = n.map((q) => -q); const zc = vs.reduce((s2, v) => s2 + v[2], 0) / vs.length;
+    const pts = vs.map(([x, y, z]) => { const k = d ? d / (d - z) : 1; return [o.x + x * o.s * k, o.y - y * o.s * k]; });
+    const lam = Math.max(0, n[0] * Ln[0] + n[1] * Ln[1] + n[2] * Ln[2]), rim = Math.pow(1 - Math.abs(n[2]), 3); out.push({ pts, z: zc, lam, rim, f }); }
+   out.sort((p, q) => p.z - q.z);
+   for (const it of out) { const base = H.hex(it.f.c), amb = it.f.emit ? 1 : 0.32, k = amb + (it.f.emit ? 0 : 0.78 * it.lam), sp = Math.pow(it.lam, 18) * 0.5; const col = [base[0] * k + 255 * sp + 90 * it.rim * 0.35, base[1] * k + 255 * sp + 150 * it.rim * 0.35, base[2] * k + 255 * sp + 255 * it.rim * 0.35].map((q) => Math.min(255, q | 0));
+    ctx.fillStyle = `rgb(${col[0]},${col[1]},${col[2]})`; ctx.beginPath(); it.pts.forEach((p, i) => (i ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1]))); ctx.closePath(); ctx.fill(); ctx.strokeStyle = it.f.line ? `rgba(10,16,24,${it.f.line})` : ctx.fillStyle; ctx.lineWidth = it.f.line ? 1 : 0.8; ctx.stroke(); }
+   return out; };
+  const project = (v, o) => { const [x, y, z] = rot(v, o.yaw || 0, o.pitch || 0, o.roll || 0), d = o.persp ?? 6, k = d ? d / (d - z) : 1; return [o.x + x * o.s * k, o.y - y * o.s * k, z]; };
+  return { rot, loft, box, draw, project };
+ })();
+ // NAVE INTERESTELAR «ASOMBROTECA» (diseño original): escudo frontal lenticular contra polvo, espina de titanio, anillo habitable giratorio
+ // con radios, depósitos blancos, radiadores térmicos, bloque de propulsión con 3 toberas y chorro de partículas. Unidades: largo 2 (x −1…+1).
+ // P.starship(ctx, x, y, s, t, { yaw, pitch, roll, thrust 0..1, light, ring (giro), persp, glow }) — s = px por unidad (la nave mide 2s).
+ let SHIP = null;
+ const buildShip = () => { const M = P.M3, F = [];
+  const TI = '#5d6b78', TI2 = '#46525e', WH = '#d8e1e9', DK = '#2c343d';
+  F.push(...M.loft([[0.84, 0.03, 0.03], [0.9, 0.2, 0.2], [0.93, 0.21, 0.21], [0.97, 0.1, 0.1], [1.0, 0.035, 0.035]], 24, '#c9d4de', { line: 0.05, tag: 'shield' }));
+  F.push(...M.loft([[1.0, 0.02, 0.02], [1.12, 0.004, 0.004]], 6, '#9aa7b4', { tag: 'probe' }));
+  F.push(...M.loft([[-0.62, 0.07, 0.07], [-0.4, 0.075, 0.075], [-0.1, 0.07, 0.07], [0.15, 0.06, 0.06], [0.45, 0.055, 0.055], [0.7, 0.05, 0.05], [0.86, 0.04, 0.04]], 10, TI, { bands: 2, c2: TI2, line: 0.35, tag: 'spine' }));
+  F.push(...M.loft([[0.48, 0.09, 0.09], [0.52, 0.13, 0.13], [0.66, 0.13, 0.13], [0.7, 0.09, 0.09]], 12, WH, { line: 0.3, tag: 'cmd' }));
+  F.push(...M.loft([[-0.14, 0.05, 0.05], [-0.08, 0.095, 0.085], [0.12, 0.1, 0.09], [0.38, 0.085, 0.075], [0.47, 0.06, 0.055]], 8, '#4f5d6a', { line: 0.45, bands: 2, c2: '#66778a', tag: 'fairing' }));
+  for (let k = 0; k < 4; k++) { const a = k / 4 * TAU + Math.PI / 4, oy = Math.cos(a) * 0.14, oz = Math.sin(a) * 0.14; F.push(...M.loft([[-0.5, 0.0, 0.0], [-0.47, 0.055, 0.055], [-0.12, 0.055, 0.055], [-0.09, 0.0, 0.0]], 10, WH, { oy, oz, line: 0.2, tag: 'tank', bands: 3, c2: '#b9c6d2' })); }
+  // anillo habitable (toro) + radios — marcado «spin» para girar sobre el eje x
+  const R0 = 0.3, r0 = 0.04, NU = 32, NV = 6, xr = 0.25; const tor = (u, v) => [xr + Math.cos(v) * r0, (R0 + Math.sin(v) * r0) * Math.cos(u), (R0 + Math.sin(v) * r0) * Math.sin(u)];
+  for (let i = 0; i < NU; i++) for (let j = 0; j < NV; j++) { const u0 = i / NU * TAU, u1 = (i + 1) / NU * TAU, v0 = j / NV * TAU, v1 = (j + 1) / NV * TAU; F.push({ v: [tor(u0, v0), tor(u0, v1), tor(u1, v1), tor(u1, v0)], c: i % 4 === 0 ? '#9fb2c2' : WH, spin: true, line: i % 4 === 0 ? 0.3 : 0, tag: 'ring' }); }
+  for (let k = 0; k < 4; k++) { const a = k / 4 * TAU; const ca = Math.cos(a), sa = Math.sin(a), w = 0.012; F.push({ v: [[xr - w, 0.06 * ca, 0.06 * sa], [xr - w, (R0 - 0.03) * ca, (R0 - 0.03) * sa], [xr + w, (R0 - 0.03) * ca, (R0 - 0.03) * sa], [xr + w, 0.06 * ca, 0.06 * sa]], c: '#8ea0b0', two: true, spin: true, tag: 'spoke' }); }
+  // radiadores (dos pares, finos, ligeramente en V)
+  for (const sg of [1, -1]) { const y0 = 0.07 * sg, y1 = 0.42 * sg; F.push({ v: [[-0.42, y0, 0.0], [-0.02, y0, 0.0], [-0.08, y1, 0.06], [-0.38, y1, 0.06]], c: '#3a4652', two: true, line: 0.5, tag: 'rad' }); for (let i = 1; i < 6; i++) { const x0 = -0.42 + i * 0.066; F.push({ v: [[x0 - 0.004, y0, 0.001], [x0 + 0.004, y0, 0.001], [x0 + 0.004 - 0.01, y1, 0.061], [x0 - 0.004 - 0.01, y1, 0.061]], c: '#ff9a5a', two: true, emit: true, tag: 'radline' }); } }
+  // bloque de propulsión y 3 toberas
+  F.push(...M.loft([[-0.78, 0.15, 0.15], [-0.74, 0.17, 0.17], [-0.6, 0.16, 0.16], [-0.56, 0.1, 0.1]], 12, TI2, { line: 0.4, tag: 'engblock', bands: 1, c2: DK }));
+  for (let k = 0; k < 3; k++) { const a = k / 3 * TAU + Math.PI / 2, oy = Math.cos(a) * 0.085, oz = Math.sin(a) * 0.085; F.push(...M.loft([[-0.78, 0.045, 0.045], [-0.86, 0.06, 0.06], [-0.93, 0.08, 0.08]], 12, '#7b8794', { oy, oz, caps: false, line: 0.3, tag: 'bell' })); F.push(...M.loft([[-0.93, 0.075, 0.075], [-0.931, 0.0, 0.0]], 12, '#bff8ff', { oy, oz, caps: false, tag: 'core', two: true }).map((f) => ({ ...f, emit: true, two: true }))); }
+  // franjas de acento cian (emisivas) en el módulo de mando
+  F.push(...M.loft([[0.585, 0.132, 0.132], [0.595, 0.132, 0.132]], 12, '#46E6D2', { caps: false, tag: 'accent' }).map((f) => ({ ...f, emit: true })));
+  return F; };
+ P.starship = (ctx, x, y, s, t, o = {}) => {
+  if (!SHIP) SHIP = buildShip(); const ringA = (o.ring ?? t * 0.35), cr = Math.cos(ringA), sr = Math.sin(ringA);
+  const view = { x, y, s, yaw: o.yaw || 0, pitch: o.pitch || 0, roll: o.roll || 0, light: o.light, persp: o.persp ?? 5, xf: (v, f) => (f.spin ? [v[0], v[1] * cr - v[2] * sr, v[1] * sr + v[2] * cr] : v) };
+  const th = o.thrust ?? 0;
+  // chorro: partículas deterministas detrás de cada tobera (se dibujan antes si la cola está hacia atrás, después si apunta a cámara)
+  const plume = () => { if (th <= 0) return; ctx.save(); ctx.globalCompositeOperation = 'lighter'; for (let k = 0; k < 3; k++) { const a = k / 3 * TAU + Math.PI / 2, oy = Math.cos(a) * 0.085, oz = Math.sin(a) * 0.085; const ex = P.M3.project([-0.95, oy, oz], view); P.glow(ctx, ex[0], ex[1], s * 0.22 * (0.8 + 0.4 * th), '105,243,255', 0.85 * th); const R = H.rng(77 + k); for (let i = 0; i < 70; i++) { const u = ((t * (1.6 + R() * 0.8) + R()) % 1), len = 0.25 + 1.4 * th, px = -0.95 - u * len, sp = 0.008 + u * 0.035 * (0.4 + 0.6 * th); const p = P.M3.project([px, oy + R.gauss() * sp, oz + R.gauss() * sp], view); const a2 = th * (1 - u) * 0.6; ctx.fillStyle = `rgba(${lerp(230, 60, u) | 0},${lerp(255, 160, u) | 0},255,${a2})`; const rr = s * (0.004 + 0.008 * (1 - u)); ctx.beginPath(); ctx.arc(p[0], p[1], rr, 0, TAU); ctx.fill(); } const tail = P.M3.project([-0.95 - (0.6 + 1.2 * th), oy, oz], view); const g = ctx.createLinearGradient(ex[0], ex[1], tail[0], tail[1]); g.addColorStop(0, `rgba(200,255,255,${0.55 * th})`); g.addColorStop(1, 'rgba(37,139,255,0)'); ctx.strokeStyle = g; ctx.lineWidth = s * 0.09 * (0.6 + 0.4 * th); ctx.lineCap = 'round'; ctx.beginPath(); ctx.moveTo(ex[0], ex[1]); ctx.lineTo(tail[0], tail[1]); ctx.stroke(); } ctx.restore(); };
+  const tailZ = P.M3.project([-1.3, 0, 0], view)[2]; if (tailZ < 0) plume();
+  if (o.glow !== false) P.glow(ctx, x, y, s * 1.3, '40,90,180', 0.12);
+  P.M3.draw(ctx, SHIP, view);
+  if (tailZ >= 0) plume();
+  // luces de navegación: roja (babor), verde (estribor), blanca intermitente en la proa
+  const nav = [[[-0.38, 0.42, 0.06], '255,80,70', 0.9], [[-0.38, -0.42, 0.06], '70,255,140', 0.9], [[1.12, 0, 0], '255,255,255', (Math.sin(t * 6) > 0.6 ? 1 : 0.15)]]; ctx.save(); ctx.globalCompositeOperation = 'lighter'; for (const [v, c, a] of nav) { const p = P.M3.project(v, view); P.glow(ctx, p[0], p[1], s * 0.05, c, a); } ctx.restore();
+ };
+ // ESPACIO PROFUNDO con paralaje: degradado azul-violeta-negro, nebulosa tenue en caché, 3 capas de estrellas que se desplazan distinto
+ // con la cámara (o.px, o.py en px de «mundo»), polvo cercano opcional y estelas de movimiento ESTILIZADAS (o.streak 0..1, o.dir rad).
+ let NEB = null, DSTAR = null;
+ P.deepSpace = (ctx, t, o = {}) => {
+  const g = ctx.createLinearGradient(0, 0, W * 0.3, HH); g.addColorStop(0, o.top || '#03050f'); g.addColorStop(0.55, o.mid || '#070d26'); g.addColorStop(1, o.bot || '#0a0a1f'); ctx.fillStyle = g; ctx.fillRect(0, 0, W, HH);
+  if (!NEB) { const S = 240, c = H.layer(S, S * 1.8 | 0), q = c.getContext('2d'), nz = H.makeNoise(19), img = q.createImageData(S, S * 1.8 | 0); for (let j = 0; j < c.height; j++) for (let i = 0; i < S; i++) { const v = nz.fbm3(i * 0.012, j * 0.012, 0.3, 5), w2 = nz.fbm3(i * 0.02 + 5, j * 0.02, 1.7, 4), k = (j * S + i) * 4, a = Math.max(0, v - 0.05) * 1.9, b = Math.max(0, w2 + 0.1) * 0.9; img.data[k] = 70 * a + 20 * b; img.data[k + 1] = 40 * a + 50 * b; img.data[k + 2] = 140 * a + 110 * b; img.data[k + 3] = Math.min(255, 255 * (0.55 * a + 0.35 * b)); } q.putImageData(img, 0, 0); NEB = c; }
+  ctx.save(); ctx.globalAlpha = o.neb ?? 0.55; ctx.globalCompositeOperation = 'lighter'; ctx.imageSmoothingEnabled = true; const nx = -((o.px || 0) * 0.05) % 200, ny = -((o.py || 0) * 0.05) % 200; ctx.drawImage(NEB, nx - 100, ny - 100, W + 200, HH + 200); ctx.restore();
+  if (!DSTAR) { const R = H.rng(23), L = []; for (const [n, z, s0, s1] of [[520, 0.08, 0.6, 1.4], [220, 0.25, 1.0, 2.2], [70, 0.6, 1.6, 3.4]]) { const arr = []; for (let i = 0; i < n; i++) arr.push([R() * W, R() * HH, R.range(s0, s1), R(), R()]); L.push({ z, arr }); } DSTAR = L; }
+  const st = o.streak || 0, dir = o.dir ?? Math.PI / 2; ctx.save();
+  for (const { z, arr } of DSTAR) { const ox = ((-(o.px || 0) * z) % W + W) % W, oy = ((-(o.py || 0) * z) % HH + HH) % HH; for (const [sx, sy, r, tw, hue] of arr) { const x = (sx + ox) % W, y = (sy + oy) % HH, b = 0.45 + 0.5 * Math.sin(t * 1.3 + tw * 9); const col = hue < 0.15 ? '255,214,170' : hue < 0.3 ? '170,200,255' : '246,250,255';
+    if (st > 0 && z > 0.2) { const L2 = st * 120 * z; ctx.strokeStyle = `rgba(${col},${0.7 * b})`; ctx.lineWidth = r * 0.8; ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x - Math.cos(dir) * L2, y - Math.sin(dir) * L2); ctx.stroke(); }
+    ctx.fillStyle = `rgba(${col},${b})`; ctx.fillRect(x - r / 2, y - r / 2, r, r); if (r > 2.6) P.glow(ctx, x, y, r * 5, col, 0.35 * b); } }
+  ctx.restore();
+ };
+ // GALAXIA HD: ~90.000 partículas con color por radio, cúmulos rosados (regiones HII), carriles de polvo, halo y bloom (en caché).
+ const GALHD = {};
+ P.galaxyHD = (ctx, x, y, r, o = {}) => {
+  const key = (o.seed || 1) + '|' + (o.arms || 2); if (!GALHD[key]) { const S = 1400, c = H.layer(S, S), g = c.getContext('2d'), R = H.rng(o.seed || 1), arms = o.arms || 2, C0 = S / 2;
+   g.globalCompositeOperation = 'lighter';
+   const halo = g.createRadialGradient(C0, C0, 0, C0, C0, S * 0.5); halo.addColorStop(0, 'rgba(255,236,200,0.8)'); halo.addColorStop(0.05, 'rgba(255,214,160,0.45)'); halo.addColorStop(0.18, 'rgba(200,190,230,0.16)'); halo.addColorStop(0.45, 'rgba(110,140,220,0.05)'); halo.addColorStop(1, 'rgba(0,0,0,0)'); g.fillStyle = halo; g.fillRect(0, 0, S, S);
+   const star = (px, py, u, al, s2) => { const warm = cl(1 - u * 1.6); g.fillStyle = `rgba(${lerp(165, 255, warm) | 0},${lerp(190, 224, warm) | 0},${lerp(255, 178, warm) | 0},${al})`; g.fillRect(px, py, s2, s2); };
+   for (let i = 0; i < 120000; i++) { const m = R(); let rr, th; if (m < 0.36) { rr = Math.min(0.5, -Math.log(1 - R() * 0.97) * 0.11) * S; th = R() * TAU; star(C0 + Math.cos(th) * rr, C0 + Math.sin(th) * rr, rr / (0.5 * S), R.range(0.03, 0.12), R.range(0.7, 1.8)); } else if (m < 0.9) { const k = Math.floor(R() * arms), u = Math.pow(R(), 0.95); rr = (0.05 + u * 0.43) * S + R.gauss() * S * 0.025 * (0.6 + u); th = u * 3.8 + k * TAU / arms + R.gauss() * 0.3 * (0.7 + 0.5 * u); star(C0 + Math.cos(th) * rr, C0 + Math.sin(th) * rr, u, R.range(0.1, 0.34), R.range(0.8, 2.4)); } else { rr = Math.abs(R.gauss()) * 0.045 * S; th = R() * TAU; star(C0 + Math.cos(th) * rr, C0 + Math.sin(th) * rr * 0.85, 0, R.range(0.08, 0.3), R.range(0.8, 2)); } }
+   for (let i = 0; i < 160; i++) { const k = Math.floor(R() * arms), u = 0.12 + Math.pow(R(), 1.2) * 0.7, th = u * 3.8 + k * TAU / arms + R.gauss() * 0.12, rr = (0.05 + u * 0.43) * S; const px = C0 + Math.cos(th) * rr, py = C0 + Math.sin(th) * rr, rad = R.range(3, 9); const hg = g.createRadialGradient(px, py, 0, px, py, rad); hg.addColorStop(0, 'rgba(255,150,200,0.35)'); hg.addColorStop(1, 'rgba(255,140,190,0)'); g.fillStyle = hg; g.fillRect(px - rad, py - rad, rad * 2, rad * 2); }
+   g.globalCompositeOperation = 'source-over'; for (let i = 0; i < 5200; i++) { const k = Math.floor(R() * arms), u = R(), th = u * 3.8 + k * TAU / arms - 0.25 + R.gauss() * 0.08, rr = (0.06 + u * 0.42) * S; g.fillStyle = `rgba(8,5,14,${R.range(0.04, 0.14)})`; g.beginPath(); g.arc(C0 + Math.cos(th) * rr, C0 + Math.sin(th) * rr, R.range(2, 7), 0, TAU); g.fill(); }
+   const b = H.layer(S, S), bg = b.getContext('2d'); bg.filter = 'blur(18px)'; bg.drawImage(c, 0, 0); g.globalCompositeOperation = 'lighter'; g.globalAlpha = 0.55; g.drawImage(b, 0, 0); g.globalAlpha = 1; GALHD[key] = c; }
+  ctx.save(); ctx.translate(x, y); ctx.rotate(o.rot || 0); ctx.scale(1, o.tilt ?? 1); ctx.rotate(o.spin || 0); ctx.globalAlpha *= o.a ?? 1; ctx.globalCompositeOperation = 'lighter'; ctx.drawImage(GALHD[key], -r, -r, r * 2, r * 2); ctx.restore();
+ };
+ // RELOJ HOLOGRÁFICO: anillo con 60 marcas, arco de segundero que barre con el tiempo LOCAL, valor digital grande y etiqueta.
+ P.holoClock = (ctx, x, y, r, secs, color, label, value, o = {}) => {
+  const rgb = H.hex(color).join(','); ctx.save(); P.glow(ctx, x, y, r * 1.5, rgb, 0.18); ctx.fillStyle = 'rgba(3,6,16,0.82)'; ctx.beginPath(); ctx.arc(x, y, r, 0, TAU); ctx.fill();
+  ctx.strokeStyle = `rgba(${rgb},0.9)`; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(x, y, r, 0, TAU); ctx.stroke(); for (let k = 0; k < 60; k++) { const a = k / 60 * TAU - Math.PI / 2, l = k % 5 ? 0.06 : 0.12; ctx.lineWidth = k % 5 ? 2 : 4; ctx.strokeStyle = `rgba(${rgb},${k % 5 ? 0.45 : 0.9})`; ctx.beginPath(); ctx.moveTo(x + Math.cos(a) * r * 0.9, y + Math.sin(a) * r * 0.9); ctx.lineTo(x + Math.cos(a) * r * (0.9 - l), y + Math.sin(a) * r * (0.9 - l)); ctx.stroke(); }
+  const sa = ((secs % 60) / 60) * TAU; ctx.strokeStyle = color; ctx.lineWidth = r * 0.06; ctx.lineCap = 'round'; ctx.beginPath(); ctx.arc(x, y, r * 0.97, -Math.PI / 2, -Math.PI / 2 + sa); ctx.stroke(); const hx = x + Math.cos(sa - Math.PI / 2) * r * 0.97, hy = y + Math.sin(sa - Math.PI / 2) * r * 0.97; P.glow(ctx, hx, hy, r * 0.12, rgb, 0.9);
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillStyle = color; ctx.font = `700 ${r * 0.13}px "IBM Plex Mono"`; ctx.fillText(label, x, y - r * 0.38); ctx.fillStyle = '#F6FAFF'; const fs = Math.min(r * 0.34, r * 1.6 / Math.max(4, value.length * 0.6)); ctx.font = `700 ${fs}px "Space Grotesk"`; ctx.fillText(value, x, y + r * 0.02); if (o.sub) { ctx.font = `600 ${r * 0.1}px "IBM Plex Mono"`; ctx.fillStyle = 'rgba(246,250,255,0.75)'; ctx.fillText(o.sub, x, y + r * 0.36); }
+  ctx.restore();
+ };
+ // GRÁFICA CIENTÍFICA genérica (ejes con etiquetas grandes, rejilla, curvas con brillo que se dibujan con p 0..1, escala log en Y opcional).
+ // series: [{ f(u) → [xv, yv] (u 0..1), c, w, label, dash }]. o: { xr [min,max], yr [min,max], logY, xLabel, yLabel, xTicks [[v, txt]], yTicks [[v, txt]], p }
+ P.chart = (ctx, x, y, w, h, series, o = {}) => {
+  const [x0, x1] = o.xr || [0, 1], [y0, y1] = o.yr || [0, 1], ly = (v) => (o.logY ? Math.log10(Math.max(v, 1e-12)) : v), Y0 = ly(y0), Y1 = ly(y1);
+  const map = (xv, yv) => [x + (xv - x0) / (x1 - x0) * w, y + h - (ly(yv) - Y0) / (Y1 - Y0) * h]; ctx.save(); const a = o.a ?? 1; ctx.globalAlpha *= a;
+  P.rr(ctx, x - 70, y - 40, w + 110, h + 130, 26, 'rgba(3,6,16,0.82)'); ctx.strokeStyle = 'rgba(54,217,255,0.35)'; ctx.lineWidth = 2; ctx.beginPath(); ctx.roundRect(x - 70, y - 40, w + 110, h + 130, 26); ctx.stroke();
+  ctx.strokeStyle = 'rgba(246,250,255,0.1)'; ctx.lineWidth = 1.5; ctx.font = '600 22px "IBM Plex Mono"'; ctx.fillStyle = 'rgba(246,250,255,0.8)'; ctx.textBaseline = 'middle';
+  for (const [v, s] of o.yTicks || []) { const [, py] = map(x0, v); ctx.beginPath(); ctx.moveTo(x, py); ctx.lineTo(x + w, py); ctx.stroke(); ctx.textAlign = 'right'; ctx.fillText(s, x - 10, py); }
+  for (const [v, s] of o.xTicks || []) { const [px] = map(v, y0); ctx.beginPath(); ctx.moveTo(px, y); ctx.lineTo(px, y + h); ctx.stroke(); ctx.textAlign = 'center'; ctx.fillText(s, px, y + h + 26); }
+  ctx.strokeStyle = 'rgba(246,250,255,0.75)'; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x, y + h); ctx.lineTo(x + w, y + h); ctx.stroke();
+  ctx.font = '700 24px "Space Grotesk"'; ctx.fillStyle = '#F6FAFF'; ctx.textAlign = 'center'; ctx.fillText(o.xLabel || '', x + w / 2, y + h + 66); ctx.save(); ctx.translate(x - 58, y + h / 2); ctx.rotate(-Math.PI / 2); ctx.fillText(o.yLabel || '', 0, -0); ctx.restore();
+  const p = o.p ?? 1; for (const S of series) { const n = 160, pts = []; for (let i = 0; i <= n * p; i++) { const [xv, yv] = S.f(i / n); pts.push(map(xv, yv)); } if (pts.length < 2) continue; if (S.dash) ctx.setLineDash(S.dash); P.strokePath(ctx, pts, (S.w || 5) * 3, H.rgba(H.hex(S.c), 0.18)); P.strokePath(ctx, pts, S.w || 5, S.c); ctx.setLineDash([]); const e = pts[pts.length - 1]; P.glow(ctx, e[0], e[1], 24, H.hex(S.c).join(','), 0.9); if (S.label && p > 0.98) { ctx.font = '800 26px Nunito'; ctx.fillStyle = S.c; ctx.textAlign = S.al || 'right'; ctx.fillText(S.label, e[0] + (S.dx || -10), e[1] + (S.dy || -24)); } }
+  ctx.restore(); return map;
+ };
+
  // ---------------- SUBTÍTULOS (arriba, palabra a palabra, palabra clave seleccionada) ----------------
  // Trozos de ≤3 palabras (≤4 si son cortas); las palabras aparecen al decirse: la actual en blanco y negrita,
  // las ya dichas en gris; la palabra clave lleva recuadro de selección con asas en el color de acento.
@@ -1171,6 +1281,10 @@
   galaxia: (k, t, g = 1) => { FX.campo(k, t, 1.6, 0.8 * g); k.play('whoosh', t, { dur: 1.4, top: 1400, gain: 0.3 * g }); k.tone(t + 0.4, { f: 'E5', dur: 2, gain: 0.04 * g, verb: 0.5 }); },
   contraer: (k, t, d = 1.2, g = 1) => { k.noise(t, { dur: d, color: 'pink', filter: 'bandpass', f: [[0, 600], [d, 3200]], q: 1.5, gain: 0.12 * g, a: d * 0.7 }); k.tone(t, { f: [[0, 300], [d, 1200]], dur: d, gain: 0.03 * g, a: d * 0.6 }); k.play('thud', t + d, { f: 120, gain: 0.25 * g }); },
   llegada: (k, t, g = 1) => { for (const [n, dt] of [['D4', 0], ['A4', 0.15], ['F#5', 0.3], ['D6', 0.5]]) k.tone(t + dt, { f: n, dur: 2.4, gain: 0.045 * g, verb: 0.5 }); },
+  // v1.11 · capas de sonido para naves (recursos cinematográficos)
+  encendido: (k, t, d = 2.5, g = 1) => { k.tone(t, { f: [[0, 30], [d, 70]], type: 'sawtooth', dur: d + 1, gain: 0.05 * g, filter: 'lowpass', f2: 320, a: d * 0.7, hold: 0.8 }); k.noise(t, { dur: d + 1, color: 'brown', filter: 'lowpass', f: [[0, 80], [d, 520]], gain: 0.18 * g, a: d * 0.8, hold: 0.5 }); k.tone(t + d * 0.6, { f: [[0, 220], [0.8, 440]], dur: 1.2, gain: 0.03 * g, verb: 0.4, a: 0.3 }); k.play('thud', t + d, { f: 60, gain: 0.4 * g }); },
+  pasada: (k, t, d = 1.6, g = 1) => { k.noise(t, { dur: d, color: 'pink', filter: 'bandpass', f: [[0, 200], [d * 0.5, 1200], [d, 180]], q: 0.8, gain: 0.25 * g, a: d * 0.5 }); k.tone(t, { f: [[0, 70], [d * 0.5, 110], [d, 55]], type: 'sawtooth', dur: d, gain: 0.03 * g, filter: 'lowpass', f2: 300, a: d * 0.5 }); },
+  holo: (k, t, g = 1) => { k.tone(t, { f: [[0, 900], [0.25, 1800]], dur: 0.35, gain: 0.04 * g, a: 0.01, verb: 0.3 }); k.tone(t + 0.08, { f: 2600, dur: 0.25, gain: 0.02 * g, a: 0.005, minor: true }); k.noise(t, { dur: 0.3, filter: 'highpass', f: 5000, gain: 0.03 * g, a: 0.05 }); },
  };
  window.PLANTILLA = { make, SKINS, P, FX, TRANS_SFX, setSkin: (n) => (SK = SKINS[n]), W, HH };
 })();

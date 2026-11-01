@@ -65,6 +65,11 @@
   ['Velocímetro relativista (v1.10)', (c, t) => P.speedGauge(c, 200, 160, 110, 3e-13, {})],
   ['Diagrama de espacio-tiempo (v1.10)', (c, t) => P.spacetime(c, 50, 30, 300, 230, [{ pts: [[0, 0], [0, 0.95]], c: '#FFB45B', label: 'Tierra' }, { pts: [[0, 0], [0.2, 0.3], [0.7, 0.75], [0.85, 0.95]], c: '#46E6D2', ticks: [[0.2, 0.3], [0.7, 0.75]], label: 'nave' }])],
   ['Cabina con ventana · científico (v1.10)', (c, t) => { c.save(); c.scale(400 / 1080, 300 / 1920 * 1.6); P.cockpit(c, t, (x, y, w, h) => { c.fillStyle = '#081B42'; c.fillRect(x, y, w, h); }); c.restore(); P.scientist(c, 330, 290, 140, { c: '#cfe6ff' }); }],
+  ['Nave 3D cinematográfica · lateral (v1.11)', (c, t) => { P.deepSpace(c, t, {}); P.starship(c, 210, 150, 165, t, { yaw: 0, thrust: 1 }); }],
+  ['Nave 3D · tres cuartos (v1.11)', (c, t) => { P.deepSpace(c, t, {}); P.starship(c, 230, 150, 150, t, { yaw: -0.6, pitch: 0.15, roll: 0.3, thrust: 0.8 }); }],
+  ['Galaxia HD (v1.11)', (c, t) => { c.fillStyle = '#03050f'; c.fillRect(0, 0, 400, 300); P.galaxyHD(c, 200, 150, 190, { seed: 31, tilt: 0.4, rot: -0.5 }); }],
+  ['Reloj holográfico (v1.11)', (c, t) => P.holoClock(c, 200, 150, 120, 37, '#46E6D2', 'NAVE', '28,6 años', { sub: 'tiempo propio' })],
+  ['Gráfica científica (escala log) (v1.11)', (c, t) => { c.save(); c.scale(0.5, 0.5); P.chart(c, 160, 90, 560, 360, [{ f: (u) => [u * 28.6, Math.max(1, Math.sinh(u * 14.3) / 1.0323)], c: '#FFB45B', label: 'Tierra' }, { f: (u) => [u * 28.6, Math.max(1, u * 28.6)], c: '#46E6D2', dash: [10, 8] }], { xr: [0, 28.6], yr: [1, 1e7], logY: true, yTicks: [[1, '1'], [1e3, '1.000'], [1e6, '1 M']], xTicks: [[0, '0'], [28.6, '29']], xLabel: 'años en la nave', yLabel: 'años Tierra' }); c.restore(); }],
  ];
  window.drawCatalog = function () {
   document.querySelectorAll('canvas[data-i]').forEach((cv) => {

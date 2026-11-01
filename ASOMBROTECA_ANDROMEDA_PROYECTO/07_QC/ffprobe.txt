@@ -11,5 +11,5 @@ r_frame_rate=0/0
 [/STREAM]
 [FORMAT]
 duration=123.828000
-size=88055101
+size=62493910
 [/FORMAT]

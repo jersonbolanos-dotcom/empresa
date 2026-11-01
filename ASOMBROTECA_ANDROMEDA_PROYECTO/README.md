@@ -1,6 +1,7 @@
 # ASOMBROTECA · ¿Podrías llegar a otra galaxia en solo 29 años?
 
-- **Video:** `07_OUTPUT/ASOMBROTECA_ANDROMEDA_V1.mp4` (1080×1920, 30 fps, 123,8 s, 88 MB). Miniatura en `07_OUTPUT/miniatura.jpg`.
+- **Video actual (V2, rediseño cinematográfico):** `07_OUTPUT/ASOMBROTECA_ANDROMEDA_V2.mp4` (1080×1920, 30 fps, 123,8 s, 62,5 MB). Usa la plantilla v1.11 con la nave 3D `P.starship`, `deepSpace`, `galaxyHD`, `holoClock` y `chart`.
+- **V1 conservada:** `07_OUTPUT/V1/ASOMBROTECA_ANDROMEDA_V1.mp4`; código en `04_CODIGO/V1_respaldo/`, audio en `05_AUDIO/V1/` y QC en `07_QC/V1/`.
 - **Base:** `PLANTILLA_ASOMBROTECA` v1.10. Este episodio añadió la simulación relativista `P.REL`, los bloques de espacio y relatividad, 8 FX y las «Reglas aprendidas» del SUPERPROMPT.
 - **Física:** 1 g de aceleración propia (acelera la 1.ª mitad y frena la 2.ª) sobre 2,5 millones de años luz → **28,6 años a bordo** y **2.500.002 años en la Tierra**. Verificado con Python (`03_GUION/verificacion_relatividad.py`) y con la simulación de la plantilla.
 - **Arco (19 beats):**

@@ -144,6 +144,19 @@ La piel se elige con `skin: 'plana' | 'oscura'` en `PLANTILLA.make`. Los bloques
 | `rings` | Ondas de radio, en anillo o dirigidas |
 | `clock` | Reloj analógico |
 
+**Bloques v1.11 (Andrómeda V2, rediseño cinematográfico)** — 3D ligero, nave, espacio profundo y gráficas:
+
+| Bloque | Uso |
+|---|---|
+| `M3` (`loft`, `box`, `draw`, `project`, `rot`) | Mini motor 3D para Canvas: mallas de caras con sombreado lambert, luz de contorno, brillo especular, orden por profundidad y perspectiva. Sirve para cualquier objeto técnico que deba verse en 3/4 |
+| `starship(ctx, x, y, s, t, {yaw, pitch, roll, thrust, ring})` | **Nave interestelar Asombroteca** (diseño original, siempre la misma): escudo frontal contra polvo, espina de titanio, carenado, anillo habitable giratorio, depósitos, radiadores, 3 toberas con chorro de partículas y luces de navegación. Vistas lateral, frontal, trasera y 3/4. `pitch = π/2` = proa hacia arriba |
+| `deepSpace(ctx, t, {px, py, streak, dir, neb})` | Espacio profundo con nebulosa tenue y 3 capas de estrellas con **paralaje** (la cámara «viaja» con px/py); estelas opcionales (estilizadas) |
+| `galaxyHD(ctx, x, y, r, {seed, tilt, rot, spin})` | Galaxia de ~120.000 partículas: disco, brazos, bulbo, regiones HII, polvo y bloom (en caché) |
+| `holoClock(ctx, x, y, r, secs, color, label, value, {sub})` | Reloj holográfico con barrido de segundero y valor digital grande |
+| `chart(ctx, x, y, w, h, series, {xr, yr, logY, p, xTicks, yTicks, xLabel, yLabel})` | Gráfica científica integrada (ejes grandes, rejilla, curvas con brillo que se dibujan con `p`, escala logarítmica opcional). **Devuelve `map(x, y)`** para añadir marcas |
+
+Efectos `FX` de v1.11: `encendido` (motores que arrancan), `pasada` (la nave pasa junto a la cámara) y `holo` (interfaz holográfica).
+
 **Bloques v1.10 (episodio «Viaje a Andrómeda»)** — espacio y relatividad:
 
 | Bloque | Uso |
