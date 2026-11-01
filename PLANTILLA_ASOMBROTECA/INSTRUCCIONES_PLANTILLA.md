@@ -157,7 +157,7 @@ La piel se elige con `skin: 'plana' | 'oscura'` en `PLANTILLA.make`. Los bloques
 | `terraceCut(ctx, x, y, w, h, t, {reveal, labels, water})` | **Corte grande de una terraza** (diagrama clave): muro, capas suelo/arena/grava/piedras con rótulos, roca de la ladera, infiltración y salida del agua al pie del muro |
 | `channel(ctx, pts, t, {fill})` | Canal de piedra con agua que fluye (abastecimiento por gravedad) |
 | `incaFountain(ctx, x, y, s, t, on)` | Fuente tallada con caño, chorro y pila |
-| `citadel(ctx, cx, cy, s, t, {age, canal, glow})` | Ciudadela de montaña estilizada: terrazas, recintos de piedra, plaza y pico. `age` 0 = reconstrucción (techos de paja) → 1 = estado actual. `glow` resalta muros, drenaje y agua por separado |
+| `citadel(ctx, cx, cy, s, t, {age, canal, glow, fogA, seed, frontRows})` | Ciudadela de montaña (v1.12.1). La geometría se construye desde las **plataformas**: el perfil del cerro sale de ellas, y cada edificio se apoya en una plataforma urbana (fila trasera sobre un escalón de granito) con sombra de contacto, así que nada flota. Incluye sector agrícola con andenes, sector urbano, plaza, escalinatas, muros de contención de granito, terrazas frontales en la ladera (`frontRows`, 5 por defecto), pico de fondo separado (sin edificios) y canal que baja en escalera hasta las fuentes. `age` 0 = reconstrucción (techos de paja), 1 = estado actual. `glow` resalta muros, drenaje y agua por separado. Devuelve `{plats, ground(x)}` para colocar personas u objetos sobre el suelo |
 
 Efectos `FX` de v1.12: `lluviaFuerte`, `golpePiedra` (percusión), `abrasion`, `encaje` (bloque que asienta), `arroyo` (agua por un canal) y `tiempo` (transición histórica).
 

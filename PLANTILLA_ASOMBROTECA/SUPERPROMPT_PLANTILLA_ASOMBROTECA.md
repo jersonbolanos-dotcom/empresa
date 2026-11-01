@@ -92,3 +92,5 @@ Si sientes que al prompt le falta algo para que el video se vea mejor, hazlo y e
 14. **Antes y después en la misma toma.** Las transiciones temporales (reconstrucción ↔ estado actual) se hacen sobre el mismo encuadre para que se puedan comparar.
 15. **Sistemas parecidos, separados.** Si dos sistemas se parecen (drenaje de lluvia y abastecimiento de agua; aire y empuje…), dales colores distintos y dilo en pantalla.
 16. **Cuantificadores honestos.** «En algunos muros», «muchas estructuras», «con conservación», «no sabemos cómo se movió cada bloque»: si el guion generaliza, la pantalla matiza sin contradecir la voz.
+17. **Nada flota.** Toda construcción se apoya en una superficie definida: primero se diseñan las plataformas y el terreno, y los edificios se colocan sobre ellas (nunca al revés). Revisa cada reaparición de un escenario, sobre todo en los movimientos de cámara.
+18. **Texto legible.** Mínimo 32 px para notas y 36 px para rótulos; si no cabe, se parte en dos líneas antes que achicarlo. Las notas no invaden la franja de subtítulos (y < 1420).

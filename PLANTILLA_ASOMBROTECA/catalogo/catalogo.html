@@ -1288,33 +1288,70 @@ body{margin:0;background:#14132b;color:#fff;font-family:Nunito,sans-serif} h1{fo
   P.granite(ctx, [[x - s * 0.45, y + s * 0.02], [x + s * 0.45, y + s * 0.02], [x + s * 0.4, y + s * 0.32], [x - s * 0.4, y + s * 0.32]], { seed: Math.round(x) + 9 }); ctx.fillStyle = 'rgba(55,185,217,0.85)'; ctx.fillRect(x - s * 0.36, y + s * 0.08, s * 0.72, s * 0.14);
   if (on > 0) { ctx.save(); ctx.strokeStyle = `rgba(122,230,242,${0.9 * on})`; ctx.lineWidth = s * 0.07; ctx.lineCap = 'round'; ctx.beginPath(); ctx.moveTo(x, y - s * 0.88); ctx.quadraticCurveTo(x + s * 0.08, y - s * 0.6, x + s * 0.05, y + s * 0.1); ctx.stroke(); for (let k = 0; k < 3; k++) { const u = (t * 1.5 + k / 3) % 1; ctx.strokeStyle = `rgba(244,247,243,${0.7 * (1 - u) * on})`; ctx.lineWidth = 2; ctx.beginPath(); ctx.ellipse(x + s * 0.05, y + s * 0.12, s * 0.06 + u * s * 0.25, s * 0.02 + u * s * 0.05, 0, 0, TAU); ctx.stroke(); } ctx.restore(); }
  };
- // CIUDADELA DE MONTAÑA estilizada (inspirada en Machu Picchu, no a escala): cresta con terrazas agrícolas, sector urbano con recintos
- // de piedra (puertas trapezoidales, hastiales), plaza y el pico tras ella. o.age 0 = reconstrucción (techos de paja), 1 = estado actual
- // (sin techos, pasto); o.canal (agua visible), o.glow { walls, drain, water } para resaltar sistemas. s ≈ ancho/2 en px.
+ // CIUDADELA DE MONTAÑA (inspirada en Machu Picchu, estilizada y no a escala). El perfil superior del terreno se CONSTRUYE a partir de
+ // las plataformas: cada tramo es una superficie horizontal sostenida por un muro de contención de piedra, así que todo edificio apoya
+ // por construcción sobre una plataforma. Huayna Picchu se dibuja detrás y separado (más claro por la perspectiva atmosférica).
+ // o.age 0 = reconstrucción (techos de paja) → 1 = estado actual (sin techos, pasto); o.canal 0..1; o.glow { walls, drain, water }.
+ // Devuelve { plats: [{x0, x1, y, urban}], ground(x) } en coordenadas de dibujo, para colocar personas u objetos SOBRE el terreno.
  P.citadel = (ctx, cx, cy, s, t, o = {}) => {
-  const age = o.age ?? 1, gl = o.glow || {};
-  // pico (tipo Huayna Picchu) detrás a la derecha
-  ctx.save(); const pg = ctx.createLinearGradient(cx + s * 0.4, cy - s * 1.3, cx + s * 0.9, cy); pg.addColorStop(0, '#4f6b52'); pg.addColorStop(1, '#2f4438'); ctx.fillStyle = pg; ctx.beginPath(); ctx.moveTo(cx + s * 0.05, cy + s * 0.1); ctx.quadraticCurveTo(cx + s * 0.35, cy - s * 1.25, cx + s * 0.62, cy - s * 1.3); ctx.quadraticCurveTo(cx + s * 0.95, cy - s * 1.15, cx + s * 1.3, cy + s * 0.2); ctx.closePath(); ctx.fill(); ctx.restore();
-  // cresta / montaña principal
-  ctx.save(); const mg = ctx.createLinearGradient(0, cy - s * 0.3, 0, cy + s * 1.4); mg.addColorStop(0, '#587348'); mg.addColorStop(1, '#2c3d33'); ctx.fillStyle = mg; ctx.beginPath(); ctx.moveTo(cx - s * 1.5, cy + s * 1.6); ctx.lineTo(cx - s * 1.1, cy + s * 0.2); ctx.quadraticCurveTo(cx - s * 0.6, cy - s * 0.18, cx - s * 0.2, cy - s * 0.12); ctx.lineTo(cx + s * 0.55, cy - s * 0.1); ctx.quadraticCurveTo(cx + s * 1.0, cy + s * 0.05, cx + s * 1.5, cy + s * 1.6); ctx.closePath(); ctx.fill(); ctx.restore();
-  // terrazas agrícolas (izquierda)
-  const nT = 9; for (let i = 0; i < nT; i++) { const y = cy - s * 0.1 + i * s * 0.07, x0 = cx - s * (0.25 + i * 0.1), x1 = cx - s * (0.02 + i * 0.03); ctx.fillStyle = age < 0.5 ? '#87a46b' : '#7fa060'; ctx.fillRect(x0, y - s * 0.035, x1 - x0, s * 0.03); ctx.fillStyle = '#9aa197'; ctx.fillRect(x0, y - s * 0.006, x1 - x0, s * 0.03); ctx.strokeStyle = 'rgba(40,45,42,0.35)'; ctx.lineWidth = 1; ctx.strokeRect(x0, y - s * 0.006, x1 - x0, s * 0.03); if (gl.walls) { ctx.strokeStyle = `rgba(212,172,100,${gl.walls})`; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(x0, y); ctx.lineTo(x1, y); ctx.stroke(); } if (gl.drain) { ctx.save(); ctx.setLineDash([6, 6]); ctx.strokeStyle = `rgba(55,185,217,${gl.drain})`; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(x0 + 8, y + s * 0.035); ctx.lineTo(x1 - 8, y + s * 0.035); ctx.stroke(); ctx.restore(); } }
-  // plaza
-  ctx.fillStyle = '#7fa060'; ctx.beginPath(); ctx.ellipse(cx + s * 0.12, cy - s * 0.12, s * 0.2, s * 0.045, 0, 0, TAU); ctx.fill();
-  // sector urbano: tres filas de recintos (atrás → delante)
-  const R = H.rng(o.seed || 21); const rows = [[cy - s * 0.2, 0.75, cx - s * 0.12, cx + s * 0.62], [cy - s * 0.14, 0.88, cx + s * 0.28, cx + s * 0.75], [cy - s * 0.06, 1, cx + s * 0.2, cx + s * 0.85]];
-  rows.forEach(([by, k, xa, xb], ri) => { let x = xa; while (x < xb) { const bw = s * R.range(0.1, 0.15) * k, bh = s * R.range(0.07, 0.095) * k, ruin = age > 0.5 && R() < 0.35 ? R.range(0.5, 0.8) : 1; const top = by - bh * ruin;
-   P.granite(ctx, [[x, top], [x + bw, top], [x + bw, by], [x, by]], { seed: Math.round(x + by), bevel: false });
-   ctx.fillStyle = '#2c3530'; const dw = bw * 0.22; ctx.beginPath(); ctx.moveTo(x + bw * 0.4, by); ctx.lineTo(x + bw * 0.4 + dw * 0.12, by - bh * 0.6 * ruin); ctx.lineTo(x + bw * 0.4 + dw * 0.88, by - bh * 0.6 * ruin); ctx.lineTo(x + bw * 0.4 + dw, by); ctx.closePath(); ctx.fill();
-   if (ruin === 1) { ctx.fillStyle = '#9aa197'; ctx.beginPath(); ctx.moveTo(x, top); ctx.lineTo(x + bw * 0.5, top - bh * 0.55); ctx.lineTo(x + bw, top); ctx.closePath(); ctx.fill(); }
-   if (age < 1 && ruin === 1) { ctx.save(); ctx.globalAlpha *= 1 - age; ctx.fillStyle = '#9a7b45'; ctx.beginPath(); ctx.moveTo(x - bw * 0.08, top + 2); ctx.lineTo(x + bw * 0.5, top - bh * 0.7); ctx.lineTo(x + bw * 1.08, top + 2); ctx.closePath(); ctx.fill(); ctx.strokeStyle = 'rgba(90,70,40,0.6)'; ctx.lineWidth = 1; for (let q = 1; q < 5; q++) { ctx.beginPath(); ctx.moveTo(x - bw * 0.08 + q * bw * 0.23, top + 2); ctx.lineTo(x + bw * 0.5, top - bh * 0.7); ctx.stroke(); } ctx.restore(); }
-   if (age > 0.6) { ctx.fillStyle = `rgba(110,140,80,${(age - 0.6) * 1.5})`; ctx.fillRect(x, by - 3, bw, 3); }
-   if (gl.walls) { ctx.strokeStyle = `rgba(212,172,100,${gl.walls})`; ctx.lineWidth = 2; ctx.strokeRect(x, top, bw, by - top); }
-   x += bw + s * R.range(0.015, 0.03); } });
-  // canal de abastecimiento: desde la ladera del pico hasta el sector urbano (bajando)
-  if ((o.canal ?? 0) > 0) { const pts = [[cx + s * 1.05, cy - s * 0.32], [cx + s * 0.8, cy - s * 0.25], [cx + s * 0.55, cy - s * 0.22], [cx + s * 0.3, cy - s * 0.17]]; ctx.save(); ctx.globalAlpha *= o.canal; P.strokePath(ctx, pts, 8, '#858d86'); ctx.setLineDash([10, 10]); ctx.lineDashOffset = -t * 40; P.strokePath(ctx, pts, 4, gl.water ? `rgba(122,230,242,${0.6 + 0.4 * gl.water})` : '#37b9d9'); ctx.restore(); }
+  const age = o.age ?? 1, gl = o.glow || {}, X = (u) => cx + u * s, Y = (v) => cy + v * s;
+  // plataformas [x0, x1, y, tipo] en unidades de s (y crece hacia abajo)
+  const P0 = [];
+  for (let i = 0; i < 16; i++) P0.push([-1.62 + i * 0.075, -1.62 + (i + 1) * 0.075, 1.02 - i * 0.068, 'agri']);
+  P0.push([-0.42, -0.25, -0.09, 'urb'], [-0.25, -0.1, -0.16, 'urb'], [-0.1, 0.04, -0.22, 'urb'], [0.04, 0.34, 0.03, 'plaza'], [0.34, 0.5, -0.05, 'urb'], [0.5, 0.67, -0.11, 'urb'], [0.67, 0.83, -0.05, 'urb'], [0.83, 0.98, 0.02, 'urb'], [0.98, 1.12, 0.1, 'urb']);
+  for (let i = 0; i < 8; i++) P0.push([1.12 + i * 0.075, 1.12 + (i + 1) * 0.075, 0.2 + i * 0.09, 'agri']);
+  const plats = P0.map(([a, b, y, k]) => ({ x0: X(a), x1: X(b), y: Y(y), kind: k }));
+  const ground = (x) => { for (const p of plats) if (x >= p.x0 && x <= p.x1) return p.y; return x < plats[0].x0 ? Y(1.3) : Y(1.2); };
+  // Huayna Picchu y Huchuy Picchu (detrás, más claros)
+  ctx.save(); const hg = ctx.createLinearGradient(0, Y(-1.35), 0, Y(0.4)); hg.addColorStop(0, '#6d8b78'); hg.addColorStop(1, '#4b6857'); ctx.fillStyle = hg; ctx.beginPath(); ctx.moveTo(X(-0.05), Y(0.6)); ctx.bezierCurveTo(X(0.18), Y(-0.2), X(0.3), Y(-1.2), X(0.56), Y(-1.33)); ctx.bezierCurveTo(X(0.82), Y(-1.25), X(0.98), Y(-0.4), X(1.35), Y(0.6)); ctx.closePath(); ctx.fill();
+  ctx.fillStyle = 'rgba(40,60,48,0.35)'; for (let k = 0; k < 5; k++) { ctx.beginPath(); ctx.moveTo(X(0.42 + k * 0.06), Y(-1.1 + k * 0.12)); ctx.lineTo(X(0.47 + k * 0.07), Y(-0.6 + k * 0.1)); ctx.lineTo(X(0.44 + k * 0.06), Y(-0.55 + k * 0.1)); ctx.closePath(); ctx.fill(); }
+  ctx.fillStyle = '#5a7a66'; ctx.beginPath(); ctx.moveTo(X(-0.2), Y(0.5)); ctx.quadraticCurveTo(X(0.05), Y(-0.38), X(0.2), Y(-0.36)); ctx.quadraticCurveTo(X(0.32), Y(-0.2), X(0.42), Y(0.5)); ctx.closePath(); ctx.fill(); ctx.restore();
+  P.fog(ctx, Y(-0.3), s * 0.5, t, { a: 0.35 * (o.fogA ?? 1), seed: 7, speed: 10 });
+  // masa del cerro (la cresta): su borde superior ES el perfil de las plataformas
+  ctx.save(); const mg = ctx.createLinearGradient(0, Y(-0.2), 0, Y(2)); mg.addColorStop(0, '#587348'); mg.addColorStop(0.5, '#3e5640'); mg.addColorStop(1, '#2a3b30'); ctx.fillStyle = mg; ctx.beginPath(); ctx.moveTo(X(-2.2), Y(3)); ctx.lineTo(X(-2.2), Y(1.45)); ctx.lineTo(plats[0].x0, Y(1.3)); for (const p of plats) { ctx.lineTo(p.x0, p.y); ctx.lineTo(p.x1, p.y); } ctx.lineTo(X(1.9), Y(1.15)); ctx.lineTo(X(2.4), Y(1.6)); ctx.lineTo(X(2.4), Y(3)); ctx.closePath(); ctx.fill();
+  // terrazas frontales que bajan por la ladera bajo la ciudad (muros de piedra + franja de cultivo), recortadas a la masa
+  ctx.save(); ctx.clip(); const Rf = H.rng(91), rows = o.frontRows ?? 5; for (let r = 0; r < rows; r++) { const yy = Y(0.24 + r * 0.16), hw = s * 0.024; let xa = X(-1.45 + Rf() * 0.3);
+   while (xa < X(1.7)) { const xb = Math.min(X(1.75), xa + s * Rf.range(0.3, 0.62)), dy = s * Rf.range(-0.02, 0.02);
+    ctx.fillStyle = 'rgba(30,45,34,0.35)'; ctx.fillRect(xa, yy + dy + hw, xb - xa, s * 0.012);
+    P.granite(ctx, [[xa, yy + dy], [xb, yy + dy], [xb, yy + dy + hw], [xa, yy + dy + hw]], { seed: 300 + r * 9 + Math.round(xa), c1: '#9aa096', c2: '#6c736c', joint: 1, bevel: false });
+    ctx.fillStyle = r % 2 ? '#6f8f58' : '#678a52'; ctx.fillRect(xa, yy + dy - s * 0.01, xb - xa, s * 0.01);
+    xa = xb + s * Rf.range(0.18, 0.4); } }
+  ctx.restore();
+  const R0 = H.rng(17); for (let i = 0; i < 26; i++) { const u = R0.range(-1.6, 1.8), x = X(u), y = ground(x) + s * R0.range(0.25, 1.1); ctx.fillStyle = 'rgba(133,141,134,0.35)'; ctx.beginPath(); ctx.ellipse(x, y, s * R0.range(0.03, 0.08), s * R0.range(0.015, 0.035), -0.3, 0, TAU); ctx.fill(); } ctx.restore();
+  // muros de contención (frentes de cada desnivel) y superficies superiores con espesor
+  const d = s * 0.022; plats.forEach((p, i) => {
+   const below = i === 0 ? Y(1.3) : Math.max(plats[i - 1].y, p.y); const prev = plats[i - 1]; const wallH = (prev ? Math.max(0, prev.y - p.y) : 0);
+   // superficie (franja con profundidad aparente)
+   ctx.fillStyle = p.kind === 'plaza' ? '#7fa060' : p.kind === 'agri' ? (age < 0.5 ? '#87a46b' : '#7fa060') : (age > 0.6 ? '#8aa86e' : '#a89a7c'); ctx.fillRect(p.x0, p.y - d * 0.9, p.x1 - p.x0, d * 0.9);
+   // muro hacia la izquierda (cuando la plataforma está más alta que la anterior)
+   if (prev && prev.y > p.y) { const wx = p.x0 - (p.kind === 'agri' ? s * 0.012 : s * 0.018); const pts = [[wx, p.y - d * 0.9], [p.x0 + s * 0.004, p.y - d * 0.9], [p.x0 + s * 0.004, prev.y], [wx - s * 0.006, prev.y]]; P.granite(ctx, pts, { seed: i * 7 + 3, c1: '#b8bdb2', c2: '#7c847d', joint: 1 }); if (gl.walls) { ctx.strokeStyle = `rgba(212,172,100,${gl.walls})`; ctx.lineWidth = 3; ctx.strokeRect(wx, p.y - d, p.x0 - wx, prev.y - p.y + d); } }
+   // muro hacia la derecha (plataforma más alta que la siguiente)
+   const nx = plats[i + 1]; if (nx && nx.y > p.y) { const pts = [[p.x1 - s * 0.004, p.y - d * 0.9], [p.x1 + s * 0.014, p.y - d * 0.9], [p.x1 + s * 0.02, nx.y], [p.x1 - s * 0.004, nx.y]]; P.granite(ctx, pts, { seed: i * 11 + 5, c1: '#a9aea4', c2: '#6f766f', joint: 1 }); if (gl.walls) { ctx.strokeStyle = `rgba(212,172,100,${gl.walls})`; ctx.lineWidth = 3; ctx.strokeRect(p.x1 - 2, p.y - d, s * 0.02, nx.y - p.y + d); } }
+   // drenaje bajo la superficie (resaltado)
+   if (gl.drain) { ctx.save(); ctx.setLineDash([8, 8]); ctx.lineDashOffset = -t * 30; ctx.strokeStyle = `rgba(55,185,217,${gl.drain})`; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(p.x0 + 6, p.y + s * 0.03); ctx.lineTo(p.x1 - 6, p.y + s * 0.03); ctx.stroke(); ctx.restore(); }
+  });
+  // escalinatas entre la plaza y los sectores
+  ctx.save(); ctx.strokeStyle = 'rgba(220,214,190,0.8)'; ctx.lineWidth = 2; const st = (xa, ya, xb, yb) => { for (let k = 0; k <= 6; k++) { const u = k / 6, x = lerp(xa, xb, u), y = lerp(ya, yb, u); ctx.beginPath(); ctx.moveTo(x - s * 0.012, y); ctx.lineTo(x + s * 0.012, y); ctx.stroke(); } }; st(X(0.05), Y(0.05), X(0.0), Y(-0.06)); st(X(0.35), Y(0.05), X(0.39), Y(-0.02)); ctx.restore();
+  // edificios: apoyados en las plataformas urbanas (base = superficie de la plataforma)
+  const R = H.rng(o.seed || 21); const BACK = s * 0.04; for (const row of [0, 1]) plats.forEach((p, i) => { if (p.kind !== 'urb') return; const sc = row === 0 ? 0.85 : 1;
+   if (row === 0) { const bx0 = p.x0 + s * 0.01, bx1 = p.x1 - s * 0.01, by = p.y - d * 0.9 - BACK; P.granite(ctx, [[bx0, by], [bx1, by], [bx1, p.y - d * 0.9], [bx0, p.y - d * 0.9]], { seed: i * 5 + 1, c1: '#b2b7ac', c2: '#7c847d', joint: 1 }); ctx.fillStyle = age > 0.6 ? '#8aa86e' : '#a89a7c'; ctx.fillRect(bx0, by - d * 0.6, bx1 - bx0, d * 0.6); }
+   let x = p.x0 + s * (row === 0 ? 0.03 : 0.014); while (x < p.x1 - s * 0.05) { const bw = Math.min(s * R.range(0.05, 0.08) * sc, p.x1 - s * 0.014 - x), bh = s * R.range(0.06, 0.08) * sc, base = row === 0 ? p.y - d * 0.9 - BACK - d * 0.3 : p.y - d * 0.2; if (bw < s * 0.04) break; const ruin = age > 0.5 && R() < 0.3 ? R.range(0.55, 0.8) : 1, ht = bh * ruin, top = base - ht, dd = s * 0.02;
+    ctx.fillStyle = 'rgba(20,30,25,0.35)'; ctx.fillRect(x - 2, base - 2, bw + dd + 4, 5); // sombra de contacto
+    P.granite(ctx, [[x + bw, top], [x + bw + dd, top - dd * 0.55], [x + bw + dd, base - dd * 0.55], [x + bw, base]], { seed: Math.round(x) + 1, c1: '#8f968e', c2: '#656d66', bevel: false });
+    P.granite(ctx, [[x, top], [x + bw, top], [x + bw, base], [x, base]], { seed: Math.round(x + base), c1: '#c8c4b0', c2: '#9a9a8c', joint: 1 });
+    ctx.strokeStyle = 'rgba(60,62,55,0.35)'; ctx.lineWidth = 1; for (let k = 1; k < 4; k++) { ctx.beginPath(); ctx.moveTo(x, top + k * ht / 4); ctx.lineTo(x + bw, top + k * ht / 4); ctx.stroke(); }
+    const dw = bw * 0.2, dh = ht * 0.62; ctx.fillStyle = '#2c3530'; ctx.beginPath(); ctx.moveTo(x + bw * 0.4, base); ctx.lineTo(x + bw * 0.4 + dw * 0.14, base - dh); ctx.lineTo(x + bw * 0.4 + dw * 0.86, base - dh); ctx.lineTo(x + bw * 0.4 + dw, base); ctx.closePath(); ctx.fill(); if (ruin === 1 && bw > s * 0.1) { ctx.beginPath(); ctx.moveTo(x + bw * 0.12, top + ht * 0.55); ctx.lineTo(x + bw * 0.14, top + ht * 0.3); ctx.lineTo(x + bw * 0.22, top + ht * 0.3); ctx.lineTo(x + bw * 0.24, top + ht * 0.55); ctx.closePath(); ctx.fill(); }
+    if (ruin === 1) { P.granite(ctx, [[x + bw, top], [x + bw + dd * 0.5, top - bh * 0.5 - dd * 0.3], [x + bw + dd, top - dd * 0.55]], { seed: Math.round(x) + 9, c1: '#a9aea4', c2: '#7c847d', bevel: false }); }
+    if (age < 1 && ruin === 1) { ctx.save(); ctx.globalAlpha *= 1 - age; ctx.fillStyle = '#a07f48'; ctx.beginPath(); ctx.moveTo(x - s * 0.01, top + 1); ctx.lineTo(x + bw * 0.12, top - bh * 0.55); ctx.lineTo(x + bw + dd * 0.5, top - bh * 0.55 - dd * 0.3); ctx.lineTo(x + bw + dd + s * 0.006, top - dd * 0.55); ctx.lineTo(x + bw + s * 0.01, top + 1); ctx.closePath(); ctx.fill(); ctx.strokeStyle = 'rgba(90,66,32,0.55)'; for (let q = 1; q < 7; q++) { ctx.beginPath(); ctx.moveTo(x + q * bw / 7, top + 1); ctx.lineTo(x + bw * 0.12 + q * (bw * 0.88 + dd * 0.5) / 7, top - bh * 0.55); ctx.stroke(); } ctx.restore(); }
+    if (age > 0.6) { ctx.fillStyle = `rgba(110,140,80,${(age - 0.6) * 1.5})`; ctx.fillRect(x, base - 3, bw, 3); }
+    if (gl.walls) { ctx.strokeStyle = `rgba(212,172,100,${gl.walls})`; ctx.lineWidth = 2; ctx.strokeRect(x, top, bw, base - top); }
+    x += bw + dd + s * R.range(0.012, 0.025); } });
+  // árboles y arbustos en las laderas (vegetación moderada)
+  const Rt = H.rng(55); for (let i = 0; i < 22; i++) { const u = Rt() < 0.5 ? Rt.range(-1.6, -0.5) : Rt.range(1.15, 1.75), x = X(u), y = ground(x) + s * Rt.range(0.12, 0.6); ctx.fillStyle = Rt() < 0.5 ? '#3d5a3f' : '#4f6e48'; ctx.beginPath(); ctx.arc(x, y, s * Rt.range(0.02, 0.04), 0, TAU); ctx.arc(x + s * 0.025, y + s * 0.01, s * Rt.range(0.018, 0.03), 0, TAU); ctx.fill(); }
+  // canal de abastecimiento: desde la ladera de la derecha, bajando suavemente hasta el sector urbano (y fuentes)
+  if ((o.canal ?? 0) > 0) { const pts = [[X(-0.11), Y(-0.235) - d * 0.5], [X(0.035), Y(-0.235) - d * 0.5], [X(0.05), Y(-0.12)], [X(0.065), Y(0.0)], [X(0.07), Y(0.03) - d * 0.5], [X(0.2), Y(0.03) - d * 0.5]]; ctx.save(); ctx.globalAlpha *= o.canal; P.strokePath(ctx, pts, 9, '#858d86'); ctx.setLineDash([10, 10]); ctx.lineDashOffset = -t * 40; P.strokePath(ctx, pts, 4, gl.water ? `rgba(122,230,242,${0.6 + 0.4 * gl.water})` : '#37b9d9'); ctx.setLineDash([]); for (let k = 0; k < 4; k++) { const y = lerp(Y(-0.2), Y(0.0), k / 3), x = lerp(X(0.04), X(0.065), k / 3); P.circle(ctx, x + s * 0.02, y, s * 0.012, '#7AE6F2'); } ctx.restore(); }
+  return { plats, ground };
  };
-
  // ---------------- SUBTÍTULOS (arriba, palabra a palabra, palabra clave seleccionada) ----------------
  // Trozos de ≤3 palabras (≤4 si son cortas); las palabras aparecen al decirse: la actual en blanco y negrita,
  // las ya dichas en gris; la palabra clave lleva recuadro de selección con asas en el color de acento.

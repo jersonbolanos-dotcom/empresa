@@ -84,3 +84,23 @@
 - **Bloques:** `andes`, `fog`, `rainSheet`, `granite`, `stoneWall`, `terraces`, `terraceCut`, `channel`, `incaFountain` y `citadel`.
 - **FX:** `lluviaFuerte`, `golpePiedra`, `abrasion`, `encaje`, `arroyo` y `tiempo`.
 - **SUPERPROMPT:** reglas 13–16 (revelar lo oculto, antes y después en la misma toma, sistemas parecidos separados, cuantificadores honestos).
+
+## Corrección final (versión FINAL)
+
+- **Geometría:** en V1, algunos recintos quedaban flotando o sobresalían del perfil del cerro. Ahora la ciudadela se construye desde las plataformas: el perfil del cerro se dibuja a partir de ellas y cada edificio se apoya en una plataforma (la fila trasera, sobre un escalón de granito), con sombra de contacto. El pico del fondo, inspirado en Huayna Picchu, va separado, más claro y sin construcciones.
+- **Rasgos reconocibles:**
+  - Sector agrícola con andenes a la izquierda.
+  - Sector urbano en varios niveles.
+  - Plaza más baja.
+  - Escalinatas.
+  - Muros de contención de granito gris.
+  - Recintos rectangulares con puertas trapezoidales y hastiales.
+  - Techos de paja solo en la reconstrucción.
+  - Terrazas que bajan por la ladera.
+- **Ingeniería:**
+  - El corte de la terraza mantiene el orden de las capas (suelo, arena, grava, piedras) e indica que no todas las terrazas eran iguales.
+  - El canal baja siempre hasta la plaza.
+  - Las 6 fuentes ilustradas (de las 16) están unidas por tramos de canal.
+- **Texto:** las notas tienen al menos 32 px, se parten en dos líneas y se subieron por encima de la franja de subtítulos.
+- **Sin cambios:** voz (mismo md5), guion, duración, orden, subtítulos e identidad.
+

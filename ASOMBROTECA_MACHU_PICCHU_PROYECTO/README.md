@@ -1,7 +1,9 @@
 # ASOMBROTECA · ¿Cómo construyeron Machu Picchu en lo alto de los Andes?
 
-- **Video:** `07_OUTPUT/ASOMBROTECA_MACHU_PICCHU_V1.mp4` (1080×1920, 30 fps, 117,4 s, 81,5 MB). Miniatura en `07_OUTPUT/miniatura.jpg`.
-- **Base:** `PLANTILLA_ASOMBROTECA` v1.12. Este episodio añadió los bloques de montaña, mampostería, terrazas, drenaje y agua, 6 FX y 4 reglas nuevas del SUPERPROMPT.
+- **Video final:** `07_OUTPUT/ASOMBROTECA_MACHU_PICCHU_FINAL.mp4` (1080×1920, 30 fps, 117,4 s, 82,0 MB). Miniatura en `07_OUTPUT/miniatura.jpg`.
+- **Respaldo V1:** `07_OUTPUT/V1/`, `05_AUDIO/V1/`, `07_QC/V1/` y `04_CODIGO/V1_respaldo/episodio_v1.js`.
+- **Corrección final:** se rediseñó la ciudadela (`citadel` v1.12.1) para que todas las construcciones se apoyen en plataformas. Se añadieron muros de contención, terrazas en la ladera y un pico de fondo sin edificios. Los trabajadores se colocan sobre las plataformas reales. Las fuentes se conectan con el canal. Las notas tienen al menos 32 px y se parten en dos líneas en lugar de achicarse.
+- **Base:** `PLANTILLA_ASOMBROTECA` v1.12.1. Este episodio añadió los bloques de montaña, mampostería, terrazas, drenaje y agua, 6 FX y 4 reglas nuevas del SUPERPROMPT.
 - **Arco (24 beats):**
   1. Ciudadela entre la niebla (≈ 2.430 m).
   2. Montañas y lluvia.

@@ -44,17 +44,23 @@
 
  // ---------------- utilidades ----------------
  const pill = (ctx, s, x, y, px, t, t0, bg, fg, t1) => { const a = t1 ? 1 - sm(t1 - 0.25, t1, t) : 1; if (a <= 0 || t < t0) return; ctx.save(); ctx.globalAlpha *= a; P.pill(ctx, s, x, y, px, t, t0, { bg, fg }); ctx.restore(); };
- const tag = (ctx, s, x, y, px, a, c = 'rgba(244,247,243,0.98)') => { if (a <= 0.01) return; px = Math.max(px, 22); ctx.save(); ctx.globalAlpha = a; ctx.font = `600 ${px}px "IBM Plex Mono"`; let w = ctx.measureText(s).width + px * 1.2; if (w > 1020) { px *= 1000 / w; ctx.font = `600 ${px}px "IBM Plex Mono"`; w = ctx.measureText(s).width + px * 1.2; } P.rr(ctx, x - w / 2, y - px * 0.85, w, px * 1.7, px * 0.85, 'rgba(17,26,25,0.75)'); ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillStyle = c; ctx.fillText(s, x, y + 1); ctx.restore(); };
+ const tag = (ctx, s, x, y, px, a, c = 'rgba(244,247,243,0.98)') => { if (a <= 0.01) return; px = Math.max(px, 32); ctx.save(); ctx.globalAlpha = a; ctx.font = `600 ${px}px "IBM Plex Mono"`; let L = [s];
+  if (ctx.measureText(s).width + px * 1.2 > 1000) { const m = s.length / 2; let k = -1; for (let i = 0; i < s.length; i++) if (s[i] === ' ' && (k < 0 || Math.abs(i - m) < Math.abs(k - m))) k = i; if (k > 0) L = [s.slice(0, k), s.slice(k + 1)]; }
+  const lw = Math.max(...L.map((l) => ctx.measureText(l).width)); if (lw + px * 1.2 > 1020) { px *= 1000 / (lw + px * 1.2); ctx.font = `600 ${px}px "IBM Plex Mono"`; }
+  const w = Math.max(...L.map((l) => ctx.measureText(l).width)) + px * 1.2, lh = px * 1.25, h = px * 0.45 + lh * L.length, x0 = Math.min(Math.max(x - w / 2, 30), 1050 - w);
+  P.rr(ctx, x0, y - h / 2, w, h, px * 0.6, 'rgba(17,26,25,0.78)'); ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillStyle = c; L.forEach((l, i) => ctx.fillText(l, x0 + w / 2, y + 1 + (i - (L.length - 1) / 2) * lh)); ctx.restore(); };
  const txt = (ctx, s, x, y, px, c, o = {}) => { ctx.save(); ctx.font = `${o.w || 800} ${px}px ${o.f || 'Nunito'}`; ctx.textAlign = o.al || 'center'; ctx.textBaseline = 'middle'; ctx.fillStyle = c; ctx.shadowColor = 'rgba(0,0,0,0.85)'; ctx.shadowBlur = 8; ctx.fillText(s, x, y); ctx.restore(); };
- const callout = (ctx, x0, y0, x1, y1, s, a, c = C.blanco, al = 'left') => { if (a <= 0.01) return; ctx.save(); ctx.globalAlpha = a; ctx.strokeStyle = c; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(x1, y1); ctx.stroke(); ctx.fillStyle = c; ctx.beginPath(); ctx.arc(x0, y0, 7, 0, TAU); ctx.fill(); ctx.restore(); ctx.save(); ctx.globalAlpha = a; txt(ctx, s, x1 + (al === 'left' ? 10 : -10), y1, 30, c, { al }); ctx.restore(); };
+ const callout = (ctx, x0, y0, x1, y1, s, a, c = C.blanco, al = 'left') => { if (a <= 0.01) return; ctx.save(); ctx.globalAlpha = a; ctx.strokeStyle = c; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(x1, y1); ctx.stroke(); ctx.fillStyle = c; ctx.beginPath(); ctx.arc(x0, y0, 7, 0, TAU); ctx.fill(); ctx.restore(); ctx.save(); ctx.globalAlpha = a; txt(ctx, s, x1 + (al === 'left' ? 10 : -10), y1, 34, c, { al }); ctx.restore(); };
  const scrim = (ctx) => { const g = ctx.createLinearGradient(0, 1400, 0, 1760); g.addColorStop(0, 'rgba(17,26,25,0)'); g.addColorStop(0.5, 'rgba(17,26,25,0.65)'); g.addColorStop(1, 'rgba(17,26,25,0.65)'); ctx.fillStyle = g; ctx.fillRect(0, 1400, W, 520); };
  const worker = (ctx, x, y, h, ph, pose = 'walk') => P.worker(ctx, x, y, h, ph, { pose, c: '#6b4428', cloth: '#b5452b' });
  // paisaje + ciudadela (vista aérea) compartidos por gancho, sistemas, siglos y final
  function aerial(ctx, t, o = {}) {
   P.andes(ctx, t, { sun: o.sun || [820, 330], peaks: [760, 260, 900], sky: o.sky });
   P.fog(ctx, 760, 300, t, { a: 0.55 * (o.fogA ?? 1), seed: 1 });
-  P.citadel(ctx, o.cx ?? 470, o.cy ?? 980, o.s ?? 470, t, { age: o.age ?? 1, canal: o.canal ?? 0, glow: o.glow || {} });
-  P.fog(ctx, 1060, 360, t * 1.3, { a: 0.65 * (o.fogA ?? 1), seed: 3, speed: 24 });
+  const g = P.citadel(ctx, o.cx ?? 470, o.cy ?? 980, o.s ?? 470, t, { age: o.age ?? 1, canal: o.canal ?? 0, glow: o.glow || {}, fogA: o.fogA });
+  if (o.onCity) o.onCity(g);
+  P.fog(ctx, 1150, 360, t * 1.3, { a: 0.65 * (o.fogA ?? 1), seed: 3, speed: 24 });
+  return g;
  }
  // iconos de maquinaria moderna (para tachar)
  const crane = (ctx, x, y, s) => { ctx.save(); ctx.strokeStyle = '#f0b90b'; ctx.lineWidth = s * 0.06; ctx.lineCap = 'round'; ctx.beginPath(); ctx.moveTo(x - s * 0.2, y + s * 0.5); ctx.lineTo(x - s * 0.2, y - s * 0.5); ctx.lineTo(x + s * 0.55, y - s * 0.5); ctx.moveTo(x + s * 0.4, y - s * 0.5); ctx.lineTo(x + s * 0.4, y - s * 0.1); ctx.stroke(); ctx.restore(); };
@@ -86,17 +92,17 @@
   pill(ctx, 'MONTAÑAS', 260, 330, 36, t, T.montanas, C.blanco, C.fondo);
   pill(ctx, 'PENDIENTES', 540, 410, 36, t, T.pendientes, C.blanco, C.fondo);
   pill(ctx, 'LLUVIA', 820, 330, 36, t, T.lluvias, C.agua, C.fondo);
-  tag(ctx, 'casi 2.000 mm de lluvia al año', 540, 1400, 24, sm(T.intensas, T.intensas + 0.4, t));
+  tag(ctx, 'casi 2.000 mm de lluvia al año', 540, 1365, 24, sm(T.intensas, T.intensas + 0.4, t));
   scrim(ctx);
  }, sfx(k) { FX.viento(k, TB.terreno0, TB.como - TB.terreno0, 1); FX.etiqueta(k, T.montanas); FX.etiqueta(k, T.pendientes); FX.lluviaFuerte(k, T.lluvias - 0.3, TB.como - T.lluvias + 1, 1); k.play('thud', T.intensas, { f: 50, gain: 0.25 }); } });
  // 3 · ¿cómo sin excavadoras, grúas ni maquinaria? → del presente a la reconstrucción del siglo XV
  B.push({ t0: TB.como, t1: TB.oculta, in: { type: 'cut' }, draw(ctx, t) {
   const age = 1 - sm(T.maquinaria + 0.2, T.moderna + 0.9, t);
-  ctx.save(); P.camApply(ctx, [520, 900, 1.15]); aerial(ctx, t, { age, cx: 470, cy: 980 }); if (age < 1) { const R = H.rng(8); for (let i = 0; i < 10; i++) { const x = 420 + R() * 380, y = 920 + R() * 40; ctx.save(); ctx.globalAlpha = 1 - age; worker(ctx, x, y, 34, t * 0.5 + R(), R() < 0.5 ? 'walk' : 'pull'); ctx.restore(); } } ctx.restore();
+  ctx.save(); P.camApply(ctx, [520, 900, 1.15]); aerial(ctx, t, { age, cx: 470, cy: 980, onCity: (g) => { if (age >= 1) return; const R = H.rng(8); g.plats.filter((p) => p.kind !== 'agri').forEach((p) => { const n = p.kind === 'plaza' ? 4 : 1; for (let i = 0; i < n; i++) { const x = lerp(p.x0 + 12, p.x1 - 12, R()); ctx.save(); ctx.globalAlpha = 1 - age; worker(ctx, x, p.y - 4, 30, t * 0.5 + R(), R() < 0.5 ? 'walk' : 'pull'); ctx.restore(); } }); } }); ctx.restore();
   const ia = sm(T.sin2 - 0.1, T.sin2 + 0.2, t) * (1 - sm(T.moderna + 0.2, T.moderna + 0.6, t));
   if (ia > 0) { ctx.save(); ctx.globalAlpha = ia; [[270, excav, T.excavadoras], [540, crane, T.gruas], [810, (c, x, y, s) => gear(c, x, y, s, t), T.maquinaria]].forEach(([x, fn, tt]) => { P.circle(ctx, x, 560, 95, 'rgba(244,247,243,0.92)'); fn(ctx, x, 560, 120); if (t > tt) P.cross(ctx, x, 560, 150, E.out(win(t, tt, tt + 0.3)), C.rojo); }); ctx.restore(); }
   pill(ctx, '¿CÓMO LO HICIERON?', 540, 330, 50, t, T.como2, C.oro, C.fondo);
-  tag(ctx, 'reconstrucción conceptual · siglo XV', 540, 1400, 24, sm(T.moderna + 0.3, T.moderna + 0.8, t));
+  tag(ctx, 'reconstrucción conceptual · siglo XV', 540, 1365, 24, sm(T.moderna + 0.3, T.moderna + 0.8, t));
   scrim(ctx);
  }, sfx(k) { FX.onomatopeya(k, T.como2); [T.excavadoras, T.gruas, T.maquinaria].forEach((x) => FX.tachado(k, x)); FX.tiempo(k, T.maquinaria + 0.2, 1.6, 1); FX.viento(k, TB.como, TB.oculta - TB.como, 0.6); } });
  // 4 · ingeniería bajo la piedra: el terreno se vuelve transparente y aparecen las capas
@@ -135,7 +141,7 @@
   const ac = sm(T.acumulaciones - 0.2, T.agua6 + 0.4, t); if (ac > 0) P.waterBody(ctx, [[-40, 1450 - 40 * ac], [260, 1450 - 40 * ac], [260, slopeY(260)], [-40, 1450]], t, { a: ac, top: 1400 });
   pill(ctx, 'DESLIZAMIENTOS', 540, 330, 42, t, T.deslizamientos, C.rojo, C.blanco, T.acumulaciones + 0.6);
   pill(ctx, 'AGUA + PENDIENTE = RIESGO', 540, 330, 42, t, T.acumulaciones + 0.6, C.oro, C.fondo);
-  tag(ctx, 'ilustración conceptual de un riesgo, no de Machu Picchu', 540, 1410, 22, sm(T.deslizamientos, T.deslizamientos + 0.4, t));
+  tag(ctx, 'ilustración conceptual de un riesgo, no de Machu Picchu', 540, 1365, 22, sm(T.deslizamientos, T.deslizamientos + 0.4, t));
   scrim(ctx);
  }, sfx(k) { FX.lluviaFuerte(k, TB.riesgo, TB.terrazas - TB.riesgo, 1); FX.goteo(k, T.construir6, 8, 0.25); k.noise(T.deslizamientos, { dur: 1.4, color: 'brown', filter: 'lowpass', f: [[0, 600], [1.4, 150]], gain: 0.25, a: 0.05 }); FX.alarma(k, T.deslizamientos + 0.2, 2); FX.agua(k, T.acumulaciones, 1.5); FX.sello(k, T.acumulaciones + 0.6); } });
  // 7 · prepararon el terreno y levantaron terrazas escalonadas (construcción progresiva con trabajadores)
@@ -170,7 +176,8 @@
   P.terraceCut(ctx, 80, 560, 900, 760, t, { reveal: sm(T.interior - 0.4, T.capas + 1.2, t), labels: sm(T.capas - 0.2, T.materiales9 + 0.6, t), water: sm(T.drenar - 0.3, T.drenar + 0.3, t) });
   pill(ctx, 'CAPAS POR DENTRO', 540, 330, 42, t, T.interior, C.blanco, C.fondo, T.drenar);
   pill(ctx, 'DRENAJE INTERNO', 540, 330, 48, t, T.drenar, C.agua, C.fondo);
-  tag(ctx, 'de grueso (abajo) a fino (arriba): el agua baja y sale', 540, 1405, 22, sm(T.estabilizar, T.estabilizar + 0.4, t));
+  tag(ctx, 'de grueso (abajo) a fino (arriba): el agua baja y sale', 540, 1365, 26, sm(T.estabilizar, T.estabilizar + 0.4, t));
+  tag(ctx, 'reconstrucción típica: no todas las terrazas eran iguales', 540, 470, 24, sm(T.capas, T.capas + 0.4, t));
   scrim(ctx);
  }, sfx(k) { FX.revelar(k, TB.capas + 0.1); LAB.forEach((_, k2) => FX.etiqueta(k, T.capas + k2 * 0.35)); FX.goteo(k, T.drenar, 8, 0.2); FX.sello(k, T.drenar); FX.arroyo(k, T.drenar + 0.5, TB.drena - T.drenar, 0.6); } });
  B.push({ t0: TB.drena, t1: TB.piedra, in: { type: 'cut' }, draw(ctx, t) {
@@ -178,7 +185,7 @@
   P.terraceCut(ctx, 80, 560, 900, 760, t, { water: 1, labels: 1 - sm(TB.drena, TB.drena + 0.6, t) }); P.rainSheet(ctx, t, { a: ra, n: 220, h: 560 });
   callout(ctx, 150, 1225, 330, 1400, 'EL AGUA SALE AL PIE DEL MURO', sm(TB.drena + 0.4, TB.drena + 0.8, t), '#7AE6F2');
   pill(ctx, 'EL AGUA PUEDE DRENAR', 540, 330, 44, t, TB.drena + 0.2, C.agua, C.fondo);
-  tag(ctx, 'reduce el riesgo; no lo elimina por completo', 540, 1405, 22, sm(T.construcciones10, T.construcciones10 + 0.4, t));
+  tag(ctx, 'reduce el riesgo; no lo elimina por completo', 540, 1365, 22, sm(T.construcciones10, T.construcciones10 + 0.4, t));
   scrim(ctx);
  }, sfx(k) { FX.lluviaFuerte(k, T.lluvias10 - 0.3, TB.piedra - T.lluvias10 + 0.3, 0.9); FX.arroyo(k, TB.drena, TB.piedra - TB.drena, 1); FX.correcto(k, T.construcciones10); } });
  // 11 · el desafío de la piedra: cantera de granito en el propio sitio
@@ -196,7 +203,7 @@
   for (let k = 0; k < 2; k++) worker(ctx, 150 + k * 90, 1300, 120, t * 0.5, 'chisel');
   pill(ctx, 'EL DESAFÍO DE LA PIEDRA', 540, 330, 42, t, T.desafio, C.oro, C.fondo);
   tag(ctx, 'granito de la propia montaña', 540, 430, 24, sm(T.bloques12, T.bloques12 + 0.4, t));
-  tag(ctx, 'reconstrucción conceptual del trabajo', 540, 1405, 22, sm(T.trabajar, T.trabajar + 0.4, t));
+  tag(ctx, 'reconstrucción conceptual del trabajo', 540, 1365, 22, sm(T.trabajar, T.trabajar + 0.4, t));
   scrim(ctx);
  }, sfx(k) { FX.viento(k, TB.piedra, TB.tallado - TB.piedra, 0.6); FX.sello(k, T.desafio); FX.golpePiedra(k, T.trabajar, 5, 0.5, 0.7); FX.arrastre(k, T.transportar - 0.3, TB.tallado - T.transportar + 0.3, 0.7, 600); FX.esfuerzo(k, T.transportar, 3, 0.9, 0.6); } });
  // 12 · percusión y abrasión: la forma del bloque cambia (de tosco a labrado)
@@ -211,7 +218,7 @@
   const aa = sm(T.abrasion - 0.2, T.abrasion + 0.2, t); if (aa > 0) { const ax = 520 + Math.sin(t * 5) * 140; ctx.save(); ctx.globalAlpha = aa; P.granite(ctx, [[ax - 70, 960], [ax + 70, 955], [ax + 74, 1010], [ax - 66, 1015]], { seed: 55, c1: '#b6aa8a', c2: '#7d725c' }); ctx.fillStyle = 'rgba(199,177,138,0.6)'; for (let k = 0; k < 20; k++) ctx.fillRect(ax - 90 + k * 9, 1020 + (k % 3) * 4, 3, 3); ctx.restore(); tag(ctx, 'abrasión: arena + agua', 540, 1260, 24, aa); }
   pill(ctx, 'HERRAMIENTAS DE PIEDRA', 540, 330, 40, t, T.herramientas, C.blanco, C.fondo, T.percusion);
   pill(ctx, 'PERCUSIÓN Y ABRASIÓN', 540, 330, 46, t, T.percusion, C.oro, C.fondo);
-  tag(ctx, 'el método exacto variaba según la piedra y el acabado', 540, 1405, 21, sm(T.forma, T.forma + 0.4, t));
+  tag(ctx, 'el método exacto variaba según la piedra y el acabado', 540, 1365, 21, sm(T.forma, T.forma + 0.4, t));
  }, sfx(k) { FX.revelar(k, TB.tallado + 0.1); FX.golpePiedra(k, T.herramientas, 9, 1 / 2.4, 1); FX.sello(k, T.percusion); FX.abrasion(k, T.abrasion, TB.cantera - T.abrasion, 1); } });
  // 13 · canteras cercanas: la cantera junto a los recintos, transporte corto a mano
  B.push({ t0: TB.cantera, t1: TB.encaje, in: { type: 'slide', d: 0.45 }, draw(ctx, t) {
@@ -221,7 +228,7 @@
   ctx.save(); ctx.setLineDash([12, 12]); ctx.strokeStyle = C.oro; ctx.lineWidth = 4; ctx.beginPath(); ctx.moveTo(330, 1130); ctx.quadraticCurveTo(500, 1180, 680, 1110); ctx.stroke(); ctx.restore(); tag(ctx, 'recorrido corto', 510, 1210, 22, sm(T.cercanas - 0.2, T.cercanas + 0.2, t));
   const p = ((t - TB.cantera) * 0.25) % 1, bx = lerp(340, 640, p); P.granite(ctx, [[bx - 50, 1100], [bx + 50, 1095], [bx + 55, 1160], [bx - 48, 1165]], { seed: 12 }); const hs = []; for (let k = 0; k < 3; k++) hs.push(worker(ctx, bx + 90 + k * 55, 1170, 95, t * 0.5 + k * 0.2, 'pull')); P.rope(ctx, [[bx + 55, 1130], ...hs], 3);
   pill(ctx, 'MATERIALES LOCALES', 540, 330, 46, t, T.canteras, C.oro, C.fondo);
-  tag(ctx, 'no sabemos cómo se movió cada bloque', 540, 1405, 22, sm(T.cercanas, T.cercanas + 0.4, t));
+  tag(ctx, 'no sabemos cómo se movió cada bloque', 540, 1365, 22, sm(T.cercanas, T.cercanas + 0.4, t));
   scrim(ctx);
  }, sfx(k) { FX.viento(k, TB.cantera, TB.encaje - TB.cantera, 0.5); FX.sello(k, T.canteras); FX.arrastre(k, TB.cantera, TB.encaje - TB.cantera, 0.6, 600); } });
  // 14 · piedras que encajan: un bloque baja y ocupa su hueco exacto (muro poligonal) · 15 · sin mortero
@@ -234,12 +241,12 @@
   const z = sm(T.precision - 0.2, T.extraordinaria + 0.6, t); if (z > 0) { const cx = hole[1][0], cy = hole[1][1]; ctx.save(); ctx.globalAlpha = z; P.lens(ctx, 820, 470, 150, 1, () => { ctx.save(); ctx.translate(820, 470); ctx.scale(4, 4); ctx.translate(-cx, -cy); P.stoneWall(ctx, WALL.x, WALL.y, WALL.w, WALL.h, { style: 'poligonal', cols: WALL.cols, rows: WALL.rows, seed: WALL.seed }); ctx.restore(); }); ctx.restore(); }
   pill(ctx, 'LO VERDADERAMENTE SORPRENDENTE', 540, 330, 36, t, T.y15 + 0.1, C.blanco, C.fondo, T.encajar);
   pill(ctx, 'PIEDRAS QUE ENCAJAN', 540, 330, 48, t, T.encajar, C.oro, C.fondo);
-  tag(ctx, 'solo en algunos muros (templos y recintos importantes)', 540, 1405, 21, sm(T.algunas, T.algunas + 0.4, t));
+  tag(ctx, 'solo en algunos muros (templos y recintos importantes)', 540, 1365, 21, sm(T.algunas, T.algunas + 0.4, t));
  }, sfx(k) { FX.revelar(k, TB.encaje + 0.1); k.play('sparkle', T.sorprendente, { gain: 0.35, n: 6 }); k.play('whoosh', T.talladas, { dur: 1.2, top: 700, gain: 0.3 }); FX.encaje(k, T.encajar + 0.4); FX.sello(k, T.precision); } });
  B.push({ t0: TB.mortero, t1: TB.agua, in: { type: 'cut' }, draw(ctx, t) {
   ctx.fillStyle = '#2a332f'; ctx.fillRect(0, 0, W, HH); P.glow(ctx, 540, 900, 700, '212,172,100', 0.15);
-  ctx.save(); ctx.beginPath(); ctx.rect(60, 450, 960, 520); ctx.clip(); ctx.translate(540, 710); ctx.scale(2.2, 2.2); ctx.translate(-540, -900); P.stoneWall(ctx, WALL.x, WALL.y, WALL.w, WALL.h, { style: 'poligonal', cols: WALL.cols, rows: WALL.rows, seed: WALL.seed }); ctx.restore(); ctx.strokeStyle = C.oro; ctx.lineWidth = 3; ctx.strokeRect(60, 450, 960, 520); txt(ctx, 'MAMPOSTERÍA FINA: piedra contra piedra', 540, 1010, 30, C.oro);
-  const ra = sm(T.mortero, T.mortero + 0.4, t); if (ra > 0) { ctx.save(); ctx.globalAlpha = ra; P.stoneWall(ctx, 60, 1080, 960, 260, { style: 'rustica', seed: 4, rows: 5 }); ctx.strokeStyle = C.blanco; ctx.lineWidth = 3; ctx.strokeRect(60, 1080, 960, 260); ctx.restore(); txt(ctx, 'otros muros: piedra de campo con barro', 540, 1380, 28, C.blanco, { w: 700 }); }
+  ctx.save(); ctx.beginPath(); ctx.rect(60, 450, 960, 520); ctx.clip(); ctx.translate(540, 710); ctx.scale(2.2, 2.2); ctx.translate(-540, -900); P.stoneWall(ctx, WALL.x, WALL.y, WALL.w, WALL.h, { style: 'poligonal', cols: WALL.cols, rows: WALL.rows, seed: WALL.seed }); ctx.restore(); ctx.strokeStyle = C.oro; ctx.lineWidth = 3; ctx.strokeRect(60, 450, 960, 520); txt(ctx, 'MAMPOSTERÍA FINA: piedra contra piedra', 540, 1015, 38, C.oro);
+  const ra = sm(T.mortero, T.mortero + 0.4, t); if (ra > 0) { ctx.save(); ctx.globalAlpha = ra; P.stoneWall(ctx, 60, 1080, 960, 260, { style: 'rustica', seed: 4, rows: 5 }); ctx.strokeStyle = C.blanco; ctx.lineWidth = 3; ctx.strokeRect(60, 1080, 960, 260); ctx.restore(); txt(ctx, 'otros muros: piedra de campo con barro', 540, 1385, 36, C.blanco, { w: 700 }); }
   pill(ctx, 'SIN MORTERO', 540, 330, 54, t, T.sin17, C.oro, C.fondo);
  }, sfx(k) { FX.sello(k, T.sin17); k.play('paper', T.mortero, { dur: 0.6, gain: 0.3 }); FX.etiqueta(k, T.juntas); } });
  // 16 · el agua: una gota se une a un hilo de agua · 17 · manantial → canal → 16 fuentes por gravedad
@@ -258,12 +265,12 @@
   // manantial
   P.circle(ctx, 1000, 400, 34, '#3c4a46'); P.glow(ctx, 1000, 400, 60, '122,230,242', 0.6); callout(ctx, 1000, 380, 860, 300, 'MANANTIAL', sm(T.manantiales - 0.3, T.manantiales, t), C.aguaL, 'right');
   P.channel(ctx, CAN, t, { fill: 1 });
-  const fa = sm(T.fuentes - 0.3, T.fuentes + 1.2, t); for (let i = 0; i < 6; i++) { const [fx, fy] = FOUNT(i); P.incaFountain(ctx, fx, fy, 92, t + i * 0.3, cl(fa * 6 - i)); }
+  const fa = sm(T.fuentes - 0.3, T.fuentes + 1.2, t); for (let i = 0; i < 5; i++) { const [ax, ay] = FOUNT(i), [bx, by] = FOUNT(i + 1); P.channel(ctx, [[ax + 40, ay + 22], [ax + 40, by - 70], [bx, by - 88]], t, { w: 12, fill: cl(fa * 6 - i - 0.5) }); } for (let i = 0; i < 6; i++) { const [fx, fy] = FOUNT(i); P.incaFountain(ctx, fx, fy, 92, t + i * 0.3, cl(fa * 6 - i)); }
   callout(ctx, 640, 640, 760, 760, 'CANAL ≈ 749 m', sm(T.canales, T.canales + 0.3, t), C.blanco); tag(ctx, 'pendiente ≈ 3 %: el agua baja sola', 760, 830, 22, sm(T.conducir, T.conducir + 0.3, t));
   callout(ctx, 330, 1150, 470, 1240, '16 FUENTES EN CASCADA', sm(T.fuentes, T.fuentes + 0.4, t), C.aguaL);
   pill(ctx, 'CANALES Y FUENTES', 540, 300, 44, t, T.canales, C.agua, C.fondo, T.manantiales);
   pill(ctx, 'AGUA POR GRAVEDAD', 540, 300, 48, t, T.manantiales, C.oro, C.fondo);
-  tag(ctx, 'ilustración: 6 de las 16 fuentes', 540, 1410, 22, sm(T.sectores, T.sectores + 0.4, t));
+  tag(ctx, 'ilustración: 6 de las 16 fuentes', 540, 1365, 22, sm(T.sectores, T.sectores + 0.4, t));
   scrim(ctx);
  }, sfx(k) { FX.arroyo(k, TB.canales, TB.sistemas - TB.canales, 1); FX.etiqueta(k, T.canales); for (let i = 0; i < 7; i++) FX.goteo(k, T.fuentes + i * 0.17, 2, 0.12, i + 3); FX.sello(k, T.manantiales); } });
  // 18 · tres sistemas integrados: muros/terrazas, drenaje (lluvia) y abastecimiento (manantial) — distintos
@@ -272,7 +279,7 @@
   ctx.save(); P.camApply(ctx, [560, 900, 1.25 + 0.04 * Math.sin(t * 0.3)]); aerial(ctx, t, { age: 1, canal: ga, glow: { walls: gw, drain: gd, water: ga }, fogA: 0.5 }); ctx.restore();
   [['ARQUITECTURA', C.dorado, T.arquitectura], ['DRENAJE', C.agua, T.drenaje21], ['AGUA', C.aguaL, T.abastecimiento]].forEach(([s, c, t0], i) => pill(ctx, s, 220 + i * 320, 330, 34, t, t0, c, C.fondo));
   for (let i = 0; i < 2; i++) if (t > [T.drenaje21, T.abastecimiento][i]) txt(ctx, '+', 380 + i * 320, 332, 40, C.blanco);
-  tag(ctx, 'drenaje (lluvia) y abastecimiento (manantial) son sistemas distintos', 540, 1405, 20, sm(T.entorno, T.entorno + 0.4, t));
+  tag(ctx, 'drenaje (lluvia) y abastecimiento (manantial) son sistemas distintos', 540, 1365, 20, sm(T.entorno, T.entorno + 0.4, t));
   scrim(ctx);
  }, sfx(k) { FX.viento(k, TB.sistemas, TB.siglos - TB.sistemas, 0.6); FX.etiqueta(k, T.arquitectura); FX.etiqueta(k, T.drenaje21); FX.etiqueta(k, T.abastecimiento); FX.arroyo(k, T.abastecimiento, 3, 0.5); FX.correcto(k, T.exigente); } });
  // 19 · cinco siglos después: la reconstrucción se transforma en el estado actual (misma toma)
@@ -280,7 +287,7 @@
   const age = E.inOut(win(t, T.increible - 0.3, T.siglos + 0.3));
   ctx.save(); P.camApply(ctx, [540, 920, 1.15]); aerial(ctx, t, { age, fogA: 0.7 }); ctx.restore();
   P.counter(ctx, 540, 330, 70, t, T.increible - 0.2, T.siglos + 0.3, 0, 500, { box: C.oro, c: C.fondo, prefix: '+ ', suffix: ' años' });
-  tag(ctx, 'muchas estructuras siguen en pie (con trabajos de conservación)', 540, 1405, 20, sm(T.sobrevivido, T.sobrevivido + 0.4, t));
+  tag(ctx, 'muchas estructuras siguen en pie (con trabajos de conservación)', 540, 1365, 20, sm(T.sobrevivido, T.sobrevivido + 0.4, t));
   scrim(ctx);
  }, sfx(k) { FX.tiempo(k, T.increible - 0.3, T.siglos - T.increible + 0.6, 1); FX.contador(k, T.increible - 0.2, T.siglos + 0.3, 0, 25); } });
  // 20 · revelación final: de la terraza a la ciudadela completa entre la niebla · 21 · Asombroteca
