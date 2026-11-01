@@ -10,6 +10,6 @@
 | Sonoridad | −14,1 LUFS integrados; pico verdadero −2,3 dBTP |
 | Voz | md5 idéntico al archivo subido (8396c583…): no se alteró, aceleró ni recortó |
 | Determinismo | `determinismo.txt`: md5 iguales en t = 5,3 / 17,9 / 41 en dos órdenes de búsqueda |
-| Retrocompatibilidad v1.7 | PENDIENTE |
+| Retrocompatibilidad v1.7 | Internet, GPS, Aire acondicionado y Microondas dan hashes idénticos a los de su QC original |
 | Revisión visual | 3 rondas de hojas de contacto antes del render. Se corrigieron: el desfase del corte técnico entre escena y rótulos, etiquetas cortadas en el borde derecho (rotor, álabes, barrera, río), el chorro del molino que no tocaba la rueda, el fondo del suelo en la escena del ciclo del agua, el icono de llama tapado y la legibilidad de los subtítulos sobre el río (franja oscura) |
 | Subtítulos | barra (blanco + barra amarilla), `06_SUBTITULOS/subtitulos.srt` (58 bloques) |
