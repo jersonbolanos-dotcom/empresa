@@ -1,0 +1,28 @@
+Tu celular puede saber exactamente dónde estás, incluso sin internet.
+¿Cómo es posible?
+La respuesta está a más de 20.000|veinte_mil kilómetros sobre tu cabeza.
+Allá arriba, decenas de satélites giran alrededor de la Tierra
+y envían constantemente señales de radio.
+Cada señal contiene dos datos importantes:
+dónde está el satélite
+y a qué hora envió el mensaje.
+Cuando tu celular recibe esa señal,
+calcula cuánto tiempo tardó en llegar.
+Y aquí está el truco.
+Como las señales viajan a la velocidad de la luz,
+ese tiempo permite calcular qué tan lejos está el satélite.
+Pero con uno solo no basta.
+Imagina que alguien te dice que estás a 10|diez kilómetros de su casa.
+Podrías estar en muchísimos lugares diferentes.
+Ahora imagina que otras tres personas también te dicen
+a qué distancia estás de sus casas.
+Al combinar esas distancias, puedes descubrir tu ubicación.
+Eso es precisamente lo que hace tu celular con los satélites.
+Normalmente, utiliza señales de al menos 4|cuatro
+para calcular tu posición
+y corregir pequeñas diferencias de tiempo.
+Y hay algo todavía más sorprendente.
+Los relojes de esos satélites necesitan correcciones basadas en la teoría de la relatividad de Einstein.
+Sin ellas, los errores de ubicación aumentarían rápidamente.
+Así que la próxima vez que abras el mapa de tu celular, recuerda que hay satélites a miles de kilómetros, ayudándote a encontrar el camino.
+Sigue a Asombroteca para más curiosidades.

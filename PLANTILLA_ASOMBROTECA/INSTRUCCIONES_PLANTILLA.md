@@ -131,6 +131,21 @@ La piel se elige con `skin: 'plana' | 'oscura'` en `PLANTILLA.make`. Los bloques
 | `airStreaks` | Trazadores de aire, en lugar de humo |
 | `fanAxial` y `fanCross` | Ventiladores axial y de flujo cruzado |
 
+**Añadidos en v1.5** (episodio del GPS):
+
+| Bloque | Uso |
+|---|---|
+| `phone` | Celular con pantalla programable |
+| `mapCity` | Mapa de ciudad visto desde arriba |
+| `pin` y `dot` | Pin de ubicación y punto azul pulsante |
+| `rangeCircle` | Círculo de distancia (trilateración) |
+| `globe` | Globo terrestre con continentes |
+| `satellite` | Satélite genérico |
+| `rings` | Ondas de radio, en anillo o dirigidas |
+| `clock` | Reloj analógico |
+
+Efectos `FX` de v1.5: `senal`, `datos`, `tictac` y `ubicacion`.
+
 Efectos `FX` de v1.4: `ventilador`, `compresion`, `expansion`, `goteo` y `calor`.
 
 Efectos `FX` añadidos: `pitido`, `zumbido`, `motor`, `campo`, `escala`, `revelar`, `puerta`, `fin`.

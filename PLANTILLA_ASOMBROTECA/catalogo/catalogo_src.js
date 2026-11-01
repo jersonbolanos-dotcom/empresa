@@ -21,6 +21,11 @@
   ['Trazadores de aire (v1.4)', (c, t) => { P.airStreaks(c, P.path([[20, 150], [200, 120], [380, 150]]), t, { n: 14, temp: 0.12, spread: 120, seed: 4 }); }],
   ['Ventilador axial (v1.4)', (c, t) => P.fanAxial(c, 200, 150, 120, t * 3)],
   ['Ventilador de flujo cruzado (v1.4)', (c, t) => P.fanCross(c, 50, 120, 300, 60, t * 4)],
+  ['Celular con pantalla (v1.5)', (c, t) => P.phone(c, 200, 150, 120, (x, y, w, h) => { P.mapCity(c, x, y, w, h, 3, { block: 30, street: 7 }); P.dot(c, x + w / 2, y + h / 2, 8, t); })],
+  ['Globo terrestre (v1.5)', (c, t) => P.globe(c, 200, 150, 110, t * 0.3)],
+  ['Satélite + ondas de radio (v1.5)', (c, t) => { P.satellite(c, 200, 110, 60, 0.2); P.rings(c, 200, 140, t, { r: 120, dir: Math.PI / 2, spread: 0.6 }); }],
+  ['Reloj analógico (v1.5)', (c, t) => P.clock(c, 200, 150, 100, 43200 + t * 60)],
+  ['Mapa, pin y rango (v1.5)', (c, t) => { P.mapCity(c, 0, 0, 400, 300, 5, { block: 60, street: 12 }); P.rangeCircle(c, 170, 150, 90, 1, '#2f80ed'); P.pin(c, 170, 150, 60); }],
   ['Brillo / luz (v1.2)', (c, t) => { P.glow(c, 140, 150, 120, '255,190,120', 0.9); P.glow(c, 270, 150, 90, '80,220,255', 0.9); }],
  ];
  window.drawCatalog = function () {

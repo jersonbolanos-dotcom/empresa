@@ -1,0 +1,170 @@
+[
+ {
+  "i": 0,
+  "s": 0.0,
+  "e": 4.071,
+  "text": "Tu celular puede saber exactamente dónde estás, incluso sin internet."
+ },
+ {
+  "i": 1,
+  "s": 4.424,
+  "e": 5.499,
+  "text": "¿Cómo es posible?"
+ },
+ {
+  "i": 2,
+  "s": 6.112,
+  "e": 9.812,
+  "text": "La respuesta está a más de 20.000 kilómetros sobre tu cabeza."
+ },
+ {
+  "i": 3,
+  "s": 10.191,
+  "e": 14.062,
+  "text": "Allá arriba, decenas de satélites giran alrededor de la Tierra."
+ },
+ {
+  "i": 4,
+  "s": 14.407,
+  "e": 16.753,
+  "text": "y envían constantemente señales de radio."
+ },
+ {
+  "i": 5,
+  "s": 17.746,
+  "e": 20.111,
+  "text": "Cada señal contiene dos datos importantes."
+ },
+ {
+  "i": 6,
+  "s": 20.449,
+  "e": 21.742,
+  "text": "¿Dónde está el satél"
+ },
+ {
+  "i": 7,
+  "s": 22.05,
+  "e": 23.726,
+  "text": "y a qué hora envió el mensaje."
+ },
+ {
+  "i": 8,
+  "s": 24.686,
+  "e": 26.775,
+  "text": "Cuando tu celular recibe esa señal."
+ },
+ {
+  "i": 9,
+  "s": 27.105,
+  "e": 29.05,
+  "text": "Calcula cuánto tiempo tardó en llegar."
+ },
+ {
+  "i": 10,
+  "s": 29.666,
+  "e": 30.808,
+  "text": "Y aquí está el truco"
+ },
+ {
+  "i": 11,
+  "s": 31.656,
+  "e": 34.055,
+  "text": "Como las señales viajan a la velocidad de la luz,"
+ },
+ {
+  "i": 12,
+  "s": 34.403,
+  "e": 37.891,
+  "text": "ese tiempo permite calcular qué tan lejos está el satélite."
+ },
+ {
+  "i": 13,
+  "s": 38.4,
+  "e": 39.982,
+  "text": "Pero con uno solo no basta."
+ },
+ {
+  "i": 14,
+  "s": 40.526,
+  "e": 44.059,
+  "text": "Imagina que alguien te dice que estás a 10 kilómetros de su casa."
+ },
+ {
+  "i": 15,
+  "s": 44.583,
+  "e": 47.125,
+  "text": "podrías estar en muchísimos lugares diferentes."
+ },
+ {
+  "i": 16,
+  "s": 47.781,
+  "e": 50.95,
+  "text": "Ahora imagina que otras tres personas también te dicen."
+ },
+ {
+  "i": 17,
+  "s": 51.253,
+  "e": 53.158,
+  "text": "¿A qué distancia estás de sus casas?"
+ },
+ {
+  "i": 18,
+  "s": 53.694,
+  "e": 57.153,
+  "text": "Al combinar esas distancias puedes descubrir tu ubicación."
+ },
+ {
+  "i": 19,
+  "s": 57.974,
+  "e": 61.541,
+  "text": "Eso es precisamente lo que hace tu celular con los satélites."
+ },
+ {
+  "i": 20,
+  "s": 62.386,
+  "e": 65.397,
+  "text": "Normalmente, utiliza señales de al menos 4."
+ },
+ {
+  "i": 21,
+  "s": 65.663,
+  "e": 67.0,
+  "text": "para calcular tu posición."
+ },
+ {
+  "i": 22,
+  "s": 67.312,
+  "e": 69.645,
+  "text": "y corregir pequeñas diferencias de tiempo."
+ },
+ {
+  "i": 23,
+  "s": 70.13,
+  "e": 72.617,
+  "text": "y hay algo todavía más sorprendente."
+ },
+ {
+  "i": 24,
+  "s": 73.24,
+  "e": 79.386,
+  "text": "Los relojes de esos satélites necesitan correcciones basadas en la teoría de la relatividad de Einstein."
+ },
+ {
+  "i": 25,
+  "s": 79.916,
+  "e": 83.993,
+  "text": "Sin ellas, los errores de ubicación aumentarían rápidamente."
+ },
+ {
+  "i": 26,
+  "s": 84.549,
+  "e": 92.475,
+  "text": "Así que la próxima vez que abras el mapa de tu celular, recuerda que hay satélites a miles de kilómetros, ayudándote a encontrar el camino."
+ },
+ {
+  "i": 27,
+  "s": 93.182,
+  "e": 95.629,
+  "text": "Sigue a Sombro Teca para más curiosidades."
+ }
+]

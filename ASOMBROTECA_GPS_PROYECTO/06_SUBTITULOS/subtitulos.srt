@@ -1,0 +1,254 @@
+1
+00:00:00,050 --> 00:00:01,453
+Tu celular puede saber
+
+2
+00:00:01,453 --> 00:00:02,990
+exactamente dónde estás,
+
+3
+00:00:02,990 --> 00:00:04,421
+incluso sin internet.
+
+4
+00:00:04,424 --> 00:00:05,849
+¿Cómo es posible?
+
+5
+00:00:06,112 --> 00:00:07,626
+La respuesta
+está a más de
+
+6
+00:00:07,626 --> 00:00:10,162
+20.000 kilómetros
+sobre tu cabeza.
+
+7
+00:00:10,191 --> 00:00:11,041
+Allá arriba,
+
+8
+00:00:11,041 --> 00:00:12,703
+decenas de
+satélites giran
+
+9
+00:00:12,703 --> 00:00:14,407
+alrededor de la Tierra
+
+10
+00:00:14,407 --> 00:00:15,815
+y envían constantemente
+
+11
+00:00:15,815 --> 00:00:17,103
+señales de radio.
+
+12
+00:00:17,746 --> 00:00:18,929
+Cada señal contiene
+
+13
+00:00:18,929 --> 00:00:20,449
+dos datos importantes:
+
+14
+00:00:20,449 --> 00:00:22,050
+dónde está el satélite
+
+15
+00:00:22,050 --> 00:00:22,812
+y a qué hora
+
+16
+00:00:22,812 --> 00:00:24,076
+envió el mensaje.
+
+17
+00:00:24,686 --> 00:00:27,105
+Cuando tu celular
+recibe esa señal,
+
+18
+00:00:27,105 --> 00:00:28,239
+calcula cuánto tiempo
+
+19
+00:00:28,239 --> 00:00:29,400
+tardó en llegar.
+
+20
+00:00:29,666 --> 00:00:31,158
+Y aquí está el truco.
+
+21
+00:00:31,656 --> 00:00:32,926
+Como las
+señales viajan a
+
+22
+00:00:32,926 --> 00:00:34,403
+la velocidad de la luz,
+
+23
+00:00:34,403 --> 00:00:36,217
+ese tiempo permite
+calcular qué
+
+24
+00:00:36,217 --> 00:00:38,241
+tan lejos está
+el satélite.
+
+25
+00:00:38,400 --> 00:00:40,332
+Pero con uno
+solo no basta.
+
+26
+00:00:40,526 --> 00:00:42,062
+Imagina que
+alguien te dice
+
+27
+00:00:42,062 --> 00:00:42,830
+que estás a 10
+
+28
+00:00:42,830 --> 00:00:44,409
+kilómetros de su casa.
+
+29
+00:00:44,583 --> 00:00:45,480
+Podrías estar en
+
+30
+00:00:45,480 --> 00:00:47,475
+muchísimos lugares
+diferentes.
+
+31
+00:00:47,781 --> 00:00:49,862
+Ahora imagina
+que otras tres
+
+32
+00:00:49,862 --> 00:00:51,253
+personas
+también te dicen
+
+33
+00:00:51,253 --> 00:00:52,465
+a qué distancia estás
+
+34
+00:00:52,465 --> 00:00:53,508
+de sus casas.
+
+35
+00:00:53,694 --> 00:00:55,511
+Al combinar
+esas distancias,
+
+36
+00:00:55,511 --> 00:00:57,503
+puedes descubrir
+tu ubicación.
+
+37
+00:00:57,974 --> 00:00:59,895
+Eso es precisamente
+lo que hace
+
+38
+00:00:59,895 --> 00:01:01,891
+tu celular con
+los satélites.
+
+39
+00:01:02,386 --> 00:01:04,599
+Normalmente,
+utiliza señales de
+
+40
+00:01:04,599 --> 00:01:05,663
+al menos 4
+
+41
+00:01:05,663 --> 00:01:07,312
+para calcular
+tu posición
+
+42
+00:01:07,312 --> 00:01:08,478
+y corregir pequeñas
+
+43
+00:01:08,478 --> 00:01:09,995
+diferencias de tiempo.
+
+44
+00:01:10,130 --> 00:01:12,967
+Y hay algo todavía
+más sorprendente.
+
+45
+00:01:13,240 --> 00:01:15,702
+Los relojes de esos
+satélites necesitan
+
+46
+00:01:15,702 --> 00:01:17,784
+correcciones
+basadas en la teoría
+
+47
+00:01:17,784 --> 00:01:19,736
+de la relatividad
+de Einstein.
+
+48
+00:01:19,916 --> 00:01:20,450
+Sin ellas,
+
+49
+00:01:20,450 --> 00:01:21,414
+los errores de
+
+50
+00:01:21,414 --> 00:01:24,343
+ubicación aumentarían
+rápidamente.
+
+51
+00:01:24,549 --> 00:01:25,937
+Así que la
+próxima vez que
+
+52
+00:01:25,937 --> 00:01:27,480
+abras el mapa
+de tu celular,
+
+53
+00:01:27,480 --> 00:01:29,094
+recuerda que
+hay satélites
+
+54
+00:01:29,094 --> 00:01:30,517
+a miles de kilómetros,
+
+55
+00:01:30,517 --> 00:01:32,825
+ayudándote a
+encontrar el camino.
+
+56
+00:01:33,182 --> 00:01:34,405
+Sigue a Asombroteca
+
+57
+00:01:34,405 --> 00:01:35,948
+para más curiosidades.
