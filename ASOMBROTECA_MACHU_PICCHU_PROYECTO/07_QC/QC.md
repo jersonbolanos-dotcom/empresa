@@ -10,7 +10,7 @@
 | Sonoridad | −14,4 LUFS integrados; LRA 2,2 LU; pico verdadero −2,1 dBTP |
 | Voz | md5 idéntico al archivo subido (ce273c63b4811a839cdc1ead43517d12): no se alteró, aceleró ni recortó |
 | Determinismo | `determinismo.txt` (dos ejecuciones idénticas) |
-| Retrocompatibilidad v1.12.1 | RETRO_PENDIENTE |
+| Retrocompatibilidad v1.12.1 | IGUAL en los 8 episodios anteriores (Andrómeda, Barco, Pirámides, Represa, Internet submarino, GPS, Aire acondicionado y Microondas), reconstruidos con la plantilla nueva |
 | Geometría de la ciudadela | Revisada fotograma a fotograma en todas las apariciones: gancho (0,6 / 2,5 / 4,5 / 6,5 s), altitud, «¿cómo lo hicieron?» (15,5 / 17,8 s), sistemas (93,5 / 95,5 / 98 s), regreso final (101–112 s) y cierre (114–117 s). Todos los recintos se apoyan en una plataforma; ninguno flota ni sobresale del cerro; el pico de fondo no tiene edificios |
 | Texto | Notas de 32 px como mínimo, partidas en dos líneas; ninguna invade la franja de subtítulos |
 | Subtítulos | barra (blanco + barra amarilla), sin cambios: `06_SUBTITULOS/subtitulos.srt` |
