@@ -3,10 +3,12 @@
 # con las frases/pausas del guion; 2) pausas menores (-36 dB, >=0.09 s) se encajan en el límite de palabra más
 # cercano; 3) dentro de cada sub-tramo el tiempo se reparte por sílabas habladas.
 # Precisión esperada: límites de frase ~±0.05 s; palabras interiores ~±0.25 s.
-# Uso: python3 -I alinear.py sil_mayor.txt sil_menor.txt DURACION salida.json
+# Uso: python3 -I alinear.py sil_mayor.txt sil_menor.txt DURACION salida.json [tramos.txt]
+# tramos.txt (opcional): una línea por tramo de voz, en el orden de la voz; cifras con forma hablada «1963|mil_novecientos_sesenta_y_tres».
 import json, re, sys
 
 MAJOR, MINOR, DUR, OUT = sys.argv[1], sys.argv[2], float(sys.argv[3]), sys.argv[4]
+TRAMOS = sys.argv[5] if len(sys.argv) > 5 else None
 
 # (texto mostrado, forma hablada para contar sílabas). Una entrada por tramo de voz.
 SEGS = [
@@ -28,6 +30,9 @@ SEGS = [
     "Asombroteca.",
     "La ciencia oculta de lo imposible.",
 ]
+
+if TRAMOS:
+    SEGS = [l.strip() for l in open(TRAMOS, encoding='utf-8') if l.strip() and not l.startswith('#')]
 
 def syl(w):
     w = w.lower().replace("_", " ")
@@ -106,7 +111,7 @@ for si, ((a, b), seg) in enumerate(zip(speech, SEGS)):
     for i, (shown, spoken) in enumerate(ws):
         result.append({"w": shown, "s": round(times[i], 3), "e": round(times[i + 1], 3), "seg": si})
 
-segs = [{"i": i, "s": round(a, 3), "e": round(b, 3), "text": SEGS[i].replace("1963,|mil_novecientos_sesenta_y_tres", "1963,").replace("USS|u_ese_ese", "USS").replace("129|ciento_veintinueve", "129").replace("29|veintinueve", "29").replace("2026,|dos_mil_veintiséis", "2026,").replace("31|treinta_y_uno", "31")} for i, (a, b) in enumerate(speech)]
+segs = [{"i": i, "s": round(a, 3), "e": round(b, 3), "text": re.sub(r"(\S+)\|\S+", r"\1", SEGS[i])} for i, (a, b) in enumerate(speech)]
 for r in result:
     r["w"] = r["w"]
 json.dump({"duration": DUR, "speech_end": round(speech[-1][1], 3), "segments": segs, "words": result,

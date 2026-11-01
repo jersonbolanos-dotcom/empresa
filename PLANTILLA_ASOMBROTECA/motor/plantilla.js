@@ -28,8 +28,9 @@
    c: { ink: '#0b0c10', ink2: '#1b1d25', paper: '#f4f1e8', mute: '#7d7a70', accent: '#f2b84b', red: '#ff6b57', green: '#5fd38d', blue: '#5aa9ff', teal: '#3fd6c6', pink: '#ff8fb1', violet: '#9b8cff', orange: '#ffb057', shadow: 'rgba(0,0,0,0.5)', handle: '#f2b84b' },
    font: { cap: 'Space Grotesk', capW: 700, capDim: 400, title: 'Space Grotesk', titleW: 700, label: 'IBM Plex Mono', labelW: 600, mono: 'IBM Plex Mono' },
    rim: '#f2b84b', grain: 0.05, vignette: 0.55, vigCol: '0,0,0',
-   // la piel oscura oscurece y desatura los rellenos y añade borde dorado fino (look «editor técnico»)
-   tone: (hex) => { const [r, g, b] = H.hex(hex), l = (r + g + b) / 3; return H.rgba([lerp(r, l, 0.45) * 0.55, lerp(g, l, 0.45) * 0.55, lerp(b, l, 0.45) * 0.6]); },
+   // la piel oscura: fondo casi negro, acentos vivos, blancos en papel cálido, borde dorado fino y grano (look «editor técnico»)
+   // colores saturados se mantienen vivos (acentos sobre negro); blancos → papel cálido; neutros medios → gris carbón
+   tone: (hex) => { const [r, g, b] = H.hex(hex), mx = Math.max(r, g, b), mn = Math.min(r, g, b), l = (r + g + b) / 3; if (mx - mn < 40) return l > 180 ? '#ece7da' : H.rgba([l * 0.55 + 10, l * 0.55 + 12, l * 0.55 + 16]); return H.rgba([r * 0.92, g * 0.92, b * 0.92]); },
   },
  };
  let SK = SKINS.plana;

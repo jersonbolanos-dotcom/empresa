@@ -119,26 +119,36 @@ La piel se elige con `skin: 'plana' | 'oscura'` en `PLANTILLA.make`. Los bloques
 
 ## 7. Cómo hacer un video nuevo (paso a paso)
 
-1. Copiar `PLANTILLA_ASOMBROTECA/ejemplo/` (o el episodio del submarino) a `NUEVO_PROYECTO/04_CODIGO/`.
-2. Poner la voz en `01_ENTRADA/audio/` y medirla con `ffprobe`.
-3. Transcribir con `tools/transcribir_whisper.py`, corregir los nombres propios y escribir los tramos en `tools/alinear.py`. Para cifras se usa la forma hablada: `1963|mil_novecientos_sesenta_y_tres`.
-4. Generar la alineación y los subtítulos:
-   - `ffmpeg silencedetect` (−38 dB/0.25 s y −36 dB/0.09 s)
-   - `python3 -I tools/alinear.py …`
-   - `python3 -I tools/subtitulos.py`
+1. **Preparar la carpeta.** Copiar `nuevo_video/` con el nombre del video (por ejemplo `video_tripas/`), dentro de esta misma carpeta de plantilla.
+2. **Poner la voz** en `01_ENTRADA/audio/`. Las fotos reales, si las hay, van en `01_ENTRADA/fotos/`.
+3. **Analizar la voz.**
+   - Ejecutar `bash ../tools/preparar_voz.sh 01_ENTRADA/audio/<voz>.mp3 trabajo/`. Mide la duración, detecta las pausas y transcribe con Whisper.
+   - Revisar `trabajo/tramos_borrador.txt`: corregir nombres propios y escribir las cifras con su forma hablada.
+   - Guardarlo como `03_GUION/tramos.txt`.
+4. **Alinear y generar subtítulos.**
+   - `python3 -I ../tools/alinear.py trabajo/sil_major.txt trabajo/sil_minor.txt $(cat trabajo/duracion.txt) 04_CODIGO/alineacion.json 03_GUION/tramos.txt`
+   - `python3 -I ../tools/subtitulos.py 04_CODIGO/alineacion.json 06_SUBTITULOS/subtitulos.srt 04_CODIGO/js/datos.js`
+5. **Investigar y verificar los datos** y escribir `FUENTES_Y_DECISIONES.md`.
+6. **Escribir `04_CODIGO/js/episodio.js`** partiendo de la base comentada:
+   - tabla `T` de palabras;
+   - beats `{t0, t1, in, draw, sfx}`;
+   - piel, palabras clave, música y ambiente.
 
-   Resultado: `js/datos.js` con `window.ALIGN`.
-5. Investigar y verificar los datos y escribir `FUENTES_Y_DECISIONES.md`.
-6. Escribir `js/episodio.js`:
-   - tabla `T` con las palabras clave de la voz (`wt(segmento, 'palabra')`);
-   - lista `B` de beats `{t0, t1, in, draw(ctx,t), sfx(k)}`;
-   - palabras clave de los subtítulos, música y ambiente.
-7. Revisar fotogramas sueltos (`tools/frames.js` + `tools/sheet.py`) y corregir solapes de texto antes del render.
-8. Renderizar e integrar:
-   - render: `node tools/render.js index.html frames 6`;
-   - stems: `node tools/audio.js index.html stems`;
-   - mezcla y codificación con FFmpeg (`-crf 19 -maxrate 10M -bufsize 20M`).
-9. QC y entrega (sección 8), luego commit y push.
+   Para fotos reales, seguir el patrón de `ejemplo_submarino` (`js/foto_*.js` en base64 + `init`).
+7. **Construir y revisar.**
+   - Desde `04_CODIGO`: `python3 -I ../../tools/build.py`.
+   - Revisar fotogramas con `node ../../tools/frames.js index.html qc 1 5 10 …` y `python3 -I ../../tools/sheet.py hoja.png 6 qc/*.png`.
+   - Corregir solapes antes del render.
+8. **Renderizar e integrar.**
+   - Render: `node ../../tools/render.js index.html frames 6`.
+   - Stems: `node ../../tools/audio.js index.html ../05_AUDIO`.
+   - Mezcla (sección 4) y codificación:
+
+```
+ffmpeg -framerate 30 -i frames/f_%05d.jpg -i mix.wav -c:v libx264 -preset slow -crf 19 -maxrate 10M -bufsize 20M -pix_fmt yuv420p -c:a aac -b:a 256k -ar 48000 -movflags +faststart -shortest 07_OUTPUT/VIDEO.mp4
+```
+
+9. **Cerrar.** QC (sección 8), README, commit y push.
 
 ## 8. Lista de control de calidad (antes de entregar)
 

@@ -1,0 +1,2 @@
+# Una línea por tramo de voz (entre pausas largas), en orden. Cifras: «1963|mil_novecientos_sesenta_y_tres».
+# Genera un borrador con: bash ../tools/preparar_voz.sh 01_ENTRADA/audio/voz.mp3 trabajo/
