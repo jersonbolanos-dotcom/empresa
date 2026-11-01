@@ -13,7 +13,7 @@
 | Subtítulos | sin cambios (64 bloques, estilo barra) |
 | Determinismo | `determinismo.txt`: dos ejecuciones idénticas |
 | Retrocompatibilidad v1.14.1 | IGUAL en los 10 episodios anteriores |
-| Retrocompatibilidad v1.14.2 | RETRO_PENDIENTE |
+| Retrocompatibilidad v1.14.2 | IGUAL en los 10 episodios anteriores (Vikingos, Machu Picchu, Andrómeda, Barco, Pirámides, Represa, Internet submarino, GPS, Aire acondicionado, Microondas): hash de fotogramas idéntico |
 | Indicadores | Se eliminó «altura de la capa: 175 %». Ahora: «CAPA n DE 7» + «compactación 0–100 %», que avanza un poco con cada golpe de pisón |
 | Revisión visual | (1) Una ronda de hoja de contacto antes del render (35 fotogramas). Se corrigió: un radio negativo (error) en el anillo de impacto; nombres de periodos superpuestos en el mapa; el mapa invadía la leyenda; el mapa ocupaba poco espacio. (2) Tras el render: faltaba la clave de tiempo «territorio» (la detección de la amenaza no aparecía y fallaba el audio), corregido y renderizado de nuevo. (3) Revisión de 53 fotogramas del MP4: los primeros segundos de la escena de materiales quedaban vacíos; se añadió el paisaje de fondo y se volvió a renderizar y codificar. (4) Revisión final de 53 fotogramas del MP4 definitivo (`fotogramas_revision/`, `hoja_contacto.jpg`) y de pares de fotogramas consecutivos en la compactación (avance 70 → 80 % golpe a golpe) y en el transporte (pies y patas apoyados en el sendero) |
 | Precisión | Fechas contrastadas con UNESCO (sitio 438) y Britannica; mapa rotulado como esquema; cortes rotulados como plausibles y no universales; sin cifras inventadas |
