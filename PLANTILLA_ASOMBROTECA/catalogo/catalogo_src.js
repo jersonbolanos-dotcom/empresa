@@ -98,6 +98,10 @@
   ['Aislador HD · corte (v1.15.1)', (c, t) => { c.fillStyle = '#132330'; c.fillRect(0, 0, 400, 300); c.save(); c.translate(200, 150); c.scale(0.45, 0.45); c.translate(-200, -150); P.isolatorHD(c, 200, 170, 200, t, { base: 0, top: 30, cut: 1 }); c.restore(); }],
   ['Calzada con junta de peine (v1.15.1)', (c, t) => { c.save(); c.scale(400 / 1080, 300 / 1920 * 1.6); c.translate(0, -700); P.roadView(c, t, { vy: 820, jz: 2.2, gap: 0.08 }); c.restore(); }],
   ['Corte transversal por una pila (v1.15.1)', (c, t) => { c.fillStyle = '#0C1720'; c.fillRect(0, 0, 400, 300); P.bridgeSection(c, 200, 230, 36, t, { flow: 1 }); }],
+  ['Túnel bajo el río · sección (v1.16)', (c, t) => { c.save(); c.translate(200, 150); c.scale(0.13, 0.13); c.translate(-1500, -1050); P.tunWorld(c, t, { st: P.tbmState(30.3) }); c.restore(); }],
+  ['Tuneladora EPB en detalle (v1.16)', (c, t) => { const S = P.tbmState(30.3); c.save(); c.translate(200, 150); c.scale(0.75, 0.75); c.translate(-(S.xm - 150), -P.TUN.TY); P.tunWorld(c, t, { st: S }); c.restore(); }],
+  ['Cabeza de corte · montaje de anillo (v1.16)', (c, t) => { c.fillStyle = '#0B1821'; c.fillRect(0, 0, 400, 300); P.cutterFace(c, 105, 150, 95, 0.3, t); P.ringBuild(c, 300, 150, 90, t, { placed: 3.5 }); }],
+  ['Junta con sello elastomérico (v1.16)', (c, t) => { c.fillStyle = '#0B1821'; c.fillRect(0, 0, 400, 300); P.gasketHD(c, 200, 160, 44, t, { close: 1 }); }],
  ];
  window.drawCatalog = function () {
   document.querySelectorAll('canvas[data-i]').forEach((cv) => {

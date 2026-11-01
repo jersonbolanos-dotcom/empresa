@@ -2175,6 +2175,234 @@
   ctx.restore();
   return { deck: [cx + dx + s * 2.0, yS - slab * 0.5], girder: [cx + dx - s * 1.45, yG - gH * 0.5], bearing: bearings[3], cap: [tx - s * 1.5, cT + capH * 0.3], column: [bx + up * 0.5 + s * 0.38, (fy + yTop) / 2], footing: [bx + s * 1.6, fy + fH * 0.5], piles: [bx + s * 1.1, fy + fH + s * 2], ground: [bx - s * 2.6, gy + s * 0.6] };
  };
+ // ---------------- v1.16 · túneles bajo ríos: río, geología, tuneladora EPB, dovelas, juntas y túnel terminado ----------------
+ // UN SOLO SISTEMA DE COORDENADAS (P.TUN): x a lo largo del eje del túnel (sección longitudinal) o a lo largo del río (sección transversal),
+ // y vertical hacia abajo. El túnel va bajo el lecho, en la capa de arcilla (compatible con una tuneladora EPB), nunca dentro del agua abierta.
+ const TC = { fondo: '#0B1821', aguaP: '#123D54', aguaL: '#2987A7', espuma: '#D7EDF0', sup: '#76624D', arcilla: '#A27B59', arena: '#C2A67C', grava: '#8E8B80', roca: '#626C71', acero: '#354751', aceroL: '#A9BCC5', corte: '#E4A33B', hormigon: '#B4BEC0', sello: '#303C43', presion: '#FF735A', protegida: '#43D0C6', oro: '#FFD447', blanco: '#F4F7F8', lechada: '#9a948a', marina: '#7a6248' };
+ P.TC = TC;
+ const TUN = { GS: 600, WS: 650, xa: 760, xb: 2240, TY: 1330, R: 96, x0: 300, x1: 2700, w: 24, ti: 12 };
+ TUN.bed = (x) => { const a = TUN.xa, b = TUN.xb; if (x <= a - 160 || x >= b + 160) return TUN.GS; const e = Math.min(x - (a - 160), (b + 160) - x), u = Math.min(1, e / 300), s = u * u * (3 - 2 * u); return TUN.GS + (965 + 22 * Math.sin(x * 0.011) - TUN.GS) * s; };
+ // techos de capa (y absoluta): arena/limo bajo el lecho, arcilla (donde va el túnel), grava y roca
+ TUN.layers = [{ k: 'arena', c: TC.arena, top: (x) => TUN.bed(x) }, { k: 'arcilla', c: TC.arcilla, top: (x) => Math.max(TUN.bed(x) + 50, 1150 + 28 * Math.sin(x * 0.004)) }, { k: 'grava', c: TC.grava, top: (x) => 1505 + 22 * Math.sin(x * 0.003 + 1) }, { k: 'roca', c: TC.roca, top: (x) => 1650 + 30 * Math.sin(x * 0.0025 + 2) }];
+ P.TUN = TUN;
+ const tq = (ctx, pp, c) => { ctx.beginPath(); pp.forEach((p, i) => (i ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1]))); ctx.closePath(); ctx.fillStyle = c; ctx.fill(); };
+ // estado de avance de la tuneladora a partir de un número continuo de anillos: excava (0–0,6) y luego monta el anillo (0,6–1)
+ P.tbmState = (cyc, base = 900) => { const n = Math.floor(cyc), f = cyc - n, w = TUN.w, adv = f < 0.6 ? (f / 0.6) * w : w, build = f < 0.6 ? -1 : Math.min(6.999, ((f - 0.6) / 0.4) * 7); return { n, f, adv, build, xm: base + n * w + adv, rf: base - 270 + n * w, excavating: f < 0.6 }; };
+ // edificios de la ciudad en las orillas (deterministas)
+ const CITY = (() => { const R = H.rng(31), a = []; for (let x = -900; x < 3700; x += R.range(60, 120)) { if (x > TUN.xa - 220 && x < TUN.xb + 220) continue; a.push({ x, w: R.range(40, 90), h: R.range(60, 260), k: R.range(0.3, 2.2), c: R() < 0.5 ? '#2a3d4a' : '#33495a' }); } return a.sort((p, q) => q.k - p.k); })();
+ // Sección longitudinal por el eje del túnel (corte técnico 2,5D): cielo, ciudad, río en sección, capas, nivel freático, pozo de ataque,
+ // revestimiento de anillos, relleno anular, tuneladora EPB (P.tbmSide) o túnel terminado con vías y tren.
+ // o: { st (P.tbmState), mode 'obra'|'terminado', D, t, rot (giro cabeza), press 0..1, support 0..1, flow 0..1, train (x frente), boats, glow{}, xray }
+ P.tunWorld = (ctx, t, o = {}) => {
+  const { GS, WS, TY, R, x0, x1, w, ti } = TUN, D = o.D || [40, -30], XA = -1400, XB = 4200, mode = o.mode || 'obra', S = o.st || P.tbmState(o.cyc ?? 40), gl = o.glow || {};
+  ctx.save();
+  // cielo y luz natural
+  const sg = ctx.createLinearGradient(0, -900, 0, GS); sg.addColorStop(0, '#0B1821'); sg.addColorStop(1, o.dusk ? '#8a6a52' : '#3d6680'); ctx.fillStyle = sg; ctx.fillRect(XA, -2400, XB - XA, WS + 2440);
+  // ciudad en profundidad (dos orillas)
+  for (const b of CITY) { const ox = D[0] * b.k, oy = D[1] * b.k, y0 = GS + oy; tq(ctx, [[b.x + ox, y0], [b.x + b.w + ox, y0], [b.x + b.w + ox, y0 - b.h], [b.x + ox, y0 - b.h]], b.c); ctx.fillStyle = o.dusk ? 'rgba(255,214,150,0.55)' : 'rgba(215,237,240,0.18)'; for (let yy = y0 - b.h + 10; yy < y0 - 8; yy += 16) for (let xx = b.x + 6; xx < b.x + b.w - 6; xx += 12) if (((xx * 7 + yy * 3) | 0) % 5) ctx.fillRect(xx + ox, yy, 5, 7); }
+  // superficie superior del terreno (franja en profundidad) y del agua
+  const bedPts = []; for (let x = XA; x <= XB; x += 20) bedPts.push([x, TUN.bed(x)]);
+  tq(ctx, [[XA, GS], [TUN.xa - 160, GS], [TUN.xa - 160 + D[0] * 2.4, GS + D[1] * 2.4], [XA + D[0] * 2.4, GS + D[1] * 2.4]], '#5f6b4f'); tq(ctx, [[TUN.xb + 160, GS], [XB, GS], [XB + D[0] * 2.4, GS + D[1] * 2.4], [TUN.xb + 160 + D[0] * 2.4, GS + D[1] * 2.4]], '#5f6b4f');
+  const wa = TUN.xa - 110, wb = TUN.xb + 110; const wg = ctx.createLinearGradient(0, WS + D[1] * 2.4, 0, WS); wg.addColorStop(0, '#1f5f78'); wg.addColorStop(1, TC.aguaL); tq(ctx, [[wa, WS], [wb, WS], [wb + D[0] * 2.4, WS + D[1] * 2.4], [wa + D[0] * 2.4, WS + D[1] * 2.4]], wg);
+  ctx.strokeStyle = 'rgba(215,237,240,0.35)'; ctx.lineWidth = 2; for (let k = 0; k < 9; k++) { const u = ((k / 9 + t * 0.05) % 1) * 2.4, xs = wa + D[0] * u, ys = WS + D[1] * u; ctx.beginPath(); for (let x = 0; x <= wb - wa; x += 30) ctx.lineTo(xs + x, ys + 2 * Math.sin(x * 0.03 + t * 2 + k)); ctx.stroke(); }
+  // muros de ribera
+  for (const [x, s] of [[TUN.xa - 160, 1], [TUN.xb + 160, -1]]) tq(ctx, [[x - s * 8, GS - 10], [x + s * 8, GS - 10], [x + s * 8, GS + 20], [x - s * 8, GS + 20]], '#7f8a8c');
+  // capas geológicas (sección frontal)
+  TUN.layers.forEach((L) => { ctx.beginPath(); ctx.moveTo(XA, 3400); for (let x = XA; x <= XB; x += 20) ctx.lineTo(x, L.top(x)); ctx.lineTo(XB, 3400); ctx.closePath(); ctx.fillStyle = L.c; ctx.fill(); }); { const dg = ctx.createLinearGradient(0, 900, 0, 2100); dg.addColorStop(0, 'rgba(11,24,33,0)'); dg.addColorStop(1, 'rgba(11,24,33,0.55)'); ctx.fillStyle = dg; ctx.beginPath(); ctx.moveTo(XA, 3400); for (let x = XA; x <= XB; x += 20) ctx.lineTo(x, TUN.bed(x)); ctx.lineTo(XB, 3400); ctx.closePath(); ctx.fill(); }
+  // textura de capas: puntos/estratos deterministas
+  { const Rr = H.rng(5); ctx.fillStyle = 'rgba(0,0,0,0.12)'; for (let i = 0; i < 900; i++) { const x = Rr.range(XA, XB), y = Rr.range(TUN.bed(x) + 6, 2300); ctx.fillRect(x, y, 3, 2); } ctx.strokeStyle = 'rgba(0,0,0,0.18)'; ctx.lineWidth = 2; TUN.layers.slice(1).forEach((L) => { ctx.beginPath(); for (let x = XA; x <= XB; x += 20) x === XA ? ctx.moveTo(x, L.top(x)) : ctx.lineTo(x, L.top(x)); ctx.stroke(); }); }
+  // suelo superficial en las orillas
+  ctx.fillStyle = TC.sup; ctx.beginPath(); ctx.moveTo(XA, GS); bedPts.forEach((p) => ctx.lineTo(p[0], p[1])); for (let i = bedPts.length - 1; i >= 0; i--) ctx.lineTo(bedPts[i][0], bedPts[i][1] + (bedPts[i][1] <= GS + 1 ? 46 : 14)); ctx.closePath(); ctx.fill();
+  // agua del río en sección (de la superficie al lecho): degradado, rayos de luz y partículas en suspensión
+  ctx.save(); ctx.beginPath(); ctx.moveTo(wa, WS); bedPts.filter((p) => p[0] >= wa && p[0] <= wb).forEach((p) => ctx.lineTo(p[0], p[1])); ctx.lineTo(wb, WS); ctx.closePath(); const ag = ctx.createLinearGradient(0, WS, 0, 990); ag.addColorStop(0, TC.aguaL); ag.addColorStop(1, TC.aguaP); ctx.fillStyle = ag; ctx.fill(); ctx.clip();
+   ctx.globalCompositeOperation = 'lighter'; for (let k = 0; k < 7; k++) { const x = wa + 120 + k * 210 + 30 * Math.sin(t * 0.4 + k); const g = ctx.createLinearGradient(0, WS, 0, 980); g.addColorStop(0, 'rgba(120,200,220,0.10)'); g.addColorStop(1, 'rgba(120,200,220,0)'); ctx.fillStyle = g; ctx.beginPath(); ctx.moveTo(x, WS); ctx.lineTo(x + 50, WS); ctx.lineTo(x + 130, 990); ctx.lineTo(x + 60, 990); ctx.closePath(); ctx.fill(); } ctx.globalCompositeOperation = 'source-over';
+   const Rp = H.rng(9); ctx.fillStyle = 'rgba(215,237,240,0.35)'; for (let i = 0; i < 120; i++) { const x = Rp.range(wa, wb), y = Rp.range(WS + 10, 980), r = Rp.range(0.8, 2.2); ctx.beginPath(); ctx.arc(x + Math.sin(t * 0.7 + i) * 6, y + Math.cos(t * 0.5 + i) * 4, r, 0, TAU); ctx.fill(); } ctx.restore();
+  // superficie del agua (línea con oleaje) y barcos que cruzan
+  ctx.strokeStyle = TC.espuma; ctx.lineWidth = 3; ctx.beginPath(); for (let x = wa; x <= wb; x += 12) { const y = WS + 2.5 * Math.sin(x * 0.04 + t * 2.2); x === wa ? ctx.moveTo(x, y) : ctx.lineTo(x, y); } ctx.stroke();
+  if (o.boats !== false) for (const [x, k, c] of [[1150 + 40 * Math.sin(t * 0.2), 1.2, '#c9cfd2'], [1800 - 30 * Math.sin(t * 0.17), 0.5, '#d4a24e']]) { const bx = x + D[0] * k, by = WS + D[1] * k + 2 * Math.sin(t * 1.5 + x); tq(ctx, [[bx - 70, by - 6], [bx + 80, by - 6], [bx + 60, by + 12], [bx - 60, by + 12]], c); tq(ctx, [[bx - 30, by - 30], [bx + 30, by - 30], [bx + 30, by - 6], [bx - 30, by - 6]], '#e8ecef'); }
+  // nivel freático en las orillas (línea discontinua al nivel del río)
+  if (o.watertable) { ctx.save(); ctx.globalAlpha *= o.watertable; ctx.strokeStyle = TC.aguaL; ctx.setLineDash([14, 10]); ctx.lineWidth = 3; for (const [a, b] of [[XA, TUN.xa - 160], [TUN.xb + 160, XB]]) { ctx.beginPath(); ctx.moveTo(a, WS); ctx.lineTo(b, WS); ctx.stroke(); } ctx.setLineDash([]); ctx.restore(); }
+  // pozos de ataque y de salida
+  const shaft = (x) => { tq(ctx, [[x - 90, GS], [x + 10, GS], [x + 10, TY + R + 30], [x - 90, TY + R + 30]], '#2b3a44'); tq(ctx, [[x - 100, GS - 4], [x - 90, GS - 4], [x - 90, TY + R + 40], [x - 100, TY + R + 40]], TC.hormigon); tq(ctx, [[x + 10, GS - 4], [x + 20, GS - 4], [x + 20, TY - R - 10], [x + 10, TY - R - 10]], TC.hormigon); tq(ctx, [[x - 100, TY + R + 30], [x + 20, TY + R + 30], [x + 20, TY + R + 44], [x - 100, TY + R + 44]], TC.hormigon); ctx.strokeStyle = TC.oro; ctx.lineWidth = 4; ctx.beginPath(); ctx.moveTo(x - 110, GS - 4); ctx.lineTo(x - 110, GS - 120); ctx.lineTo(x + 40, GS - 120); ctx.lineTo(x + 40, GS - 4); ctx.moveTo(x - 40, GS - 120); ctx.lineTo(x - 40, GS + 60); ctx.stroke(); };
+  shaft(x0); if (mode === 'terminado' || S.xm > x1 - 500) shaft(x1 + 100);
+  // túnel: perforación, relleno anular, cara interior (media caña) y revestimiento cortado
+  const xEnd = mode === 'terminado' ? x1 : S.rf, xBore = mode === 'terminado' ? x1 : S.xm;
+  tq(ctx, [[x0 + 10, TY - R], [xBore, TY - R], [xBore, TY + R], [x0 + 10, TY + R]], TC.lechada);
+  const Ro = R - 10, Ri = Ro - ti; const lining = (xa, xb, nRing0) => { const ig = ctx.createLinearGradient(0, TY - Ri, 0, TY + Ri); ig.addColorStop(0, '#6f7a7d'); ig.addColorStop(0.5, '#c7cfd1'); ig.addColorStop(1, '#5c6669'); tq(ctx, [[xa, TY - Ri], [xb, TY - Ri], [xb, TY + Ri], [xa, TY + Ri]], ig);
+   ctx.strokeStyle = 'rgba(48,60,67,0.55)'; ctx.lineWidth = 1.5; for (let x = xa, i = nRing0; x < xb - 0.5; x += w, i++) { ctx.beginPath(); ctx.moveTo(x, TY - Ri); ctx.lineTo(x, TY + Ri); ctx.stroke(); const off = (i % 2) * 0.39; for (let k = 0; k < 7; k++) { const a = off + (k * TAU) / 7, y = TY - Ri * Math.cos(a); if (Math.sin(a) > 0.15) { ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(Math.min(xb, x + w), y); ctx.stroke(); } } }
+   for (const s of [-1, 1]) { tq(ctx, [[xa, TY + s * Ri], [xb, TY + s * Ri], [xb, TY + s * Ro], [xa, TY + s * Ro]], TC.hormigon); ctx.fillStyle = TC.sello; for (let x = xa; x <= xb + 0.5; x += w) { ctx.fillRect(x - 1, TY + s * Ri, 2, s * ti); ctx.fillRect(x - 2, TY + s * (Ro - 3), 4, s * 2.5); } } };
+  if (xEnd > x0 + 10) lining(x0 + 10, xEnd, 0);
+  if (mode === 'terminado') { // solera, andén, vías, luces e instalaciones
+   tq(ctx, [[x0 + 10, TY + Ri * 0.55], [x1, TY + Ri * 0.55], [x1, TY + Ri], [x0 + 10, TY + Ri]], '#8e979a'); ctx.fillStyle = '#3a3f42'; for (let x = x0 + 14; x < x1; x += 9) ctx.fillRect(x, TY + Ri * 0.55 - 3, 5, 3); ctx.fillStyle = '#c9d2d6'; ctx.fillRect(x0 + 10, TY + Ri * 0.55 - 6, x1 - x0 - 10, 2.5);
+   ctx.strokeStyle = 'rgba(40,46,50,0.8)'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(x0 + 10, TY - Ri * 0.6); ctx.lineTo(x1, TY - Ri * 0.6); ctx.stroke(); for (let x = x0 + 30; x < x1; x += 70) P.glow(ctx, x, TY - Ri * 0.78, 22, '255,236,200', 0.55);
+   if (o.train != null) { const tx = o.train, L = 520, y1 = TY + Ri * 0.55 - 6, y0 = y1 - Ri * 1.05; for (let c = 0; c < 4; c++) { const a = tx - c * (L / 4) - 4, b = a - L / 4 + 8; if (b > x1 || a < x0) continue; ctx.fillStyle = '#d9dee0'; ctx.beginPath(); ctx.roundRect(b, y0, a - b, y1 - y0 - 4, c === 0 ? [4, 16, 4, 4] : 4); ctx.fill(); ctx.fillStyle = TC.protegida; ctx.fillRect(b, y0 + (y1 - y0) * 0.62, a - b, 4); ctx.fillStyle = 'rgba(40,60,75,0.85)'; for (let x = b + 8; x < a - 14; x += 18) ctx.fillRect(x, y0 + 8, 12, 12); ctx.fillStyle = '#2a2f33'; ctx.fillRect(b + 8, y1 - 6, 14, 5); ctx.fillRect(a - 22, y1 - 6, 14, 5); } P.glow(ctx, tx + 4, y1 - 14, 40, '255,240,200', 0.7); } }
+  if (mode === 'obra' && o.tbm !== false) P.tbmSide(ctx, S, t, o); else if (mode === 'obra') { tq(ctx, [[S.rf, TY - R], [S.xm, TY - R], [S.xm, TY + R], [S.rf, TY + R]], '#1a2328'); tq(ctx, [[S.xm - 4, TY - R], [S.xm + 4, TY - R], [S.xm + 4, TY + R], [S.xm - 4, TY + R]], '#6b5039'); }
+  // presiones: del terreno y del agua sobre el frente y la perforación (rojo) / soporte en la cámara (turquesa)
+  const pr = o.press || 0; if (pr > 0 && mode === 'obra') { ctx.save(); ctx.globalAlpha *= pr; for (let k = -2; k <= 2; k++) { const y = TY + k * R * 0.36; P.hArrow(ctx, S.xm + 70, y, -46, TC.presion, 10); } for (let x = S.xm - 300; x < S.xm + 60; x += 60) { for (const s of [-1, 1]) { ctx.save(); ctx.translate(x, TY + s * (R + 50)); ctx.rotate(s > 0 ? -Math.PI / 2 : Math.PI / 2); P.hArrow(ctx, 0, 0, 36, TC.presion, 9); ctx.restore(); } } ctx.restore(); }
+  const su = o.support || 0; if (su > 0 && mode === 'obra') { ctx.save(); ctx.globalAlpha *= su; for (let k = -1; k <= 1; k++) P.hArrow(ctx, S.xm - 44, TY + k * R * 0.42, 34, TC.protegida, 9); ctx.restore(); }
+  ctx.restore();
+  return { st: S, face: [S.xm, TY], chamber: [S.xm - 33, TY], screwIn: [S.xm - 58, TY + R - 26], screwOut: [S.xm - 232, TY - R * 0.12], belt: [S.xm - 420, TY - R * 0.2], cyl: [S.xm - 175, TY - R + 26], erector: [S.rf + w / 2, TY], tail: [S.xm - 330, TY + R - 6], ring: [S.rf - w * 2, TY - Ri], crown: [S.xm - 600, TY - R], grout: [S.rf - w * 6, TY + R - 4], bed: [1500, TUN.bed(1500)], water: [1500, 820], shaft: [x0 - 40, GS + 200] };
+ };
+ // Tuneladora EPB en sección longitudinal (avanza hacia +x): cabeza de corte giratoria con herramientas, cámara de excavación con
+ // terreno acondicionado, mamparo con sensores, tornillo sinfín, cinta, cilindros de empuje contra el último anillo, erector,
+ // cola con cepillos y lechada, y equipos posteriores sobre ruedas. El cuerpo NO gira: solo la cabeza.
+ P.tbmSide = (ctx, S, t, o = {}) => {
+  const { TY, R, w, ti } = TUN, xm = S.xm, rot = o.rot ?? t * 1.4, flow = o.flow ?? 1, gl = o.glow || {}, Ro = R - 10, Ri = Ro - ti, xt = xm - 330;
+  ctx.save();
+  // escudo (piel de acero) delantero, central y de cola
+  for (const s of [-1, 1]) { tq(ctx, [[xt, TY + s * (R - 8)], [xm - 14, TY + s * (R - 8)], [xm - 14, TY + s * R], [xt, TY + s * R]], TC.acero); ctx.fillStyle = 'rgba(169,188,197,0.35)'; ctx.fillRect(xt, TY + s * (R - 8) - (s > 0 ? 0 : 0), xm - 14 - xt, s * 2); for (const xj of [xm - 140, xm - 250]) { ctx.fillStyle = '#22313a'; ctx.fillRect(xj - 1, TY + s * (R - 8), 2, s * 8); } }
+  // cepillos de cola (sello entre escudo y anillo) e inyección de lechada al relleno anular
+  ctx.strokeStyle = '#1d262c'; ctx.lineWidth = 1.5; for (const s of [-1, 1]) for (let x = xt + 4; x < xt + 40; x += 4) { ctx.beginPath(); ctx.moveTo(x, TY + s * (R - 8)); ctx.lineTo(x + 3, TY + s * Ro); ctx.stroke(); }
+  for (const s of [-1, 1]) { ctx.fillStyle = TC.aceroL; ctx.fillRect(xt - 2, TY + s * (R - 9), 6, s * -16); }
+  // fondo interior del escudo (sombra) entre la cola y el mamparo
+  const bg = ctx.createLinearGradient(0, TY - R, 0, TY + R); bg.addColorStop(0, '#1b252b'); bg.addColorStop(0.5, '#2c3a42'); bg.addColorStop(1, '#162026'); tq(ctx, [[S.rf + (S.build >= 0 ? w : 0), TY - R + 8], [xm - 54, TY - R + 8], [xm - 54, TY + R - 8], [S.rf + (S.build >= 0 ? w : 0), TY + R - 8]], bg);
+  // anillo en montaje dentro de la cola: segmentos colocados (vista de canto)
+  if (S.build >= 0) { const k = Math.floor(S.build); for (let i = 0; i <= Math.min(k, 6); i++) { const a = (i * TAU) / 7 + Math.PI, c = Math.cos(a); if (i === k && S.build - k < 0.999 && i < 7) continue; const y = TY - Ro * c; if (Math.abs(Math.sin(a)) > 0.98) continue; ctx.fillStyle = TC.hormigon; ctx.fillRect(S.rf + 1, Math.min(y, y + (c > 0 ? ti : -ti)), w - 2, ti); } }
+  // equipos posteriores (pórticos sobre ruedas) con cinta transportadora y vagonetas de marina
+  for (let x = xt - 20; x > xt - 760; x -= 150) { ctx.strokeStyle = '#4b5d68'; ctx.lineWidth = 4; ctx.beginPath(); ctx.moveTo(x, TY + Ri - 10); ctx.lineTo(x, TY - Ri + 14); ctx.lineTo(x - 120, TY - Ri + 14); ctx.lineTo(x - 120, TY + Ri - 10); ctx.moveTo(x, TY + Ri - 10); ctx.lineTo(x - 120, TY - Ri + 14); ctx.stroke(); tq(ctx, [[x - 100, TY + 6], [x - 30, TY + 6], [x - 30, TY + Ri - 14], [x - 100, TY + Ri - 14]], '#3c4d57'); ctx.fillStyle = '#20282d'; for (const wx of [x - 10, x - 110]) { ctx.beginPath(); ctx.arc(wx, TY + Ri - 6, 5, 0, TAU); ctx.fill(); } }
+  const by = TY - R * 0.2; ctx.fillStyle = '#20282d'; ctx.fillRect(xt - 760, by, xm - 232 - (xt - 760), 4); if (flow > 0) { ctx.fillStyle = TC.marina; for (let x = xm - 236 - ((t * 60) % 22); x > xt - 760; x -= 22) ctx.fillRect(x - 8, by - 6, 14, 6); }
+  for (let c = 0; c < 3; c++) { const x = xt - 800 - c * 70; tq(ctx, [[x - 30, TY + Ri - 40], [x + 30, TY + Ri - 40], [x + 26, TY + Ri - 10], [x - 26, TY + Ri - 10]], '#56636b'); ctx.fillStyle = TC.marina; ctx.fillRect(x - 26, TY + Ri - 46, 52, 8); ctx.fillStyle = '#20282d'; ctx.beginPath(); ctx.arc(x - 16, TY + Ri - 6, 5, 0, TAU); ctx.arc(x + 16, TY + Ri - 6, 5, 0, TAU); ctx.fill(); }
+  // cilindros de empuje (arriba y abajo): cuerpo fijo al escudo y vástago apoyado en la cara del último anillo
+  for (const s of [-1, 1]) { const y = TY + s * (R - 22), xb0 = xm - 120, xb1 = xm - 200, xr = S.excavating ? S.rf : S.rf - 0 + 0; tq(ctx, [[xb1, y - 7], [xb0, y - 7], [xb0, y + 7], [xb1, y + 7]], '#4f6470'); ctx.fillStyle = TC.aceroL; const rodEnd = S.excavating ? S.rf : S.rf + w + 4; ctx.fillRect(Math.min(rodEnd, xb1), y - 3.5, Math.abs(xb1 - rodEnd), 7); ctx.fillStyle = '#2a3740'; ctx.fillRect(rodEnd - 3, y - 9, 6, 18); if (gl.cyl) { ctx.strokeStyle = `rgba(255,212,71,${gl.cyl})`; ctx.lineWidth = 3; ctx.strokeRect(rodEnd - 6, y - 12, xb0 - rodEnd + 10, 24); } }
+  // erector de dovelas: viga giratoria con pinza; durante el montaje sostiene la dovela hasta su posición
+  { const ex = S.rf + w / 2; ctx.fillStyle = '#4b5d68'; ctx.fillRect(ex - 8, TY - 20, 16, 40); ctx.beginPath(); ctx.arc(ex, TY, 12, 0, TAU); ctx.fillStyle = '#5c7180'; ctx.fill(); if (S.build >= 0) { const k = Math.floor(S.build), u = S.build - k, a = (k * TAU) / 7 + Math.PI, aa = lerp(Math.PI / 2 * 3 * 0 + Math.PI, a, E.inOut(cl(u * 1.3))), c = Math.cos(aa), rr = lerp(Ro * 0.55, Ro, E.inOut(cl(u * 1.6 - 0.5))), y = TY - rr * c; ctx.strokeStyle = TC.oro; ctx.lineWidth = 5; ctx.beginPath(); ctx.moveTo(ex, TY); ctx.lineTo(ex, y + (c > 0 ? ti : -ti) * 0.5); ctx.stroke(); ctx.fillStyle = TC.hormigon; ctx.fillRect(S.rf + 1, Math.min(y, y + (c > 0 ? ti : -ti)), w - 2, ti); ctx.fillStyle = TC.oro; ctx.fillRect(ex - 6, y + (c > 0 ? ti : -ti) * 0.5 - 3, 12, 6); } if (gl.erector) P.glow(ctx, ex, TY, 60, '255,212,71', 0.5 * gl.erector); }
+  // accionamiento principal (motores) detrás del mamparo
+  for (const s of [-1, 1]) tq(ctx, [[xm - 100, TY + s * 12], [xm - 56, TY + s * 12], [xm - 56, TY + s * 34], [xm - 100, TY + s * 34]], '#5c7180');
+  // tornillo sinfín: de la parte baja de la cámara hacia atrás y arriba, con hélice animada y marina en su interior
+  { const a = [xm - 58, TY + R - 26], b = [xm - 232, TY - R * 0.12], L = Math.hypot(b[0] - a[0], b[1] - a[1]), an = Math.atan2(b[1] - a[1], b[0] - a[0]); ctx.save(); ctx.translate(a[0], a[1]); ctx.rotate(an); tq(ctx, [[0, -10], [L, -10], [L, 10], [0, 10]], '#4f6470'); ctx.fillStyle = TC.marina; ctx.fillRect(4, -7, L - 8, 14); ctx.strokeStyle = '#c9d2d6'; ctx.lineWidth = 2; const ph = (t * 1.6 * (flow > 0 ? 1 : 0)) % 1; for (let x = -12 + ph * 12; x < L; x += 12) { ctx.beginPath(); ctx.moveTo(x, -7); ctx.lineTo(x + 7, 7); ctx.stroke(); } ctx.restore(); if (gl.screw) { ctx.save(); ctx.translate(a[0], a[1]); ctx.rotate(an); ctx.strokeStyle = `rgba(255,212,71,${gl.screw})`; ctx.lineWidth = 3; ctx.strokeRect(-4, -14, L + 8, 28); ctx.restore(); } ctx.fillStyle = '#4f6470'; ctx.fillRect(b[0] - 6, b[1] - 2, 14, by - b[1] + 6); }
+  // mamparo con sensores de presión
+  tq(ctx, [[xm - 56, TY - R + 8], [xm - 50, TY - R + 8], [xm - 50, TY + R - 8], [xm - 56, TY + R - 8]], '#6b8190'); for (const k of [-0.6, 0, 0.6]) { ctx.fillStyle = TC.protegida; ctx.beginPath(); ctx.arc(xm - 53, TY + k * R, 3.5, 0, TAU); ctx.fill(); }
+  // cámara de excavación con terreno acondicionado (pasta) que circula hacia el tornillo
+  { const cg = ctx.createLinearGradient(0, TY - R, 0, TY + R); cg.addColorStop(0, '#8a6a4c'); cg.addColorStop(1, '#6b5039'); tq(ctx, [[xm - 50, TY - R + 8], [xm - 14, TY - R + 8], [xm - 14, TY + R - 8], [xm - 50, TY + R - 8]], cg); if (flow > 0) { const Rr = H.rng(17); ctx.fillStyle = 'rgba(40,28,18,0.45)'; for (let i = 0; i < 40; i++) { const ph = (Rr() + t * 0.35 * flow) % 1, x = xm - 48 + Rr() * 32, y = TY - R + 10 + ph * (2 * R - 20); ctx.fillRect(x, y, 3, 3); } } if (gl.chamber) { ctx.strokeStyle = `rgba(67,208,198,${gl.chamber})`; ctx.lineWidth = 3; ctx.strokeRect(xm - 50, TY - R + 8, 36, 2 * R - 16); } }
+  // cabeza de corte (vista de canto): placa con herramientas que pasan por delante al girar
+  { const g = ctx.createLinearGradient(xm - 14, 0, xm, 0); g.addColorStop(0, '#b97f25'); g.addColorStop(1, TC.corte); tq(ctx, [[xm - 14, TY - R + 1], [xm, TY - R + 4], [xm, TY + R - 4], [xm - 14, TY + R - 1]], g); for (let k = 0; k < 16; k++) { const a = rot + (k * TAU) / 8 + (k > 7 ? 0.39 : 0), rr = (k > 7 ? 0.45 : 0.85) * R, y = TY + rr * Math.sin(a), fr = Math.cos(a); if (fr < 0) continue; ctx.fillStyle = `rgba(53,71,81,${0.5 + 0.5 * fr})`; ctx.beginPath(); ctx.moveTo(xm, y - 5); ctx.lineTo(xm + 8 * fr, y); ctx.lineTo(xm, y + 5); ctx.closePath(); ctx.fill(); } ctx.fillStyle = '#9a6a1f'; ctx.beginPath(); ctx.moveTo(xm, TY - 9); ctx.lineTo(xm + 12, TY); ctx.lineTo(xm, TY + 9); ctx.closePath(); ctx.fill(); if (gl.head) { ctx.strokeStyle = `rgba(255,212,71,${gl.head})`; ctx.lineWidth = 3; ctx.strokeRect(xm - 18, TY - R - 4, 34, 2 * R + 8); } }
+  // frente de excavación: terreno desprendido delante de la cabeza
+  ctx.restore();
+ };
+ // Sección transversal: río que fluye a lo ancho, columna de agua, lecho, capas y el túnel (círculo) bajo el lecho.
+ // o: { mode 'obra'|'terminado', cx, train 0..1 (tren visto de frente), boats, flow, press, xray (corte transparente), dusk, ring (dovelas visibles) }
+ P.tunCross = (ctx, t, o = {}) => {
+  const { GS, WS, TY, R, ti } = TUN, cx = o.cx ?? 540, XA = -1500, XB = 2600, yb = (x) => 965 + 16 * Math.sin(x * 0.006 + 1) + 8 * Math.sin(x * 0.021), Ro = R - 10, Ri = Ro - ti;
+  ctx.save();
+  const sg = ctx.createLinearGradient(0, -1200, 0, WS); sg.addColorStop(0, '#0B1821'); sg.addColorStop(1, o.dusk ? '#9a7458' : '#5d8aa4'); ctx.fillStyle = sg; ctx.fillRect(XA, -3000, XB - XA, WS + 3000);
+  // orilla lejana con ciudad
+  ctx.fillStyle = '#4d5a52'; ctx.fillRect(XA, WS - 40, XB - XA, 40); for (const b of CITY) { const x = (b.x * 1.3) % 4000 - 1500; ctx.fillStyle = b.c; ctx.fillRect(x, WS - 40 - b.h * 0.7, b.w * 0.8, b.h * 0.7); ctx.fillStyle = o.dusk ? 'rgba(255,214,150,0.6)' : 'rgba(215,237,240,0.18)'; for (let yy = WS - 40 - b.h * 0.7 + 8; yy < WS - 48; yy += 14) for (let xx = x + 5; xx < x + b.w * 0.8 - 5; xx += 11) if (((xx * 7 + yy * 3) | 0) % 5) ctx.fillRect(xx, yy, 4, 6); }
+  // agua: columna con degradado, rayos, partículas y corriente que fluye hacia +x
+  const ag = ctx.createLinearGradient(0, WS, 0, 1000); ag.addColorStop(0, TC.aguaL); ag.addColorStop(1, TC.aguaP); ctx.fillStyle = ag; ctx.fillRect(XA, WS, XB - XA, 1100 - WS);
+  ctx.save(); ctx.globalCompositeOperation = 'lighter'; for (let k = -3; k < 9; k++) { const x = k * 260 + 40 * Math.sin(t * 0.3 + k); const g = ctx.createLinearGradient(0, WS, 0, 990); g.addColorStop(0, 'rgba(120,200,220,0.12)'); g.addColorStop(1, 'rgba(120,200,220,0)'); ctx.fillStyle = g; ctx.beginPath(); ctx.moveTo(x, WS); ctx.lineTo(x + 60, WS); ctx.lineTo(x + 150, 990); ctx.lineTo(x + 70, 990); ctx.closePath(); ctx.fill(); } ctx.restore();
+  const fl = o.flow ?? 1; { const Rr = H.rng(13); for (let i = 0; i < 160; i++) { const y = Rr.range(WS + 10, 960), sp = Rr.range(30, 90) * fl, x = XA + ((Rr.range(0, XB - XA) + t * sp) % (XB - XA)); ctx.fillStyle = 'rgba(215,237,240,0.3)'; ctx.fillRect(x, y, 2 + sp * 0.06, 1.6); } }
+  ctx.strokeStyle = TC.espuma; ctx.lineWidth = 3; ctx.beginPath(); for (let x = XA; x <= XB; x += 12) { const y = WS + 3 * Math.sin(x * 0.03 - t * 2.4); x === XA ? ctx.moveTo(x, y) : ctx.lineTo(x, y); } ctx.stroke();
+  if (o.boats !== false) for (const [x0, sp, c, sc] of [[-100, 40, '#c9cfd2', 1], [700, 26, '#d4a24e', 0.8], [1300, 33, '#e8ecef', 0.6]]) { const x = -500 + ((x0 + 500 + t * sp) % 2100), y = WS + 2 * Math.sin(t * 1.4 + x0); tq(ctx, [[x - 90 * sc, y - 8], [x + 100 * sc, y - 8], [x + 78 * sc, y + 14], [x - 74 * sc, y + 14]], c); tq(ctx, [[x - 40 * sc, y - 40 * sc], [x + 36 * sc, y - 40 * sc], [x + 36 * sc, y - 8], [x - 40 * sc, y - 8]], '#e8ecef'); ctx.fillStyle = 'rgba(41,135,167,0.5)'; ctx.fillRect(x - 74 * sc, y + 14, 152 * sc, 6); }
+  // lecho y capas
+  const lay = [[(x) => yb(x), TC.arena], [(x) => Math.max(yb(x) + 50, 1150 + 20 * Math.sin(x * 0.004)), TC.arcilla], [(x) => 1505 + 18 * Math.sin(x * 0.003 + 1), TC.grava], [(x) => 1650 + 24 * Math.sin(x * 0.0025 + 2), TC.roca]];
+  for (const [f, c] of lay) { ctx.beginPath(); ctx.moveTo(XA, 3400); for (let x = XA; x <= XB; x += 20) ctx.lineTo(x, f(x)); ctx.lineTo(XB, 3400); ctx.closePath(); ctx.fillStyle = c; ctx.fill(); ctx.strokeStyle = 'rgba(0,0,0,0.18)'; ctx.lineWidth = 2; ctx.stroke(); }
+  { const Rr = H.rng(6); ctx.fillStyle = 'rgba(0,0,0,0.12)'; for (let i = 0; i < 700; i++) { const x = Rr.range(XA, XB), y = Rr.range(yb(x) + 6, 2300); ctx.fillRect(x, y, 3, 2); } ctx.fillStyle = 'rgba(66,93,80,0.6)'; for (let x = XA; x < XB; x += 34) { const y = yb(x); ctx.beginPath(); ctx.moveTo(x, y); ctx.quadraticCurveTo(x + 3 + 4 * Math.sin(t + x), y - 14, x + 6, y); ctx.fill(); } }
+  // corte transparente del terreno sobre el túnel
+  if (o.xray) { ctx.save(); ctx.globalAlpha *= o.xray; ctx.fillStyle = 'rgba(244,247,248,0.12)'; ctx.fillRect(cx - R - 40, yb(cx), 2 * R + 80, TY - R - yb(cx)); ctx.strokeStyle = 'rgba(244,247,248,0.7)'; ctx.setLineDash([12, 10]); ctx.lineWidth = 3; ctx.strokeRect(cx - R - 40, yb(cx), 2 * R + 80, TY - R - yb(cx)); ctx.setLineDash([]); ctx.restore(); }
+  // túnel: perforación, lechada, anillo de dovelas con juntas y sellos, interior
+  ctx.fillStyle = TC.lechada; ctx.beginPath(); ctx.arc(cx, TY, R, 0, TAU); ctx.fill();
+  const n = 7, off = o.ringOff ?? 0.2; for (let i = 0; i < n; i++) { const a0 = off + (i * TAU) / n + 0.012, a1 = off + ((i + 1) * TAU) / n - 0.012; ctx.beginPath(); ctx.arc(cx, TY, Ro, a0, a1); ctx.arc(cx, TY, Ri, a1, a0, true); ctx.closePath(); ctx.fillStyle = TC.hormigon; ctx.fill(); const am = off + (i * TAU) / n; ctx.fillStyle = TC.sello; ctx.beginPath(); ctx.arc(cx + Math.cos(am) * (Ro - 3), TY + Math.sin(am) * (Ro - 3), 2, 0, TAU); ctx.fill(); }
+  const ig = ctx.createRadialGradient(cx, TY, 4, cx, TY, Ri); ig.addColorStop(0, o.mode === 'terminado' ? '#46555c' : '#1d272d'); ig.addColorStop(1, o.mode === 'terminado' ? '#2a353b' : '#10171b'); ctx.fillStyle = ig; ctx.beginPath(); ctx.arc(cx, TY, Ri, 0, TAU); ctx.fill();
+  if (o.mode === 'terminado') { ctx.save(); ctx.beginPath(); ctx.arc(cx, TY, Ri, 0, TAU); ctx.clip(); ctx.fillStyle = '#8e979a'; ctx.fillRect(cx - Ri, TY + Ri * 0.55, 2 * Ri, Ri); ctx.fillStyle = '#c9d2d6'; ctx.fillRect(cx - Ri * 0.42, TY + Ri * 0.55 - 3, 5, 3); ctx.fillRect(cx + Ri * 0.38, TY + Ri * 0.55 - 3, 5, 3); for (const s of [-1, 1]) P.glow(ctx, cx + s * Ri * 0.6, TY - Ri * 0.55, 14, '255,236,200', 0.8);
+   const tr = o.train ?? 0; if (tr > 0) { ctx.globalAlpha *= tr; const w2 = Ri * 0.62, h2 = Ri * 1.05, y1 = TY + Ri * 0.55 - 3; ctx.fillStyle = '#d9dee0'; ctx.beginPath(); ctx.roundRect(cx - w2, y1 - h2, 2 * w2, h2 - 2, [16, 16, 4, 4]); ctx.fill(); ctx.fillStyle = 'rgba(40,60,75,0.9)'; ctx.fillRect(cx - w2 * 0.75, y1 - h2 * 0.82, w2 * 1.5, h2 * 0.32); ctx.fillStyle = TC.protegida; ctx.fillRect(cx - w2, y1 - h2 * 0.32, 2 * w2, 3); for (const s of [-1, 1]) P.glow(ctx, cx + s * w2 * 0.6, y1 - h2 * 0.18, 14, '255,240,200', 0.9); } ctx.restore(); }
+  const pr = o.press || 0; if (pr > 0) { ctx.save(); ctx.globalAlpha *= pr; for (let k = 0; k < 12; k++) { const a = (k * TAU) / 12; ctx.save(); ctx.translate(cx + Math.cos(a) * (R + 46), TY + Math.sin(a) * (R + 46)); ctx.rotate(a + Math.PI); P.hArrow(ctx, 0, 0, 34, TC.presion, 9); ctx.restore(); } for (let x = cx - 260; x <= cx + 260; x += 130) { ctx.save(); ctx.translate(x, WS + 60); ctx.rotate(Math.PI / 2); P.hArrow(ctx, 0, 0, 150, 'rgba(255,115,90,0.75)', 12); ctx.restore(); } ctx.restore(); }
+  ctx.restore();
+  return { tunnel: [cx, TY], crown: [cx, TY - Ro], ring: [cx + Ro * 0.7, TY - Ro * 0.7], bed: [cx, yb(cx)], water: [cx, (WS + yb(cx)) / 2], surface: [cx, WS], sand: [cx + 200, (yb(cx + 200) + 1150) / 2], clay: [cx + 260, 1250], gravel: [cx + 260, 1570] };
+ };
+ // Toma aérea de un río ancho atravesando una ciudad (perspectiva desde lo alto). o: { alt 0..1 (1 alto → 0 sobre el agua), dusk, tunnel (línea del trazado, 0..1) }
+ P.riverAerial = (ctx, t, o = {}) => {
+  const alt = o.alt ?? 1, hz = 360 - 260 * (1 - alt), f = 900, h = lerp(60, 600, alt), pr = (X, Z) => [540 + (X * f) / Z, hz + (h * f) / Z / 6 * 6 / 6 * 1 + 0], P3 = (X, Y, Z) => [540 + (X * f) / Z, hz + ((h - Y) * f) / Z];
+  ctx.save();
+  const sg = ctx.createLinearGradient(0, 0, 0, hz); sg.addColorStop(0, '#0B1821'); sg.addColorStop(1, o.dusk ? '#c08a5a' : '#7fa7bd'); ctx.fillStyle = sg; ctx.fillRect(0, 0, 1080, hz + 2);
+  ctx.fillStyle = '#4e5a4c'; ctx.fillRect(0, hz, 1080, 1920 - hz);
+  // río: banda curva que va hacia el horizonte
+  const rX = (Z) => 80 * Math.sin(Z * 0.0018) - 40, rW = 380, zs = []; for (let Z = 220; Z < 9000; Z *= 1.06) zs.push(Z);
+  ctx.beginPath(); zs.forEach((Z, i) => { const p = P3(rX(Z) - rW, 0, Z); i ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1]); }); zs.slice().reverse().forEach((Z) => { const p = P3(rX(Z) + rW, 0, Z); ctx.lineTo(p[0], p[1]); }); ctx.closePath(); const rg = ctx.createLinearGradient(0, hz, 0, 1920); rg.addColorStop(0, '#6f9fb2'); rg.addColorStop(0.3, TC.aguaL); rg.addColorStop(1, TC.aguaP); ctx.fillStyle = rg; ctx.fill();
+  ctx.save(); ctx.clip(); const Rr = H.rng(41); ctx.strokeStyle = 'rgba(215,237,240,0.35)'; ctx.lineWidth = 2; for (let i = 0; i < 90; i++) { const X = Rr.range(-rW, rW), Z = 250 + ((Rr.range(0, 6000) - t * 160) % 6000 + 6000) % 6000, a = P3(rX(Z) + X, 0, Z), b = P3(rX(Z) + X, 0, Z + 60); ctx.beginPath(); ctx.moveTo(a[0], a[1]); ctx.lineTo(b[0], b[1]); ctx.stroke(); } ctx.restore();
+  // trazado del túnel bajo el río (discontinuo)
+  if (o.tunnel) { ctx.save(); ctx.globalAlpha *= o.tunnel; ctx.strokeStyle = TC.oro; ctx.lineWidth = 4; ctx.setLineDash([18, 12]); const Zt = 1500, a = P3(-1800, 0, Zt), b = P3(1800, 0, Zt); ctx.beginPath(); ctx.moveTo(a[0], a[1]); ctx.lineTo(b[0], b[1]); ctx.stroke(); ctx.restore(); }
+  // barcos
+  for (const [X, Z0, sp, c] of [[-120, 1600, 90, '#e8ecef'], [140, 2600, -70, '#d4a24e'], [-40, 4200, 60, '#c9cfd2']]) { const Z = Z0 + ((t * sp) % 1200), p = P3(rX(Z) + X, 0, Z), s = f / Z; tq(ctx, [[p[0] - 14 * s, p[1] - 40 * s], [p[0] + 14 * s, p[1] - 40 * s], [p[0] + 16 * s, p[1] + 40 * s], [p[0] - 16 * s, p[1] + 40 * s]], c); ctx.strokeStyle = 'rgba(215,237,240,0.5)'; ctx.lineWidth = Math.max(1, 3 * s); ctx.beginPath(); ctx.moveTo(p[0] - 16 * s, p[1] + 40 * s); ctx.lineTo(p[0] - 40 * s, p[1] + 140 * s); ctx.moveTo(p[0] + 16 * s, p[1] + 40 * s); ctx.lineTo(p[0] + 40 * s, p[1] + 140 * s); ctx.stroke(); }
+  // ciudad: bloques extruidos en ambas orillas (de lejos a cerca)
+  const blocks = []; { const Rr = H.rng(43); for (let Z = 300; Z < 7000; Z += Rr.range(120, 220)) for (const s of [-1, 1]) for (let j = 0; j < 4; j++) { const X = rX(Z) + s * (rW + 90 + j * 260 + Rr.range(0, 60)), w = Rr.range(120, 200), d = Rr.range(100, 180), hb = Rr.range(80, 420) * (j === 0 ? 0.6 : 1); blocks.push({ X, Z, w, d, hb, c: Rr() < 0.5 ? '#3a4d5a' : '#465b68' }); } }
+  blocks.sort((a, b) => b.Z - a.Z).forEach((b) => { const x0 = b.X - b.w / 2, x1 = b.X + b.w / 2, z0 = b.Z, z1 = b.Z + b.d; const F = [P3(x0, 0, z0), P3(x1, 0, z0), P3(x1, b.hb, z0), P3(x0, b.hb, z0)], T = [P3(x0, b.hb, z0), P3(x1, b.hb, z0), P3(x1, b.hb, z1), P3(x0, b.hb, z1)]; const side = b.X < 0 ? [P3(x1, 0, z0), P3(x1, 0, z1), P3(x1, b.hb, z1), P3(x1, b.hb, z0)] : [P3(x0, 0, z0), P3(x0, 0, z1), P3(x0, b.hb, z1), P3(x0, b.hb, z0)]; tq(ctx, side, '#2b3a44'); tq(ctx, F, b.c); tq(ctx, T, '#6f8592'); if (o.dusk) { ctx.fillStyle = 'rgba(255,214,150,0.5)'; const s = f / z0; for (let yy = 12; yy < b.hb - 10; yy += 26) { const p = P3(x0 + 10, yy, z0); ctx.fillRect(p[0], p[1] - 6 * s, (b.w - 20) * s, 6 * s); } } });
+  ctx.restore();
+ };
+ // Cabeza de corte vista de frente: aro, radios, aberturas con terreno, cortadores de disco y rascadores. ang = giro.
+ P.cutterFace = (ctx, cx, cy, R, ang, t, o = {}) => {
+  ctx.save(); const gl = o.glow ?? 1;
+  ctx.fillStyle = '#2a1f17'; ctx.beginPath(); ctx.arc(cx, cy, R * 1.04, 0, TAU); ctx.fill();
+  const g = ctx.createRadialGradient(cx - R * 0.3, cy - R * 0.3, R * 0.1, cx, cy, R); g.addColorStop(0, '#f2bd5c'); g.addColorStop(1, '#b77a22'); ctx.fillStyle = g; ctx.beginPath(); ctx.arc(cx, cy, R, 0, TAU); ctx.fill();
+  // aberturas (entre radios) por donde pasa el terreno a la cámara
+  for (let i = 0; i < 6; i++) { const a0 = ang + (i * TAU) / 6 + 0.16, a1 = ang + ((i + 1) * TAU) / 6 - 0.16; ctx.beginPath(); ctx.arc(cx, cy, R * 0.9, a0, a1); ctx.arc(cx, cy, R * 0.3, a1, a0, true); ctx.closePath(); ctx.fillStyle = '#4a3627'; ctx.fill(); ctx.fillStyle = 'rgba(122,98,72,0.8)'; ctx.fill(); }
+  // radios con cortadores de disco y rascadores
+  for (let i = 0; i < 6; i++) { const a = ang + (i * TAU) / 6; for (let r = 0.36; r <= 0.95; r += 0.12) { const x = cx + Math.cos(a) * R * r, y = cy + Math.sin(a) * R * r; ctx.fillStyle = TC.acero; ctx.beginPath(); ctx.arc(x, y, R * 0.045, 0, TAU); ctx.fill(); ctx.strokeStyle = TC.aceroL; ctx.lineWidth = R * 0.012; ctx.stroke(); } for (const s of [-1, 1]) { const aa = a + s * 0.2; for (let r = 0.4; r < 0.9; r += 0.16) { const x = cx + Math.cos(aa) * R * r, y = cy + Math.sin(aa) * R * r; ctx.save(); ctx.translate(x, y); ctx.rotate(aa); ctx.fillStyle = '#d7dde0'; ctx.fillRect(-R * 0.03, -R * 0.012, R * 0.06, R * 0.024); ctx.restore(); } } }
+  ctx.strokeStyle = '#8a5a14'; ctx.lineWidth = R * 0.05; ctx.beginPath(); ctx.arc(cx, cy, R * 0.97, 0, TAU); ctx.stroke(); for (let k = 0; k < 36; k++) { const a = ang + (k * TAU) / 36; ctx.fillStyle = TC.acero; ctx.beginPath(); ctx.arc(cx + Math.cos(a) * R * 0.99, cy + Math.sin(a) * R * 0.99, R * 0.025, 0, TAU); ctx.fill(); }
+  ctx.fillStyle = '#9a6a1f'; ctx.beginPath(); ctx.arc(cx, cy, R * 0.16, 0, TAU); ctx.fill(); ctx.fillStyle = TC.acero; ctx.beginPath(); ctx.arc(cx, cy, R * 0.07, 0, TAU); ctx.fill();
+  if (gl) P.glow(ctx, cx - R * 0.4, cy - R * 0.5, R * 0.8, '255,220,150', 0.18 * gl);
+  ctx.restore(); return { disc: [cx + Math.cos(ang) * R * 0.6, cy + Math.sin(ang) * R * 0.6], opening: [cx + Math.cos(ang + 0.52) * R * 0.6, cy + Math.sin(ang + 0.52) * R * 0.6], rim: [cx + R * 0.7, cy + R * 0.7] };
+ };
+ // Montaje de un anillo visto de frente dentro de la cola del escudo: anillo anterior (desfasado), dovelas colocadas,
+ // erector con pinza que lleva la dovela actual (eleva → gira → posiciona), cierre con la dovela llave. o: { placed (0..7 continuo) }
+ P.ringBuild = (ctx, cx, cy, R, t, o = {}) => {
+  const Ro = R, Ri = R * 0.84, n = 7, off = -Math.PI / 2 + Math.PI / n, pl = o.placed ?? 0, k = Math.floor(pl), u = pl - k, gap = 0.016;
+  const seg = (a0, a1, rr, c, fill = true) => { ctx.beginPath(); ctx.arc(cx, cy, rr, a0, a1); ctx.arc(cx, cy, rr - (Ro - Ri), a1, a0, true); ctx.closePath(); ctx.fillStyle = c; ctx.fill(); ctx.strokeStyle = TC.sello; ctx.lineWidth = Math.max(2, R * 0.01); ctx.stroke(); };
+  ctx.save();
+  // escudo (piel de acero) y su interior
+  ctx.fillStyle = TC.acero; ctx.beginPath(); ctx.arc(cx, cy, R * 1.1, 0, TAU); ctx.arc(cx, cy, R * 1.0, 0, TAU, true); ctx.fill(); ctx.fillStyle = '#1a2328'; ctx.beginPath(); ctx.arc(cx, cy, R, 0, TAU); ctx.fill();
+  // anillo anterior (detrás, juntas desfasadas)
+  for (let i = 0; i < n; i++) { const a0 = off + Math.PI / n + (i * TAU) / n + gap, a1 = off + Math.PI / n + ((i + 1) * TAU) / n - gap; seg(a0, a1, Ro * 0.985, '#7d878a'); }
+  // dovelas ya colocadas del anillo actual (orden: abajo → lados → arriba; la última es la llave)
+  const order = [3, 4, 2, 5, 1, 6, 0]; const ang = (j) => [off + (j * TAU) / n + gap, off + ((j + 1) * TAU) / n - gap];
+  for (let i = 0; i < Math.min(k, n); i++) { const [a0, a1] = ang(order[i]); seg(a0, a1, Ro, TC.hormigon); }
+  // erector: buje central, viga radial y pinza que sostiene la dovela actual
+  ctx.fillStyle = '#4b5d68'; ctx.beginPath(); ctx.arc(cx, cy, R * 0.22, 0, TAU); ctx.fill(); ctx.strokeStyle = '#2c3a42'; ctx.lineWidth = R * 0.03; ctx.stroke();
+  if (k < n) { const j = order[k], [a0, a1] = ang(j), am = (a0 + a1) / 2, start = Math.PI / 2, ph1 = E.inOut(cl(u / 0.25)), ph2 = E.inOut(cl((u - 0.25) / 0.45)), ph3 = E.inOut(cl((u - 0.7) / 0.3)); let d = am - start; while (d > Math.PI) d -= TAU; while (d < -Math.PI) d += TAU; const a = start + d * ph2, rr = lerp(Ro * 0.62, Ro * 0.72, ph1) + (Ro - Ro * 0.72) * ph3, da = a - am;
+   ctx.strokeStyle = TC.oro; ctx.lineWidth = R * 0.06; ctx.lineCap = 'round'; ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(cx + Math.cos(a) * (rr - (Ro - Ri) - R * 0.03), cy + Math.sin(a) * (rr - (Ro - Ri) - R * 0.03)); ctx.stroke(); ctx.lineCap = 'butt';
+   seg(a0 + da, a1 + da, rr, '#c9d1d3'); ctx.fillStyle = TC.oro; ctx.save(); ctx.translate(cx + Math.cos(a) * (rr - (Ro - Ri) - R * 0.03), cy + Math.sin(a) * (rr - (Ro - Ri) - R * 0.03)); ctx.rotate(a + Math.PI / 2); ctx.fillRect(-R * 0.08, -R * 0.02, R * 0.16, R * 0.04); ctx.restore();
+   if (o.feeder !== false) { ctx.fillStyle = '#56636b'; ctx.fillRect(cx - R * 0.35, cy + R * 0.62, R * 0.7, R * 0.08); } }
+  ctx.restore();
+  const [b0, b1] = ang(order[Math.max(0, Math.min(k, n) - 1)]); return { erector: [cx, cy], ring: [cx + Math.cos((b0 + b1) / 2) * (Ro + Ri) / 2, cy + Math.sin((b0 + b1) / 2) * (Ro + Ri) / 2], prev: [cx + Math.cos(off + 0.3) * Ro * 0.92, cy + Math.sin(off + 0.3) * Ro * 0.92], shield: [cx + R * 0.74, cy - R * 0.74] };
+ };
+ // Junta entre dovelas en macro (corte por la junta): dos cantos de hormigón con ranura, sello elastomérico (perfil con huecos)
+ // que se comprime al cerrar la junta; agua y terreno presionan desde fuera (arriba); la lechada rellena el espacio anular.
+ P.gasketHD = (ctx, cx, cy, s, t, o = {}) => {
+  const c = cl(o.close ?? 1), gap = lerp(s * 0.5, s * 0.06, c), th = s * 1.6, gw = s * 0.36, gh = lerp(s * 0.3, s * 0.2, c);
+  ctx.save();
+  // exterior: lechada y terreno con agua a presión
+  ctx.fillStyle = TC.arcilla; ctx.fillRect(cx - s * 4, cy - th / 2 - s * 1.6, s * 8, s * 1.0); ctx.fillStyle = TC.lechada; ctx.fillRect(cx - s * 4, cy - th / 2 - s * 0.6, s * 8, s * 0.6);
+  const wa = o.water ?? 1; if (wa > 0) { ctx.save(); ctx.globalAlpha *= wa; ctx.fillStyle = 'rgba(41,135,167,0.55)'; ctx.beginPath(); ctx.moveTo(cx - gap / 2 - s * 0.4, cy - th / 2 - s * 0.6); ctx.lineTo(cx + gap / 2 + s * 0.4, cy - th / 2 - s * 0.6); ctx.lineTo(cx + gap / 2, cy - th / 2); ctx.lineTo(cx + gap / 2, cy - th / 2 + s * 0.42); ctx.lineTo(cx - gap / 2, cy - th / 2 + s * 0.42); ctx.lineTo(cx - gap / 2, cy - th / 2); ctx.closePath(); ctx.fill(); for (const dx of [-1.6, 0, 1.6]) { ctx.save(); ctx.translate(cx + dx * s, cy - th / 2 - s * 1.5); ctx.rotate(Math.PI / 2); P.hArrow(ctx, 0, 0, s * 0.7, TC.presion, s * 0.16); ctx.restore(); } ctx.restore(); }
+  // dos dovelas (cantos) con ranura para el sello
+  for (const sg of [-1, 1]) { const x0 = sg < 0 ? cx - s * 4 : cx + gap / 2, x1 = sg < 0 ? cx - gap / 2 : cx + s * 4; const g = ctx.createLinearGradient(0, cy - th / 2, 0, cy + th / 2); g.addColorStop(0, '#c7cfd1'); g.addColorStop(1, '#949ea1'); ctx.fillStyle = g; ctx.fillRect(x0, cy - th / 2, x1 - x0, th); ctx.fillStyle = 'rgba(0,0,0,0.08)'; const Rr = H.rng(sg > 0 ? 3 : 4); for (let i = 0; i < 80; i++) ctx.fillRect(Rr.range(x0, x1), Rr.range(cy - th / 2, cy + th / 2), 2, 2);
+   const ex = sg < 0 ? cx - gap / 2 : cx + gap / 2; ctx.fillStyle = '#2a3337'; ctx.fillRect(sg < 0 ? ex - gw * 0.55 : ex, cy - th / 2 + s * 0.42, gw * 0.55, gh + s * 0.04);
+   // sello elastomérico con huecos (se comprime y ensancha)
+   const gx0 = sg < 0 ? ex - gw * 0.55 : ex - (gw * 0.5 - gw * 0.55) * 0, gx = sg < 0 ? ex - gw * 0.5 : ex, wgt = gw * 0.5 + (c > 0.5 ? (c - 0.5) * 0.12 * s : 0); ctx.fillStyle = TC.sello; ctx.beginPath(); ctx.roundRect(sg < 0 ? ex - gw * 0.5 : ex, cy - th / 2 + s * 0.44, wgt, gh, s * 0.04); ctx.fill(); ctx.fillStyle = '#1b2226'; for (let i = 0; i < 3; i++) { ctx.beginPath(); ctx.ellipse((sg < 0 ? ex - gw * 0.5 : ex) + wgt * (0.2 + i * 0.3), cy - th / 2 + s * 0.44 + gh * 0.5, wgt * 0.08, gh * 0.25 * (1 - 0.5 * c), 0, 0, TAU); ctx.fill(); } void gx0; void gx; }
+  // perno curvo de unión entre dovelas
+  ctx.strokeStyle = '#5a6a73'; ctx.lineWidth = s * 0.12; ctx.beginPath(); ctx.moveTo(cx - s * 1.4, cy + th * 0.3); ctx.quadraticCurveTo(cx, cy + th * 0.05, cx + s * 1.4, cy + th * 0.3); ctx.stroke();
+  // interior del túnel (seco)
+  ctx.fillStyle = 'rgba(67,208,198,0.18)'; ctx.fillRect(cx - s * 4, cy + th / 2, s * 8, s * 0.9);
+  ctx.restore();
+  return { gasket: [cx, cy - th / 2 + s * 0.44 + gh / 2], water: [cx + s * 1.6, cy - th / 2 - s * 1.5], grout: [cx - s * 2.6, cy - th / 2 - s * 0.3], segL: [cx - s * 2.6, cy + th * 0.1], segR: [cx + s * 2.6, cy + th * 0.1], bolt: [cx + s * 1.0, cy + th * 0.22], inside: [cx - s * 2.8, cy + th / 2 + s * 0.45] };
+ };
+ // Interior de un túnel ferroviario terminado en perspectiva: anillos que se alejan, juntas, luminarias, bandejas de cables, andén de evacuación, vía y tren.
+ // o: { train (z del frente del tren; null = sin tren), dir (1 se aleja / −1 se acerca), speed (para las luces), cam (desplazamiento lateral) }
+ P.tunnelView = (ctx, t, o = {}) => {
+  const vx = 540 + (o.cam || 0), vy = 900, F = 520, pr = (X, Y, z) => [vx + (X * F) / z, vy + (Y * F) / z];
+  ctx.save(); ctx.fillStyle = '#0d1418'; ctx.fillRect(0, 0, 1080, 1920);
+  // paredes: discos rellenos de cerca a lejos (más oscuros con la distancia) y juntas de anillo
+  const zf = 60, sp = o.speed ?? 0, ph = (t * sp) % 0.6; for (let z = 0.3; z <= zf; z += 0.6) { const zz = z - ph; if (zz < 0.3) continue; const p = pr(0, 0, zz), rr = F / zz, sh = Math.max(0, Math.min(1, 1.1 / zz)); ctx.fillStyle = `rgb(${Math.round(26 + 104 * sh)},${Math.round(34 + 106 * sh)},${Math.round(38 + 106 * sh)})`; ctx.beginPath(); ctx.arc(p[0], p[1], rr, 0, TAU); ctx.fill(); ctx.strokeStyle = `rgba(20,26,30,${0.25 + 0.4 * sh})`; ctx.lineWidth = Math.max(1, 6 / zz); ctx.stroke(); for (let k = 0; k < 7; k++) { const a = ((Math.round(z / 0.6) % 2) * 0.45) + (k * TAU) / 7; ctx.beginPath(); ctx.moveTo(p[0] + Math.cos(a) * rr, p[1] + Math.sin(a) * rr); ctx.lineTo(p[0] + Math.cos(a) * F / (zz + 0.6), p[1] + Math.sin(a) * F / (zz + 0.6)); ctx.stroke(); } }
+  ctx.fillStyle = '#0e1418'; ctx.beginPath(); ctx.arc(vx, vy, F / zf, 0, TAU); ctx.fill();
+  // luminarias en la clave y bandejas
+  for (let z = 1; z < 40; z += 2.4) { const zz = z - ((t * sp) % 2.4); if (zz < 0.7) continue; const a = pr(-0.55, -0.72, zz), b = pr(0.55, -0.72, zz); P.glow(ctx, a[0], a[1], 90 / zz, '255,236,200', 0.6); P.glow(ctx, b[0], b[1], 90 / zz, '255,236,200', 0.6); }
+  ctx.strokeStyle = 'rgba(60,70,76,0.9)'; ctx.lineWidth = 6; for (const X of [-0.9, 0.9]) { const a = pr(X, -0.2, 0.3), b = pr(X, -0.2, zf); ctx.beginPath(); ctx.moveTo(a[0], a[1]); ctx.lineTo(b[0], b[1]); ctx.stroke(); }
+  // solera, andén y vía
+  tq(ctx, [pr(-0.84, 0.55, 0.28), pr(0.84, 0.55, 0.28), pr(0.84, 0.55, zf), pr(-0.84, 0.55, zf)], '#6f787b'); tq(ctx, [pr(0.55, 0.42, 0.28), pr(0.9, 0.42, 0.28), pr(0.9, 0.42, zf), pr(0.55, 0.42, zf)], '#8e979a'); tq(ctx, [pr(0.55, 0.42, 0.28), pr(0.55, 0.55, 0.28), pr(0.55, 0.55, zf), pr(0.55, 0.42, zf)], '#5c6669');
+  for (let z = 0.3; z < 30; z += 0.35) { const zz = z - ((t * sp) % 0.35); if (zz < 0.29) continue; tq(ctx, [pr(-0.42, 0.55, zz), pr(0.32, 0.55, zz), pr(0.32, 0.55, zz + 0.08), pr(-0.42, 0.55, zz + 0.08)], '#3a3f42'); }
+  for (const X of [-0.32, 0.22]) { ctx.strokeStyle = '#c9d2d6'; ctx.lineWidth = 4; const a = pr(X, 0.54, 0.28), b = pr(X, 0.54, zf); ctx.beginPath(); ctx.moveTo(a[0], a[1]); ctx.lineTo(b[0], b[1]); ctx.stroke(); }
+  // tren (frente visto de cara cuando se acerca)
+  if (o.train != null && o.train > 0.6) { const z = o.train, w = 0.62, h = 1.0, a = pr(-0.05 - w / 2 - 0.0, 0.54 - h, z), b = pr(-0.05 + w / 2, 0.54, z); const W = b[0] - a[0], Hh = b[1] - a[1]; ctx.fillStyle = '#d9dee0'; ctx.beginPath(); ctx.roundRect(a[0], a[1], W, Hh, [W * 0.28, W * 0.28, W * 0.04, W * 0.04]); ctx.fill(); ctx.fillStyle = 'rgba(40,60,75,0.92)'; ctx.fillRect(a[0] + W * 0.12, a[1] + Hh * 0.14, W * 0.76, Hh * 0.3); ctx.fillStyle = TC.protegida; ctx.fillRect(a[0], a[1] + Hh * 0.66, W, Hh * 0.04); for (const s of [0.2, 0.8]) P.glow(ctx, a[0] + W * s, a[1] + Hh * 0.8, W * 0.35, '255,240,200', 0.85); }
+  ctx.restore(); return { pr };
+ };
  // ---------------- SUBTÍTULOS (arriba, palabra a palabra, palabra clave seleccionada) ----------------
  // Trozos de ≤3 palabras (≤4 si son cortas); las palabras aparecen al decirse: la actual en blanco y negrita,
  // las ya dichas en gris; la palabra clave lleva recuadro de selección con asas en el color de acento.
@@ -2437,6 +2665,10 @@
   hidraulico: (k, t, d = 1.2, g = 1) => { k.noise(t, { dur: d, color: 'pink', filter: 'bandpass', f: [[0, 700], [d * 0.5, 1300], [d, 800]], q: 1.4, gain: 0.06 * g, a: 0.15, hold: d * 0.5 }); k.tone(t, { f: [[0, 110], [d, 140]], type: 'triangle', dur: d, gain: 0.03 * g, a: 0.2 }); },
   metal: (k, t, g = 1) => { k.play('tock', t, { f: 1500, gain: 0.3 * g }); k.tone(t, { f: 2300, dur: 0.6, gain: 0.03 * g, a: 0.002, minor: true }); },
   trafico: (k, t, d, g = 1) => { k.noise(t, { dur: d, color: 'pink', filter: 'bandpass', f: 600, q: 0.6, gain: 0.03 * g, a: 1, hold: d * 0.7 }); const R = H.rng(Math.round(t * 3)); for (let x = 0.5; x < d - 1; x += R.range(1.5, 3)) k.noise(t + x, { dur: 1.4, color: 'pink', filter: 'bandpass', f: [[0, 400], [0.7, 900], [1.4, 380]], q: 1, gain: 0.03 * g, a: 0.5, minor: true }); },
+  // v1.16 · túneles
+  corteTBM: (k, t, d, g = 1) => { k.noise(t, { dur: d, color: 'brown', filter: 'bandpass', f: [[0, 160], [d * 0.5, 220], [d, 170]], q: 0.9, gain: 0.12 * g, a: Math.min(0.8, d * 0.2), hold: d * 0.7 }); k.tone(t, { f: 42, type: 'sawtooth', dur: d, gain: 0.04 * g, filter: 'lowpass', f2: 300, a: 0.4, hold: d * 0.7 }); const R = H.rng(Math.round(t * 13)); for (let x = 0.2; x < d - 0.2; x += R.range(0.18, 0.4)) k.noise(t + x, { dur: 0.09, color: 'pink', filter: 'bandpass', f: R.range(700, 1500), q: 2, gain: 0.05 * g, a: 0.004, minor: true }); },
+  sinfin: (k, t, d, g = 1) => { k.tone(t, { f: 65, type: 'triangle', dur: d, gain: 0.05 * g, a: 0.3, hold: d * 0.7 }); for (let x = 0; x < d; x += 0.33) k.noise(t + x, { dur: 0.22, color: 'brown', filter: 'bandpass', f: 380, q: 1.2, gain: 0.06 * g, a: 0.02, minor: true }); },
+  tren: (k, t, d, g = 1) => { k.noise(t, { dur: d, color: 'brown', filter: 'lowpass', f: [[0, 200], [d * 0.6, 700], [d, 250]], gain: 0.14 * g, a: d * 0.4, hold: d * 0.3 }); for (let x = 0.3; x < d - 0.3; x += 0.24) k.play('tick', t + x, { f: 700, gain: 0.07 * g, minor: true }); },
  };
  // ---------------- MÚSICA ORQUESTAL SINTÉTICA (v1.13) ----------------
  // MUS.epica(k, t0, t1, { bpm, chords, gain, drums (0..1), strings (0..1), drone, ostinato (0..1) }): cuerdas con ataque lento,

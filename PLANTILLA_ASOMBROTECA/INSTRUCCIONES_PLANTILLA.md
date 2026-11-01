@@ -157,6 +157,22 @@ La piel se elige con `skin: 'plana' | 'oscura'` en `PLANTILLA.make`. Los bloques
 | `laborer`, `porter`, `oxcart`, `packAnimal` | Trabajador con ropa y sombrero variados; porteador con pértiga y dos cestas; carro de dos ruedas con buey y ruedas que giran; mula con alforjas. Cargas: `tierra`, `piedra` o `ladrillos` |
 | `dust(ctx, x, y, t, t0, {s})` | Nube de polvo determinista |
 
+**v1.16 · túneles bajo ríos (episodio «Túnel bajo el río»):**
+
+| Bloque | Uso |
+|---|---|
+| `TUN`, `TC` | **Sistema de coordenadas único** del río y el túnel: nivel del terreno `GS`, superficie del agua `WS`, perfil del lecho `bed(x)`, capas `layers` (arena, arcilla, grava, roca), eje `TY`, radio `R`, anchura de anillo `w`, espesor `ti`, pozos `x0`/`x1`; `TC` = paleta (agua, terreno, acero, cabeza de corte, hormigón, sellos, presión, zona protegida) |
+| `tbmState(cyc, base)` | Estado de avance a partir de un número continuo de anillos: excava (0–0,6: la cabeza avanza una anchura de anillo empujada por los cilindros) y monta (0,6–1: el erector coloca 7 dovelas). Devuelve `xm` (frente), `rf` (cara del último anillo), `build`, `adv` |
+| `tunWorld(ctx, t, {st, mode, press, support, watertable, tbm, glow, dusk})` | Sección longitudinal por el eje del túnel: cielo, ciudad en profundidad, río en sección con rayos y partículas, barcos, capas, nivel freático, pozo de ataque (y de salida), revestimiento de anillos con juntas escalonadas y sellos, relleno anular de lechada, y la tuneladora (`tbmSide`) o el túnel terminado (solera, vía, luces, tren). `press` = empuje del terreno y del agua; `support` = presión de soporte en la cámara. Devuelve puntos para rótulos |
+| `tbmSide(ctx, st, t, o)` | Tuneladora EPB en sección: cabeza de corte (solo ella gira), cámara con terreno acondicionado, mamparo con sensores, tornillo sinfín con hélice animada, cinta, vagonetas, cilindros de empuje apoyados en el último anillo, erector con dovela, cepillos de cola, inyección de lechada y equipos posteriores sobre ruedas. `glow`: `head`, `chamber`, `screw`, `cyl`, `erector` |
+| `tunCross(ctx, t, {mode, train, press, xray, flow, boats, dusk})` | Sección transversal: el río fluye a lo ancho (barcos, corriente, rayos), lecho con vegetación, capas y el túnel (anillo de 7 dovelas con sellos, lechada, interior con vía y tren de frente). `xray` = corte transparente del terreno sobre el túnel |
+| `riverAerial(ctx, t, {alt, tunnel, dusk})` | Toma aérea en perspectiva de un río entre manzanas de ciudad, barcos con estela; `alt` 1→0 desciende hasta el agua; `tunnel` dibuja el trazado bajo el río |
+| `cutterFace(ctx, cx, cy, R, ang, t)` | Cabeza de corte de frente: aro, radios, cortadores de disco, rascadores y aberturas por donde entra el terreno |
+| `ringBuild(ctx, cx, cy, R, t, {placed})` | Montaje de un anillo de frente dentro del escudo: anillo anterior con juntas desfasadas, dovelas colocadas y el erector que toma, eleva, gira y posiciona la actual; la llave cierra el anillo (`placed` 0–7 continuo) |
+| `gasketHD(ctx, cx, cy, s, t, {close, water})` | Macro de una junta: dos cantos de dovela con ranura, sello elastomérico con huecos que se comprime, agua a presión desde fuera, lechada, perno e interior seco |
+| `tunnelView(ctx, t, {train, speed, cam})` | Interior de un túnel ferroviario terminado en perspectiva: anillos rellenos con juntas, luminarias, bandejas, andén, vía y un tren que se acerca |
+| FX `corteTBM`, `sinfin`, `tren` | Giro de la cabeza de corte contra el terreno, tornillo sinfín, paso de un tren (se combinan con `chapuzon`, `bajoAgua`, `corriente`, `hidraulico`, `encaje`, `compresion`) |
+
 **v1.15.1 · puente cinematográfico y primeros planos mecánicos (revisión de «Puentes sísmicos»):**
 
 | Bloque | Uso |
