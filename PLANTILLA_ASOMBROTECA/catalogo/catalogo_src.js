@@ -59,6 +59,12 @@
   ['Grúa de muelle + contenedor (v1.9)', (c, t) => { const s = P.gantryCrane(c, 90, 290, 220, 0.6, 120); P.container(c, s[0] - 25, s[1], 50, 22, '#B7473C'); }],
   ['Salpicadura (v1.9)', (c, t) => { c.fillStyle = '#1378A8'; c.fillRect(0, 200, 400, 100); P.splash(c, 200, 200, 0.35, 0, { s: 70 }); }],
   ['Vaso con rebosadero · Arquímedes · columna (v1.9)', (c, t) => { P.column(c, 50, 290, 200, 30); P.greek(c, 130, 290, 160, { point: 1 }); P.beaker(c, 210, 150, 110, 130, 0.7, t, { spout: true, overflow: 1 }); }],
+  ['Espacio + estrellas + galaxia (v1.10)', (c, t) => { c.fillStyle = '#02040D'; c.fillRect(0, 0, 400, 300); P.galaxy(c, 200, 150, 140, { seed: 31, tilt: 0.36, rot: -0.5, core: '255,206,140', arm: '170,190,255' }); }],
+  ['Nave interestelar con propulsión (v1.10)', (c, t) => { c.fillStyle = '#02040D'; c.fillRect(0, 0, 400, 300); P.spaceship(c, 230, 150, 150, 0, t, { thrust: 1 }); }],
+  ['Reloj de misión (v1.10)', (c, t) => { c.save(); c.translate(200, 150); c.scale(0.8, 0.8); c.translate(-200, -150); P.missionClock(c, 200, 150, 'RELOJ DE LA NAVE', '28,6 años', '#46E6D2', { w: 420, px: 50, sub: 'tiempo propio', prog: 1 }); c.restore(); }],
+  ['Velocímetro relativista (v1.10)', (c, t) => P.speedGauge(c, 200, 160, 110, 3e-13, {})],
+  ['Diagrama de espacio-tiempo (v1.10)', (c, t) => P.spacetime(c, 50, 30, 300, 230, [{ pts: [[0, 0], [0, 0.95]], c: '#FFB45B', label: 'Tierra' }, { pts: [[0, 0], [0.2, 0.3], [0.7, 0.75], [0.85, 0.95]], c: '#46E6D2', ticks: [[0.2, 0.3], [0.7, 0.75]], label: 'nave' }])],
+  ['Cabina con ventana · científico (v1.10)', (c, t) => { c.save(); c.scale(400 / 1080, 300 / 1920 * 1.6); P.cockpit(c, t, (x, y, w, h) => { c.fillStyle = '#081B42'; c.fillRect(x, y, w, h); }); c.restore(); P.scientist(c, 330, 290, 140, { c: '#cfe6ff' }); }],
  ];
  window.drawCatalog = function () {
   document.querySelectorAll('canvas[data-i]').forEach((cv) => {

@@ -144,6 +144,23 @@ La piel se elige con `skin: 'plana' | 'oscura'` en `PLANTILLA.make`. Los bloques
 | `rings` | Ondas de radio, en anillo o dirigidas |
 | `clock` | Reloj analógico |
 
+**Bloques v1.10 (episodio «Viaje a Andrómeda»)** — espacio y relatividad:
+
+| Bloque | Uso |
+|---|---|
+| `REL.trip(D, a)` | **Simulación** de un viaje con aceleración propia constante (acelera la 1.ª mitad y frena la 2.ª) en años y años luz: `tauTot`, `tTot` y `at(f)` → `{ tau, t, x, beta, gamma, eta, oneMinusBeta }`. Úsala como fuente única de relojes, velocidades y distancias; `REL.G1` = 1 g |
+| `betaText(1 − v/c)` | v/c como texto con los nueves necesarios (nunca «1 c») |
+| `space(ctx)` · `starfield(ctx, t, {eta, cy, F})` | Fondo espacial y campo de estrellas con aberración relativista estilizada (rapidez `eta`) |
+| `galaxy(ctx, x, y, r, {seed, tilt, rot, core, arm})` | Galaxia espiral en caché (brazos, bulbo y polvo) |
+| `spaceship(ctx, x, y, s, ang, t, {thrust, cut})` | Nave interestelar con chorro de propulsión y corte por zonas |
+| `missionClock(ctx, x, y, label, value, color, {sub, prog})` | Panel de reloj o contador de misión |
+| `speedGauge(ctx, x, y, r, 1 − v/c)` | Velocímetro logarítmico que se acerca a c sin tocarla |
+| `spacetime(ctx, x, y, w, h, lines)` | Diagrama de Minkowski: líneas de universo, cono de luz y marcas de tiempo propio |
+| `cockpit(ctx, t, view)` | Cabina con ventana panorámica (el exterior se dibuja en un callback), consolas y astronauta de espaldas |
+| `scientist(ctx, x, y, h)` | Silueta histórica estilizada |
+
+Efectos `FX` de v1.10: `espacio`, `propulsion`, `aceleracion`, `frenado`, `reloj`, `galaxia`, `contraer` y `llegada`. Son recursos cinematográficos: en el vacío no se propaga el sonido.
+
 **Bloques v1.9 (episodio «El barco de acero»)** — flotación, hidrostática y barcos:
 
 | Bloque | Uso |

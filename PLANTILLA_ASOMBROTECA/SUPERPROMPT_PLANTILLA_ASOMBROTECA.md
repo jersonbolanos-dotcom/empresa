@@ -41,14 +41,15 @@ Actúa como director científico, guionista visual, animador Canvas/JavaScript, 
 - Usa metáforas visuales claras y comparaciones de escala con objetos cotidianos.
 - Pon un momento de énfasis en la idea clave.
 - Si existe una solución real, muéstrala explícitamente.
-- Subtítulos arriba, palabra a palabra, con 10–20 palabras clave en recuadro de selección.
-- Nada importante en los 250 px inferiores.
+- Subtítulos estándar Asombroteca: `capStyle: 'barra'` (blanco, sin caja, barra amarilla) con 10–25 palabras clave en amarillo. El estilo «selección» (arriba, palabra a palabra) queda como alternativa.
+- Contenido entre y ≈ 260 y 1400; los subtítulos van hacia y ≈ 1540. Nada importante en los 250 px inferiores.
 
 **SONIDO**
 - Cada aparición, etiqueta, flecha, tachado, contador, onomatopeya y transición lleva su efecto (`PLANTILLA.FX`), en el fotograma exacto.
 - La voz siempre delante.
 - Música original en un stem aparte, que se retira en los momentos sensibles.
-- Mezcla a unos −15 LUFS con pico ≤ −1 dBFS.
+- Mezcla a unos −14 LUFS con pico verdadero ≤ −1 dBFS (ducking de la música con la voz; ver `INSTRUCCIONES_PLANTILLA.md`).
+- En el espacio no se propaga el sonido: los efectos del vacío son recursos cinematográficos y así se documentan.
 
 **PROCESO**
 1. Preparar la voz con `tools/preparar_voz.sh`. Corregir los tramos, alinear y generar subtítulos (`js/datos.js`).
@@ -57,7 +58,8 @@ Actúa como director científico, guionista visual, animador Canvas/JavaScript, 
 4. Revisar una hoja de contacto de unos 20 instantes y corregir textos encimados o cortados.
 5. Si el modo es «Storyboard primero», entregar el storyboard (10–12 paneles dibujados con el mismo código) y esperar mi OK.
 6. Renderizar, generar los stems, mezclar y codificar.
-7. QC completo (ffprobe, decodificación, negros y congelados, sonoridad, md5 de la voz, determinismo) y documentación (README, QC, fuentes).
+7. QC completo (ffprobe, decodificación, negros y congelados, sonoridad, md5 de la voz, determinismo) y **retrocompatibilidad**: los episodios anteriores deben dar los mismos hashes con la plantilla nueva. Documentación: README, QC y fuentes.
+   - Borra los fotogramas temporales de los episodios ya entregados: un disco lleno hace fallar Chromium.
 8. Commit y push. Entrégame el MP4 en el chat y dime qué mejoras hiciste al prompt.
 
 **SI FALTA ALGO EN LA PLANTILLA**
@@ -72,3 +74,17 @@ Si mi video necesita algo que la plantilla no tiene (un objeto, gráfico, transi
 Dime qué añadiste.
 
 Si sientes que al prompt le falta algo para que el video se vea mejor, hazlo y explícamelo.
+
+**REGLAS APRENDIDAS EN LOS EPISODIOS (aplícalas siempre)**
+1. **Una fuente por cifra.** Cada número en pantalla lleva su fuente en `FUENTES_Y_DECISIONES.md`. Si es una estimación, se rotula «≈» o «(estimación)». Si no hay una cifra universal (p. ej. la densidad media de un barco), se muestra cualitativa («menos de 1»).
+2. **Cálculos verificados.** Si el guion da resultados numéricos (tiempos, velocidades, energías), impleméntalos como una **simulación** (p. ej. `P.REL` para relatividad) y verifícalos con un cálculo independiente (Python) antes de animar. Los contadores salen de la simulación y nunca se animan a mano para «cuadrar» con el guion.
+3. **Escala humana.** Pon una persona junto a cada objeto gigante (pirámide, bloque, turbina, generador).
+4. **Rótulos honestos.** «Mapa estilizado», «escala no real», «ilustración conceptual», «efecto estilizado», «hipótesis», «escenario idealizado», según corresponda.
+5. **Debates abiertos.** Muéstralos como tales: varias hipótesis, signos de pregunta y la palabra «hipótesis» en pantalla.
+6. **Fuerzas y magnitudes.** Cada fuerza tiene un color y una dirección fijos en todo el video (empuje verde hacia arriba, peso rojo hacia abajo…). Los equilibrios se alcanzan con movimiento amortiguado, no con paradas bruscas.
+7. **Límites físicos.** Nada supera lo que no puede superarse: velocímetros en fracción de c que nunca llegan a 1, tuberías llenas, la pared de la represa que no genera electricidad, etc.
+8. **Legibilidad.** En fondos claros (desierto, cielo, nieve), los textos llevan cápsula oscura semitransparente y hay una franja bajo los subtítulos.
+9. **Continuidad física.** Un mismo «mundo» o corte técnico atraviesa varias escenas con la cámara (`P.camAt`). Evita escenas aisladas tipo diapositiva.
+10. **Procesos con pasos.** Cuando el guion enumera pasos («localizar, recuperar y reparar»), muéstralos como una fila numerada que se enciende con la voz.
+11. **Cierres circulares.** Vuelve a la imagen del gancho, ahora entendida.
+12. **Transcripción.** Corrige en los subtítulos los errores de Whisper (nombres, cifras, «Asombroteca») sin tocar el audio. Las cifras habladas se escriben `2|dos` en `tramos.txt`.

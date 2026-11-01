@@ -851,6 +851,100 @@
  // Columna clásica (fondos históricos)
  P.column = (ctx, x, y, h, w = 60, c = '#e9e2d0') => { ctx.save(); ctx.fillStyle = c; ctx.fillRect(x - w / 2, y - h, w, h); ctx.fillRect(x - w * 0.7, y - h - w * 0.25, w * 1.4, w * 0.25); ctx.fillRect(x - w * 0.7, y - w * 0.2, w * 1.4, w * 0.2); ctx.strokeStyle = 'rgba(120,100,70,0.35)'; ctx.lineWidth = 2; for (let k = 1; k < 5; k++) { ctx.beginPath(); ctx.moveTo(x - w / 2 + k * w / 5, y - h); ctx.lineTo(x - w / 2 + k * w / 5, y - w * 0.2); ctx.stroke(); } ctx.restore(); };
 
+ // ======================= v1.10 · ESPACIO Y RELATIVIDAD (galaxias, naves, relojes, espacio-tiempo) =======================
+ // Física relativista de aceleración propia constante (unidades: años y años luz; c = 1 al/año; 1 g ≈ 1,0323 al/año²).
+ // REL.trip(D, a) → { tauTot, tTot, at(tauFrac) → { tau, t, x, beta, gamma, eta } } para ida acelerando la 1.ª mitad y frenando la 2.ª.
+ P.REL = (() => {
+  const G1 = 9.80665 * (365.25 * 86400) ** 2 / 9.4607304725808e15; // 1 g en al/año² ≈ 1,0323
+  const trip = (D, a = G1) => { const tauH = Math.acosh(1 + a * D / 2) / a, tauTot = 2 * tauH, tH = Math.sinh(a * tauH) / a, tTot = 2 * tH;
+   const at = (f) => { const tau = cl(f) * tauTot; let t, x, eta; if (tau <= tauH) { eta = a * tau; t = Math.sinh(eta) / a; x = (Math.cosh(eta) - 1) / a; } else { const r = tauTot - tau; eta = a * r; t = tTot - Math.sinh(eta) / a; x = D - (Math.cosh(eta) - 1) / a; } return { tau, t, x, eta, beta: Math.tanh(eta), gamma: Math.cosh(eta), oneMinusBeta: 2 / (Math.exp(2 * eta) + 1) }; };
+   return { D, a, tauH, tauTot, tTot, at }; };
+  return { G1, trip, gammaOf: (beta) => 1 / Math.sqrt(1 - beta * beta) };
+ })();
+ // v/c como texto con los nueves necesarios (nunca llega a 1): oneMinus = 1 − v/c
+ P.betaText = (oneMinus) => { if (oneMinus >= 0.1) return (1 - oneMinus).toFixed(3).replace('.', ',') + ' c'; const n = Math.min(14, Math.floor(-Math.log10(oneMinus))); const digits = 1 - oneMinus; let s = '0,' + '9'.repeat(n); const rest = Math.floor((digits * 10 ** (n + 1)) % 10); return s + rest + ' c'; };
+ // Campo de estrellas «hacia delante» con aberración relativista ESTILIZADA: proyección estereográfica cuyo radio se escala por e^(−η)
+ // (las estrellas se agrupan al frente y se azulan; detrás se enrojecen). o: { n, eta (rapidez visual), cx, cy, F, drift, seed, a }
+ let STARS3 = null;
+ P.starfield = (ctx, t, o = {}) => {
+  const n = o.n || 900; if (!STARS3 || STARS3.n !== n) { const R = H.rng(o.seed || 42), arr = []; for (let i = 0; i < n; i++) { const z = R() * 2 - 1, ph = R() * TAU, m = R(); arr.push([Math.acos(z), ph, Math.pow(m, 3), R()]); } STARS3 = { n, arr }; }
+  const cx = o.cx ?? W / 2, cy = o.cy ?? HH * 0.42, F = o.F || 520, k = Math.exp(-(o.eta || 0)), a0 = o.a ?? 1, dr = (o.drift || 0) * t;
+  ctx.save(); for (const [th, ph0, m, tw] of STARS3.arr) { const r = F * Math.tan(Math.min(th, 3.05) / 2) * k, ph = ph0 + dr * 0.02; const x = cx + Math.cos(ph) * r, y = cy + Math.sin(ph) * r; if (x < -10 || x > W + 10 || y < -10 || y > HH + 10) continue;
+   const fwd = Math.cos(2 * Math.atan(Math.tan(th / 2) * k)), dop = (o.eta || 0) > 0 ? cl(0.5 + 0.5 * fwd * Math.tanh(o.eta)) : 0.5; const col = dop > 0.5 ? [lerp(255, 170, (dop - 0.5) * 2), lerp(250, 205, (dop - 0.5) * 2), 255] : [255, lerp(200, 250, dop * 2), lerp(170, 240, dop * 2)];
+   const b = (0.35 + 0.65 * m) * (0.8 + 0.2 * Math.sin(t * 2 + tw * 9)) * a0 * (1 + ((o.eta || 0) > 0 ? cl(fwd) * 0.6 : 0)); ctx.fillStyle = `rgba(${col[0] | 0},${col[1] | 0},${col[2] | 0},${cl(b)})`; const s = 0.8 + m * 2.2; ctx.fillRect(x - s / 2, y - s / 2, s, s); if (m > 0.85) P.glow(ctx, x, y, s * 5, `${col[0] | 0},${col[1] | 0},${col[2] | 0}`, 0.35 * b); }
+  ctx.restore();
+ };
+ // Fondo de espacio profundo (degradado + neblina tenue) — sin nebulosas exageradas
+ P.space = (ctx, o = {}) => { const g = ctx.createLinearGradient(0, 0, 0, HH); g.addColorStop(0, o.top || '#02040D'); g.addColorStop(1, o.bot || '#081B42'); ctx.fillStyle = g; ctx.fillRect(-2000, -2000, W + 4000, HH + 4000); if (o.haze !== false) { P.glow(ctx, W * 0.7, HH * 0.3, 700, '87,52,166', 0.12); P.glow(ctx, W * 0.2, HH * 0.75, 600, '37,139,255', 0.08); } };
+ // Galaxia espiral (partículas en brazos logarítmicos + bulbo), pre-renderizada en caché. Dibujo: posición, radio, ángulo de giro, inclinación.
+ // o: { arms, tilt (0..1: 1 = de frente), rot, seed, core ('255,200,107'), arm ('140,180,255'), dust }
+ const GAL = {};
+ P.galaxy = (ctx, x, y, r, o = {}) => {
+  const key = [o.seed || 1, o.arms || 2, o.core || '', o.arm || '', o.dust ?? 1].join('|'); if (!GAL[key]) { const S = 900, c = H.layer(S, S), g = c.getContext('2d'), R = H.rng(o.seed || 1), arms = o.arms || 2; g.globalCompositeOperation = 'lighter';
+   const core = o.core || '255,200,107', arm = o.arm || '140,180,255';
+   const bg = g.createRadialGradient(S / 2, S / 2, 0, S / 2, S / 2, S * 0.5); bg.addColorStop(0, `rgba(${core},0.9)`); bg.addColorStop(0.08, `rgba(${core},0.55)`); bg.addColorStop(0.3, `rgba(${arm},0.12)`); bg.addColorStop(1, 'rgba(0,0,0,0)'); g.fillStyle = bg; g.fillRect(0, 0, S, S);
+   for (let i = 0; i < 26000; i++) { const k = Math.floor(R() * arms), u = Math.pow(R(), 0.7), th = u * 4.2 + k * TAU / arms + R.gauss() * 0.28 * (1 - u * 0.5), rr = (0.05 + u * 0.45) * S + R.gauss() * 10; const px = S / 2 + Math.cos(th) * rr, py = S / 2 + Math.sin(th) * rr, col = R() < 0.25 + 0.6 * (1 - u) ? core : arm; g.fillStyle = `rgba(${col},${R.range(0.05, 0.28)})`; const s = R.range(0.8, 2.6); g.fillRect(px, py, s, s); }
+   if ((o.dust ?? 1) > 0) { g.globalCompositeOperation = 'source-over'; for (let i = 0; i < 2500; i++) { const k = Math.floor(R() * arms), u = R(), th = u * 4.2 + k * TAU / arms + 0.35 + R.gauss() * 0.12, rr = (0.08 + u * 0.4) * S; g.fillStyle = `rgba(10,6,18,${R.range(0.05, 0.18)})`; g.beginPath(); g.arc(S / 2 + Math.cos(th) * rr, S / 2 + Math.sin(th) * rr, R.range(2, 6), 0, TAU); g.fill(); } }
+   GAL[key] = c; }
+  const im = GAL[key]; ctx.save(); ctx.translate(x, y); ctx.rotate(o.rot || 0); ctx.scale(1, o.tilt ?? 1); ctx.globalAlpha *= o.a ?? 1; ctx.globalCompositeOperation = 'lighter'; ctx.drawImage(im, -r, -r, r * 2, r * 2); ctx.restore();
+ };
+ // Nave interestelar de perfil (proa a la DERECHA): casco, anillo habitable, depósitos, escudo frontal y tobera con chorro (thrust 0..1).
+ // ang: rotación (π = proa a la izquierda, p. ej. para frenar). o: { cut (muestra el interior por zonas), labels }
+ P.spaceship = (ctx, x, y, s, ang = 0, t = 0, o = {}) => {
+  const th = o.thrust ?? 0; ctx.save(); ctx.translate(x, y); ctx.rotate(ang);
+  if (th > 0) { ctx.save(); ctx.globalCompositeOperation = 'lighter'; const L = s * (0.9 + 1.6 * th) * (0.95 + 0.05 * Math.sin(t * 30)); const g = ctx.createLinearGradient(-s * 0.95, 0, -s * 0.95 - L, 0); g.addColorStop(0, `rgba(230,255,255,${0.95 * th})`); g.addColorStop(0.25, `rgba(105,243,255,${0.7 * th})`); g.addColorStop(1, 'rgba(37,139,255,0)'); ctx.fillStyle = g; ctx.beginPath(); ctx.moveTo(-s * 0.95, -s * 0.09); ctx.lineTo(-s * 0.95 - L, -s * 0.02); ctx.lineTo(-s * 0.95 - L, s * 0.02); ctx.lineTo(-s * 0.95, s * 0.09); ctx.closePath(); ctx.fill(); P.glow(ctx, -s * 0.97, 0, s * 0.35, '105,243,255', 0.8 * th); ctx.restore(); }
+  const hull = ctx.createLinearGradient(0, -s * 0.12, 0, s * 0.12); hull.addColorStop(0, '#dfe8f2'); hull.addColorStop(0.5, '#8ea3b8'); hull.addColorStop(1, '#3b4b5e');
+  ctx.fillStyle = '#3b4b5e'; ctx.beginPath(); ctx.moveTo(-s * 0.95, -s * 0.12); ctx.lineTo(-s * 0.78, -s * 0.06); ctx.lineTo(-s * 0.78, s * 0.06); ctx.lineTo(-s * 0.95, s * 0.12); ctx.closePath(); ctx.fill();
+  ctx.fillStyle = hull; ctx.beginPath(); ctx.moveTo(-s * 0.8, -s * 0.06); ctx.lineTo(s * 0.62, -s * 0.06); ctx.quadraticCurveTo(s * 0.98, -s * 0.05, s * 1.0, 0); ctx.quadraticCurveTo(s * 0.98, s * 0.05, s * 0.62, s * 0.06); ctx.lineTo(-s * 0.8, s * 0.06); ctx.closePath(); ctx.fill();
+  for (const dx of [-0.6, -0.42, -0.24]) { ctx.fillStyle = '#6f8296'; ctx.beginPath(); ctx.ellipse(s * dx, 0, s * 0.08, s * 0.1, 0, 0, TAU); ctx.fill(); }
+  ctx.strokeStyle = '#cfdbe6'; ctx.lineWidth = s * 0.025; ctx.beginPath(); ctx.ellipse(s * 0.15, 0, s * 0.05, s * 0.26, 0, 0, TAU); ctx.stroke(); ctx.lineWidth = s * 0.012; for (const sgn of [-1, 1]) { ctx.beginPath(); ctx.moveTo(s * 0.15, sgn * s * 0.06); ctx.lineTo(s * 0.15, sgn * s * 0.25); ctx.stroke(); }
+  ctx.fillStyle = '#c9d6e2'; ctx.beginPath(); ctx.ellipse(s * 0.93, 0, s * 0.05, s * 0.14, 0, 0, TAU); ctx.fill();
+  ctx.fillStyle = 'rgba(54,217,255,0.9)'; for (let i = 0; i < 6; i++) ctx.fillRect(s * (0.35 + i * 0.04), -s * 0.035, s * 0.018, s * 0.012);
+  if ((o.cut || 0) > 0) { ctx.globalAlpha = o.cut; const zones = [[-0.95, -0.78, '#69F3FF'], [-0.7, -0.16, '#FFC86B'], [0.05, 0.26, '#46E6D2'], [0.86, 1.0, '#FF695F']]; zones.forEach(([a, b, c2]) => { ctx.fillStyle = H.rgba(H.hex(c2), 0.45); ctx.fillRect(s * a, -s * 0.07, s * (b - a), s * 0.14); }); ctx.globalAlpha = 1; }
+  ctx.restore();
+ };
+ // Reloj de misión (panel): etiqueta, valor grande y barra de progreso. o: { sub, prog 0..1, w, px }
+ P.missionClock = (ctx, x, y, label, value, color, o = {}) => {
+  const w = o.w || 440, h = o.h || 150, px = o.px || 58; ctx.save(); P.rr(ctx, x - w / 2, y - h / 2, w, h, 22, 'rgba(2,4,13,0.82)'); ctx.strokeStyle = color; ctx.lineWidth = 3; ctx.beginPath(); ctx.roundRect(x - w / 2, y - h / 2, w, h, 22); ctx.stroke();
+  ctx.fillStyle = color; ctx.font = '700 22px "IBM Plex Mono"'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(label, x, y - h * 0.3); ctx.font = `700 ${px}px "Space Grotesk"`; ctx.fillStyle = '#F6FAFF'; ctx.fillText(value, x, y + h * 0.04);
+  if (o.sub) { ctx.font = '600 18px "IBM Plex Mono"'; ctx.fillStyle = 'rgba(246,250,255,0.7)'; ctx.fillText(o.sub, x, y + h * 0.33); }
+  if (o.prog != null) { ctx.fillStyle = 'rgba(246,250,255,0.15)'; ctx.fillRect(x - w / 2 + 20, y + h / 2 - 14, w - 40, 5); ctx.fillStyle = color; ctx.fillRect(x - w / 2 + 20, y + h / 2 - 14, (w - 40) * cl(o.prog), 5); }
+  ctx.restore();
+ };
+ // Velocímetro en fracción de c: aguja que se acerca a c sin tocarla (escala logarítmica en 1 − v/c). o: { label }
+ P.speedGauge = (ctx, x, y, r, oneMinus, o = {}) => {
+  const p = cl(Math.log10(Math.max(1e-14, Math.min(1, oneMinus))) / -14); ctx.save(); ctx.lineCap = 'round'; ctx.strokeStyle = 'rgba(246,250,255,0.15)'; ctx.lineWidth = r * 0.12; ctx.beginPath(); ctx.arc(x, y, r, Math.PI * 0.8, Math.PI * 2.2); ctx.stroke();
+  ctx.strokeStyle = '#36D9FF'; ctx.beginPath(); ctx.arc(x, y, r, Math.PI * 0.8, Math.PI * 0.8 + Math.PI * 1.4 * p * 0.985); ctx.stroke();
+  ctx.strokeStyle = '#FF695F'; ctx.lineWidth = r * 0.05; const ea = Math.PI * 2.2; ctx.beginPath(); ctx.moveTo(x + Math.cos(ea) * r * 0.82, y + Math.sin(ea) * r * 0.82); ctx.lineTo(x + Math.cos(ea) * r * 1.18, y + Math.sin(ea) * r * 1.18); ctx.stroke();
+  ctx.fillStyle = '#FF695F'; ctx.font = `700 ${r * 0.16}px "IBM Plex Mono"`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('c', x + Math.cos(ea) * r * 1.32, y + Math.sin(ea) * r * 1.32);
+  const bt = P.betaText(oneMinus), fs = Math.min(r * 0.2, (r * 1.55) / (bt.length * 0.56)); ctx.fillStyle = '#F6FAFF'; ctx.font = `700 ${fs}px "Space Grotesk"`; ctx.fillText(bt, x, y + r * 0.05); ctx.font = `600 ${r * 0.11}px "IBM Plex Mono"`; ctx.fillStyle = 'rgba(246,250,255,0.75)'; ctx.fillText(o.label || 'velocidad / c', x, y + r * 0.35); ctx.restore();
+ };
+ // Diagrama de espacio-tiempo (Minkowski): x horizontal, t hacia arriba, conos de luz a 45°, líneas de universo con marcas de tiempo propio.
+ // lines: [{ pts: [[x, t]…] (unidades del diagrama 0..1), c, ticks: [[x, t]…], label }]. Devuelve map(x, t) → [px, py].
+ P.spacetime = (ctx, x, y, w, h, lines = [], o = {}) => {
+  const map = (u, v) => [x + u * w, y + h - v * h]; ctx.save(); P.rr(ctx, x - 20, y - 20, w + 40, h + 40, 20, 'rgba(2,4,13,0.75)');
+  ctx.strokeStyle = 'rgba(246,250,255,0.5)'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(...map(0, 0)); ctx.lineTo(...map(1, 0)); ctx.moveTo(...map(0, 0)); ctx.lineTo(...map(0, 1)); ctx.stroke();
+  ctx.fillStyle = 'rgba(246,250,255,0.75)'; ctx.font = '600 20px "IBM Plex Mono"'; ctx.textAlign = 'left'; ctx.fillText(o.xLabel || 'distancia →', x + w - 150, y + h + 4 + 22); ctx.save(); ctx.translate(x - 8, y + 10); ctx.rotate(-Math.PI / 2); ctx.textAlign = 'right'; ctx.fillText(o.tLabel || 'tiempo (Tierra) →', 0, 0); ctx.restore();
+  if (o.light !== false) { ctx.setLineDash([8, 8]); ctx.strokeStyle = 'rgba(255,212,71,0.6)'; ctx.beginPath(); ctx.moveTo(...map(0, 0)); ctx.lineTo(...map(Math.min(1, h / w), Math.min(1, w / h))); ctx.stroke(); ctx.setLineDash([]); }
+  for (const L of lines) { if (!L.pts || L.pts.length < 2) continue; P.strokePath(ctx, L.pts.map((p) => map(p[0], p[1])), o.lw || 5, L.c); for (const tk of L.ticks || []) { const [px, py] = map(tk[0], tk[1]); P.circle(ctx, px, py, 6, L.c); } if (L.label) { const [lx, ly] = map(...L.pts[L.pts.length - 1]); ctx.fillStyle = L.c; ctx.font = '800 24px Nunito'; ctx.textAlign = 'center'; ctx.fillText(L.label, lx, ly - 16); } }
+  ctx.restore(); return map;
+ };
+ // Cabina vista desde atrás del astronauta: ventana panorámica (view(x, y, w, h) dibuja el exterior), consolas y silueta.
+ P.cockpit = (ctx, t, view, o = {}) => {
+  const wx = 90, wy = o.wy ?? 360, ww = W - 180, wh = o.wh ?? 700; ctx.save(); ctx.fillStyle = '#0b1424'; ctx.fillRect(0, 0, W, HH);
+  ctx.save(); ctx.beginPath(); ctx.roundRect(wx, wy, ww, wh, 60); ctx.clip(); view(wx, wy, ww, wh); const gl = ctx.createLinearGradient(wx, wy, wx + ww, wy + wh); gl.addColorStop(0, 'rgba(255,255,255,0.06)'); gl.addColorStop(0.5, 'rgba(255,255,255,0)'); gl.addColorStop(1, 'rgba(255,255,255,0.04)'); ctx.fillStyle = gl; ctx.fillRect(wx, wy, ww, wh); ctx.restore();
+  ctx.strokeStyle = '#3d4f66'; ctx.lineWidth = 26; ctx.beginPath(); ctx.roundRect(wx, wy, ww, wh, 60); ctx.stroke(); ctx.strokeStyle = '#5c7088'; ctx.lineWidth = 4; ctx.stroke();
+  const cy = wy + wh + 40; const cg = ctx.createLinearGradient(0, cy, 0, HH); cg.addColorStop(0, '#1b2a40'); cg.addColorStop(1, '#070d18'); ctx.fillStyle = cg; ctx.beginPath(); ctx.moveTo(0, cy + 60); ctx.quadraticCurveTo(W / 2, cy - 30, W, cy + 60); ctx.lineTo(W, HH); ctx.lineTo(0, HH); ctx.closePath(); ctx.fill();
+  const R = H.rng(12); for (let i = 0; i < 14; i++) { const x = 90 + i * 66, on = Math.sin(t * (1 + R() * 3) + i) > 0; ctx.fillStyle = on ? ['#36D9FF', '#46E6D2', '#FFC86B'][i % 3] : 'rgba(246,250,255,0.15)'; ctx.fillRect(x, cy + 70 + (i % 2) * 18, 30, 8); }
+  if (o.pilot !== false) { const px = W / 2 + (o.pilotX || 0), py = cy + 230; ctx.fillStyle = '#05080f'; ctx.beginPath(); ctx.ellipse(px, py - 150, 70, 78, 0, 0, TAU); ctx.fill(); ctx.beginPath(); ctx.moveTo(px - 190, py + 200); ctx.quadraticCurveTo(px - 170, py - 60, px, py - 70); ctx.quadraticCurveTo(px + 170, py - 60, px + 190, py + 200); ctx.closePath(); ctx.fill(); ctx.strokeStyle = 'rgba(105,243,255,0.35)'; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(px, py - 150, 74, Math.PI * 1.1, Math.PI * 1.9); ctx.stroke(); }
+  ctx.restore(); return { wx, wy, ww, wh };
+ };
+ // Silueta de científico (perfil, pelo alborotado) para referencias históricas breves (sin parecido fotográfico)
+ P.scientist = (ctx, x, y, h, o = {}) => {
+  ctx.save(); ctx.fillStyle = o.c || '#F6FAFF'; ctx.globalAlpha *= o.a ?? 1; ctx.beginPath(); ctx.ellipse(x, y - h * 0.78, h * 0.11, h * 0.13, 0, 0, TAU); ctx.fill(); const R = H.rng(3); for (let i = 0; i < 26; i++) { const a = -Math.PI * 0.95 + R() * Math.PI * 1.15, rr = h * R.range(0.12, 0.2); ctx.beginPath(); ctx.arc(x - h * 0.02 + Math.cos(a) * rr, y - h * 0.8 + Math.sin(a) * rr * 0.85, h * R.range(0.02, 0.04), 0, TAU); ctx.fill(); }
+  ctx.beginPath(); ctx.moveTo(x - h * 0.1, y - h * 0.66); ctx.quadraticCurveTo(x - h * 0.26, y - h * 0.5, x - h * 0.24, y); ctx.lineTo(x + h * 0.24, y); ctx.quadraticCurveTo(x + h * 0.26, y - h * 0.5, x + h * 0.1, y - h * 0.66); ctx.closePath(); ctx.fill(); ctx.restore();
+ };
+
  // ---------------- SUBTÍTULOS (arriba, palabra a palabra, palabra clave seleccionada) ----------------
  // Trozos de ≤3 palabras (≤4 si son cortas); las palabras aparecen al decirse: la actual en blanco y negrita,
  // las ya dichas en gris; la palabra clave lleva recuadro de selección con asas en el color de acento.
@@ -1068,6 +1162,15 @@
   inundacion: (k, t, d, g = 1) => { k.noise(t, { dur: d, color: 'pink', filter: 'lowpass', f: [[0, 1800], [d, 500]], gain: 0.16 * g, a: 0.1, hold: d * 0.7 }); FX.burbujas(k, t, d, 10, Math.round(t * 10) + 5, g); },
   bocina: (k, t, d = 1.6, g = 1) => { for (const [f, gg] of [[73, 0.09], [110, 0.05], [146, 0.03]]) k.tone(t, { f, type: 'sawtooth', dur: d, gain: gg * g, filter: 'lowpass', f2: 700, a: 0.08, hold: d * 0.8, verb: 0.4 }); },
   equilibrio: (k, t, g = 1) => { k.tone(t, { f: 'C5', dur: 1.6, gain: 0.07 * g, verb: 0.4 }); k.tone(t + 0.12, { f: 'G5', dur: 1.5, gain: 0.06 * g, verb: 0.4 }); k.tone(t + 0.24, { f: 'C6', dur: 1.4, gain: 0.05 * g, verb: 0.4 }); },
+  // v1.10 · espacio y relatividad (recursos cinematográficos: en el vacío no se propaga el sonido)
+  espacio: (k, t, d, g = 1) => { k.tone(t, { f: 55, dur: d, gain: 0.05 * g, a: Math.min(2, d * 0.3), hold: d * 0.6, verb: 0.4 }); k.tone(t, { f: 82.4, dur: d, gain: 0.03 * g, a: Math.min(2.5, d * 0.4), hold: d * 0.5, verb: 0.5 }); k.noise(t, { dur: d, color: 'pink', filter: 'bandpass', f: [[0, 300], [d, 700]], q: 2, gain: 0.02 * g, a: d * 0.4, hold: d * 0.4 }); },
+  propulsion: (k, t, d, g = 1) => { k.noise(t, { dur: d, color: 'brown', filter: 'lowpass', f: [[0, 120], [Math.min(1, d * 0.3), 400], [d, 350]], gain: 0.16 * g, a: 0.3, hold: d * 0.7 }); k.tone(t, { f: 41, type: 'sawtooth', dur: d, gain: 0.03 * g, filter: 'lowpass', f2: 200, a: 0.4, hold: d * 0.7 }); },
+  aceleracion: (k, t, d, g = 1) => { k.tone(t, { f: [[0, 110], [d, 880]], type: 'sawtooth', dur: d, gain: 0.025 * g, filter: 'lowpass', f2: 1800, a: d * 0.5 }); k.play('riser', t, { dur: d, gain: 0.3 * g }); },
+  frenado: (k, t, d, g = 1) => { k.tone(t, { f: [[0, 880], [d, 110]], type: 'sawtooth', dur: d, gain: 0.025 * g, filter: 'lowpass', f2: 1600, a: 0.1, hold: d * 0.6 }); k.noise(t, { dur: d, color: 'pink', filter: 'bandpass', f: [[0, 3000], [d, 400]], q: 1, gain: 0.08 * g, a: 0.1 }); },
+  reloj: (k, t, n = 6, gap = 0.12, g = 1, f = 2200) => { for (let i = 0; i < n; i++) k.tone(t + i * gap, { f, type: 'square', dur: 0.02, gain: 0.03 * g, a: 0.001, hold: 0.012, filter: 'lowpass', f2: 4000, minor: true }); },
+  galaxia: (k, t, g = 1) => { FX.campo(k, t, 1.6, 0.8 * g); k.play('whoosh', t, { dur: 1.4, top: 1400, gain: 0.3 * g }); k.tone(t + 0.4, { f: 'E5', dur: 2, gain: 0.04 * g, verb: 0.5 }); },
+  contraer: (k, t, d = 1.2, g = 1) => { k.noise(t, { dur: d, color: 'pink', filter: 'bandpass', f: [[0, 600], [d, 3200]], q: 1.5, gain: 0.12 * g, a: d * 0.7 }); k.tone(t, { f: [[0, 300], [d, 1200]], dur: d, gain: 0.03 * g, a: d * 0.6 }); k.play('thud', t + d, { f: 120, gain: 0.25 * g }); },
+  llegada: (k, t, g = 1) => { for (const [n, dt] of [['D4', 0], ['A4', 0.15], ['F#5', 0.3], ['D6', 0.5]]) k.tone(t + dt, { f: n, dur: 2.4, gain: 0.045 * g, verb: 0.5 }); },
  };
  window.PLANTILLA = { make, SKINS, P, FX, TRANS_SFX, setSkin: (n) => (SK = SKINS[n]), W, HH };
 })();
