@@ -162,6 +162,20 @@ La piel se elige con `skin: 'plana' | 'oscura'` en `PLANTILLA.make`. Los bloques
 | `nightSky(ctx, t, {a, y0, y1, n, band, mark})` | Cielo nocturno con estrellas que titilan y vía láctea |
 | `norse(ctx, x, y, h, ph, {pose})` | Persona nórdica estilizada (túnica, capa y gorro); poses `stand`, `look`, `row`, `point` y `walk` |
 
+**Añadidos y mejoras v1.13.1 (revisión maestra de «Vikingos»):**
+
+| Bloque | Uso |
+|---|---|
+| `knarr` (rediseñado) | Casco con volumen: cara interior de la borda opuesta, cuadernas, bancos y carga (`cargo`), tracas con vetas y tonos variables, juntas de empalme, remaches, quilla marcada, timón lateral con caña y tojo, obenques con vigotas, braza y escotas. `roll` inclina la borda y el mástil; la vela «respira» con ráfagas. Devuelve además `wl` (línea de flotación), `bowWL`, `sternWL` y `oarTips` |
+| `knarrWater(ctx, K, t, {speed, spray})` | Espuma en la línea de flotación, bigote de proa, estela y reflejo oscuro. Se dibuja **después** del mar delantero |
+| `seaHD` (mejorado) | Sombreado por fila (crestas claras, senos oscuros), destellos del sol sobre el agua, nubes suaves, `flash` (relámpago) y `crest` |
+| `clinkerSection` (nuevos parámetros) | `assemble` (las tablas entran una a una) y `rivets` (los remaches aparecen en orden) |
+| `northAtlantic` (mejorado) | Costas más fieles (fiordos de Noruega, golfo de Botnia, Islandia, Groenlandia completa, Baffin, Labrador, golfo de San Lorenzo, Terranova) y `latRef` para la proyección |
+| `navigator(ctx, x, y, h, t, {look, turn, wind, rim})` | Navegante nórdico de espaldas en 3/4: túnica con cinturón, capa con broche al viento, polainas, gorro y barba; mano a la frente que se anima (`look`) y luz de contorno |
+| `longhouse(ctx, x, y, w, d, h, t, {roof, ruin, smoke, door, glow})` | Casa larga de madera y turba en 3/4, apoyada en el suelo con sombra de contacto: muros de turba en espiga, tejado de turba con hierba y puerta con marco. `ruin` la convierte en las bases de muros excavadas |
+| `timber(ctx, x, y, w, h, t, {glowEnd, cuts})` | Pieza de madera arqueológica con borde de corteza, cortes de herramienta y testa con anillos |
+| `timeline` (mejorado) | Los rótulos nunca salen del lienzo y se omiten las cifras del eje que chocan con una marca |
+
 Efectos `FX` de v1.13: `oleaje`, `madera` (crujidos del casco), `vela` (se iza y se llena), `cuerdas`, `remo`, `pasos`, `martillo` (remachado), `mapa`, `descubrir` y `costa`.
 
 **Música orquestal sintética `PLANTILLA.MUS`** (v1.13; no modifica `SOUND`): `MUS.epica(k, t0, t1, {bpm, chords, gain, drums, strings, drone, ostinato})` combina cuerdas de ataque lento, bordón grave, ostinato y percusión de tambor grave. `MUS.golpe(k, t, {chord})` es un golpe orquestal para las revelaciones. Se usa dentro de `music(k)`.

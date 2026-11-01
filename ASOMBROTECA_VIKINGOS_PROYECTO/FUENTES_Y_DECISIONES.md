@@ -35,3 +35,16 @@
 - **L'Anse aux Meadows:** tres casas de césped junto a la costa (escala limitada) que pasan a sus restos, montículos bajo la hierba. No se inventan monumentos.
 - **Groenlandia:** asentamiento costero con hierba; el hielo queda tierra adentro y al fondo.
 - **Música:** orquestal sintética original (`MUS.epica`), en modo menor y dórico, sin clichés de «fantasía vikinga». La percusión es moderada y está solo en la aventura.
+
+## Revisión maestra (V2)
+- **1021:** Dee, Kuitems *et al.*, «Evidence for European presence in the Americas in AD 1021», *Nature* 601: 388–391 (2021), doi:10.1038/s41586-021-03972-8 ([PMC](https://pmc.ncbi.nlm.nih.gov/articles/PMC8770119), [phys.org](https://phys.org/news/2021-10-europeans-americas-years.html), [ScienceDaily](https://www.sciencedaily.com/releases/2021/10/211020135924.htm)).
+  - Tres piezas de madera de tres árboles distintos, con cortes de herramientas de metal, muestran la señal del evento solar de 992–993. Contando los anillos hasta la corteza (borde de tala) se obtiene el año 1021.
+  - Las fuentes divulgativas dan 28 o 29 anillos según cómo se cuenten. Por eso el conteo en pantalla no muestra cifras intermedias: dice «contando anillos hasta la corteza…» y luego «año de tala: 1021».
+  - Rótulo: «confirma actividad nórdica en 1021; no fecha la primera llegada».
+- **Rutas:** todas son «rutas aproximadas» (esquemas que siguen costas por mar). Los diamantes marcan sitios documentados: Islandia, los asentamientos de Groenlandia y L'Anse aux Meadows.
+  - **Helluland y Markland:** nombres de las sagas, rotulados como tales.
+  - **Mapa:** contornos simplificados a mano a partir de mapas físicos («mapa simplificado»).
+- **L'Anse aux Meadows:** casas largas de madera y turba como las reconstrucciones modernas del sitio, rotuladas «reconstrucción moderna basada en las excavaciones». Después, «evidencia original: bases de muros de turba excavadas».
+- **Navegante:** túnica de lana con cinturón, capa con broche, pantalón, polainas y gorro. No lleva instrumentos: observa el Sol, las estrellas, el viento y el mar.
+- **Cierre:** sin botones ni dedo que imiten controles de las plataformas; solo el nombre ASOMBROTECA.
+

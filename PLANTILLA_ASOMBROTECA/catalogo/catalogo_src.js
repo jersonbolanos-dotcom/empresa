@@ -82,6 +82,9 @@
   ['Casa de césped → restos · iceberg (v1.13)', (c, t) => { c.fillStyle = '#a7c8d4'; c.fillRect(0, 0, 400, 300); c.fillStyle = '#5f7d4c'; c.fillRect(0, 200, 400, 100); P.sodHouse(c, 110, 230, 170, 80, t, { smoke: 1 }); P.sodHouse(c, 300, 230, 150, 70, t, { ruin: 1 }); P.iceberg(c, 330, 120, 70, t); }],
   ['Anillos de árbol + línea temporal (v1.13)', (c, t) => { c.fillStyle = '#13293a'; c.fillRect(0, 0, 400, 300); P.treeRings(c, 110, 130, 95, t, { n: 30, hi: 18, count: 1, cut: 1 }); c.save(); c.scale(0.5, 0.5); P.timeline(c, 460, 760, 450, t, { from: 1000, to: 1500, step: 250, marks: [{ v: 1021, label: '1021' }, { v: 1492, label: '1492', c: '#F4F7F7', up: false }], span: [1021, 1492], spanP: 1, px: 22 }); c.restore(); }],
   ['Cielo nocturno + navegante (v1.13)', (c, t) => { c.save(); c.beginPath(); c.rect(0, 0, 400, 300); c.clip(); P.nightSky(c, t, { y0: 0, y1: 300, n: 120 }); c.fillStyle = '#4a3020'; c.fillRect(0, 230, 400, 70); P.norse(c, 150, 290, 170, 0, { pose: 'look' }); P.norse(c, 280, 290, 150, 0.3, { pose: 'row' }); c.restore(); }],
+  ['Navegante nórdico (v1.13.1)', (c, t) => { c.fillStyle = '#d8c9a8'; c.fillRect(0, 0, 400, 300); c.fillStyle = '#4a3020'; c.fillRect(0, 260, 400, 40); P.navigator(c, 150, 290, 270, t, { look: 1 }); P.navigator(c, 300, 290, 200, t, { look: 0.2 }); }],
+  ['Casa larga de turba → restos (v1.13.1)', (c, t) => { c.fillStyle = '#a7c8d4'; c.fillRect(0, 0, 400, 300); c.fillStyle = '#5f7d4c'; c.fillRect(0, 140, 400, 160); P.longhouse(c, 120, 230, 190, 80, 36, t, { smoke: 1 }); P.longhouse(c, 310, 260, 130, 60, 26, t, { ruin: 1, glow: 1 }); }],
+  ['Pieza de madera arqueológica (v1.13.1)', (c, t) => { c.fillStyle = '#13293a'; c.fillRect(0, 0, 400, 300); P.timber(c, 210, 150, 320, 70, t, { glowEnd: 1 }); }],
  ];
  window.drawCatalog = function () {
   document.querySelectorAll('canvas[data-i]').forEach((cv) => {

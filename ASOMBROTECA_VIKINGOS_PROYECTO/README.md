@@ -1,7 +1,20 @@
 # ASOMBROTECA · ¿Cómo lograron los vikingos llegar a América antes que Colón?
 
-- **Video:** `07_OUTPUT/ASOMBROTECA_VIKINGOS.mp4` (1080×1920, 30 fps). Miniatura en `07_OUTPUT/miniatura.jpg`.
-- **Base:** `PLANTILLA_ASOMBROTECA` v1.13. Este episodio añadió:
+- **Video final (V2):** `07_OUTPUT/ASOMBROTECA_VIKINGOS_FINAL.mp4` (1080×1920, 30 fps, 117,8 s, 83 MB). Miniatura en `07_OUTPUT/miniatura.jpg`.
+- **Respaldo V1:** `07_OUTPUT/V1/`, `05_AUDIO/V1/`, `07_QC/V1/` y `04_CODIGO/V1_respaldo/` (episodio y plantilla v1.13).
+- **Revisión maestra (V2):**
+  - knarr rediseñado: volumen de la borda, cara interior, bancos y carga, vetas, remaches, quilla, timón con caña, obenques con vigotas, balanceo y vela que respira;
+  - espuma y estela;
+  - cuatro estados del mar y relámpagos;
+  - apertura pegada al casco;
+  - corte de tablas que se montan y remachan, con lupa del solape;
+  - flexión sincronizada con la ola;
+  - mapa grande con costas fieles y rutas que no cruzan tierra;
+  - navegante rediseñado;
+  - casas largas de turba en 3/4;
+  - prueba de 1021 paso a paso;
+  - cierre limpio sin botones.
+- **Base:** `PLANTILLA_ASOMBROTECA` v1.13.1. Este episodio añadió:
   - el mar cinematográfico (`seaHD`);
   - el barco nórdico `knarr`, con casco trincado y rayos X;
   - el corte `clinkerSection`;
