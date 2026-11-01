@@ -95,6 +95,9 @@
   ['Cortes: tierra · piedra · Ming (v1.14.1)', (c, t) => { c.fillStyle = '#1b2a2c'; c.fillRect(0, 0, 400, 300); P.wallSection(c, 70, 270, 110, 220, t, 'tierra', { reeds: true }); P.wallSection(c, 200, 270, 110, 220, t, 'piedra', {}); P.wallSection(c, 330, 270, 110, 220, t, 'ming', {}); }],
   ['Puente sísmico completo (v1.15)', (c, t) => { c.fillStyle = '#25445A'; c.fillRect(0, 0, 400, 300); c.save(); c.translate(200, 150); c.scale(0.17, 0.17); c.translate(-1200, -1150); P.bridge(c, t, { ug: 6, up: 3, ud: 18, glow: { bearings: 1 } }); c.restore(); }],
   ['Aislador · disipador en corte (v1.15)', (c, t) => { c.fillStyle = '#0C1720'; c.fillRect(0, 0, 400, 300); P.isolatorDetail(c, 110, 150, 120, 100, 30, t, { lead: true }); P.damperDetail(c, [220, 150], [385, 150], t, { cut: 1, heat: 0.6, vel: 1, r: 22, body: 100, rod: 90 }); }],
+  ['Aislador HD · corte (v1.15.1)', (c, t) => { c.fillStyle = '#132330'; c.fillRect(0, 0, 400, 300); c.save(); c.translate(200, 150); c.scale(0.45, 0.45); c.translate(-200, -150); P.isolatorHD(c, 200, 170, 200, t, { base: 0, top: 30, cut: 1 }); c.restore(); }],
+  ['Calzada con junta de peine (v1.15.1)', (c, t) => { c.save(); c.scale(400 / 1080, 300 / 1920 * 1.6); c.translate(0, -700); P.roadView(c, t, { vy: 820, jz: 2.2, gap: 0.08 }); c.restore(); }],
+  ['Corte transversal por una pila (v1.15.1)', (c, t) => { c.fillStyle = '#0C1720'; c.fillRect(0, 0, 400, 300); P.bridgeSection(c, 200, 230, 36, t, { flow: 1 }); }],
  ];
  window.drawCatalog = function () {
   document.querySelectorAll('canvas[data-i]').forEach((cv) => {

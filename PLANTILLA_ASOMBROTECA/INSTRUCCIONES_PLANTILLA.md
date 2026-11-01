@@ -157,6 +157,16 @@ La piel se elige con `skin: 'plana' | 'oscura'` en `PLANTILLA.make`. Los bloques
 | `laborer`, `porter`, `oxcart`, `packAnimal` | Trabajador con ropa y sombrero variados; porteador con pértiga y dos cestas; carro de dos ruedas con buey y ruedas que giran; mula con alforjas. Cargas: `tierra`, `piedra` o `ladrillos` |
 | `dust(ctx, x, y, t, t0, {s})` | Nube de polvo determinista |
 
+**v1.15.1 · puente cinematográfico y primeros planos mecánicos (revisión de «Puentes sísmicos»):**
+
+| Bloque | Uso |
+|---|---|
+| `bridge` (`D` variable) | La profundidad `D` es ahora una **cámara**: `[44,-30]` lateral, `[150,-105]` tres cuartos, `[80,-14]` bajo el tablero. Interpolar `D` entre claves da una órbita suave sin cambiar de geometría. El valle tiene volumen (franjas de profundidad, río que lo cruza, árboles a su profundidad, terreno cercano que entierra las zapatas), sombra del tablero, losa + vigas con rigidizadores y diafragmas, pretiles con baranda, carriles, apoyos en dos filas en vistas anchas y juntas de peine sin «agujero» bajo la losa. El terreno cae junto al muro del estribo (no tapa el extremo del tablero) |
+| `isolatorHD(ctx, cx, cy, s, t, {base, top, cut, n, glow})` | Aislador con núcleo de plomo en detalle 2,5D: cabezal de pila, placa inferior anclada, capas de caucho y láminas de acero que se cortan sin separarse, núcleo de plomo que se deforma con ellas (no es un pistón), placa superior y viga del tablero en alzado. `base` = movimiento de la subestructura, `top` = del tablero. Devuelve puntos para rótulos |
+| `damperHD(ctx, ax, ay, bx, s, t, {cut, vel, heat, force})` | Disipador viscoso en detalle: placa de anclaje atornillada al estribo, articulaciones con pasador, cilindro de longitud fija, vástago, pistón con orificios, fluido en dos cámaras con flujo esquemático en sentido contrario al pistón, calor cualitativo y flecha de **resistencia** opuesta a la velocidad (∝ √|v|) |
+| `roadView(ctx, t, {vy, jz, gap, finger, cars, glow, dusk})` | Vista desde la calzada con punto de fuga: carriles, pretiles, farolas y una **junta de peine** cuya abertura `gap` nunca supera la longitud de los dientes (capacidad). Coches de frente o de espaldas |
+| `bridgeSection(ctx, cx, gy, s, t, {ug, up, ud, flow, hl, iso})` | Corte transversal por una pila: estratos, pilotes, zapata, fuste, cabezal en martillo, cuatro apoyos, vigas en I, losa y pretiles; `flow` anima el **camino de cargas** del suelo al tablero |
+
 **v1.15 · ingeniería sísmica: puente completo, sismo físico y mecanismos (episodio «Puentes sísmicos»):**
 
 | Bloque | Uso |

@@ -20,3 +20,10 @@
 - **Sonido**: sin estruendos ni catástrofe; retumbo grave suave, crujido leve, flujo hidráulico, tráfico lejano. Música original (`MUS.epica`) en re menor que pasa a re mayor al hablar de control.
 - Paleta del SUPERPROMPT (fondo #0C1720, cielo #25445A, hormigón #A8B1B5/#68767D, acero #596B77/#C4D0D5, elastómero #30383C, disipación #D9A35C, fuerzas #FF674F, movimiento controlado #38C6D0, terreno #786A59, vegetación #425D50, amarillo #FFD447, subtítulos #F6F8F7).
 - «Gigantesco» y «miles de toneladas»: un puente de vigas de este tamaño (≈ 4 vanos) pesa del orden de miles de toneladas; se representa con flechas de peso sin cifra concreta.
+
+## Decisiones de la V2 (supervisión cinematográfica)
+- **Tipo de apoyo representado:** aislador elastomérico con núcleo de plomo (LRB): placas de acero superior e inferior atornilladas, capas de caucho vulcanizadas con láminas de acero, núcleo de plomo que fluye por cortante y disipa energía (MCEER-06-SP07; Robinson, 1982, *Lead-rubber hysteretic bearings*). El núcleo se dibuja deformándose con las capas, no como un pistón.
+- **Disipador:** amortiguador viscoso de fluido con pistón y orificios; la fuerza se opone a la velocidad relativa (F = C·|v|^α con α < 1 en muchos dispositivos de puentes; Taylor Devices; Constantinou & Symans, 1992). La flecha de resistencia se dibuja ∝ √|v| como indicación cualitativa; el calor es cualitativo y solo una parte de la energía.
+- **Junta:** junta de peine (dientes que se solapan); la capacidad está limitada por la longitud de los dientes, por eso se rotula que cada junta tiene un límite de movimiento (FHWA, *Bridge Deck Joint* guías; AASHTO LRFD 14.5).
+- **Comparación A/B:** mismo registro sintético de suelo; A con apoyos fijos (oscilador T 0,6 s, ζ 5 %); B aislado (T 2,5 s, ζ 20 %) donde la pila recibe una fuerza proporcional a la deformación del aislador. Las flechas son indicadores cualitativos («caso ilustrado»), sin afirmar que un sistema sea siempre mejor.
+- **Corte transversal:** camino de cargas suelo → pilotes → zapata → fuste → cabezal → apoyos → tablero (descripción estándar de subestructura/superestructura, AASHTO LRFD sección 3).
