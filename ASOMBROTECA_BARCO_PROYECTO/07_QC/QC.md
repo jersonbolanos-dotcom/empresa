@@ -9,8 +9,8 @@
 | blackdetect / freezedetect | sin negros ni congelados |
 | Sonoridad | −14,3 LUFS integrados; pico verdadero −2,3 dBTP |
 | Voz | md5 idéntico al archivo subido (3070ec4f…): no se alteró ni recortó |
-| Determinismo | PENDIENTE |
-| Retrocompatibilidad v1.9 | PENDIENTE |
+| Determinismo | `determinismo.txt`: md5 iguales en t = 5,3 / 17,9 / 41 en dos órdenes de búsqueda |
+| Retrocompatibilidad v1.9 | Pirámides, Represa, Internet, GPS, Aire acondicionado y Microondas dan hashes idénticos a los de su QC original |
 | Revisión visual | 2 rondas de hojas de contacto antes del render. Se corrigieron: el calado inicial mayor que el puntal (la cubierta quedaba bajo el agua) y el volumen desplazado, que al separarse salía de la pantalla (ahora baja bajo el casco) |
 | Incidencia | El disco se llenó con fotogramas temporales de episodios anteriores durante la verificación. Se liberó espacio y se repitieron las pruebas; el MP4 y el audio ya estaban completos (se comprobó su duración y decodificación) |
 | Subtítulos | barra (blanco + barra amarilla), `06_SUBTITULOS/subtitulos.srt` (64 bloques) |
