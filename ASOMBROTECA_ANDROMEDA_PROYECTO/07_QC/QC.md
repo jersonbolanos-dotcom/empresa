@@ -14,5 +14,5 @@ La V1 y su QC se conservan en `07_QC/V1/` y `07_OUTPUT/V1/`.
 | Ciencia | Mismos valores que la V1, todos desde `P.REL`: τ = 28,6 años, t = 2.500.002 años, 1 − v/c ≥ 3,0 × 10⁻¹³, γ máx ≈ 1,29 × 10⁶, 3 años a bordo ≈ 10,7 años en la Tierra, 0,97 años luz restantes a mitad de viaje (medidos por la nave), cohete de fotones ≈ 6,7 × 10¹² |
 | Consistencia de la nave | La misma malla `P.starship` en todas las escenas (lateral, 3/4, proa arriba y giro de frenado) |
 | Determinismo | `determinismo.txt`: md5 iguales en t = 5,3 / 17,9 / 41 en dos órdenes de búsqueda |
-| Retrocompatibilidad v1.11 | PENDIENTE |
+| Retrocompatibilidad v1.11 | Barco, Pirámides, Represa, Internet, GPS, Aire acondicionado y Microondas dan hashes idénticos a los de su QC original |
 | Revisión visual | 2 rondas de hojas de contacto antes del render. Se corrigieron rótulos y una barra de trayecto que invadían los subtítulos; ahora todo el contenido queda por encima de y ≈ 1430 |
