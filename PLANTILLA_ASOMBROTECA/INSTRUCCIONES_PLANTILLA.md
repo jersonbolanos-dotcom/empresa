@@ -157,6 +157,19 @@ La piel se elige con `skin: 'plana' | 'oscura'` en `PLANTILLA.make`. Los bloques
 | `laborer`, `porter`, `oxcart`, `packAnimal` | Trabajador con ropa y sombrero variados; porteador con pértiga y dos cestas; carro de dos ruedas con buey y ruedas que giran; mula con alforjas. Cargas: `tierra`, `piedra` o `ladrillos` |
 | `dust(ctx, x, y, t, t0, {s})` | Nube de polvo determinista |
 
+**v1.15 · ingeniería sísmica: puente completo, sismo físico y mecanismos (episodio «Puentes sísmicos»):**
+
+| Bloque | Uso |
+|---|---|
+| `quakeGround({t0, t1, amp, seed, freqs, pulses, floor})` | Movimiento del suelo determinista: suma de senos con envolvente. `pulses: [[a, b, k], …]` sube y baja la intensidad al ritmo del guion (`floor` = nivel entre pulsos; 0 = calma). Devuelve `{env(t), ug(t), ag(t)}` (desplazamiento y aceleración) |
+| `sdof(ag, Tn, zeta, tA, tB, dt)` | Oscilador de un grado de libertad (Newmark) bajo aceleración de base: **la respuesta de la estructura sale de la física**, no de un seno inventado. Puente aislado ≈ `Tn 2.5, zeta 0.2`; rígido ≈ `Tn 0.6, zeta 0.05`. Devuelve `u(t)` con `.max` y `.vel(t)` (precalcular una vez, fuera de `draw`) |
+| `bridge(ctx, t, {mode, ug, up, ud, section, forces, demand, xray, cut, heat, vel, glow, cars, piers, x0, x1, deckTop, bearH, plateau, valley, ground, trees, river})` | **Puente de vigas como un solo sistema**: valle con terraplenes, losas de acceso, estribos encajados en el talud (asiento, muro de guarda), zapatas que siguen la pendiente (pilotes en `section`), pilas que se curvan como ménsulas, cabezales, apoyos (`mode 'aislado'` = aisladores elastoméricos; `'rigido'` = apoyos fijos), tablero cajón con calzada, barandas y coches, juntas de peine y disipadores viscosos en los estribos. `ug` suelo, `up` deriva de la cabeza de pila, `ud` tablero absoluto. Los mecanismos se dibujan con todo su detalle dentro de la geometría: **un primer plano es solo un zoom de cámara**. Devuelve `{piers, bearings, dampers, joints}` con puntos para rótulos |
+| `isolatorDetail(ctx, cx, cy, w, h, shear, t, {layers, lead, glow, bolts})` | Aislador laminado: placas atornilladas, capas de caucho y láminas de acero que se cortan en paralelogramo sin separarse, núcleo de plomo opcional. Devuelve `{top, bottom, rubber, shim, lead}` |
+| `damperDetail(ctx, a, b, t, {cut, heat, vel, r, body, rod})` | Disipador viscoso entre anclajes: cuerpo de longitud fija, vástago, pistón con orificios; en corte (`cut`) se ve el fluido, el flujo según `vel` y el calor (`heat`). Devuelve `{body, piston, rod, a, b}` |
+| `jointDetail(ctx, x, y, w, h, gap, t, {glow})` | Junta de dilatación en alzado (uso suelto; `bridge` ya incluye juntas de peine en la calzada) |
+| `hArrow(ctx, x, y, len, c, w)` · `car(ctx, x, y, s, c)` · `SEC` | Flecha horizontal con signo; coche de perfil; paleta de ingeniería (hormigón, acero, caucho, disipación, fuerza, control, terreno, vegetación) |
+| FX `temblor`, `estructura`, `hidraulico`, `metal`, `trafico` | Retumbo grave sin estruendo, crujido estructural suave, flujo hidráulico, contacto metálico leve, tráfico lejano (sin sonidos de catástrofe) |
+
 **v1.14.2 · sistema único terreno + muralla + torres (corrección geométrica):**
 
 | Bloque | Uso |

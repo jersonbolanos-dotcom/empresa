@@ -93,6 +93,8 @@
   ['Torres de vigilancia y de señales (v1.14)', (c, t) => { c.fillStyle = '#86A9BD'; c.fillRect(0, 0, 400, 300); P.watchtower(c, 120, 280, 160, t, { style: 'ladrillo', smoke: 1 }); P.watchtower(c, 300, 280, 140, t, { style: 'tierra', fire: 1 }); }],
   ['Personas proporcionadas (v1.14.1)', (c, t) => { c.fillStyle = '#d9cfb4'; c.fillRect(0, 0, 400, 300); c.fillStyle = '#8a6a45'; c.fillRect(0, 262, 400, 4); P.figure(c, 60, 262, 150, 0.2, { pose: 'walk', var: 0 }); P.porter(c, 170, 262, 150, 0.3, { load: 'piedra', var: 1 }); P.figure(c, 270, 262, 150, 0, { pose: 'ram', lift: 0.7, var: 3 }); P.laborer(c, 350, 262, 150, 0.2, { pose: 'chisel', var: 5 }); }],
   ['Cortes: tierra · piedra · Ming (v1.14.1)', (c, t) => { c.fillStyle = '#1b2a2c'; c.fillRect(0, 0, 400, 300); P.wallSection(c, 70, 270, 110, 220, t, 'tierra', { reeds: true }); P.wallSection(c, 200, 270, 110, 220, t, 'piedra', {}); P.wallSection(c, 330, 270, 110, 220, t, 'ming', {}); }],
+  ['Puente sísmico completo (v1.15)', (c, t) => { c.fillStyle = '#25445A'; c.fillRect(0, 0, 400, 300); c.save(); c.translate(200, 150); c.scale(0.17, 0.17); c.translate(-1200, -1150); P.bridge(c, t, { ug: 6, up: 3, ud: 18, glow: { bearings: 1 } }); c.restore(); }],
+  ['Aislador · disipador en corte (v1.15)', (c, t) => { c.fillStyle = '#0C1720'; c.fillRect(0, 0, 400, 300); P.isolatorDetail(c, 110, 150, 120, 100, 30, t, { lead: true }); P.damperDetail(c, [220, 150], [385, 150], t, { cut: 1, heat: 0.6, vel: 1, r: 22, body: 100, rod: 90 }); }],
  ];
  window.drawCatalog = function () {
   document.querySelectorAll('canvas[data-i]').forEach((cv) => {
