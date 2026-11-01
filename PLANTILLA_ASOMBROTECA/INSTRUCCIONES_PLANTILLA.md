@@ -144,6 +144,28 @@ La piel se elige con `skin: 'plana' | 'oscura'` en `PLANTILLA.make`. Los bloques
 | `rings` | Ondas de radio, en anillo o dirigidas |
 | `clock` | Reloj analógico |
 
+**Bloques v1.13 (episodio «Vikingos en América»)** — mar cinematográfico, barco nórdico, mapas de rutas, arqueología y tiempo:
+
+| Bloque | Uso |
+|---|---|
+| `seaHD(ctx, t, {hor, sky, sun, sunA, clouds, mood, amp, flow, fogA, seed, x0, x1, part, split})` | **Mar cinematográfico** por filas en perspectiva: cielo, nubes, sol, olas de varias escalas, crestas con espuma y niebla. `mood`: `calma`, `fresco` o `tormenta`. `flow` hace que el mar pase junto al barco. Se dibuja en dos pasadas (`part: 'back'` hasta `split`, luego el barco, luego `part: 'front'`) para que el agua tape bien el casco. **Devuelve `float(x, y, eslora)` → `{y, ang}`** para que el barco cabecee y suba con las olas |
+| `seaWave(o, x, y, t)` | Altura del agua en un punto (misma fórmula del mar) |
+| `knarr(ctx, x, y, s, t, {ang, sail, billow, oars, oarN, oarPhase, xray, flex, crew, wake, glow, flip})` | **Barco mercante nórdico** de perfil, con casco trincado (tablas superpuestas con remaches), roda y codaste, remo de gobierno, mástil, verga, vela cuadrada con franjas, jarcia, remos opcionales y tripulación sobria (sin cascos con cuernos). `xray` vuelve el casco transparente y muestra la quilla, las cuadernas y los bancos. `flex` es una flexión sutil. **Devuelve puntos** (`mastTop`, `sailC`, `keelC`, `hull(u, f)`, `oar`…) para los rótulos |
+| `clinkerSection(ctx, cx, cy, w, h, t, {explode, flex, glow, n})` | Corte transversal del casco trincado: tracas que se solapan, remaches, quilla, cuaderna y bao. `explode` separa las tablas para mostrar el solape. Devuelve `overlaps`, `keel`, `rib`, `beam` |
+| `northAtlantic(ctx, x, y, w, h, t, {lon0, lon1, lat0, lat1, ice, grid})` | Mapa ESTILIZADO del Atlántico Norte (Escandinavia, Islandia, Groenlandia con hielo, Baffin, Labrador y Terranova). **Devuelve `proj([lon, lat])`** |
+| `seaRoute(ctx, pts, p, t, {c, w, ship, shipS, glow})` | Ruta marítima suave que se dibuja con `p` y lleva un barquito en la punta |
+| `coast(ctx, y, t, {kind, h, x0, x1, c, snow, green})` | Costa lejana sobre el horizonte: `fiordo`, `volcanica`, `glaciar` o `baja` |
+| `iceberg(ctx, x, y, s, t)` | Iceberg con la parte sumergida insinuada |
+| `sodHouse(ctx, x, y, w, h, t, {ruin, smoke, doorX, glow})` | Casa nórdica de madera y césped; `ruin` la convierte en los restos arqueológicos (bases de muros bajo la hierba) |
+| `treeRings(ctx, x, y, r, t, {n, hi, count, cut})` | Corte de madera con anillos de crecimiento, anillo destacado, recuento hasta la corteza y marca de corte. Devuelve `at(i, ángulo)` |
+| `timeline(ctx, x0, x1, y, t, {from, to, step, p, marks, span, spanP})` | Línea temporal con marcas grandes y un tramo luminoso entre dos fechas. Devuelve `map(año)` |
+| `nightSky(ctx, t, {a, y0, y1, n, band, mark})` | Cielo nocturno con estrellas que titilan y vía láctea |
+| `norse(ctx, x, y, h, ph, {pose})` | Persona nórdica estilizada (túnica, capa y gorro); poses `stand`, `look`, `row`, `point` y `walk` |
+
+Efectos `FX` de v1.13: `oleaje`, `madera` (crujidos del casco), `vela` (se iza y se llena), `cuerdas`, `remo`, `pasos`, `martillo` (remachado), `mapa`, `descubrir` y `costa`.
+
+**Música orquestal sintética `PLANTILLA.MUS`** (v1.13; no modifica `SOUND`): `MUS.epica(k, t0, t1, {bpm, chords, gain, drums, strings, drone, ostinato})` combina cuerdas de ataque lento, bordón grave, ostinato y percusión de tambor grave. `MUS.golpe(k, t, {chord})` es un golpe orquestal para las revelaciones. Se usa dentro de `music(k)`.
+
 **Bloques v1.12 (episodio «Machu Picchu»)** — montaña, mampostería, terrazas, drenaje y agua:
 
 | Bloque | Uso |

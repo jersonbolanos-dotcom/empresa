@@ -1226,6 +1226,237 @@
   if ((o.canal ?? 0) > 0) { const pts = [[X(-0.11), Y(-0.235) - d * 0.5], [X(0.035), Y(-0.235) - d * 0.5], [X(0.05), Y(-0.12)], [X(0.065), Y(0.0)], [X(0.07), Y(0.03) - d * 0.5], [X(0.2), Y(0.03) - d * 0.5]]; ctx.save(); ctx.globalAlpha *= o.canal; P.strokePath(ctx, pts, 9, '#858d86'); ctx.setLineDash([10, 10]); ctx.lineDashOffset = -t * 40; P.strokePath(ctx, pts, 4, gl.water ? `rgba(122,230,242,${0.6 + 0.4 * gl.water})` : '#37b9d9'); ctx.setLineDash([]); for (let k = 0; k < 4; k++) { const y = lerp(Y(-0.2), Y(0.0), k / 3), x = lerp(X(0.04), X(0.065), k / 3); P.circle(ctx, x + s * 0.02, y, s * 0.012, '#7AE6F2'); } ctx.restore(); }
   return { plats, ground };
  };
+ // ================= v1.13 · NAVEGACIÓN NÓRDICA (episodio «Vikingos en América») =================
+ // Mar cinematográfico por filas en perspectiva. o: { hor, sky:[arriba, horizonte], sun:[x,y], sunA, clouds, mood
+ // ('calma'|'fresco'|'tormenta'), amp, fogA, seed, x0, x1, part ('back'|'front'), split (y), flow (px/s: el mar pasa junto al barco) }.
+ // Devuelve { waveY(x, yBase), float(x, yBase, len) → {y, ang} } para posar barcos sobre el agua.
+ const SEA_ROWS = 30;
+ const seaRow = (o, z) => { const amp = (o.amp ?? 1) * (o.mood === 'tormenta' ? 1.8 : o.mood === 'calma' ? 0.55 : 1); return { A: amp * (2 + 46 * z * z), L: 90 + 760 * z, w: 1.1 + 0.4 * (1 - z) }; };
+ P.seaWave = (o, x, yb, t) => { const hor = o.hor ?? 760, bot = o.bottom ?? HH + 400, z = cl(Math.pow(Math.max(0, yb - hor) / (bot - hor), 1 / 1.7)); const r = seaRow(o, z), k = TAU / r.L, ph = (o.seed || 0) * 1.7 + z * 37;
+  x += t * (o.flow || 0) * (0.3 + z); return yb + r.A * (Math.sin(k * x - r.w * t * 1.6 + ph) * 0.7 + Math.sin(k * 2.3 * x + r.w * t * 1.1 + ph * 2) * 0.3); };
+ P.seaHD = (ctx, t, o = {}) => {
+  const hor = o.hor ?? 760, bot = o.bottom ?? HH + 400, x0 = o.x0 ?? -600, x1 = o.x1 ?? W + 600, part = o.part, split = o.split ?? 1e9, storm = o.mood === 'tormenta';
+  const deep = o.deep || (storm ? '#0c2230' : '#102C3A'), lit = o.lit || (storm ? '#3b5866' : '#2D6274'), foam = o.foam || '#DCE8E9';
+  if (part !== 'front') {
+   const sky = o.sky || (storm ? ['#3c4d58', '#647C8B'] : ['#5f8aa0', '#A7C8D4']); const g = ctx.createLinearGradient(0, hor - 1400, 0, hor); g.addColorStop(0, sky[0]); g.addColorStop(1, sky[1]); ctx.fillStyle = g; ctx.fillRect(x0, hor - 3000, x1 - x0, 3000 + 2);
+   if (o.sun) { const sa = o.sunA ?? 1; P.glow(ctx, o.sun[0], o.sun[1], 520, '255,228,190', 0.45 * sa); P.glow(ctx, o.sun[0], o.sun[1], 120, '255,245,225', 0.9 * sa); }
+   const R = H.rng(o.seed || 5), nc = o.clouds ?? 9; for (let i = 0; i < nc; i++) { const cy = hor - R.range(120, 900), cs = R.range(140, 340) * (1 - (hor - cy) / 1600 * 0.3), cx = x0 + ((R() * (x1 - x0) + t * R.range(4, 12)) % (x1 - x0)); ctx.save(); ctx.globalAlpha *= (storm ? 0.75 : 0.5) * R.range(0.6, 1); ctx.fillStyle = storm ? '#55636c' : '#e9f0f2'; for (let q = 0; q < 6; q++) { ctx.beginPath(); ctx.ellipse(cx + (q - 2.5) * cs * 0.32, cy - Math.sin(q / 5 * Math.PI) * cs * 0.22, cs * 0.34, cs * 0.18, 0, 0, TAU); ctx.fill(); } ctx.fillStyle = storm ? 'rgba(40,52,60,0.35)' : 'rgba(150,175,190,0.35)'; ctx.fillRect(cx - cs, cy + cs * 0.02, cs * 2, cs * 0.06); ctx.restore(); }
+   // brillo del sol en el agua cerca del horizonte
+   const sg = ctx.createLinearGradient(0, hor, 0, bot); sg.addColorStop(0, lit); sg.addColorStop(0.35, deep); sg.addColorStop(1, '#081822'); ctx.fillStyle = sg; ctx.fillRect(x0, hor, x1 - x0, bot - hor + 400);
+   ctx.fillStyle = 'rgba(220,232,233,0.25)'; ctx.fillRect(x0, hor - 2, x1 - x0, 4);
+  }
+  const R2 = H.rng((o.seed || 5) + 11);
+  for (let r = 0; r <= SEA_ROWS; r++) {
+   const z = r / SEA_ROWS, yr = hor + (bot - hor) * Math.pow(z, 1.7); if (r === 0) continue; if (part === 'back' && yr >= split) break; if (part === 'front' && yr < split) continue;
+   const rw = seaRow(o, z), step = Math.max(6, rw.L / 18); const yAt = (x) => P.seaWave(o, x, yr, t);
+   const mix = (a, b, u) => { const pa = parseInt(a.slice(1), 16), pb = parseInt(b.slice(1), 16); const ch = (s) => Math.round(lerp((pa >> s) & 255, (pb >> s) & 255, u)); return `rgb(${ch(16)},${ch(8)},${ch(0)})`; };
+   ctx.beginPath(); ctx.moveTo(x0, bot + 400); for (let x = x0; x <= x1 + step; x += step) ctx.lineTo(x, yAt(x)); ctx.lineTo(x1, bot + 400); ctx.closePath(); ctx.fillStyle = mix(lit, deep, cl(z * 1.25)); ctx.fill();
+   ctx.save(); ctx.strokeStyle = `rgba(200,225,230,${0.06 + 0.12 * (1 - z)})`; ctx.lineWidth = 1 + 2 * z; ctx.beginPath(); for (let x = x0; x <= x1 + step; x += step) (x === x0 ? ctx.moveTo(x, yAt(x)) : ctx.lineTo(x, yAt(x))); ctx.stroke(); ctx.restore();
+   // espuma en las crestas
+   const fa = (storm ? 0.9 : o.mood === 'calma' ? 0.25 : 0.55) * (0.4 + z); const kk = TAU / rw.L, ph = (o.seed || 0) * 1.7 + z * 37; ctx.fillStyle = foam;
+   for (let x = x0; x <= x1; x += step) { const s1 = Math.sin(kk * (x + t * (o.flow || 0) * (0.3 + z)) - rw.w * t * 1.6 + ph); if (s1 > 0.82) { const fy = yAt(x); ctx.globalAlpha = fa * (s1 - 0.82) * 5; ctx.beginPath(); ctx.ellipse(x, fy + 1, step * 0.9, 1.5 + 5 * z, 0, 0, TAU); ctx.fill(); } }
+   ctx.globalAlpha = 1;
+   if (z > 0.25 && R2() < 0.9) { ctx.save(); ctx.globalAlpha = 0.12 * z; ctx.fillStyle = '#9fc4cc'; for (let q = 0; q < 6; q++) { const sx = x0 + ((R2() * (x1 - x0) + t * 20 * z) % (x1 - x0)); ctx.fillRect(sx, yAt(sx) + 8 + R2() * 20 * z, 40 + 120 * z, 2 + 2 * z); } ctx.restore(); }
+  }
+  if (part !== 'back' && (o.fogA ?? 0) > 0) P.fog(ctx, hor - 220, 420, t, { a: o.fogA, seed: 4, speed: 14 });
+  return { waveY: (x, yb) => P.seaWave(o, x, yb, t), float: (x, yb, len) => { const a = P.seaWave(o, x - len / 2, yb, t), b = P.seaWave(o, x + len / 2, yb, t), m = P.seaWave(o, x, yb, t); return { y: (a + b + m * 2) / 4, ang: Math.atan2(b - a, len) * 0.8 }; } };
+ };
+ // Knarr nórdico (barco mercante oceánico) de perfil, casco trincado (tablas superpuestas con remaches).
+ // (x, y) = centro en la línea de flotación; s = eslora en px. o: { ang, sail (0 recogida → 1 izada), billow (0..1 viento),
+ // reef, oars (0..1), oarN, oarPhase, xray (0..1: casco transparente, se ven quilla, cuadernas y bancos), flex (−1..1, sutil),
+ // crew, flip, wake (0..1), spray, stripes, glow:{keel, planks, mast, sail, oars} }. Devuelve puntos clave en coordenadas de lienzo.
+ P.knarr = (ctx, x, y, s, t, o = {}) => {
+  const ang = o.ang || 0, fl = o.flip ? -1 : 1, L = s / 2, fb = s * 0.085, dr = s * 0.05, xr = o.xray || 0, flex = (o.flex || 0) * s * 0.006, gl = o.glow || {};
+  const sheer = (u) => -(fb + s * 0.075 * Math.pow(Math.abs(u), 5)) + flex * (1 - u * u);
+  const keel = (u) => dr * (1 - Math.pow(Math.abs(u), 6)) + flex * (1 - u * u) - s * 0.06 * Math.pow(Math.max(0, Math.abs(u) - 0.9) * 10, 2) * 0.1;
+  const P2 = (lx, ly) => { const c = Math.cos(ang), si = Math.sin(ang); return [x + (lx * fl) * c - ly * si, y + (lx * fl) * si + ly * c]; };
+  ctx.save(); ctx.translate(x, y); ctx.rotate(ang); ctx.scale(fl, 1);
+  // estela y espuma de proa
+  const wk = o.wake ?? 0.6; if (wk > 0) { ctx.save(); ctx.globalAlpha = 0.55 * wk; ctx.fillStyle = '#DCE8E9'; for (let i = 0; i < 9; i++) { const u = i / 8; ctx.beginPath(); ctx.ellipse(-L - u * s * 0.9, dr * 0.2 + Math.sin(t * 3 + i) * 2, s * 0.08 * (1 + u), s * 0.01 * (1 + u * 0.5), 0, 0, TAU); ctx.globalAlpha = 0.5 * wk * (1 - u); ctx.fill(); } ctx.globalAlpha = 0.7 * wk; ctx.beginPath(); ctx.ellipse(L * 0.95, -2, s * 0.06, s * 0.012, 0.2, 0, TAU); ctx.fill(); ctx.restore(); }
+  // remo de gobierno (estribor, popa)
+  ctx.save(); ctx.globalAlpha *= 1 - xr * 0.5; ctx.strokeStyle = '#5D3D29'; ctx.lineWidth = s * 0.012; ctx.lineCap = 'round'; ctx.beginPath(); ctx.moveTo(-L * 0.86, sheer(-0.86) - s * 0.03); ctx.lineTo(-L * 0.95, dr * 1.6); ctx.stroke(); ctx.fillStyle = '#5D3D29'; ctx.beginPath(); ctx.ellipse(-L * 0.95, dr * 1.4, s * 0.012, s * 0.04, 0.2, 0, TAU); ctx.fill(); ctx.restore();
+  // remos (pocos: el knarr navegaba sobre todo a vela)
+  const oa = o.oars || 0, on = o.oarN ?? 4; if (oa > 0) { ctx.save(); ctx.globalAlpha *= oa; for (let i = 0; i < on; i++) { const u = i < on / 2 ? 0.55 + i * 0.12 : -0.55 - (i - on / 2) * 0.12, ph = (o.oarPhase || 0) * TAU - i * 0.15, sw = Math.sin(ph), dip = Math.cos(ph); const px = L * u, py = sheer(u) + s * 0.012; const ex = px - sw * s * 0.12, ey = dr * 0.6 + Math.max(0, dip) * s * 0.02 - Math.min(0, dip) * -s * 0.03 + (dip < 0 ? -s * 0.03 : 0);
+    ctx.strokeStyle = gl.oars ? `rgba(255,212,71,${0.6 + 0.4 * gl.oars})` : '#8a6a46'; ctx.lineWidth = s * 0.008; ctx.beginPath(); ctx.moveTo(px + sw * s * 0.03, py - s * 0.03); ctx.lineTo(ex, ey); ctx.stroke(); ctx.fillStyle = '#8a6a46'; ctx.beginPath(); ctx.ellipse(ex, ey, s * 0.007, s * 0.022, -0.3 - sw * 0.3, 0, TAU); ctx.fill(); } ctx.restore(); }
+  // casco: tracas superpuestas de abajo arriba (la de arriba monta sobre la de abajo)
+  const N = 8, seg = 48; const line = (f, u) => lerp(keel(u), sheer(u), f);
+  ctx.save(); ctx.globalAlpha *= 1 - xr * 0.75;
+  for (let i = 0; i < N; i++) { const f0 = i / N, f1 = (i + 1) / N + 0.02; const ue = 1.0 + 0.04 * (i / N);
+   ctx.beginPath(); for (let k = 0; k <= seg; k++) { const u = -ue + 2 * ue * k / seg; ctx.lineTo(L * u, line(f1, Math.max(-1, Math.min(1, u)))); } for (let k = seg; k >= 0; k--) { const u = -ue + 2 * ue * k / seg; ctx.lineTo(L * u, line(f0, Math.max(-1, Math.min(1, u)))); } ctx.closePath();
+   const g = ctx.createLinearGradient(0, line(f1, 0), 0, line(f0, 0)); g.addColorStop(0, i % 2 ? '#A4774F' : '#9a6e48'); g.addColorStop(1, '#5D3D29'); ctx.fillStyle = gl.planks ? g : g; ctx.fill();
+   ctx.strokeStyle = 'rgba(30,18,10,0.55)'; ctx.lineWidth = Math.max(1, s * 0.003); ctx.beginPath(); for (let k = 0; k <= seg; k++) { const u = -1 + 2 * k / seg; ctx.lineTo(L * u, line(f0, u) - 1); } ctx.stroke();
+   ctx.strokeStyle = 'rgba(255,230,190,0.18)'; ctx.beginPath(); for (let k = 0; k <= seg; k++) { const u = -1 + 2 * k / seg; ctx.lineTo(L * u, line(f1, u) + 2); } ctx.stroke();
+   // remaches a lo largo del solape
+   if (s > 260) { ctx.fillStyle = 'rgba(40,30,22,0.8)'; for (let k = 1; k < 24; k++) { const u = -0.95 + 1.9 * k / 24; ctx.beginPath(); ctx.arc(L * u, line(f0, u) - s * 0.004, Math.max(1, s * 0.0028), 0, TAU); ctx.fill(); } }
+   if (gl.planks) { ctx.strokeStyle = `rgba(255,212,71,${gl.planks})`; ctx.lineWidth = 3; ctx.beginPath(); for (let k = 0; k <= seg; k++) { const u = -1 + 2 * k / seg; ctx.lineTo(L * u, line(f0, u)); } ctx.stroke(); }
+  }
+  // roda y codaste (postes de proa y popa)
+  ctx.strokeStyle = '#4a2f1f'; ctx.lineWidth = s * 0.016; ctx.lineCap = 'round'; for (const sg of [1, -1]) { ctx.beginPath(); ctx.moveTo(L * sg * 0.97, keel(0.97)); ctx.quadraticCurveTo(L * sg * 1.06, 0, L * sg * 1.04, sheer(1) - s * 0.025); ctx.quadraticCurveTo(L * sg * 1.02, sheer(1) - s * 0.05, L * sg * 0.99, sheer(1) - s * 0.04); ctx.stroke(); }
+  // regala
+  ctx.strokeStyle = '#3e2718'; ctx.lineWidth = s * 0.008; ctx.beginPath(); for (let k = 0; k <= seg; k++) { const u = -1 + 2 * k / seg; ctx.lineTo(L * u, sheer(u)); } ctx.stroke();
+  ctx.restore();
+  // estructura interna (rayos X)
+  if (xr > 0) { ctx.save(); ctx.globalAlpha *= xr;
+   ctx.strokeStyle = gl.keel ? `rgba(255,212,71,${0.7 + 0.3 * gl.keel})` : '#c9925a'; ctx.lineWidth = s * 0.018; ctx.beginPath(); for (let k = 0; k <= seg; k++) { const u = -0.98 + 1.96 * k / seg; ctx.lineTo(L * u, keel(u) - s * 0.006); } ctx.stroke();
+   ctx.strokeStyle = '#d9a46b'; ctx.lineWidth = s * 0.008; for (let i = -6; i <= 6; i++) { const u = i / 7.2; ctx.beginPath(); ctx.moveTo(L * u, keel(u) - s * 0.01); ctx.quadraticCurveTo(L * u * 1.02, (keel(u) + sheer(u)) / 2, L * u, sheer(u) + s * 0.006); ctx.stroke(); }
+   ctx.strokeStyle = '#b07a48'; ctx.lineWidth = s * 0.007; for (let i = -3; i <= 3; i++) { const u = i / 4.2; ctx.beginPath(); ctx.moveTo(L * u - s * 0.02, line(0.62, u)); ctx.lineTo(L * u + s * 0.02, line(0.62, u)); ctx.stroke(); }
+   ctx.fillStyle = '#8b5a33'; ctx.fillRect(L * 0.05 - s * 0.03, keel(0.05) - s * 0.03, s * 0.06, s * 0.025);
+   ctx.restore(); }
+  // mástil, verga y vela cuadrada
+  const mx = L * 0.06, mTop = -s * 0.58, yardY = mTop + s * 0.04, sail = o.sail ?? 1, bil = o.billow ?? 0.7, yw = s * 0.32;
+  ctx.save(); ctx.strokeStyle = gl.mast ? `rgba(255,212,71,${0.6 + 0.4 * gl.mast})` : '#5D3D29'; ctx.lineWidth = s * 0.016; ctx.lineCap = 'round'; ctx.beginPath(); ctx.moveTo(mx, keel(0.06) - (xr > 0 ? 0 : s * 0.0) - s * 0.02); ctx.lineTo(mx, mTop); ctx.stroke();
+  // jarcia
+  ctx.strokeStyle = 'rgba(158,131,94,0.95)'; ctx.lineWidth = Math.max(1.2, s * 0.0035); ctx.beginPath(); ctx.moveTo(mx, mTop + s * 0.01); ctx.lineTo(L * 1.0, sheer(1) - s * 0.03); ctx.moveTo(mx, mTop + s * 0.01); ctx.lineTo(-L * 0.98, sheer(-1) - s * 0.03); ctx.moveTo(mx, mTop + s * 0.03); ctx.lineTo(mx + L * 0.28, sheer(0.3)); ctx.moveTo(mx, mTop + s * 0.03); ctx.lineTo(mx - L * 0.26, sheer(-0.25)); ctx.stroke();
+  // vela
+  const sh = s * 0.36 * sail, bel = bil * s * 0.05 * sail; ctx.lineWidth = s * 0.012; ctx.strokeStyle = '#4a3020'; ctx.beginPath(); ctx.moveTo(mx - yw, yardY); ctx.lineTo(mx + yw, yardY); ctx.stroke();
+  if (sail > 0.02) { const top = yardY, b = yardY + sh, flap = Math.sin(t * 7) * s * 0.004 * (1 - bil);
+   const shape = () => { ctx.beginPath(); ctx.moveTo(mx - yw, top); ctx.lineTo(mx + yw, top); ctx.quadraticCurveTo(mx + yw + bel * 0.6, (top + b) / 2, mx + yw * 0.96 + flap, b); ctx.quadraticCurveTo(mx, b + bel * 0.5, mx - yw * 0.96 - flap, b); ctx.quadraticCurveTo(mx - yw - bel * 0.6, (top + b) / 2, mx - yw, top); ctx.closePath(); };
+   ctx.save(); shape(); ctx.clip(); const sg = ctx.createLinearGradient(mx - yw, 0, mx + yw, 0); sg.addColorStop(0, '#b9a684'); sg.addColorStop(0.45, '#D7C6A5'); sg.addColorStop(1, '#c4b190'); ctx.fillStyle = sg; ctx.fillRect(mx - yw * 1.3, top - 4, yw * 2.6, sh + bel + 8);
+   if (o.stripes !== false) { ctx.fillStyle = 'rgba(143,59,42,0.85)'; for (let i = -2; i <= 2; i += 2) ctx.fillRect(mx + i * yw * 0.33 - yw * 0.1, top - 4, yw * 0.2, sh + bel + 8); }
+   ctx.fillStyle = 'rgba(60,40,25,0.16)'; ctx.fillRect(mx - yw * 1.3, top + sh * 0.6, yw * 2.6, sh); ctx.strokeStyle = 'rgba(80,60,40,0.2)'; ctx.lineWidth = 1; for (let k = 1; k < 6; k++) { ctx.beginPath(); ctx.moveTo(mx - yw * 1.2, top + sh * k / 6); ctx.quadraticCurveTo(mx, top + sh * k / 6 + bel * 0.4, mx + yw * 1.2, top + sh * k / 6); ctx.stroke(); } ctx.restore();
+   shape(); ctx.strokeStyle = gl.sail ? `rgba(255,212,71,${0.6 + 0.4 * gl.sail})` : 'rgba(90,70,45,0.7)'; ctx.lineWidth = gl.sail ? 5 : 2; ctx.stroke();
+   ctx.strokeStyle = 'rgba(158,131,94,0.9)'; ctx.lineWidth = Math.max(1.2, s * 0.0035); ctx.beginPath(); ctx.moveTo(mx + yw * 0.96, b); ctx.lineTo(L * 0.62, sheer(0.62)); ctx.moveTo(mx - yw * 0.96, b); ctx.lineTo(-L * 0.6, sheer(-0.6)); ctx.stroke();
+  } else { ctx.fillStyle = '#c4b190'; ctx.beginPath(); ctx.ellipse(mx, yardY + s * 0.008, yw * 0.95, s * 0.012, 0, 0, TAU); ctx.fill(); }
+  ctx.restore();
+  // tripulación (siluetas sobrias, sin cascos con cuernos)
+  const cr = o.crew ?? 4, Rc = H.rng(77); for (let i = 0; i < cr; i++) { const u = [-0.62, -0.35, 0.32, 0.6, -0.12, 0.45][i % 6], cx = L * u, cy = sheer(u) + s * 0.008, hh = s * 0.075; ctx.fillStyle = '#2e2620'; ctx.beginPath(); ctx.ellipse(cx, cy - hh * 0.45, hh * 0.16, hh * 0.38, 0, 0, TAU); ctx.fill(); ctx.fillStyle = ['#6b4a35', '#4f5d4a', '#7a5a3a', '#55606a'][i % 4]; ctx.beginPath(); ctx.ellipse(cx, cy - hh * 0.38, hh * 0.18, hh * 0.3, 0, 0, TAU); ctx.fill(); ctx.fillStyle = '#d8b48f'; ctx.beginPath(); ctx.arc(cx, cy - hh * 0.86, hh * 0.12, 0, TAU); ctx.fill(); ctx.fillStyle = '#4a3a2c'; ctx.beginPath(); ctx.arc(cx, cy - hh * 0.9, hh * 0.125, Math.PI, TAU); ctx.fill(); Rc(); }
+  ctx.restore();
+  return { bow: P2(L * 1.04, sheer(1) - s * 0.03), stern: P2(-L * 1.04, sheer(-1) - s * 0.03), mastTop: P2(mx, mTop), mastFoot: P2(mx, sheer(0.06)), sailC: P2(mx, yardY + sh / 2), sailL: P2(mx - yw, yardY), sailR: P2(mx + yw, yardY), keelC: P2(0, keel(0)), hull: (u, f) => P2(L * u, lerp(keel(u), sheer(u), f)), oar: P2(L * 0.55, dr * 0.6) };
+ };
+ // Corte transversal del casco trincado: quilla, tracas que se solapan, remaches, cuaderna y bao.
+ // o: { flex (−1..1), explode (0..1 separa las tablas para ver el solape), glow:{overlap, rivets, keel, rib}, n }
+ P.clinkerSection = (ctx, cx, cy, w, h, t, o = {}) => {
+  const n = o.n || 7, ex = o.explode || 0, fl = o.flex || 0, gl = o.glow || {}, pts = { overlaps: [] };
+  const curve = (u) => { const a = u * Math.PI * 0.5; return [Math.sin(a) * w * 0.5, -h * 0.05 - (1 - Math.cos(a)) * h * 0.95 + (u > 0.6 ? 0 : 0)]; };
+  ctx.save(); ctx.translate(cx, cy);
+  for (const sd of [-1, 1]) for (let i = 0; i < n; i++) {
+   const u0 = 0.08 + i / n * 0.92, u1 = 0.08 + (i + 1) / n * 0.92 + 0.035, a = curve(u0), b = curve(u1), dx = b[0] - a[0], dy = b[1] - a[1], len = Math.hypot(dx, dy), nx = dy / len, ny = -dx / len, th = Math.max(8, w * 0.022);
+   const off = ex * 26 * (i % 2 ? 1 : 0.4) + i * 2 * ex, bend = fl * i * 0.012 * sd;
+   ctx.save(); ctx.scale(sd, 1); ctx.translate(a[0] + nx * (th * 0.5 * (i % 2) + off), a[1] + ny * off); ctx.rotate(Math.atan2(dy, dx) + bend);
+   ctx.fillStyle = i % 2 ? '#A4774F' : '#94683f'; ctx.fillRect(0, -th / 2, len, th); ctx.fillStyle = 'rgba(255,230,190,0.25)'; ctx.fillRect(0, -th / 2, len, 2); ctx.strokeStyle = 'rgba(30,18,10,0.6)'; ctx.lineWidth = 2; ctx.strokeRect(0, -th / 2, len, th);
+   ctx.strokeStyle = 'rgba(70,45,25,0.35)'; ctx.lineWidth = 1; for (let g = 0; g < 3; g++) { ctx.beginPath(); ctx.moveTo(4, -th / 2 + th * (g + 1) / 4); ctx.lineTo(len - 4, -th / 2 + th * (g + 1) / 4 + Math.sin(g + i) * 2); ctx.stroke(); }
+   if (i > 0) { ctx.fillStyle = gl.rivets ? `rgba(255,212,71,${0.6 + 0.4 * gl.rivets})` : '#3a3530'; ctx.beginPath(); ctx.arc(len * 0.06, 0, th * 0.32, 0, TAU); ctx.fill(); }
+   ctx.restore();
+   if (i > 0 && sd === 1) pts.overlaps.push([cx + a[0], cy + a[1]]);
+   if (i > 0 && gl.overlap) { ctx.save(); ctx.scale(sd, 1); ctx.strokeStyle = `rgba(255,212,71,${gl.overlap})`; ctx.lineWidth = 4; ctx.beginPath(); ctx.arc(a[0], a[1], th * 1.6, 0, TAU); ctx.stroke(); ctx.restore(); }
+  }
+  // quilla
+  ctx.fillStyle = gl.keel ? '#c9925a' : '#5D3D29'; ctx.beginPath(); ctx.moveTo(-w * 0.07, -h * 0.02); ctx.lineTo(w * 0.07, -h * 0.02); ctx.lineTo(w * 0.035, h * 0.12); ctx.lineTo(-w * 0.035, h * 0.12); ctx.closePath(); ctx.fill(); if (gl.keel) { ctx.strokeStyle = `rgba(255,212,71,${gl.keel})`; ctx.lineWidth = 4; ctx.stroke(); }
+  pts.keel = [cx, cy + h * 0.05];
+  // cuaderna (costilla interior) y bao (viga transversal)
+  ctx.save(); ctx.globalAlpha *= 1 - ex * 0.6; ctx.strokeStyle = gl.rib ? `rgba(255,212,71,${0.7 + 0.3 * gl.rib})` : '#c9925a'; ctx.lineWidth = Math.max(10, w * 0.03); ctx.lineCap = 'round'; ctx.beginPath(); for (let k = 0; k <= 30; k++) { const u = -0.82 + 1.64 * k / 30, p = curve(Math.abs(u)); ctx.lineTo(Math.sign(u) * p[0] * 0.9, p[1] * 0.92 - w * 0.03); } ctx.stroke();
+  const by = curve(0.72)[1]; ctx.fillStyle = '#8b5a33'; ctx.fillRect(-curve(0.72)[0] * 0.93, by - 12, curve(0.72)[0] * 1.86, 22); ctx.restore();
+  pts.rib = [cx + curve(0.45)[0] * 0.9, cy + curve(0.45)[1] * 0.92 - w * 0.03]; pts.beam = [cx, cy + by]; pts.top = [cx + curve(1)[0], cy + curve(1)[1]];
+  ctx.restore(); return pts;
+ };
+ // Mapa ESTILIZADO del Atlántico Norte (Escandinavia, Islandia, Groenlandia, Terranova). Proyección cilíndrica con escala
+ // cos(60°). o: { lon0, lon1, lat0, lat1, sea, land, ice, grid, coastGlow }. Devuelve proj([lon, lat]) → [px, py].
+ const NATL = {
+  groenlandia: [[-44, 59.8], [-42, 61], [-40.5, 63.2], [-37.5, 65.5], [-32, 68.2], [-26, 70], [-22, 71.5], [-21, 74], [-18.5, 76.5], [-19, 79.5], [-28, 82.5], [-45, 82.9], [-60, 82], [-66, 80.5], [-72, 78.2], [-69, 77], [-62, 76], [-58, 75], [-56, 73.5], [-54.5, 71], [-53.5, 69], [-51.5, 67], [-50.5, 64.5], [-49, 62.5], [-47.5, 61], [-45.5, 60.2]],
+  islandia: [[-24.3, 65.5], [-22.5, 66.4], [-20, 66.1], [-18, 66.2], [-15.5, 66.4], [-13.7, 65.4], [-14.6, 64.4], [-17, 63.6], [-19, 63.4], [-21.5, 63.8], [-22.7, 64.1], [-23.8, 64.8]],
+  escandinavia: [[5, 58.1], [5.3, 60], [5, 62], [7.5, 63.2], [10.5, 64.6], [12.5, 66.5], [15, 68.2], [18.5, 69.8], [23, 70.8], [28, 71.1], [31, 70.2], [29.5, 67.5], [26, 65.7], [22.5, 64.5], [19, 63], [17.4, 61.5], [18.7, 59.8], [16.5, 57], [14.2, 55.4], [12.6, 56.2], [11.3, 58.6], [9, 58.4], [7, 58]],
+  dinamarca: [[8.1, 55.1], [8.6, 57.1], [10.6, 57.7], [10.4, 56.2], [12.3, 55.4], [9.8, 54.8]],
+  britania: [[-5.7, 50.1], [1.4, 51.1], [1.7, 52.8], [0.2, 53.5], [-1.6, 55.1], [-2.1, 57.1], [-3.1, 58.6], [-5, 58.6], [-6.2, 57.2], [-5.2, 55.6], [-3.2, 54.6], [-4.6, 53.3], [-3.1, 51.6]],
+  irlanda: [[-10, 51.6], [-6.2, 52.1], [-6, 54.1], [-7.4, 55.3], [-10, 54.2]],
+  baffin: [[-90, 73.5], [-78, 73.6], [-70, 70.5], [-63, 67], [-64.5, 63.3], [-71, 62.6], [-77, 64.5], [-80, 67.5], [-88, 70]],
+  america: [[-95, 62.5], [-84, 62.5], [-78, 62.3], [-73, 62.2], [-70, 61], [-67, 58.4], [-64.3, 60.3], [-62, 57.8], [-61, 56], [-58.5, 54.5], [-56, 53.6], [-55.8, 52.4], [-57.1, 51.4], [-60, 50.2], [-66.5, 50], [-64.5, 48.6], [-61, 46.4], [-60, 45.6], [-63.5, 44.6], [-66, 43.8], [-70, 43.2], [-71, 41.6], [-95, 41]],
+  terranova: [[-59.4, 47.6], [-56, 47.6], [-53.6, 46.6], [-52.6, 47.5], [-53.2, 48.7], [-55, 49.6], [-55.5, 51.6], [-56.8, 51.3], [-58, 49.7], [-59.3, 48.5]],
+ };
+ P.NATL = NATL;
+ P.northAtlantic = (ctx, x, y, w, h, t, o = {}) => {
+  const lon0 = o.lon0 ?? -80, lon1 = o.lon1 ?? 25, lat0 = o.lat0 ?? 43, lat1 = o.lat1 ?? 78, k = Math.cos(60 * Math.PI / 180);
+  const sx = w / ((lon1 - lon0) * k), sy = h / (lat1 - lat0), sc = Math.min(sx, sy), ox = x + (w - (lon1 - lon0) * k * sc) / 2, oy = y + (h - (lat1 - lat0) * sc) / 2;
+  const proj = (p) => [ox + (p[0] - lon0) * k * sc, oy + (lat1 - p[1]) * sc];
+  ctx.save(); const sg = ctx.createLinearGradient(0, y, 0, y + h); sg.addColorStop(0, o.sea || '#163847'); sg.addColorStop(1, '#0D1820'); ctx.fillStyle = sg; ctx.fillRect(x, y, w, h);
+  if (o.grid !== false) { ctx.strokeStyle = 'rgba(167,200,212,0.10)'; ctx.lineWidth = 1.5; for (let la = 45; la <= 75; la += 10) { const a = proj([lon0, la]), b = proj([lon1, la]); ctx.beginPath(); ctx.moveTo(a[0], a[1]); ctx.lineTo(b[0], b[1]); ctx.stroke(); } for (let lo = -80; lo <= 20; lo += 20) { const a = proj([lo, lat0]), b = proj([lo, lat1]); ctx.beginPath(); ctx.moveTo(a[0], a[1]); ctx.lineTo(b[0], b[1]); ctx.stroke(); } }
+  ctx.beginPath(); ctx.rect(x, y, w, h); ctx.clip();
+  const poly = (pts) => { ctx.beginPath(); P.spline(pts.map(proj), 4).forEach((p, i) => (i ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1]))); ctx.closePath(); };
+  for (const [name, pts] of Object.entries(NATL)) { poly(pts); ctx.fillStyle = o.land || '#49664B'; ctx.fill(); ctx.strokeStyle = 'rgba(220,232,233,0.55)'; ctx.lineWidth = 2; ctx.stroke();
+   if (name === 'groenlandia' && o.ice !== false) { const c = proj([-41, 72]); ctx.save(); ctx.translate(c[0], c[1]); ctx.scale(0.8, 0.86); ctx.translate(-c[0], -c[1]); poly(pts); ctx.fillStyle = 'rgba(201,229,237,0.92)'; ctx.fill(); ctx.restore(); }
+   if (name === 'islandia' || name === 'baffin') { const c = proj(name === 'islandia' ? [-18.5, 64.9] : [-74, 68]); ctx.save(); ctx.translate(c[0], c[1]); ctx.scale(0.45, 0.45); ctx.translate(-c[0], -c[1]); poly(pts); ctx.fillStyle = 'rgba(201,229,237,0.55)'; ctx.fill(); ctx.restore(); } }
+  for (const p of [[-7, 62], [-1.3, 60.4], [-3, 59]]) { const q = proj(p); ctx.fillStyle = o.land || '#49664B'; ctx.beginPath(); ctx.arc(q[0], q[1], sc * 0.35, 0, TAU); ctx.fill(); }
+  ctx.restore(); return proj;
+ };
+ // Ruta marítima: curva suave por puntos, se dibuja con p (0..1), trazo discontinuo que fluye y barquito en la punta.
+ // o: { c, w, dash, ship (true), glow, speed }. Devuelve P.path de la curva completa.
+ P.seaRoute = (ctx, pts, p, t, o = {}) => {
+  const cv = P.spline(pts, 14), pa = P.path(cv), end = pa.L * cl(p); if (p <= 0) return pa; const c = o.c || '#FFD447', w = o.w || 7;
+  const sub = [cv[0]]; for (let s = 10; s < end; s += 10) { const q = pa.at(s); sub.push([q[0], q[1]]); } const e = pa.at(end); sub.push([e[0], e[1]]);
+  ctx.save(); if (o.glow !== false) P.strokePath(ctx, sub, w * 3.2, 'rgba(255,212,71,0.18)'); ctx.setLineDash(o.dash || [w * 2.6, w * 1.8]); ctx.lineDashOffset = -t * (o.speed ?? 40); P.strokePath(ctx, sub, w, c); ctx.setLineDash([]); ctx.restore();
+  if (o.ship !== false && p < 1.0001) { ctx.save(); ctx.translate(e[0], e[1]); ctx.rotate(e[2]); const z = o.shipS || w * 3.4; ctx.fillStyle = '#5D3D29'; ctx.beginPath(); ctx.moveTo(-z, -z * 0.15); ctx.quadraticCurveTo(0, z * 0.55, z, -z * 0.15); ctx.closePath(); ctx.fill(); ctx.fillStyle = '#D7C6A5'; ctx.fillRect(-z * 0.45, -z * 1.05, z * 0.9, z * 0.8); ctx.fillStyle = 'rgba(143,59,42,0.9)'; ctx.fillRect(-z * 0.1, -z * 1.05, z * 0.2, z * 0.8); ctx.restore(); }
+  return pa;
+ };
+ // Costa del Atlántico Norte en la distancia (sobre la línea y). o: { x0, x1, h, c, snow, ice, green, seed, kind: 'fiordo'|'volcanica'|'glaciar'|'baja' }
+ P.coast = (ctx, y, t, o = {}) => {
+  const x0 = o.x0 ?? -200, x1 = o.x1 ?? W + 200, hh = o.h ?? 260, R = H.rng(o.seed || 3), kind = o.kind || 'fiordo'; const pts = []; const n = 34;
+  for (let i = 0; i <= n; i++) { const u = i / n, base = kind === 'baja' ? 0.25 + 0.12 * Math.sin(u * 7 + 1) : kind === 'volcanica' ? 0.45 + 0.35 * Math.sin(u * 3.2 + 0.5) : 0.5 + 0.4 * Math.sin(u * 5.3 + R() * 0.5); pts.push([lerp(x0, x1, u), y - hh * cl(base + R.range(-0.12, 0.12), 0.05, 1)]); }
+  ctx.save(); ctx.fillStyle = o.c || (kind === 'volcanica' ? '#3f4844' : '#68736C'); ctx.beginPath(); ctx.moveTo(x0, y + 4); pts.forEach((p) => ctx.lineTo(p[0], p[1])); ctx.lineTo(x1, y + 4); ctx.closePath(); ctx.fill();
+  ctx.save(); ctx.clip(); const gg = ctx.createLinearGradient(0, y - hh, 0, y); gg.addColorStop(0, 'rgba(255,255,255,0.08)'); gg.addColorStop(1, 'rgba(0,0,0,0.25)'); ctx.fillStyle = gg; ctx.fillRect(x0, y - hh - 10, x1 - x0, hh + 20);
+   if (o.green ?? (kind !== 'glaciar')) { ctx.fillStyle = 'rgba(73,102,75,0.85)'; ctx.beginPath(); ctx.moveTo(x0, y + 4); pts.forEach((p) => ctx.lineTo(p[0], lerp(p[1], y, 0.55))); ctx.lineTo(x1, y + 4); ctx.closePath(); ctx.fill(); }
+   if (o.snow ?? (kind !== 'baja')) { ctx.fillStyle = kind === 'glaciar' ? 'rgba(201,229,237,0.95)' : 'rgba(236,244,246,0.85)'; pts.forEach((p, i) => { if (i === 0 || y - p[1] < hh * (kind === 'glaciar' ? 0.3 : 0.62)) return; const q = pts[i - 1]; ctx.beginPath(); ctx.moveTo(p[0], p[1]); ctx.lineTo(p[0] + 26, p[1] + hh * 0.12); ctx.lineTo(q[0] + 10, Math.max(p[1], q[1]) + hh * 0.06); ctx.closePath(); ctx.fill(); }); }
+   if (kind === 'glaciar' && o.ice !== false) { ctx.fillStyle = 'rgba(201,229,237,0.75)'; ctx.fillRect(x0, y - hh * 0.95, x1 - x0, hh * 0.12); }
+  ctx.restore();
+  ctx.fillStyle = 'rgba(220,232,233,0.5)'; ctx.fillRect(x0, y - 1, x1 - x0, 3); ctx.restore();
+ };
+ P.iceberg = (ctx, x, y, s, t, o = {}) => { const R = H.rng(o.seed || 2), b = Math.sin(t * 0.8 + (o.seed || 0)) * s * 0.01; const top = [[-0.5, 0], [-0.38, -0.3], [-0.18, -0.42], [0.02, -0.7], [0.16, -0.5], [0.34, -0.46], [0.5, 0]].map(([u, v]) => [x + u * s + R.range(-2, 2), y + v * s + b]);
+  ctx.save(); ctx.globalAlpha *= 0.25; ctx.fillStyle = '#7fb6c6'; ctx.beginPath(); ctx.ellipse(x, y + s * 0.25, s * 0.62, s * 0.3, 0, 0, TAU); ctx.fill(); ctx.restore();
+  ctx.fillStyle = '#C9E5ED'; ctx.beginPath(); top.forEach((p, i) => (i ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1]))); ctx.closePath(); ctx.fill(); ctx.fillStyle = 'rgba(120,170,190,0.45)'; ctx.beginPath(); ctx.moveTo(top[3][0], top[3][1]); ctx.lineTo(top[4][0], top[4][1]); ctx.lineTo(top[5][0], top[5][1]); ctx.lineTo(top[6][0], top[6][1]); ctx.closePath(); ctx.fill(); ctx.fillStyle = 'rgba(220,232,233,0.8)'; ctx.fillRect(x - s * 0.52, y - 2, s * 1.04, 4); };
+ // Casa nórdica de césped y madera (L'Anse aux Meadows, Groenlandia). (x, y) = centro de la base.
+ // o: { ruin (0 casa → 1 restos: montículos bajos de césped), smoke (t), door, glow }
+ P.sodHouse = (ctx, x, y, w, h, t, o = {}) => {
+  const ru = o.ruin || 0; ctx.save();
+  if (ru < 1) { ctx.save(); ctx.globalAlpha *= 1 - ru;
+   ctx.fillStyle = 'rgba(20,30,25,0.3)'; ctx.beginPath(); ctx.ellipse(x, y + 2, w * 0.56, h * 0.08, 0, 0, TAU); ctx.fill();
+   // muros de turba (bloques en espiga) y techo redondeado cubierto de hierba
+   ctx.fillStyle = '#6a5a3c'; ctx.beginPath(); ctx.moveTo(x - w / 2, y); ctx.lineTo(x - w / 2 + w * 0.02, y - h * 0.42); ctx.lineTo(x + w / 2 - w * 0.02, y - h * 0.42); ctx.lineTo(x + w / 2, y); ctx.closePath(); ctx.fill();
+   ctx.strokeStyle = 'rgba(40,30,18,0.5)'; ctx.lineWidth = 2; for (let r = 0; r < 4; r++) { const yy = y - h * 0.1 * (r + 0.5); for (let c = 0; c < 14; c++) { const xx = x - w / 2 + w * (c + 0.5) / 14; ctx.beginPath(); ctx.moveTo(xx - w * 0.025, yy + (r % 2 ? -1 : 1) * h * 0.035); ctx.lineTo(xx + w * 0.025, yy - (r % 2 ? -1 : 1) * h * 0.035); ctx.stroke(); } }
+   const rg = ctx.createLinearGradient(0, y - h, 0, y - h * 0.4); rg.addColorStop(0, '#6f8f58'); rg.addColorStop(1, '#49664B'); ctx.fillStyle = rg; ctx.beginPath(); ctx.moveTo(x - w * 0.53, y - h * 0.4); ctx.quadraticCurveTo(x - w * 0.45, y - h * 1.02, x, y - h); ctx.quadraticCurveTo(x + w * 0.45, y - h * 1.02, x + w * 0.53, y - h * 0.4); ctx.closePath(); ctx.fill();
+   ctx.strokeStyle = 'rgba(150,180,110,0.6)'; ctx.lineWidth = 2; const Rg = H.rng(o.seed || 4); for (let i = 0; i < 40; i++) { const u = Rg.range(-0.48, 0.48), yy = y - h * (0.42 + (1 - Math.pow(Math.abs(u) / 0.53, 2)) * 0.55) + 3; ctx.beginPath(); ctx.moveTo(x + u * w, yy); ctx.lineTo(x + u * w + Rg.range(-4, 4), yy - Rg.range(5, 12)); ctx.stroke(); }
+   // hastial de madera con puerta
+   const dx = x + w * (o.doorX ?? 0.18); ctx.fillStyle = '#5D3D29'; ctx.fillRect(dx - w * 0.06, y - h * 0.38, w * 0.12, h * 0.38); ctx.fillStyle = '#2b1d13'; ctx.fillRect(dx - w * 0.035, y - h * 0.3, w * 0.07, h * 0.3); ctx.strokeStyle = 'rgba(164,119,79,0.6)'; ctx.lineWidth = 2; for (let k = 1; k < 3; k++) { ctx.beginPath(); ctx.moveTo(dx - w * 0.06 + w * 0.04 * k, y - h * 0.38); ctx.lineTo(dx - w * 0.06 + w * 0.04 * k, y - h * 0.3); ctx.stroke(); }
+   if (o.smoke != null) { for (let i = 0; i < 6; i++) { const u = ((t * 0.25 + i / 6) % 1); ctx.fillStyle = `rgba(220,226,228,${0.35 * (1 - u)})`; ctx.beginPath(); ctx.arc(x - w * 0.1 + Math.sin(u * 5 + i) * 10 + u * 40, y - h - u * h * 1.2, 8 + u * 22, 0, TAU); ctx.fill(); } }
+   if (o.glow) { ctx.strokeStyle = `rgba(255,212,71,${o.glow})`; ctx.lineWidth = 4; ctx.strokeRect(x - w / 2 - 6, y - h - 6, w + 12, h + 10); }
+   ctx.restore(); }
+  if (ru > 0) { ctx.save(); ctx.globalAlpha *= ru; ctx.fillStyle = '#5f7d4c'; ctx.beginPath(); ctx.moveTo(x - w / 2 - 10, y); ctx.quadraticCurveTo(x - w / 2, y - h * 0.2, x - w / 2 + w * 0.08, y - h * 0.16); ctx.lineTo(x + w / 2 - w * 0.08, y - h * 0.16); ctx.quadraticCurveTo(x + w / 2, y - h * 0.2, x + w / 2 + 10, y); ctx.closePath(); ctx.fill(); ctx.fillStyle = '#7d9a5f'; ctx.fillRect(x - w / 2 + w * 0.1, y - h * 0.1, w * 0.8, h * 0.1); ctx.strokeStyle = 'rgba(40,55,35,0.6)'; ctx.lineWidth = 3; ctx.strokeRect(x - w / 2 + w * 0.08, y - h * 0.16, w * 0.84, h * 0.16); ctx.beginPath(); ctx.moveTo(x - w * 0.1, y - h * 0.16); ctx.lineTo(x - w * 0.1, y); ctx.moveTo(x + w * 0.2, y - h * 0.16); ctx.lineTo(x + w * 0.2, y); ctx.stroke(); ctx.restore(); }
+  ctx.restore();
+ };
+ // Corte de madera con anillos de crecimiento. o: { n, hi (índice del anillo destacado contando desde la corteza),
+ // count (0..1: recuento de anillos del destacado a la corteza), cut (marca de herramienta de metal), seed, glowC }
+ P.treeRings = (ctx, x, y, r, t, o = {}) => {
+  const n = o.n || 40, R = H.rng(o.seed || 12), wob = []; for (let i = 0; i < 6; i++) wob.push([R.range(0, TAU), R.range(0.01, 0.03), 2 + Math.floor(R() * 4)]);
+  const rr = (i, a) => { const base = r * 0.92 * (1 - Math.pow(1 - (n - i) / n, 1.05) * 0) * ((n - i) / n); let k = 1; for (const [p, amp, f] of wob) k += amp * Math.sin(a * f + p); return Math.max(2, base * k); };
+  const shape = (i) => { ctx.beginPath(); for (let k = 0; k <= 72; k++) { const a = k / 72 * TAU, q = rr(i, a); ctx.lineTo(x + Math.cos(a) * q, y + Math.sin(a) * q * 0.96); } ctx.closePath(); };
+  ctx.save(); shape(-3); ctx.fillStyle = '#4a3324'; ctx.fill(); shape(0); const g = ctx.createRadialGradient(x, y, 0, x, y, r); g.addColorStop(0, '#d9b98a'); g.addColorStop(1, '#c49a68'); ctx.fillStyle = g; ctx.fill();
+  for (let i = 1; i < n; i++) { shape(i); ctx.strokeStyle = `rgba(110,72,40,${0.35 + 0.25 * ((i * 7) % 3) / 2})`; ctx.lineWidth = 1.2 + ((i * 13) % 4) * 0.5; ctx.stroke(); }
+  if (o.hi != null) { shape(o.hi); ctx.strokeStyle = o.glowC || 'rgba(255,212,71,0.95)'; ctx.lineWidth = 6; ctx.shadowColor = 'rgba(255,212,71,0.8)'; ctx.shadowBlur = 14; ctx.stroke(); ctx.shadowBlur = 0; }
+  const cnt = o.count || 0; if (cnt > 0 && o.hi != null) { const a = -0.55, m = Math.floor(o.hi * cl(cnt)); ctx.fillStyle = '#ffffff'; for (let i = 0; i <= m; i++) { const q = rr(o.hi - i, a); ctx.beginPath(); ctx.arc(x + Math.cos(a) * q, y + Math.sin(a) * q * 0.96, 4, 0, TAU); ctx.fill(); } }
+  if (o.cut) { ctx.strokeStyle = 'rgba(60,40,25,0.9)'; ctx.lineWidth = 5; ctx.beginPath(); ctx.moveTo(x + r * 0.55, y + r * 0.7); ctx.lineTo(x + r * 0.95, y + r * 0.2); ctx.stroke(); ctx.strokeStyle = 'rgba(255,240,210,0.6)'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(x + r * 0.57, y + r * 0.66); ctx.lineTo(x + r * 0.93, y + r * 0.18); ctx.stroke(); }
+  ctx.restore(); return { ringR: (i, a = -0.55) => rr(i, a), at: (i, a = -0.55) => [x + Math.cos(a) * rr(i, a), y + Math.sin(a) * rr(i, a) * 0.96] };
+ };
+ // Línea temporal cinematográfica. o: { from, to, step, p (0..1 dibujo), marks:[{v, label, sub, c, up}], span:[a, b, texto], spanP, px }
+ P.timeline = (ctx, x0, x1, y, t, o = {}) => {
+  const f = o.from ?? 900, to = o.to ?? 1600, map = (v) => lerp(x0, x1, (v - f) / (to - f)), p = o.p ?? 1, xe = lerp(x0, x1, p), px = o.px || 32;
+  ctx.save(); ctx.strokeStyle = 'rgba(244,247,247,0.85)'; ctx.lineWidth = 6; ctx.lineCap = 'round'; ctx.beginPath(); ctx.moveTo(x0, y); ctx.lineTo(xe, y); ctx.stroke();
+  ctx.font = `700 ${px}px "IBM Plex Mono"`; ctx.textAlign = 'center'; ctx.fillStyle = 'rgba(244,247,247,0.75)'; for (let v = Math.ceil(f / (o.step || 100)) * (o.step || 100); v <= to; v += o.step || 100) { const xx = map(v); if (xx > xe) break; ctx.fillRect(xx - 2, y - 14, 4, 28); if (!(o.marks || []).some((m) => Math.abs(map(m.v) - xx) < px * 2.2)) ctx.fillText(String(v), xx, y + 60); }
+  if (o.span && (o.spanP ?? 0) > 0) { const a = map(o.span[0]), b = lerp(a, map(o.span[1]), cl(o.spanP)); ctx.save(); ctx.shadowColor = 'rgba(255,212,71,0.9)'; ctx.shadowBlur = 20; ctx.strokeStyle = '#FFD447'; ctx.lineWidth = 14; ctx.beginPath(); ctx.moveTo(a, y); ctx.lineTo(b, y); ctx.stroke(); ctx.restore(); }
+  for (const m of o.marks || []) { const xx = map(m.v); if (xx > xe + 1 || (m.a ?? 1) <= 0) continue; ctx.save(); ctx.globalAlpha *= m.a ?? 1; ctx.fillStyle = m.c || '#FFD447'; ctx.beginPath(); ctx.arc(xx, y, 18, 0, TAU); ctx.fill(); ctx.strokeStyle = '#0D1820'; ctx.lineWidth = 5; ctx.stroke();
+   const up = m.up ?? true, ly = up ? y - 120 : y + 150; ctx.strokeStyle = m.c || '#FFD447'; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(xx, y + (up ? -20 : 20)); ctx.lineTo(xx, ly + (up ? 30 : -50)); ctx.stroke();
+   ctx.font = `800 ${px}px Nunito`; const sw = m.sub ? ctx.measureText(m.sub).width : 0; ctx.font = `900 ${Math.round(px * 1.9)}px Nunito`; const hw = Math.max(sw, ctx.measureText(String(m.label)).width) / 2 + 24, tx = cl(xx, hw, W - hw); ctx.fillStyle = m.c || '#FFD447'; ctx.fillText(String(m.label), tx, ly); if (m.sub) { ctx.font = `800 ${px}px Nunito`; ctx.fillStyle = '#F4F7F7'; ctx.fillText(m.sub, tx, ly + px * 1.3); } ctx.restore(); }
+  ctx.restore(); return map;
+ };
+ // Cielo nocturno con estrellas que titilan (determinista). o: { a, y0, y1, n, seed, band (vía láctea), mark:[x,y] }
+ P.nightSky = (ctx, t, o = {}) => { const a = o.a ?? 1; if (a <= 0) return; const y0 = o.y0 ?? -400, y1 = o.y1 ?? 900, R = H.rng(o.seed || 31); ctx.save(); ctx.globalAlpha *= a; const g = ctx.createLinearGradient(0, y0, 0, y1); g.addColorStop(0, '#060d18'); g.addColorStop(1, '#1b3346'); ctx.fillStyle = g; ctx.fillRect(-600, y0, W + 1200, y1 - y0);
+  if (o.band !== false) { ctx.save(); ctx.translate(540, (y0 + y1) / 2); ctx.rotate(-0.5); const bg = ctx.createLinearGradient(0, -120, 0, 120); bg.addColorStop(0, 'rgba(200,215,235,0)'); bg.addColorStop(0.5, 'rgba(200,215,235,0.12)'); bg.addColorStop(1, 'rgba(200,215,235,0)'); ctx.fillStyle = bg; ctx.fillRect(-1400, -120, 2800, 240); ctx.restore(); }
+  for (let i = 0; i < (o.n || 260); i++) { const sx = R.range(-500, W + 500), sy = R.range(y0, y1), m = R(), tw = 0.6 + 0.4 * Math.sin(t * R.range(1, 4) + i); ctx.fillStyle = `rgba(240,246,255,${(0.35 + 0.65 * m) * tw})`; ctx.beginPath(); ctx.arc(sx, sy, 0.8 + m * m * 2.6, 0, TAU); ctx.fill(); }
+  if (o.mark) { P.glow(ctx, o.mark[0], o.mark[1], 60, '255,240,200', 0.6); ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(o.mark[0], o.mark[1], 5, 0, TAU); ctx.fill(); }
+  ctx.restore(); };
+ // Persona nórdica estilizada (túnica, capa, gorro; sin cascos con cuernos). pose: 'stand' | 'look' (mano a la frente) | 'row' | 'point' | 'walk'
+ P.norse = (ctx, x, y, h, ph = 0, o = {}) => { const pose = o.pose || 'stand'; const hand = P.worker(ctx, x, y, h, ph, { pose: pose === 'row' ? 'pull' : pose === 'walk' ? 'walk' : 'stand', c: o.c || '#3a2c22', cloth: o.cloth || '#6b4a35' });
+  const lean = pose === 'row' ? 0.42 : 0.05, hip = [x, y - h * 0.48], sh = [x + Math.sin(lean) * h * 0.32, hip[1] - Math.cos(lean) * h * 0.32], head = [sh[0] + Math.sin(lean) * h * 0.12, sh[1] - Math.cos(lean) * h * 0.12];
+  ctx.save(); ctx.fillStyle = o.cloak || '#55606a'; ctx.beginPath(); ctx.moveTo(sh[0] - h * 0.06, sh[1] - h * 0.02); ctx.lineTo(sh[0] + h * 0.07, sh[1] - h * 0.02); ctx.lineTo(hip[0] + h * 0.1, hip[1] + h * 0.08); ctx.lineTo(hip[0] - h * 0.14, hip[1] + h * 0.1); ctx.closePath(); ctx.fill();
+  ctx.fillStyle = o.cap || '#4a3a2c'; ctx.beginPath(); ctx.arc(head[0], head[1] - h * 0.01, h * 0.08, Math.PI, TAU); ctx.fill();
+  if (pose === 'look' || pose === 'point') { ctx.strokeStyle = o.c || '#3a2c22'; ctx.lineWidth = h * 0.07; ctx.lineCap = 'round'; ctx.beginPath(); ctx.moveTo(sh[0], sh[1]); if (pose === 'look') { ctx.lineTo(sh[0] + h * 0.14, sh[1] - h * 0.05); ctx.lineTo(head[0] + h * 0.09, head[1] - h * 0.02); } else ctx.lineTo(sh[0] + h * 0.3, sh[1] - h * 0.2); ctx.stroke(); }
+  ctx.restore(); return hand; };
  // ---------------- SUBTÍTULOS (arriba, palabra a palabra, palabra clave seleccionada) ----------------
  // Trozos de ≤3 palabras (≤4 si son cortas); las palabras aparecen al decirse: la actual en blanco y negrita,
  // las ya dichas en gris; la palabra clave lleva recuadro de selección con asas en el color de acento.
@@ -1463,6 +1694,37 @@
   encaje: (k, t, g = 1) => { k.play('thud', t, { f: 70, gain: 0.5 * g }); k.noise(t, { dur: 0.08, filter: 'bandpass', f: 900, q: 2, gain: 0.25 * g }); k.tone(t + 0.02, { f: 'A4', dur: 0.8, gain: 0.04 * g, verb: 0.3, minor: true }); },
   arroyo: (k, t, d, g = 1) => { k.noise(t, { dur: d, color: 'pink', filter: 'bandpass', f: [[0, 1200], [d * 0.5, 1700], [d, 1300]], q: 1.2, gain: 0.06 * g, a: Math.min(1, d * 0.3), hold: d * 0.6 }); FX.goteo(k, t, Math.round(d * 2), 0.5, Math.round(t * 10)); },
   tiempo: (k, t, d = 2, g = 1) => { k.noise(t, { dur: d, color: 'pink', filter: 'bandpass', f: [[0, 400], [d, 3000]], q: 1.5, gain: 0.1 * g, a: d * 0.6 }); for (let i = 0; i < 8; i++) k.tone(t + i * d / 8, { f: 1800 - i * 120, dur: 0.3, gain: 0.02 * g, verb: 0.4, minor: true }); },
+  // v1.13 · navegación nórdica
+  oleaje: (k, t, d, g = 1) => { k.noise(t, { dur: d, color: 'brown', filter: 'lowpass', f: [[0, 300], [d * 0.5, 650], [d, 300]], gain: 0.16 * g, a: Math.min(1.5, d * 0.3), hold: d * 0.5 }); const R = H.rng(Math.round(t * 7)); for (let x = 0.4; x < d - 0.6; x += R.range(1.6, 2.6)) k.noise(t + x, { dur: 1.4, color: 'pink', filter: 'bandpass', f: [[0, 600], [0.5, 1400], [1.4, 500]], q: 0.7, gain: 0.08 * g, a: 0.35, hold: 0.3 }); },
+  madera: (k, t, n = 3, g = 1) => { const R = H.rng(Math.round(t * 13)); for (let i = 0; i < n; i++) { const tt = t + i * R.range(0.5, 1.1), f = R.range(70, 120); k.tone(tt, { f: [[0, f], [0.25, f * 0.86], [0.5, f * 1.08]], type: 'sawtooth', dur: 0.55, gain: 0.04 * g, filter: 'bandpass', f2: f * 5, q: 4, a: 0.06, minor: true }); } },
+  vela: (k, t, g = 1) => { for (let i = 0; i < 3; i++) k.noise(t + i * 0.09, { dur: 0.12, color: 'pink', filter: 'bandpass', f: 900 + i * 300, q: 1, gain: 0.09 * g, a: 0.005 }); k.play('thud', t + 0.32, { f: 85, gain: 0.35 * g }); k.noise(t + 0.3, { dur: 1.2, color: 'pink', filter: 'lowpass', f: 700, gain: 0.07 * g, a: 0.05 }); },
+  cuerdas: (k, t, g = 1) => { k.tone(t, { f: [[0, 340], [0.3, 300], [0.5, 360]], type: 'sawtooth', dur: 0.5, gain: 0.025 * g, filter: 'bandpass', f2: 1200, q: 6, a: 0.04 }); k.play('tick', t + 0.4, { f: 1600, gain: 0.15 * g, minor: true }); },
+  remo: (k, t, n = 4, gap = 1, g = 1) => { for (let i = 0; i < n; i++) { const tt = t + i * gap; k.noise(tt, { dur: 0.35, color: 'pink', filter: 'bandpass', f: [[0, 1800], [0.35, 700]], q: 1, gain: 0.1 * g, a: 0.01 }); k.tone(tt + 0.02, { f: [[0, 260], [0.12, 140]], dur: 0.15, gain: 0.06 * g }); k.noise(tt + 0.45, { dur: 0.4, color: 'pink', filter: 'lowpass', f: 900, gain: 0.04 * g, a: 0.1 }); } },
+  pasos: (k, t, n = 4, gap = 0.42, g = 1) => { for (let i = 0; i < n; i++) k.play('tock', t + i * gap, { f: 170 + (i % 2) * 30, gain: 0.3 * g, minor: true }); },
+  martillo: (k, t, n = 4, gap = 0.28, g = 1) => { for (let i = 0; i < n; i++) { k.play('tock', t + i * gap, { f: 900, gain: 0.35 * g }); k.play('click', t + i * gap + 0.01, { gain: 0.3 * g, minor: true }); } },
+  mapa: (k, t, g = 1) => { k.noise(t, { dur: 0.6, color: 'pink', filter: 'bandpass', f: [[0, 2500], [0.6, 1200]], q: 0.8, gain: 0.07 * g, a: 0.05 }); k.play('whoosh', t + 0.1, { dur: 0.7, top: 1600, gain: 0.3 * g, minor: true }); },
+  descubrir: (k, t, g = 1) => { ['E5', 'B5', 'E6', 'G#6'].forEach((f, i) => k.tone(t + i * 0.08, { f, dur: 1.4, gain: 0.06 * g, verb: 0.45, a: 0.01 })); k.play('riser', t - 0.6, { dur: 0.6, gain: 0.2 * g, minor: true }); },
+  costa: (k, t, d, g = 1) => { FX.oleaje(k, t, d, 0.7 * g); k.noise(t, { dur: d, color: 'pink', filter: 'highpass', f: 3000, gain: 0.015 * g, a: 1, hold: d * 0.6 }); },
  };
- window.PLANTILLA = { make, SKINS, P, FX, TRANS_SFX, setSkin: (n) => (SK = SKINS[n]), W, HH };
+ // ---------------- MÚSICA ORQUESTAL SINTÉTICA (v1.13) ----------------
+ // MUS.epica(k, t0, t1, { bpm, chords, gain, drums (0..1), strings (0..1), drone, ostinato (0..1) }): cuerdas con ataque lento,
+ // bordón grave, ostinato de cuerdas y percusión de tambor grave (toms y marco). Todo en el bus de música; no toca SOUND.
+ const MUS = {
+  epica(k, t0, t1, p = {}) {
+   const g = p.gain ?? 1, bpm = p.bpm || 80, beat = 60 / bpm, bar = beat * 4, ch = p.chords || [['D2', 'A2', 'D3', 'F3'], ['A#1', 'F2', 'A#2', 'D3'], ['C2', 'G2', 'C3', 'E3'], ['A1', 'E2', 'A2', 'C#3']];
+   const hz = (n) => (typeof n === 'number' ? n : k.hz(n)); let i = 0;
+   for (let t = t0; t < t1 - 0.05; t += bar, i++) { const c = ch[i % ch.length], len = Math.min(bar, t1 - t);
+    const st = p.strings ?? 1; if (st > 0) c.forEach((n, q) => { const f = hz(n) * (q > 1 ? 2 : 1); k.tone(t, { f, type: 'sawtooth', dur: len + 0.5, gain: 0.012 * g * st, a: Math.min(0.9, len * 0.3), hold: len - 0.5, filter: 'lowpass', f2: 1100, bus: 'music', verb: 0.4, pan: (q - 1.5) * 0.35 }); k.tone(t, { f: f * 1.006, type: 'sawtooth', dur: len + 0.5, gain: 0.008 * g * st, a: Math.min(0.9, len * 0.3), hold: len - 0.5, filter: 'lowpass', f2: 900, bus: 'music', verb: 0.4 }); });
+    if ((p.drone ?? 1) > 0) k.tone(t, { f: hz(c[0]) / 2, type: 'triangle', dur: len + 0.3, gain: 0.05 * g * (p.drone ?? 1), a: 0.3, hold: len - 0.3, bus: 'music' });
+    const os = p.ostinato || 0; if (os > 0) for (let s = 0; s < 8 && t + s * beat / 2 < t1 - 0.05; s++) { const n = c[[1, 2, 3, 2, 1, 2, 3, 2][s]]; k.tone(t + s * beat / 2, { f: hz(n) * 2, type: 'sawtooth', dur: beat * 0.42, gain: 0.014 * g * os, a: 0.01, hold: beat * 0.2, filter: 'lowpass', f2: 1800, bus: 'music', verb: 0.25 }); }
+    const dr = p.drums || 0; if (dr > 0) for (let b = 0; b < 4 && t + b * beat < t1 - 0.05; b++) { const tb = t + b * beat;
+     if (b === 0 || b === 2) { k.tone(tb, { f: [[0, 95], [0.25, 48]], dur: 0.6, gain: 0.3 * g * dr, a: 0.003, bus: 'music', verb: 0.3 }); k.noise(tb, { dur: 0.25, color: 'brown', filter: 'lowpass', f: 300, gain: 0.12 * g * dr, a: 0.002, bus: 'music' }); }
+     if (b === 3) { k.tone(tb + beat / 2, { f: [[0, 150], [0.2, 90]], dur: 0.3, gain: 0.14 * g * dr, a: 0.003, bus: 'music' }); }
+     k.noise(tb + beat / 2, { dur: 0.08, color: 'pink', filter: 'bandpass', f: 1800, q: 1, gain: 0.03 * g * dr, a: 0.002, bus: 'music' }); }
+   }
+  },
+  // golpe orquestal para revelaciones: tambor grave + acorde de cuerdas
+  golpe(k, t, p = {}) { const g = p.gain ?? 1; k.tone(t, { f: [[0, 80], [0.5, 40]], dur: 1.6, gain: 0.35 * g, a: 0.003, bus: 'music', verb: 0.5 }); (p.chord || ['D3', 'A3', 'D4', 'F4']).forEach((n, q) => k.tone(t, { f: n, type: 'sawtooth', dur: 2.2, gain: 0.016 * g, a: 0.02, hold: 0.4, filter: 'lowpass', f2: 1600, bus: 'music', verb: 0.5, pan: (q - 1.5) * 0.3 })); },
+ };
+ window.PLANTILLA = { make, SKINS, P, FX, MUS, TRANS_SFX, setSkin: (n) => (SK = SKINS[n]), W, HH };
 })();
