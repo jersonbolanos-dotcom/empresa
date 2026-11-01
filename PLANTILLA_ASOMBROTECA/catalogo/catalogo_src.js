@@ -105,6 +105,7 @@
   ['Relleno anular y sellos (v1.16.1)', (c, t) => { P.ringSection(c, 200, 150, 95, t, { grout: 0.7, press: 1 }); }],
   ['Puente colgante 3D con torsión (v1.17)', (c, t) => { c.save(); c.beginPath(); c.rect(0, 0, 400, 300); c.clip(); c.translate(200, 150); c.scale(400 / 1080, 300 / 1920 * 1.9); c.translate(-540, -960); const cam = P.cam3([-560, 100, -14], [-120, 52, 0], 900); P.tacWorld(c, t, { cam }); P.tacBridge(c, 1.2, { cam, m: { Th: 0.42, ft: 0.2 } }); c.restore(); }],
   ['Sección y flujo aerodinámico (v1.17)', (c, t) => { c.fillStyle = '#0B1520'; c.fillRect(0, 0, 400, 300); P.tacSection(c, 200, 150, 13, 0.25, t, { flow: 1, vortex: 1, moment: 1, w: 0.8 }); }],
+  ['Bandera EE. UU. · sección 2,5D (v1.17.1)', (c, t) => { c.fillStyle = '#0B1520'; c.fillRect(0, 0, 400, 300); P.flagPill(c, 'EE. UU.', 200, 50, 5, 0, 99, { px: 28 }); P.tacSection3D(c, 170, 190, 15, 0.1, t, { rot: 1 }); }],
  ];
  window.drawCatalog = function () {
   document.querySelectorAll('canvas[data-i]').forEach((cv) => {

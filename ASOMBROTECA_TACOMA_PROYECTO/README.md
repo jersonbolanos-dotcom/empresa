@@ -1,7 +1,8 @@
 # ASOMBROTECA · El puente que se destruyó por el viento (Tacoma Narrows, 1940)
 
-- **Video final:** `07_OUTPUT/ASOMBROTECA_TACOMA_NARROWS_FINAL.mp4` (1080×1920, 30 fps, 105,12 s, −14,0 LUFS).
-- **Plantilla:** v1.17 (motor 3D `cam3` y puente colgante: `tacBridge`, `tacWorld`, `tacWind`, `tacSection`, `windTunnel`, `mapWA`; FX `aleteo`, `desgarro`, `salpicadura`).
+- **Video final (V2):** `07_OUTPUT/ASOMBROTECA_TACOMA_NARROWS_FINAL.mp4` (1080×1920, 30 fps, 105,12 s, −14,0 LUFS). La V1 está en `07_OUTPUT/V1/`.
+- **Fotografías de archivo:** incrustadas desde `01_ENTRADA/referencias/` (vía `04_CODIGO/js/fotos.js`). **Derechos pendientes de verificar** (ver FUENTES).
+- **Plantilla:** v1.17.1 (`docPhoto`, `flagPill`, `tacSection3D`) sobre v1.17 (motor 3D `cam3` y puente colgante: `tacBridge`, `tacWorld`, `tacWind`, `tacSection`, `windTunnel`, `mapWA`; FX `aleteo`, `desgarro`, `salpicadura`).
 - **Código:** `04_CODIGO/js/episodio.js` (+ `index.src.html`, `alineacion.json`, `js/datos.js`). Construir: `python3 -I ../../PLANTILLA_ASOMBROTECA/tools/build.py`.
 - **Audio:** `05_AUDIO/voz_original.mp3` (intacta), `musica_original.wav`, `efectos_sonido.wav`, `mezcla_final.wav`.
 - **Subtítulos:** `06_SUBTITULOS/subtitulos.srt`. **Guion/tramos:** `03_GUION/`. **Referencias del usuario:** `01_ENTRADA/referencias/`.

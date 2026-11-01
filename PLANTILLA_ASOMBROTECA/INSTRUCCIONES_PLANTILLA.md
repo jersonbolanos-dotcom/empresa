@@ -157,6 +157,16 @@ La piel se elige con `skin: 'plana' | 'oscura'` en `PLANTILLA.make`. Los bloques
 | `laborer`, `porter`, `oxcart`, `packAnimal` | Trabajador con ropa y sombrero variados; porteador con pértiga y dos cestas; carro de dos ruedas con buey y ruedas que giran; mula con alforjas. Cargas: `tierra`, `piedra` o `ladrillos` |
 | `dust(ctx, x, y, t, t0, {s})` | Nube de polvo determinista |
 
+**v1.17.1 · material documental, bandera y sección detallada (corrección final de «Tacoma Narrows»):**
+
+| Bloque | Uso |
+|---|---|
+| `docPhoto(ctx, img, cx, cy, maxW, maxH, t, t0, t1, {label, tag, zoom, tilt})` | Tarjeta documental para fotografías REALES sin alterarlas: relación de aspecto original, marco fino, sombra suave, entrada 96 %→100 % con desplazamiento vertical sutil, salida suave, acercamiento lento dentro del marco (`zoom: [cx0, cy0, z0, cx1, cy1, z1]`), rótulos «ARCHIVO HISTÓRICO» y pie de foto. Las imágenes se incrustan como `data:` en un `js/fotos.js` y se cargan en `EPISODIO.init` |
+| `usFlag(ctx, x, y, h)` · `flagPill(ctx, texto, cx, cy, t, t0, t1)` | Bandera de EE. UU. con proporciones oficiales (1:1,9; 13 franjas; cantón; 50 estrellas) y cápsula informativa discreta con entrada y salida suaves |
+| `tacSection3D(ctx, cx, cy, s, th, t, {rot})` | Sección 2,5D extruida del tablero de 1940: losa, vigas laterales de alma llena con alas y rigidizadores, vigas transversales, eje y flecha de giro; devuelve puntos para cotas y rótulos |
+| `tacSection` (`type: 'celosia'`) | Sección de celosía profunda (ejemplo del puente de 1950) abierta al viento, para comparar en el túnel de viento |
+| `TAC.w` (`trav`) · `TK` | La oscilación vertical combina onda estacionaria y una componente que avanza (nula en las torres); acero y cables más oscuros para contrastar con el cielo; las péndolas conservan su longitud (el cable sigue al borde) |
+
 **v1.17 · motor 3D ligero y puente colgante (episodio «Tacoma Narrows»):**
 
 | Bloque | Uso |

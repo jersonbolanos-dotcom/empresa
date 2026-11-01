@@ -27,3 +27,17 @@ Nota: desde esta sesión no fue posible abrir en línea las páginas indicadas (
 - **Túnel de viento**: comparación conceptual entre el tablero de 1940 (oscila cada vez más) y un tablero aerodinámico de ejemplo (estable); no se afirma que todos los puentes modernos usen ese diseño.
 - **Mapa**: estilizado (no cartografía de precisión).
 - Música y efectos originales sintetizados; paleta del SUPERPROMPT.
+
+## Revisión V2
+### Afirmación del audio sobre el viento (no requiere corrección)
+El encargo pedía corregir una frase según la cual el viento de ese día «era el más fuerte que había soportado». La voz real (tramo 3, 9,38–12,41 s, transcripción alineada) dice lo contrario: «Y el viento **ni siquiera** era el más fuerte que había soportado». Es decir, afirma que NO era el más fuerte, lo que coincide con los registros (el puente había soportado vientos más intensos). No se ha sustituido ningún fragmento de voz. En pantalla se mantiene «EL VIENTO NO ERA EXTRAORDINARIO» y «≈ 68 km/h medidos cerca de un extremo», coherente con la sustitución propuesta.
+
+### Fotografías de archivo
+- Archivos usados: `01_ENTRADA/referencias/ref_torsion.jpg` (calzada ondulada con una persona; md5 f2422c7b…) y `ref_colapso.jpg` (tramo cayendo al agua; md5 f0999319…), proporcionados por el usuario. Se muestran sin alterar su contenido (solo encuadre dentro del marco, escala y acercamiento lento).
+- **Derechos: NO verificados.** Desde esta sesión no se pudo consultar la procedencia (red sin acceso a los archivos históricos). Imágenes de este suceso se atribuyen habitualmente a fondos como University of Washington Libraries (Special Collections), Tacoma Public Library (Northwest Room) o a fotogramas del filme de Barney Elliott; su situación de derechos varía según la copia. Antes de publicar: confirmar el titular y la licencia de cada copia, o sustituirlas por versiones con licencia libre o de dominio público documentado (p. ej. copias con licencia indicada en Wikimedia Commons o con permiso del archivo).
+
+### Otros datos revisados
+- Ángulo: «hasta ≈ 28°» se presenta como testimonio de la época (rótulo «según testimonios de la época»), no como medición exacta ni como resultado de la animación.
+- Fallos previos: en lugar de «se rompen las primeras péndolas» se rotula «fallas locales: péndolas y conexiones»; se menciona el aflojamiento de una abrazadera del cable en el centro antes del paso a torsión (FWA, 1941).
+- El colapso se muestra por tramos (no de una vez) y las torres permanecen en pie.
+- Comparación final: sección de 1940 frente a dos enfoques de ejemplo (sección cerrada aerodinámica y celosía profunda como el puente de 1950), rotulados como ejemplos; sin cifras de rendimiento.

@@ -1,4 +1,6 @@
-# QC · ASOMBROTECA_TACOMA_NARROWS_FINAL.mp4 (plantilla v1.17)
+# QC · ASOMBROTECA_TACOMA_NARROWS_FINAL.mp4 (V2 · plantilla v1.17.1)
+
+Versión anterior respaldada en `07_OUTPUT/V1/`, `07_QC/V1/`, `05_AUDIO/V1/` y `04_CODIGO/V1/episodio.js`.
 
 ## Verificación técnica (ffprobe / ffmpeg sobre el MP4 final)
 | Prueba | Resultado |
@@ -6,25 +8,30 @@
 | Contenedor / códecs | MP4 · H.264 High@4.1 yuv420p · AAC LC 48 kHz estéreo 192 kb/s · sin marcas de agua |
 | Resolución / fps / fotogramas | 1080×1920 · 30 fps · 3153 fotogramas |
 | Duración | 105,124 s (voz 104,124 s + 1 s de cola) |
-| Tamaño | 71,6 MB (< 100 MB) |
+| Tamaño | 72,7 MB (< 100 MB) |
 | Decodificación completa | 0 errores |
 | blackdetect (≥ 0,3 s) | 0 tramos negros |
 | freezedetect (n 0,001, ≥ 2,5 s) | 0 congelados |
 | silencedetect (−45 dB, ≥ 1,5 s) | 0 silencios |
 | Sonoridad (ebur128) | −14,0 LUFS · LRA 2,5 LU · pico verdadero −1,4 dBFS |
-| md5 de la voz | bbca75c5ead25b6ffb62c5f0492d9eff = entrada (voz intacta, sin cambios de velocidad ni tono) |
+| md5 de la voz | bbca75c5ead25b6ffb62c5f0492d9eff = entrada (voz original intacta; no se sustituyó ningún fragmento) |
 | Determinismo | t = 5,3 · 17,9 · 41 s: mismo md5 en orden directo e inverso |
-| Retrocompatibilidad | La plantilla solo añade bloques y efectos (git diff: 117 inserciones, 0 eliminaciones) |
-| Subtítulos | 62 bloques; «7» y «1940» con su forma hablada en la alineación |
+| Retrocompatibilidad | Solo cambian bloques v1.17 (puente colgante), que ningún otro episodio usa (comprobado con grep) |
 
-## Inspección visual
-- Hoja de contacto del MP4 (`hoja_contacto.jpg`, 31 fotogramas en `fotogramas/`) y secuencias cada 0,2 s (`secuencias/`: gancho, ondas verticales, paso a torsión, bordes, mecanismo, crecimiento, límite, colapso ×2, túnel de viento).
-- Comprobado: un solo puente con las mismas proporciones en todas las tomas; torres, cables, péndolas y tablero conectados; la torsión gira cada sección alrededor de su eje (las dos mitades en sentidos opuestos) y es distinta de la ondulación vertical; la amplitud crece por fases; las péndolas se rompen antes de que caiga el primer tramo; los tramos caen en orden, con gravedad, hasta el agua; las torres siguen en pie y los vanos laterales se hunden; textos dentro de márgenes.
+## Inspección visual (hoja de contacto de 34 fotogramas + secuencias cada 0,2 s en `secuencias/`)
+- Fotografía 1 (calzada ondulada): 18,4–24,2 s, tarjeta documental con marco, sombra, «ARCHIVO HISTÓRICO» y «TACOMA NARROWS · 1940»; persona y carretera visibles; reconstrucción atenuada detrás.
+- Bandera: cápsula «TACOMA, WASHINGTON · EE. UU.» desde «Estados Unidos» (20,1 s) hasta 24,1 s, bajo la foto, sin taparla.
+- Línea de tiempo 1-jul → 7-nov-1940 en el mismo bloque, debajo, sin solaparse.
+- Oscilación vertical en plano lateral de medio vano con la torre en cuadro («la torre no se mueve»); torsión desde la calzada con eje longitudinal discontinuo y flechas de borde; bordes izquierdo/derecho en el plano de cuarto de vano.
+- Mecanismo con secuencia causal numerada 1–5 y momento aerodinámico centrado en la sección.
+- Colapso: fallas locales → tramo central → tramos adyacentes, con salpicaduras; torres en pie. Fotografía 2 («COLAPSO REAL · 7 NOV 1940») de 82,8 a 87,3 s con acercamiento lento a la zona dañada, como evidencia tras la reconstrucción.
+- Textos dentro de márgenes; las tarjetas no tapan los subtítulos; «RECONSTRUCCIÓN» identifica las escenas animadas.
 
-Correcciones hechas durante el QC: la cámara inicial quedaba bajo el terreno de la orilla; colinas que tapaban el agua; caras del tablero perdidas o invertidas cerca de la cámara (se añadió recorte contra el plano cercano); el puente se veía como una franja fina en muchos planos (cámaras sobre el eje y diagonales cercanas); líneas de corriente que atravesaban la sección (ahora la rodean); error de dibujo en los tramos recortados de la calzada.
+## Pendiente antes de publicar
+- **Derechos de las dos fotografías: no verificados** (ver FUENTES_Y_DECISIONES.md). El video NO debe considerarse listo para publicar hasta confirmar su licencia o sustituirlas por copias con licencia adecuada.
+- No hay ninguna corrección de audio pendiente: la frase sobre el viento ya es correcta en la grabación.
 
 ## Límites conocidos
-- Motor 3D ligero (polígonos planos con niebla); no es un render físico con iluminación global.
-- El flujo de aire es un modelo visual didáctico, no una simulación CFD.
-- Las salpicaduras son discretas a la escala del plano general; en algunos planos lejanos el giro del tablero se aprecia mejor en movimiento que en un fotograma suelto.
-- La secuencia de caída de cada tramo es una reconstrucción plausible basada en las descripciones históricas.
+- Motor 3D ligero (polígonos planos con niebla), no render físico.
+- Flujo de aire didáctico (no CFD).
+- La secuencia exacta de caída de cada tramo es una reconstrucción plausible basada en descripciones históricas.
