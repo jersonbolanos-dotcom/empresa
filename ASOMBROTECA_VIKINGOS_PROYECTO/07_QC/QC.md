@@ -13,7 +13,7 @@
 | Voz | md5 idéntico al archivo subido (1e302aa6cc80b918fc09ef4f27e3da0e): sin alterar, acelerar ni recortar; empieza en t = 0,05 s, igual que el original |
 | Subtítulos | barra (blanco + barra amarilla), sin cambios, 68 bloques (`06_SUBTITULOS/subtitulos.srt`) |
 | Determinismo | `determinismo.txt`: dos ejecuciones idénticas |
-| Retrocompatibilidad v1.13.1 | RETRO_PENDIENTE |
+| Retrocompatibilidad v1.13.1 | IGUAL en los 9 episodios anteriores (Machu Picchu, Andrómeda, Barco, Pirámides, Represa, Internet submarino, GPS, Aire acondicionado y Microondas) |
 | Revisión visual | (1) Una ronda de hoja de contacto antes del render (38 fotogramas). Se corrigió: notas del corte de tablas encima de la sección; nota de conteo encima del rótulo de 993; transición mapa → mar lenta; frase no verificada en el cierre. (2) Tras el primer render se revisaron 54 fotogramas del MP4 y se corrigió la pila de leña de L'Anse aux Meadows (parecía suelta y un tronco flotaba). Se volvió a renderizar. (3) Revisión de 54 fotogramas del MP4 definitivo (`fotogramas_revision/`, `hoja_contacto.jpg`) y de pares de fotogramas consecutivos en la apertura, el corte y la transición mapa → mar |
 | Mapas | Rutas por mar sin cruzar tierra (Noruega → Feroe → Islandia; Islandia → cabo Farewell → asentamiento oriental; Groenlandia → estrecho de Davis → Baffin → Labrador → Terranova); rotuladas como «ruta aproximada» frente a «sitio documentado» |
 | Datos | 1021 con el estudio de *Nature* (2021); 471 años = 1492 − 1021; Islandia ≈ 870; Groenlandia ≈ 985 (ver `FUENTES_Y_DECISIONES.md`) |

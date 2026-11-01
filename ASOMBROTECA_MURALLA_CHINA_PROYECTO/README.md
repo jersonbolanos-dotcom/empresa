@@ -1,0 +1,33 @@
+# ASOMBROTECA · ¿Cómo construyeron la Gran Muralla China sin maquinaria moderna?
+
+- **Video:** `07_OUTPUT/ASOMBROTECA_MURALLA_CHINA.mp4` (1080×1920, 30 fps, 114,7 s). Miniatura en `07_OUTPUT/miniatura.jpg`.
+- **Base:** `PLANTILLA_ASOMBROTECA` v1.14. Este episodio añadió:
+  - cordilleras con cresta (`ranges`);
+  - la muralla que sigue el terreno (`wallPath`);
+  - torres con humo o fuego (`watchtower`);
+  - tierra apisonada animada (`rammedEarth`);
+  - el corte Ming (`mingSection`);
+  - el mapa del norte de China por periodos (`chinaMap`, `mapWall`, `CNWALLS`);
+  - porteadores, carro de bueyes, animal de carga y trabajadores con ropa variada;
+  - polvo y 7 FX nuevos.
+- **Arco (19 escenas):**
+  1. Muralla sobre las crestas.
+  2. Constructores.
+  3. Ingeniería, materiales y trabajo.
+  4. No se construyó de una sola vez.
+  5. Más de 2.000 años.
+  6. Tierra, piedra y ladrillo.
+  7. Moldes.
+  8. Compactación.
+  9. Tierra apisonada.
+  10. Piedra local.
+  11. Ming.
+  12. ¿Cómo subían los materiales?
+  13. Carros, animales y personas.
+  14. Pendientes.
+  15. Torres y señales.
+  16. Generaciones.
+  17. No fue una sola muralla.
+  18. Obra de muchas generaciones.
+  19. Asombroteca.
+- **Reconstruir:** desde `04_CODIGO`, ejecuta `python3 -I ../../PLANTILLA_ASOMBROTECA/tools/build.py` y luego `node ../../PLANTILLA_ASOMBROTECA/tools/render.js index.html <carpeta> 6`.

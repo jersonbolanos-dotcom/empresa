@@ -85,6 +85,12 @@
   ['Navegante nórdico (v1.13.1)', (c, t) => { c.fillStyle = '#d8c9a8'; c.fillRect(0, 0, 400, 300); c.fillStyle = '#4a3020'; c.fillRect(0, 260, 400, 40); P.navigator(c, 150, 290, 270, t, { look: 1 }); P.navigator(c, 300, 290, 200, t, { look: 0.2 }); }],
   ['Casa larga de turba → restos (v1.13.1)', (c, t) => { c.fillStyle = '#a7c8d4'; c.fillRect(0, 0, 400, 300); c.fillStyle = '#5f7d4c'; c.fillRect(0, 140, 400, 160); P.longhouse(c, 120, 230, 190, 80, 36, t, { smoke: 1 }); P.longhouse(c, 310, 260, 130, 60, 26, t, { ruin: 1, glow: 1 }); }],
   ['Pieza de madera arqueológica (v1.13.1)', (c, t) => { c.fillStyle = '#13293a'; c.fillRect(0, 0, 400, 300); P.timber(c, 210, 150, 320, 70, t, { glowEnd: 1 }); }],
+  ['Cordillera + muralla con torres (v1.14)', (c, t) => { c.save(); c.beginPath(); c.rect(0, 0, 400, 300); c.clip(); c.scale(400 / 1080, 400 / 1080); const rg = P.ranges(c, t, { hor: 300, sun: [820, 200], front: { y: 640, amp: 260 }, x0: 0, x1: 1080 }); const pts = []; for (let x = -40; x <= 1120; x += 20) pts.push([x, rg.ridge(x)]); P.wallPath(c, pts, t, { style: 'ladrillo', h: 40, towers: [0.25, 0.6], towerS: 100, smokeAt: 0.6, smoke: 1 }); c.restore(); }],
+  ['Tierra apisonada (v1.14)', (c, t) => { c.fillStyle = '#d9c9a8'; c.fillRect(0, 0, 400, 300); P.rammedEarth(c, 200, 285, 300, 170, t, { total: 8, done: 4, loose: 1, compact: 0.4, workers: 2, hit: 0.3 }); }],
+  ['Corte de muro Ming (v1.14)', (c, t) => { c.fillStyle = '#1b2a2c'; c.fillRect(0, 0, 400, 300); P.mingSection(c, 200, 280, 300, 230, t, {}); }],
+  ['Mapa del norte de China por periodos (v1.14)', (c, t) => { const pr = P.chinaMap(c, 0, 0, 400, 300, t, {}); P.mapWall(c, P.CNWALLS.qin[0].map(pr), 1, t, { c: '#D5AC62', w: 3 }); P.CNWALLS.han.forEach((s) => P.mapWall(c, s.map(pr), 1, t, { c: '#4fb3a8', w: 3 })); P.CNWALLS.ming.forEach((s) => P.mapWall(c, s.map(pr), 1, t, { c: '#d9634a', w: 3 })); }],
+  ['Carro, mula y porteador (v1.14)', (c, t) => { c.fillStyle = '#c9b48e'; c.fillRect(0, 0, 400, 300); P.oxcart(c, 120, 260, 200, t, { load: 'ladrillos', phase: 0.2 }); P.packAnimal(c, 270, 260, 80, 0.3, { load: 'piedra' }); P.porter(c, 350, 260, 110, 0.2, { load: 'tierra', var: 2 }); }],
+  ['Torres de vigilancia y de señales (v1.14)', (c, t) => { c.fillStyle = '#86A9BD'; c.fillRect(0, 0, 400, 300); P.watchtower(c, 120, 280, 160, t, { style: 'ladrillo', smoke: 1 }); P.watchtower(c, 300, 280, 140, t, { style: 'tierra', fire: 1 }); }],
  ];
  window.drawCatalog = function () {
   document.querySelectorAll('canvas[data-i]').forEach((cv) => {

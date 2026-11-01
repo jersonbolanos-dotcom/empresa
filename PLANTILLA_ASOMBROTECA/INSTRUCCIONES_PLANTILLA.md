@@ -144,6 +144,21 @@ La piel se elige con `skin: 'plana' | 'oscura'` en `PLANTILLA.make`. Los bloques
 | `rings` | Ondas de radio, en anillo o dirigidas |
 | `clock` | Reloj analógico |
 
+**Bloques v1.14 (episodio «Gran Muralla China»)** — montañas con cresta, murallas, tierra apisonada y logística:
+
+| Bloque | Uso |
+|---|---|
+| `ranges(ctx, t, {hor, sky, sun, layers, seed, arid, fogA, front:{y, amp}, nearC, farC})` | Cordilleras por capas con niebla de valle, luz en las laderas y vegetación. `arid` (0..1) pasa a paisaje seco. **Devuelve `ridge(x)`**, la cresta delantera, para apoyar murallas y caminos |
+| `wallPath(ctx, pts, t, {style, h, w, build, towers, towerS, ruin, crenel, smokeAt, smoke, glow})` | **Muralla que sigue el terreno** (por ejemplo, `pts` sobre `ridge`): cara con hiladas según el material (`tierra`, `piedra` o `ladrillo`), adarve en escorzo, almenas, sombra de contacto y torres en fracciones del recorrido. `build` la construye a lo largo del camino; `ruin`, la deteriora |
+| `watchtower(ctx, x, y, s, t, {style, smoke, fire, ruin, glow})` | Torre de vigilancia o de señales (ladrillo o piedra con ventanas arqueadas y almenas; de tierra, ataludada). Humo (día) o fuego (noche) deterministas |
+| `rammedEarth(ctx, x, y, w, h, t, {total, done, loose, compact, form, workers, hit, cut, glowLayer})` | **Tierra apisonada**: capas terminadas con su textura; capa actual suelta que baja de altura y se densifica con `compact`; encofrado (tablones en corte); pisones que tocan la superficie y levantan polvo; `cut` marca las capas |
+| `mingSection(ctx, x, y, w, h, t, {build, glow})` | Corte de muro Ming: cimiento de piedra, paramentos de ladrillo ataludados (se colocan hilada a hilada), núcleo de tierra y cascajo, adarve y parapeto. Devuelve puntos para rótulos |
+| `chinaMap(ctx, x, y, w, h, t, {lon0, lon1, lat0, lat1})` + `mapWall(ctx, pts, p, t, {c, w})` + `CNWALLS` | Mapa esquemático del norte de China (mar de Bohai, Shandong, Liaodong, río Amarillo, Gobi, Ordos y relieve) y tramos de muralla con símbolo cartográfico. `CNWALLS` trae esquemas aproximados de Reinos Combatientes, Qin, Han y Ming |
+| `laborer`, `porter`, `oxcart`, `packAnimal` | Trabajador con ropa y sombrero variados; porteador con pértiga y dos cestas; carro de dos ruedas con buey y ruedas que giran; mula con alforjas. Cargas: `tierra`, `piedra` o `ladrillos` |
+| `dust(ctx, x, y, t, t0, {s})` | Nube de polvo determinista |
+
+Efectos `FX` de v1.14: `apisonar` (golpes de pisón), `vertido` (tierra), `ruedas`, `cascos`, `ladrillo`, `hoguera` y `pasosTierra`.
+
 **Bloques v1.13 (episodio «Vikingos en América»)** — mar cinematográfico, barco nórdico, mapas de rutas, arqueología y tiempo:
 
 | Bloque | Uso |
