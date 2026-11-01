@@ -157,6 +157,16 @@ La piel se elige con `skin: 'plana' | 'oscura'` en `PLANTILLA.make`. Los bloques
 | `laborer`, `porter`, `oxcart`, `packAnimal` | Trabajador con ropa y sombrero variados; porteador con pértiga y dos cestas; carro de dos ruedas con buey y ruedas que giran; mula con alforjas. Cargas: `tierra`, `piedra` o `ladrillos` |
 | `dust(ctx, x, y, t, t0, {s})` | Nube de polvo determinista |
 
+**v1.14.2 · sistema único terreno + muralla + torres (corrección geométrica):**
+
+| Bloque | Uso |
+|---|---|
+| `wallSystem(ctx, gy, xa, xb, t, {style, h, thick, build, towersX, towerSmoke, towerFire, pavilionX, ruin, sunLeft, crenel, glow})` | **Sistema único**: comparte la cresta `gy(x)` y una proyección oblicua (`D`) para muros, almenas y torres. La muralla se divide en **tramos que terminan en las caras de cada torre**. Orden de dibujo: tramo → torre → tramo, para que el muro quede delante de la cara lateral de la torre y detrás de su cara frontal. El adarve va en rampa donde la pendiente local es suave y en peldaños donde es fuerte, y se enlaza al nivel de cada torre. La cara frontal baja hasta el terreno (zócalo de piedra en el ladrillo). Las torres tienen zócalo que llega al suelo, cara lateral con **puerta al nivel del adarve donde entra el tramo**, ventanas, almenas y pabellón opcional. Las sombras proyectadas siguen la posición del sol (`sunLeft`). Devuelve las torres (`roof`, `door`, `F`) y `walk(x)` |
+| `ridgePeaks(gy, xa, xb, gap)` | Cumbres de una cresta con separación mínima: se usan para poner las torres en los puntos altos |
+| `rangeRidge(o)` | La misma cresta delantera de `ranges(o)`, sin dibujar (para colocar torres o cámaras antes del dibujo) |
+| `ranges` (`rugged`) | Crestas rocosas y estribaciones con lado iluminado y lado en sombra según el sol |
+| `wallPath`, `watchtower` | Ahora usan `wallSystem` y la misma torre (compatibles con la firma anterior) |
+
 **Añadidos y mejoras v1.14.1 (revisión final de «Gran Muralla»):**
 
 | Bloque | Uso |

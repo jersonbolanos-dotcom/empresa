@@ -1597,6 +1597,11 @@
  // Cordilleras por capas con crestas rocosas. o: { hor, sky:[arriba, horizonte], sun, sunA, layers, seed, arid (0..1), fogA, x0, x1, front:{y, amp},
  // part: 'back' (cielo y capas lejanas) | 'front' (solo la capa delantera) para dibujarlas con cámaras distintas (paralaje) }
  // Devuelve { ridge(x) } = altura (y) de la cresta delantera, para apoyar la muralla.
+ // capa L de una cordillera: misma función para dibujar y para consultar la cresta (rugged 0..1: crestas rocosas y picos más marcados)
+ const rangeLayer = (o, L) => { const hor = o.hor ?? 900, ar = o.arid || 0, seed = o.seed ?? 3, nL = o.layers ?? 5, fr = o.front || {}, rg = o.rugged || 0; const u = L / (nL - 1), base = lerp(hor - 60, fr.y ?? hor + 380, u), amp = lerp(140, fr.amp ?? 420, u) * (1 - ar * 0.35), s = seed + L * 3.1, sc = lerp(0.6, 1.25, u);
+  const yAt = (x) => base - amp * (0.55 + 0.45 * sn(x / sc, s)) + amp * 0.18 * Math.abs(Math.sin(x * 0.011 / sc + s)) - rg * (amp * 0.2 * Math.pow(1 - Math.abs(Math.sin(x * 0.0042 / sc + s * 0.7)), 4) - (3 * Math.sin(x * 0.071 + s) + 1.6 * Math.sin(x * 0.19 + s * 2.1) + 0.8 * Math.sin(x * 0.43 + s)) * (0.4 + 0.6 * u));
+  return { u, base, amp, yAt }; };
+ P.rangeRidge = (o) => rangeLayer(o, (o.layers ?? 5) - 1).yAt;
  P.ranges = (ctx, t, o = {}) => {
   const hor = o.hor ?? 900, x0 = o.x0 ?? -800, x1 = o.x1 ?? W + 800, ar = o.arid || 0, seed = o.seed ?? 3, nL = o.layers ?? 5;
   const part = o.part; if (part !== 'front') { const sky = o.sky || ['#6f97ad', '#d7d6c4']; const g = ctx.createLinearGradient(0, hor - 1500, 0, hor); g.addColorStop(0, sky[0]); g.addColorStop(1, sky[1]); ctx.fillStyle = g; ctx.fillRect(x0, hor - 3000, x1 - x0, 3000 + 2400);
@@ -1604,13 +1609,14 @@
   const mix = (a, b, u) => { const pa = parseInt(a.slice(1), 16), pb = parseInt(b.slice(1), 16), c = (s) => Math.round(lerp((pa >> s) & 255, (pb >> s) & 255, u)); return '#' + ((1 << 24) + (c(16) << 16) + (c(8) << 8) + c(0)).toString(16).slice(1); };
   const far = mix(o.farC || '#8fa6a8', '#c9b48e', ar), near = mix(o.nearC || '#425A39', '#8a6a45', ar), fr = o.front || {};
   let ridge = null;
-  for (let L = 0; L < nL; L++) { const u = L / (nL - 1), base = lerp(hor - 60, fr.y ?? hor + 380, u), amp = lerp(140, fr.amp ?? 420, u) * (1 - ar * 0.35), s = seed + L * 3.1, sc = lerp(0.6, 1.25, u);
-   const yAt = (x) => base - amp * (0.55 + 0.45 * sn(x / sc, s)) + amp * 0.18 * Math.abs(Math.sin(x * 0.011 / sc + s));
+  for (let L = 0; L < nL; L++) { const { u, base, amp, yAt } = rangeLayer(o, L), s = seed + L * 3.1;
    if ((part === 'back' && L === nL - 1) || (part === 'front' && L < nL - 1)) { if (L === nL - 1) ridge = yAt; continue; }
    ctx.beginPath(); ctx.moveTo(x0, HH + 1600); for (let x = x0; x <= x1; x += 12) ctx.lineTo(x, yAt(x)); ctx.lineTo(x1, HH + 1600); ctx.closePath();
    const lg = ctx.createLinearGradient(0, base - amp, 0, base + 400); lg.addColorStop(0, mix(far, near, u * 0.9 + 0.05)); lg.addColorStop(1, mix(far, near, Math.min(1, u * 1.1 + 0.2))); ctx.fillStyle = lg; ctx.fill();
    // luz en las laderas que miran al sol y vetas de roca
-   ctx.save(); ctx.clip(); for (let x = x0; x <= x1; x += 12) { const y = yAt(x), sl = yAt(x + 12) - y; if (sl >= 0) continue; const lg2 = ctx.createLinearGradient(0, y, 0, y + 160 + 300 * u); lg2.addColorStop(0, `rgba(255,236,200,${Math.min(0.09, -sl * 0.007) * (0.4 + u)})`); lg2.addColorStop(1, 'rgba(255,236,200,0)'); ctx.fillStyle = lg2; ctx.fillRect(x - 1, y, 14, 160 + 300 * u); }
+   ctx.save(); ctx.clip(); { const sunR = !(o.sun && o.sun[0] < 540); for (let x = x0 + 30; x <= x1 - 30; x += 18) { const y = yAt(x); if (!(y < yAt(x - 30) && y <= yAt(x + 30))) continue; const len = (base + 420 - y) * (0.8 + 0.4 * u), sp = 90 * (0.5 + u);
+     const lit = ctx.createLinearGradient(x, y, x + (sunR ? sp : -sp), y + len); lit.addColorStop(0, `rgba(255,236,200,${0.1 + 0.06 * u})`); lit.addColorStop(1, 'rgba(255,236,200,0)'); ctx.fillStyle = lit; ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x + (sunR ? sp * 1.4 : -sp * 1.4), y + len); ctx.lineTo(x + (sunR ? sp * 0.2 : -sp * 0.2), y + len); ctx.closePath(); ctx.fill();
+     const dk = ctx.createLinearGradient(x, y, x - (sunR ? sp : -sp), y + len); dk.addColorStop(0, `rgba(20,30,20,${0.12 + 0.06 * u})`); dk.addColorStop(1, 'rgba(20,30,20,0)'); ctx.fillStyle = dk; ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x + (sunR ? sp * 0.2 : -sp * 0.2), y + len); ctx.lineTo(x - (sunR ? sp * 1.2 : -sp * 1.2), y + len); ctx.closePath(); ctx.fill(); } }
    ctx.strokeStyle = `rgba(255,240,215,${0.15 + 0.2 * u})`; ctx.lineWidth = 1.5 + 2 * u; ctx.beginPath(); for (let x = x0; x <= x1; x += 12) (x === x0 ? ctx.moveTo(x, yAt(x) + 2) : ctx.lineTo(x, yAt(x) + 2)); ctx.stroke();
    if (u > 0.5) { const R = H.rng(seed + L); ctx.fillStyle = ar > 0.5 ? 'rgba(120,90,60,0.5)' : 'rgba(40,60,36,0.6)'; for (let i = 0; i < 160 * u; i++) { const x = R.range(x0, x1), y = yAt(x) + R.range(10, 600); ctx.beginPath(); ctx.arc(x, y, R.range(3, 9) * u, 0, TAU); ctx.fill(); } }
    ctx.restore();
@@ -1678,85 +1684,112 @@
   for (const sd of [-1, 1]) { const bx = sh[0] + sd * h * 0.38, by = Math.min(y - h * 0.08, sh[1] + h * 0.36 + bob + Math.sin(ph * TAU * 2 + sd) * h * 0.01); ctx.strokeStyle = 'rgba(80,60,40,0.9)'; ctx.lineWidth = h * 0.008; ctx.beginPath(); ctx.moveTo(bx - h * 0.07, by - h * 0.06); ctx.lineTo(bx, sh[1] + h * 0.035 + bob); ctx.lineTo(bx + h * 0.07, by - h * 0.06); ctx.stroke(); ctx.fillStyle = '#9a7b4f'; ctx.beginPath(); ctx.moveTo(bx - h * 0.09, by - h * 0.06); ctx.lineTo(bx + h * 0.09, by - h * 0.06); ctx.lineTo(bx + h * 0.07, by + h * 0.06); ctx.lineTo(bx - h * 0.07, by + h * 0.06); ctx.closePath(); ctx.fill(); ctx.strokeStyle = 'rgba(70,50,30,0.5)'; ctx.lineWidth = 1; for (let k = 0; k < 3; k++) { ctx.beginPath(); ctx.moveTo(bx - h * 0.085, by - h * 0.03 + k * h * 0.03); ctx.lineTo(bx + h * 0.08, by - h * 0.03 + k * h * 0.03); ctx.stroke(); }
    if (o.load === 'piedra') { ctx.fillStyle = '#8f958e'; ctx.beginPath(); ctx.ellipse(bx - h * 0.025, by - h * 0.075, h * 0.045, h * 0.03, 0.2, 0, TAU); ctx.ellipse(bx + h * 0.035, by - h * 0.07, h * 0.04, h * 0.028, -0.2, 0, TAU); ctx.fill(); } else if (o.load === 'ladrillos') { ctx.fillStyle = '#a45c42'; ctx.fillRect(bx - h * 0.08, by - h * 0.1, h * 0.075, h * 0.035); ctx.fillRect(bx + h * 0.005, by - h * 0.1, h * 0.075, h * 0.035); ctx.fillStyle = '#93503a'; ctx.fillRect(bx - h * 0.045, by - h * 0.13, h * 0.075, h * 0.033); } else { ctx.fillStyle = '#8a6440'; ctx.beginPath(); ctx.ellipse(bx, by - h * 0.065, h * 0.085, h * 0.032, 0, Math.PI, TAU); ctx.fill(); } }
   ctx.restore(); };
- // Muralla con VOLUMEN que sigue el terreno (2,5D): sombra proyectada, cimiento que baja a la ladera, cara con fábrica según el material,
- // adarve con grosor, parapeto exterior con almenas 2,5D (cara, techo y lateral), pretil interior, cara final donde termina la obra y
- // torres integradas (el muro entra en la torre). o: { style, h, w, build, towers, towerS, ruin, crenel, smokeAt, smoke, glow, pavilion:[fracciones] }
- P.wallPath = (ctx, pts, t, o = {}) => {
-  const st = o.style || 'ladrillo', h = o.h ?? 40, dep = o.w ?? h * 0.7, D = [dep * 0.55, -dep * 0.42], pa = P.path(pts), end = pa.L * cl(o.build ?? 1), ru = o.ruin || 0, step = Math.max(4, h * 0.22);
-  const col = st === 'tierra' ? { f: '#ad8456', d: '#6d4a30', t: '#c49a68', m: '#8a6440' } : st === 'piedra' ? { f: '#a3a99f', d: '#5e655f', t: '#bcc0b6', m: '#7c827d' } : { f: '#9a7462', d: '#5f4636', t: '#b29b88', m: '#7d5a48' };
-  const S = []; for (let s = 0; s <= end + 0.01; s += step) { const q = pa.at(Math.min(s, end)); S.push([q[0], q[1]]); } if (S.length < 2) return pa;
-  const er = (i) => st === 'tierra' ? (0.88 + 0.12 * Math.sin(i * 0.9)) * (1 - ru * 0.35 * (0.5 + 0.5 * Math.sin(i * 0.37))) : 1 - ru * 0.45 * (0.5 + 0.5 * Math.sin(i * 0.7));
-  const top = S.map(([x, y], i) => [x, y - h * er(i)]), poly = (pp, c) => { ctx.beginPath(); pp.forEach((p, i) => (i ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1]))); ctx.closePath(); ctx.fillStyle = c; ctx.fill(); };
-  ctx.save();
-  // sombra proyectada sobre la ladera (sol a la izquierda)
-  poly([...S.map(([x, y]) => [x, y + h * 0.05]), ...S.slice().reverse().map(([x, y]) => [x + h * 0.55, y + h * 0.42])], 'rgba(18,24,16,0.22)');
-  // cimiento que se adapta a la ladera (franja más ancha y oscura)
-  poly([...S.map(([x, y]) => [x, y - h * 0.15]), ...S.slice().reverse().map(([x, y]) => [x + h * 0.06, y + h * 0.16])], st === 'tierra' ? '#7a5a3c' : '#6f756f');
-  // adarve (superficie superior con grosor) y pretil interior
-  poly([...top, ...top.slice().reverse().map(([x, y]) => [x + D[0], y + D[1]])], col.t);
-  if (st !== 'tierra') { ctx.strokeStyle = col.d; ctx.lineWidth = Math.max(2, h * 0.12); ctx.lineJoin = 'round'; ctx.beginPath(); top.forEach(([x, y], i) => (i ? ctx.lineTo(x + D[0], y + D[1] - h * 0.05) : ctx.moveTo(x + D[0], y + D[1] - h * 0.05))); ctx.stroke(); }
-  if (st === 'ladrillo') { ctx.strokeStyle = 'rgba(90,70,55,0.35)'; ctx.lineWidth = 1; for (let i = 0; i < top.length; i += 2) { const [x, y] = top[i]; ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x + D[0], y + D[1]); ctx.stroke(); } }
-  // cara frontal del muro
-  const fp = [...top, ...S.slice().reverse()]; ctx.beginPath(); fp.forEach((p, i) => (i ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1]))); ctx.closePath();
-  const ymin = Math.min(...top.map((p) => p[1])), ymax = Math.max(...S.map((p) => p[1])), fg = ctx.createLinearGradient(0, ymin, 0, ymax); fg.addColorStop(0, col.f); fg.addColorStop(1, col.d); ctx.fillStyle = fg; ctx.fill();
-  ctx.save(); ctx.clip(); const Rm = H.rng(o.seed || 7);
-  if (st === 'tierra') { ctx.strokeStyle = 'rgba(80,52,30,0.4)'; ctx.lineWidth = Math.max(1, h * 0.025); for (let r = 1; r < 7; r++) { ctx.beginPath(); S.forEach((p, i) => { const yy = lerp(top[i][1], p[1], r / 7); i ? ctx.lineTo(p[0], yy) : ctx.moveTo(p[0], yy); }); ctx.stroke(); } }
-  else if (st === 'piedra') { ctx.strokeStyle = 'rgba(40,44,40,0.45)'; ctx.lineWidth = Math.max(1, h * 0.022); for (let i = 0; i < S.length - 1; i++) { const [x, y] = S[i], tY = top[i][1]; for (let r = 0; r < 3; r++) { const y0 = lerp(tY, y, r / 3), y1 = lerp(tY, y, (r + 1) / 3), j = Rm.range(-0.3, 0.3) * step; ctx.beginPath(); ctx.moveTo(x + j, y0); ctx.lineTo(x + j + Rm.range(-2, 2), y1); ctx.stroke(); } } for (let r = 1; r < 3; r++) { ctx.beginPath(); S.forEach((p, i) => { const yy = lerp(top[i][1], p[1], r / 3) + Math.sin(i * 1.3) * h * 0.04; i ? ctx.lineTo(p[0], yy) : ctx.moveTo(p[0], yy); }); ctx.stroke(); } }
-  else { // ladrillo sobre zócalo de piedra
-   poly([...S.map(([x, y], i) => [x, lerp(top[i][1], y, 0.62)]), ...S.slice().reverse()], 'rgba(150,152,140,0.55)');
-   ctx.strokeStyle = 'rgba(55,40,30,0.32)'; ctx.lineWidth = 1; for (let r = 1; r < 8; r++) { ctx.beginPath(); S.forEach((p, i) => { const yy = lerp(top[i][1], p[1], r / 13); i ? ctx.lineTo(p[0], yy) : ctx.moveTo(p[0], yy); }); ctx.stroke(); }
-   for (let i = 0; i < S.length; i += 2) for (let r = 0; r < 8; r++) { const [x, y] = S[i], y0 = lerp(top[i][1], y, r / 13), y1 = lerp(top[i][1], y, (r + 1) / 13), off = (r % 2) * step * 0.5; ctx.beginPath(); ctx.moveTo(x + off, y0); ctx.lineTo(x + off, y1); ctx.stroke(); }
-   ctx.strokeStyle = 'rgba(40,44,40,0.45)'; for (let r = 0; r < 2; r++) { ctx.beginPath(); S.forEach((p, i) => { const yy = lerp(top[i][1], p[1], 0.62 + r * 0.19); i ? ctx.lineTo(p[0], yy) : ctx.moveTo(p[0], yy); }); ctx.stroke(); } }
-  const sg = ctx.createLinearGradient(0, ymin, 0, ymin + h * 0.4); sg.addColorStop(0, 'rgba(0,0,0,0.18)'); sg.addColorStop(1, 'rgba(0,0,0,0)'); ctx.fillStyle = sg; ctx.fillRect(-5000, ymin, 10000, h * 0.4);
-  ctx.restore();
-  // borde iluminado
-  ctx.strokeStyle = 'rgba(255,240,215,0.4)'; ctx.lineWidth = Math.max(1, h * 0.035); ctx.beginPath(); top.forEach((p, i) => (i ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1]))); ctx.stroke();
-  // parapeto exterior con almenas 2,5D
-  if ((o.crenel ?? st === 'ladrillo') && ru < 0.6) { const cw = h * 0.24, chh = h * 0.26, gap = cw * 2.1, dd = [D[0] * 0.18, D[1] * 0.18];
-   for (let s = cw; s < end - cw; s += gap) { const k = Math.min(top.length - 1, Math.round(s / step)), q = top[k]; const x0 = q[0] - cw / 2, y0 = q[1];
-    poly([[x0 + cw, y0], [x0 + cw + dd[0], y0 + dd[1]], [x0 + cw + dd[0], y0 - chh + dd[1]], [x0 + cw, y0 - chh]], col.d);
-    poly([[x0, y0 - chh], [x0 + cw, y0 - chh], [x0 + cw + dd[0], y0 - chh + dd[1]], [x0 + dd[0], y0 - chh + dd[1]]], col.t);
-    poly([[x0, y0], [x0 + cw, y0], [x0 + cw, y0 - chh], [x0, y0 - chh]], col.m); if (cw > 8) { ctx.fillStyle = 'rgba(25,18,12,0.7)'; ctx.fillRect(q[0] - cw * 0.08, y0 - chh * 0.62, cw * 0.16, chh * 0.3); } } }
-  // cara final (donde se detiene la obra): muestra el grosor
-  if ((o.build ?? 1) < 0.999) { const a = S[S.length - 1], b = top[top.length - 1]; poly([a, b, [b[0] + D[0], b[1] + D[1]], [a[0] + D[0], a[1] + D[1]]], col.d); }
-  if (o.glow) { ctx.strokeStyle = `rgba(255,212,71,${o.glow})`; ctx.lineWidth = 5; ctx.beginPath(); top.forEach((p, i) => (i ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1]))); ctx.stroke(); }
-  ctx.restore();
-  // torres integradas: base hasta el terreno y puerta al nivel del adarve
-  const groundAt = (xq) => { let best = null, bd = 1e9; for (const p of pts) { const dx = Math.abs(p[0] - xq); if (dx < bd) { bd = dx; best = p[1]; } } return best; };
-  for (const fr of o.towers || []) { if (fr * pa.L > end) continue; const q = pa.at(fr * pa.L), ts = o.towerS ?? h * 2.2, tw = ts * 0.72; const gy = Math.max(groundAt(q[0] - tw / 2), groundAt(q[0] + tw / 2)) + h * 0.1;
-   P.watchtower(ctx, q[0], gy, ts + (gy - q[1]), t, { style: st, ruin: ru, smoke: o.smokeAt === fr ? o.smoke : 0, fire: o.fireAt === fr ? o.fire : 0, walk: gy - (q[1] - h), D, pavilion: (o.pavilion || []).includes(fr) }); }
-  return pa;
+ // ================= v1.14.2 · SISTEMA ÚNICO TERRENO + MURALLA + TORRES (corrección geométrica definitiva) =================
+ // Proyección oblicua común: un punto de planta (X, profundidad d) se dibuja en (X + d·Dx, y + d·Dy), con D hacia arriba a la derecha.
+ // El terreno a profundidad d se aproxima como gy(X) + d·Dy (el plano de la cresta inclinado con la profundidad).
+ // Picos de una cresta (para colocar torres en los puntos altos), con separación mínima
+ P.ridgePeaks = (gy, xa, xb, gap = 260) => { const sm2 = (x) => { let s = 0; for (let k = -3; k <= 3; k++) s += gy(x + k * 14); return s / 7; }; const c = []; for (let x = xa; x <= xb; x += 8) { const y = sm2(x); if (y <= sm2(x - 40) && y <= sm2(x + 40)) c.push([x, y]); } c.sort((a, b) => a[1] - b[1]); const out = []; for (const [x] of c) if (out.every((q) => Math.abs(q - x) >= gap)) out.push(x); return out.sort((a, b) => a - b); };
+ const WS_COL = {
+  ladrillo: { f: '#9c7764', fd: '#6e5242', s: '#b8a08b', sd: '#5f4636', t: '#c9b39e', pl: '#a3a69b', pld: '#6f736b', m: '#8d6b59' },
+  piedra: { f: '#a4aaa0', fd: '#70766e', s: '#c2c6bc', sd: '#62695f', t: '#ccd0c6', pl: '#959b92', pld: '#626860', m: '#8e948b' },
+  tierra: { f: '#b08758', fd: '#7d5a3a', s: '#c99f70', sd: '#6e4e33', t: '#d3ab7c', pl: '#9a7650', pld: '#6e4e33', m: '#a07a50' },
  };
- // Torre 2,5D: cara frontal, cara lateral con puerta al nivel del adarve, ventanas arqueadas, almenas con volumen y, opcionalmente,
- // pabellón con tejado. style 'tierra' = torre de señales ataludada y maciza. o: { style, smoke, fire, ruin, glow, walk (altura del adarve sobre la base), D, pavilion }
- P.watchtower = (ctx, x, y, s, t, o = {}) => {
-  const st = o.style || 'ladrillo', w = s * (st === 'tierra' ? 0.58 : 0.66), top = y - s, ru = o.ruin || 0, D = o.D || [s * 0.2, -s * 0.15], dk = [D[0] * 1.3, D[1] * 1.3];
-  const c = st === 'tierra' ? { f: '#b48655', s: '#7d5a3a', t: '#c9a070' } : st === 'piedra' ? { f: '#a8aea6', s: '#6d746c', t: '#c4c8bf' } : { f: '#a07c66', s: '#6a4f3e', t: '#b8a08c' };
-  const tp = st === 'tierra' ? w * 0.16 : w * 0.03, poly = (pp, col) => { ctx.beginPath(); pp.forEach((p, i) => (i ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1]))); ctx.closePath(); ctx.fillStyle = col; ctx.fill(); };
-  const A = [x - w / 2, y], B = [x + w / 2, y], Bt = [x + w / 2 - tp, top], At = [x - w / 2 + tp, top];
-  ctx.save();
-  poly([[A[0], y], [B[0] + dk[0], y + dk[1]], [B[0] + dk[0] + s * 0.4, y + s * 0.12], [A[0] + s * 0.3, y + s * 0.1]], 'rgba(18,24,16,0.25)');
-  // cara lateral (derecha) y techo
-  poly([B, [B[0] + dk[0], B[1] + dk[1]], [Bt[0] + dk[0], Bt[1] + dk[1]], Bt], c.s);
-  poly([At, Bt, [Bt[0] + dk[0], Bt[1] + dk[1]], [At[0] + dk[0], At[1] + dk[1]]], c.t);
-  // cara frontal con hiladas
-  const g = ctx.createLinearGradient(0, top, 0, y); g.addColorStop(0, c.f); g.addColorStop(1, c.s); poly([A, B, Bt, At], g);
-  ctx.save(); ctx.beginPath(); ctx.moveTo(A[0], A[1]); ctx.lineTo(B[0], B[1]); ctx.lineTo(Bt[0], Bt[1]); ctx.lineTo(At[0], At[1]); ctx.closePath(); ctx.clip(); ctx.strokeStyle = 'rgba(40,28,20,0.28)'; ctx.lineWidth = Math.max(1, s * 0.008); const rows = st === 'tierra' ? 9 : 16; for (let r = 1; r < rows; r++) { const yy = lerp(top, y, r / rows); ctx.beginPath(); ctx.moveTo(A[0], yy); ctx.lineTo(B[0], yy); ctx.stroke(); } if (st === 'ladrillo') { ctx.fillStyle = 'rgba(150,152,140,0.5)'; ctx.fillRect(A[0], lerp(top, y, 0.72), w, s * 0.28); } ctx.restore();
-  ctx.fillStyle = 'rgba(255,240,215,0.28)'; ctx.fillRect(At[0], top, Bt[0] - At[0], Math.max(2, s * 0.012));
+ const quadP = (ctx, pp, c) => { ctx.beginPath(); pp.forEach((p, i) => (i ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1]))); ctx.closePath(); ctx.fillStyle = c; ctx.fill(); };
+ // Torre en la proyección común. T: { x, F (nivel del adarve en el plano frontal del muro), smoke, fire, pavilion }
+ function wsTower(ctx, gy, T, g, t) {
+  const { D, tw, tdp, pro, thH, h, st, sunL, ru } = g, C0 = WS_COL[st], dx0 = -pro * D[0], dy0 = -pro * D[1];
+  const xl = T.x - tw / 2, xr = T.x + tw / 2, fl = xl + dx0, fr = xr + dx0, top = T.F + dy0 - thH * (1 - ru * 0.4), taper = st === 'tierra' ? tw * 0.12 : 0;
+  const gF = (sx) => gy(sx - dx0) + dy0 + 4, gS = (d) => gy(xr) + d * D[1] + 4; // suelo bajo la cara frontal / lateral
+  const cS = sunL ? C0.sd : C0.s, cF = sunL ? C0.f : C0.fd;
+  // sombra proyectada de la torre sobre la ladera
+  const Sx = (sunL ? 1 : -1) * h * 1.5; ctx.save(); ctx.globalAlpha *= 0.22; quadP(ctx, [[fl, gF(fl)], [fr, gF(fr)], [fr + Sx, gF(fr) + h * 0.45], [fl + Sx, gF(fl) + h * 0.45]], '#0e140c'); ctx.restore();
+  // cara lateral derecha (de -pro a tdp-pro de profundidad); base sobre el terreno
+  const sideTop0 = [fr - taper, top], sideTop1 = [fr - taper + tdp * D[0], top + tdp * D[1]];
+  const sp = [sideTop0, sideTop1]; const nB = 8; for (let k = nB; k >= 0; k--) { const d = -pro + tdp * k / nB; sp.push([xr + d * D[0], gS(d)]); } ctx.beginPath(); sp.forEach((p, i) => (i ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1]))); ctx.closePath(); const sg = ctx.createLinearGradient(0, top, 0, gS(0)); sg.addColorStop(0, cS); sg.addColorStop(1, C0.sd); ctx.fillStyle = sg; ctx.fill();
+  // cara frontal: cuerpo (sobre el adarve) + zócalo de piedra hasta el terreno
+  const fp = [[fl + taper, top], [fr - taper, top]]; for (let k = 0; k <= 10; k++) { const sx = fr - (fr - fl) * k / 10; fp.push([sx, gF(sx)]); } ctx.beginPath(); fp.forEach((p, i) => (i ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1]))); ctx.closePath(); const fg = ctx.createLinearGradient(0, top, 0, T.F + dy0 + h); fg.addColorStop(0, C0.f); fg.addColorStop(1, cF); ctx.fillStyle = fg; ctx.fill();
+  ctx.save(); ctx.clip(); const plTop = T.F + dy0 + h * 0.05; if (st === 'ladrillo') { ctx.fillStyle = C0.pl; ctx.fillRect(fl - 4, plTop, fr - fl + 8, 2000); ctx.strokeStyle = 'rgba(40,44,40,0.35)'; ctx.lineWidth = 1.2; for (let y = plTop + h * 0.22; y < plTop + 600; y += h * 0.22) { ctx.beginPath(); ctx.moveTo(fl, y); ctx.lineTo(fr, y); ctx.stroke(); for (let x = fl + ((y / (h * 0.22)) % 2) * h * 0.25; x < fr; x += h * 0.5) { ctx.beginPath(); ctx.moveTo(x, y - h * 0.22); ctx.lineTo(x, y); ctx.stroke(); } } }
+   ctx.strokeStyle = 'rgba(45,32,24,0.28)'; ctx.lineWidth = 1; const ch = st === 'tierra' ? h * 0.2 : h * 0.09; for (let y = top + ch; y < plTop; y += ch) { ctx.beginPath(); ctx.moveTo(fl, y); ctx.lineTo(fr, y); ctx.stroke(); }
+   const ao = ctx.createLinearGradient(0, top, 0, top + h * 0.25); ao.addColorStop(0, 'rgba(0,0,0,0.12)'); ao.addColorStop(1, 'rgba(0,0,0,0)'); ctx.fillStyle = ao; ctx.fillRect(fl, top, fr - fl, h * 0.25);
+   const bo = ctx.createLinearGradient(0, gF(T.x) - h * 0.4, 0, gF(T.x)); bo.addColorStop(0, 'rgba(0,0,0,0)'); bo.addColorStop(1, 'rgba(10,12,8,0.35)'); ctx.fillStyle = bo; ctx.fillRect(fl - 4, gF(T.x) - h * 0.6, fr - fl + 8, h * 1.2); ctx.restore();
+  // arista iluminada
+  ctx.strokeStyle = sunL ? 'rgba(255,238,210,0.5)' : 'rgba(255,238,210,0.35)'; ctx.lineWidth = Math.max(1.5, h * 0.03); ctx.beginPath(); ctx.moveTo(sunL ? fl + taper : fr - taper, top); ctx.lineTo(sunL ? fl : fr, gF(sunL ? fl : fr)); ctx.stroke();
+  // azotea
+  quadP(ctx, [[fl + taper, top], [fr - taper, top], sideTop1, [fl + taper + tdp * D[0], top + tdp * D[1]]], C0.t);
   if (st !== 'tierra') {
-   // ventanas arqueadas (frontal y lateral) y puerta al nivel del adarve en la cara lateral
-   const arch = (cx, cy, ww, hh, col) => { ctx.fillStyle = col; ctx.beginPath(); ctx.moveTo(cx - ww / 2, cy + hh / 2); ctx.lineTo(cx - ww / 2, cy - hh / 2 + ww / 2); ctx.arc(cx, cy - hh / 2 + ww / 2, ww / 2, Math.PI, 0); ctx.lineTo(cx + ww / 2, cy + hh / 2); ctx.closePath(); ctx.fill(); };
-   const wy = top + s * 0.28; for (const fx of [-0.27, 0, 0.27]) arch(x + fx * w, wy, w * 0.11, s * 0.11, '#241a14');
-   const walkY = o.walk != null ? y - o.walk : y - s * 0.45; if (ru < 0.8) { const dx = B[0] + dk[0] * 0.45, dy = walkY + dk[1] * 0.45; ctx.save(); ctx.transform(1, dk[1] / dk[0], 0, 1, 0, 0); ctx.restore(); arch(dx, dy - s * 0.09, w * 0.13, s * 0.18, '#1d1510'); }
-   // almenas con volumen en el borde superior
-   if (ru < 0.5) { const n = 5, cw = (w - 2 * tp) / (n * 2 - 1), chh = s * 0.075, dd = [dk[0] * 0.2, dk[1] * 0.2]; for (let i = 0; i < n; i++) { const x0 = At[0] + i * cw * 2; poly([[x0 + cw, top], [x0 + cw + dd[0], top + dd[1]], [x0 + cw + dd[0], top - chh + dd[1]], [x0 + cw, top - chh]], c.s); poly([[x0, top - chh], [x0 + cw, top - chh], [x0 + cw + dd[0], top - chh + dd[1]], [x0 + dd[0], top - chh + dd[1]]], c.t); poly([[x0, top], [x0 + cw, top], [x0 + cw, top - chh], [x0, top - chh]], c.f); } for (let i = 0; i < 3; i++) { const u = (i + 0.5) / 3, bx = Bt[0] + dk[0] * u, by = Bt[1] + dk[1] * u; poly([[bx - cw * 0.3, by], [bx + cw * 0.3, by], [bx + cw * 0.3, by - chh], [bx - cw * 0.3, by - chh]], c.s); } }
-   // pabellón con tejado de alero curvo (algunas torres Ming)
-   if (o.pavilion && ru < 0.3) { const pw = w * 0.62, ph = s * 0.16, px = x + dk[0] * 0.5, py = top + dk[1] * 0.5; poly([[px - pw / 2, py], [px + pw / 2, py], [px + pw / 2, py - ph], [px - pw / 2, py - ph]], '#7a3a2e'); ctx.fillStyle = '#3f4a46'; ctx.beginPath(); ctx.moveTo(px - pw * 0.78, py - ph + 4); ctx.quadraticCurveTo(px - pw * 0.5, py - ph - 6, px - pw * 0.3, py - ph - s * 0.12); ctx.lineTo(px + pw * 0.3, py - ph - s * 0.12); ctx.quadraticCurveTo(px + pw * 0.5, py - ph - 6, px + pw * 0.78, py - ph + 4); ctx.closePath(); ctx.fill(); } }
-  if (o.glow) { ctx.strokeStyle = `rgba(255,212,71,${o.glow})`; ctx.lineWidth = 4; ctx.strokeRect(x - w / 2 - 6, top - s * 0.1, w + dk[0] + 12, s * 1.1); }
-  const sm2 = o.smoke || 0; if (sm2 > 0) { const sx = x + dk[0] * 0.5, sy = top + dk[1] * 0.5; for (let i = 0; i < 16; i++) { const u = (t * 0.32 + i / 16) % 1, a = sm2 * (1 - u) * 0.8 * cl(u * 6); ctx.fillStyle = `rgba(72,68,64,${a})`; ctx.beginPath(); ctx.arc(sx + Math.sin(u * 4 + i) * s * 0.08 + u * s * 0.3, sy - s * 0.08 - u * s * 2.4 * cl(sm2 * 1.5), s * (0.07 + u * 0.3), 0, TAU); ctx.fill(); } }
-  const fi = o.fire || 0; if (fi > 0) { const sx = x + dk[0] * 0.5, sy = top + dk[1] * 0.5; P.glow(ctx, sx, sy - s * 0.1, s * 0.9, '255,170,60', 0.6 * fi); for (let i = 0; i < 6; i++) { const u = (t * 2 + i / 6) % 1; ctx.fillStyle = `rgba(255,${180 - u * 120},40,${fi * (1 - u)})`; ctx.beginPath(); ctx.ellipse(sx + Math.sin(t * 9 + i) * s * 0.05, sy - s * 0.08 - u * s * 0.35, s * 0.07 * (1 - u * 0.6), s * 0.14 * (1 - u * 0.4), 0, 0, TAU); ctx.fill(); } }
-  ctx.restore(); return { top: [x + dk[0] * 0.5, top + dk[1] * 0.5], w };
+   // ventanas arqueadas (frontal) y puerta al nivel del adarve en la cara lateral, donde entra el tramo de la derecha
+   const arch = (pts, c) => quadP(ctx, pts, c), aw = tw * 0.12, ah = thH * 0.32, wy = top + thH * 0.32;
+   for (const fx of [-0.28, 0, 0.28]) { const cx = (fl + fr) / 2 + fx * tw; const p = [[cx - aw / 2, wy + ah / 2], [cx - aw / 2, wy - ah / 2 + aw / 2]]; for (let k = 0; k <= 8; k++) { const a = Math.PI + Math.PI * k / 8; p.push([cx + Math.cos(a) * aw / 2, wy - ah / 2 + aw / 2 + Math.sin(a) * aw / 2]); } p.push([cx + aw / 2, wy + ah / 2]); arch(p, '#241a14'); }
+   if (ru < 0.7) { const SP = (d, z) => [xr + d * D[0], T.F + d * D[1] - z]; const d0 = 0.28, d1 = 0.72, dz = h * 0.62; const p = [SP(d0, 0), SP(d0, dz * 0.7)]; for (let k = 0; k <= 8; k++) { const u = k / 8, d = lerp(d0, d1, u); p.push(SP(d, dz * 0.7 + Math.sin(u * Math.PI) * dz * 0.3)); } p.push(SP(d1, 0)); quadP(ctx, p, '#1b130e'); }
+   // almenas con volumen en los bordes frontal y lateral de la azotea
+   if (ru < 0.5) { const mw = tw / 9, mh = h * 0.24, dd = [D[0] * 0.14, D[1] * 0.14]; const merl = (x0, y0) => { quadP(ctx, [[x0 + mw, y0], [x0 + mw + dd[0], y0 + dd[1]], [x0 + mw + dd[0], y0 - mh + dd[1]], [x0 + mw, y0 - mh]], cS); quadP(ctx, [[x0, y0 - mh], [x0 + mw, y0 - mh], [x0 + mw + dd[0], y0 - mh + dd[1]], [x0 + dd[0], y0 - mh + dd[1]]], C0.t); quadP(ctx, [[x0, y0], [x0 + mw, y0], [x0 + mw, y0 - mh], [x0, y0 - mh]], C0.m); };
+    for (let k = 1; k <= 3; k++) { const u = k / 4; merl(fr - mw + tdp * D[0] * u, top + tdp * D[1] * u); }
+    for (let i = 0; i < 5; i++) merl(fl + i * mw * 2, top); }
+   if (T.pavilion && ru < 0.3) { const cx = (fl + fr) / 2 + tdp * D[0] * 0.5, cy = top + tdp * D[1] * 0.5, pw = tw * 0.55, ph = thH * 0.32; quadP(ctx, [[cx - pw / 2, cy], [cx + pw / 2, cy], [cx + pw / 2, cy - ph], [cx - pw / 2, cy - ph]], '#7a3a2e'); ctx.fillStyle = '#3f4a46'; ctx.beginPath(); ctx.moveTo(cx - pw * 0.8, cy - ph + 4); ctx.quadraticCurveTo(cx - pw * 0.5, cy - ph - 6, cx - pw * 0.3, cy - ph - thH * 0.24); ctx.lineTo(cx + pw * 0.3, cy - ph - thH * 0.24); ctx.quadraticCurveTo(cx + pw * 0.5, cy - ph - 6, cx + pw * 0.8, cy - ph + 4); ctx.closePath(); ctx.fill(); }
+  }
+  const roof = [(fl + fr) / 2 + tdp * D[0] * 0.5, top + tdp * D[1] * 0.5];
+  const sm3 = T.smoke || 0; if (sm3 > 0) { for (let i = 0; i < 16; i++) { const u = (t * 0.32 + i / 16) % 1, a = sm3 * (1 - u) * 0.8 * cl(u * 6); ctx.fillStyle = `rgba(72,68,64,${a})`; ctx.beginPath(); ctx.arc(roof[0] + Math.sin(u * 4 + i) * h * 0.25 + u * h, roof[1] - h * 0.2 - u * h * 6 * cl(sm3 * 1.5), h * (0.18 + u * 0.8), 0, TAU); ctx.fill(); } }
+  const fi = T.fire || 0; if (fi > 0) { P.glow(ctx, roof[0], roof[1] - h * 0.2, h * 2.4, '255,170,60', 0.6 * fi); for (let i = 0; i < 6; i++) { const u = (t * 2 + i / 6) % 1; ctx.fillStyle = `rgba(255,${180 - u * 120},40,${fi * (1 - u)})`; ctx.beginPath(); ctx.ellipse(roof[0] + Math.sin(t * 9 + i) * h * 0.12, roof[1] - h * 0.2 - u * h * 0.9, h * 0.18 * (1 - u * 0.6), h * 0.36 * (1 - u * 0.4), 0, 0, TAU); ctx.fill(); } }
+  return { x: T.x, top: [roof[0], top], roof, door: [xr + 0.5 * D[0], T.F + 0.5 * D[1]], F: T.F };
+ }
+ // Sistema de muralla sobre el terreno gy(x) entre xa y xb. o: { style, h, thick, build (0..1), towersX:[x…], towerSmoke:[…], towerFire:[…],
+ // pavilionX:[x…], ruin, sunLeft, crenel, glow }. Devuelve { towers:[{x, top, roof, door, F}], walk(x) }
+ P.wallSystem = (ctx, gy, xa, xb, t, o = {}) => {
+  const st = o.style || 'ladrillo', C0 = WS_COL[st], h = o.h ?? 48, th0 = o.thick ?? h * 0.8, D = [th0 * 0.6, -th0 * 0.48], ru = cl(o.ruin || 0), sunL = !!o.sunLeft;
+  const xe = lerp(xa, xb, cl(o.build ?? 1)), g = { D, tw: o.towerW ?? h * 1.8, tdp: 1.5, pro: 0.25, thH: o.towerH ?? h * 1.4, h, st, sunL, ru };
+  const crest = (x) => { let s = 0; for (let k = -2; k <= 2; k++) s += gy(x + k * 10); return s / 5; }, floor = (x) => crest(x) - h * 0.92;
+  const TX = (o.towersX || []).filter((x) => x > xa + g.tw * 0.6 && x < xb - g.tw * 0.6).sort((a, b) => a - b);
+  const towers = TX.map((x, i) => ({ x, F: floor(x), smoke: (o.towerSmoke || [])[(o.towersX || []).indexOf(x)] || 0, fire: (o.towerFire || [])[(o.towersX || []).indexOf(x)] || 0, pavilion: (o.pavilionX || []).some((p) => Math.abs(p - x) < g.tw) }));
+  // tramos entre torres (cada tramo termina en las caras de las torres)
+  const segs = []; let a = xa, Fa = null; towers.forEach((T) => { segs.push({ a, b: T.x - g.tw / 2, Fa, Fb: T.F }); a = T.x + g.tw / 2; Fa = T.F; }); segs.push({ a, b: xb, Fa, Fb: null });
+  // perfil del adarve: rampa si la pendiente es suave; escalones si es fuerte; enlazado al nivel de las torres
+  const profile = (sg) => { const { a: x0, b: x1 } = sg, fa = sg.Fa ?? floor(x0), fb = sg.Fb ?? floor(x1), corr = (x) => lerp(fa - floor(x0), fb - floor(x1), cl((x - x0) / Math.max(1, x1 - x0))), slope = Math.abs(fb - fa) / Math.max(1, x1 - x0), pts = [];
+   const er = (x) => ru * h * 0.45 * (0.5 + 0.5 * Math.sin(x * 0.045)) + (st === 'tierra' ? h * 0.06 * Math.sin(x * 0.11) : 0);
+   // por tramos de la longitud de un escalón: pendiente local suave → rampa; fuerte → peldaño horizontal (el parapeto se escalona)
+   const n = Math.max(1, Math.round((x1 - x0) / (h * 0.6))); for (let k = 0; k < n; k++) { const u0 = x0 + (x1 - x0) * k / n, u1 = x0 + (x1 - x0) * (k + 1) / n, mid = (u0 + u1) / 2;
+    const lv = (x) => (k === 0 && sg.Fa != null && x - x0 < h * 0.6 ? fa : k === n - 1 && sg.Fb != null && x1 - x < h * 0.6 ? fb : floor(x) + corr(x));
+    if (Math.abs(floor(u1) - floor(u0)) / Math.max(1, u1 - u0) > 0.1 || k === 0 || k === n - 1) { const y = lv(mid); pts.push([u0, y + er(u0)], [u1, y + er(u1)]); }
+    else { for (let x = u0; x <= u1 + 0.1; x += 6) { const xx = Math.min(x, u1); pts.push([xx, lv(xx) + er(xx)]); } } }
+   return pts; };
+  const walkAll = []; segs.forEach((sg) => { if (sg.b > sg.a) sg.pts = profile(sg); });
+  const clipPts = (pts) => { const out = []; for (const p of pts) { if (p[0] <= xe) out.push(p); else { if (out.length) out.push([xe, out[out.length - 1][1]]); break; } } return out; };
+  const S = [(sunL ? 1 : -1) * h * 0.9, h * 0.8];
+  ctx.save();
+  // 1) sombras proyectadas de todos los tramos sobre la ladera
+  segs.forEach((sg) => { if (!sg.pts) return; const pts = clipPts(sg.pts); if (pts.length < 2) return; const top = pts.map(([x, y]) => [x + S[0], Math.max(gy(x + S[0]) + 2, y + S[1] - h * 0.2)]); ctx.save(); ctx.globalAlpha *= 0.2; quadP(ctx, [...pts.map(([x]) => [x, gy(x) + 2]), ...top.reverse()], '#0e140c'); ctx.restore(); });
+  // 2) tramo → torre → tramo (orden de dibujo correcto en la proyección oblicua)
+  const drawSeg = (sg) => { if (!sg.pts) return; const pts = clipPts(sg.pts); if (pts.length < 2) return; const xs = pts[0][0], xf = pts[pts.length - 1][0], ph = st === 'tierra' ? 0 : h * 0.22;
+   // adarve (superficie con anchura) y pretil interior
+   quadP(ctx, [...pts, ...pts.slice().reverse().map(([x, y]) => [x + D[0], y + D[1]])], C0.t);
+   for (let i = 1; i < pts.length; i++) if (Math.abs(pts[i][1] - pts[i - 1][1]) > 1 && Math.abs(pts[i][0] - pts[i - 1][0]) < 0.5) { const [x, y] = pts[i]; ctx.strokeStyle = 'rgba(60,45,35,0.45)'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(x, Math.min(y, pts[i - 1][1])); ctx.lineTo(x + D[0], Math.min(y, pts[i - 1][1]) + D[1]); ctx.stroke(); }
+   if (st !== 'tierra') { const ip = pts.map(([x, y]) => [x + D[0], y + D[1]]); quadP(ctx, [...ip.map(([x, y]) => [x, y - h * 0.16]), ...ip.slice().reverse()], C0.m); }
+   // cara frontal: del parapeto al terreno (la base sigue el relieve)
+   const front = [...pts.map(([x, y]) => [x, y - ph])]; for (let x = xf; x >= xs - 0.1; x -= 8) front.push([Math.max(x, xs), gy(Math.max(x, xs)) + 4]);
+   ctx.beginPath(); front.forEach((p, i) => (i ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1]))); ctx.closePath(); const ymin = Math.min(...pts.map((p) => p[1])) - ph, fg = ctx.createLinearGradient(0, ymin, 0, ymin + h * 2.2); fg.addColorStop(0, C0.f); fg.addColorStop(1, C0.fd); ctx.fillStyle = fg; ctx.fill();
+   ctx.save(); ctx.clip(); const R = H.rng(Math.round(xs) + 3);
+   if (st === 'ladrillo') { ctx.fillStyle = C0.pl; ctx.beginPath(); ctx.moveTo(xs, 3000); for (let x = xs; x <= xf; x += 8) ctx.lineTo(x, Math.max(gy(x) - h * 0.55, pts[0][1] + h * 0.35)); ctx.lineTo(xf, 3000); ctx.closePath(); ctx.fill(); }
+   ctx.strokeStyle = st === 'tierra' ? 'rgba(80,52,30,0.4)' : 'rgba(45,32,24,0.3)'; ctx.lineWidth = st === 'tierra' ? 2 : 1; const ch = st === 'tierra' ? h * 0.22 : st === 'piedra' ? h * 0.3 : h * 0.1;
+   for (let k = 1; k < 26; k++) { ctx.beginPath(); for (let i = 1; i < pts.length; i++) { const [xa2, ya2] = pts[i - 1], [xb2, yb2] = pts[i]; if (Math.abs(xb2 - xa2) < 0.5) continue; ctx.moveTo(xa2, ya2 - ph + k * ch); ctx.lineTo(xb2, yb2 - ph + k * ch); } ctx.stroke(); }
+   if (st !== 'tierra') { const jw = st === 'piedra' ? h * 0.42 : h * 0.24; for (let k = 0; k < 26; k++) for (let x = xs + (k % 2) * jw * 0.5 + (st === 'piedra' ? R.range(0, 8) : 0); x < xf; x += jw) { const y0 = lerp(pts[0][1], pts[pts.length - 1][1], (x - xs) / Math.max(1, xf - xs)) - ph + k * ch; ctx.beginPath(); ctx.moveTo(x, y0); ctx.lineTo(x, y0 + ch); ctx.stroke(); } }
+   const ao = ctx.createLinearGradient(0, ymin, 0, ymin + h * 0.4); ao.addColorStop(0, 'rgba(0,0,0,0.14)'); ao.addColorStop(1, 'rgba(0,0,0,0)'); ctx.fillStyle = ao; ctx.fillRect(xs - 5, ymin, xf - xs + 10, h * 0.4);
+   ctx.fillStyle = 'rgba(10,12,8,0.28)'; ctx.beginPath(); ctx.moveTo(xs, 3000); for (let x = xs; x <= xf; x += 8) ctx.lineTo(x, gy(x) - h * 0.25); ctx.lineTo(xf, 3000); ctx.closePath(); ctx.fill(); ctx.restore();
+   // remate del parapeto y almenas con volumen
+   ctx.strokeStyle = 'rgba(255,238,210,0.4)'; ctx.lineWidth = Math.max(1.5, h * 0.035); ctx.beginPath(); pts.forEach(([x, y], i) => (i ? ctx.lineTo(x, y - ph) : ctx.moveTo(x, y - ph))); ctx.stroke();
+   if ((o.crenel ?? st === 'ladrillo') && ru < 0.6) { const mw = h * 0.26, mh = h * 0.26, dd = [D[0] * 0.13, D[1] * 0.13]; for (let x = xs + mw * 0.5; x < xf - mw; x += mw * 2.1) { let y = pts[0][1]; for (let i = 1; i < pts.length; i++) if (pts[i][0] >= x + mw / 2) { y = pts[i][1]; break; } const y0 = y - ph; quadP(ctx, [[x + mw, y0], [x + mw + dd[0], y0 + dd[1]], [x + mw + dd[0], y0 - mh + dd[1]], [x + mw, y0 - mh]], sunL ? C0.sd : C0.s); quadP(ctx, [[x, y0 - mh], [x + mw, y0 - mh], [x + mw + dd[0], y0 - mh + dd[1]], [x + dd[0], y0 - mh + dd[1]]], C0.t); quadP(ctx, [[x, y0], [x + mw, y0], [x + mw, y0 - mh], [x, y0 - mh]], C0.m); ctx.fillStyle = 'rgba(25,18,12,0.7)'; ctx.fillRect(x + mw * 0.42, y0 - mh * 0.66, mw * 0.16, mh * 0.34); } }
+   // cara final donde se detiene la obra (muestra el grosor y el relleno)
+   if (xf >= xe - 0.5 && xe < xb - 1) { const yT = pts[pts.length - 1][1] - ph; quadP(ctx, [[xf, yT], [xf + D[0], yT + D[1]], [xf + D[0], gy(xf) + D[1]], [xf, gy(xf) + 4]], sunL ? C0.sd : C0.s); ctx.save(); ctx.globalAlpha *= 0.5; P.matFill(ctx, [[xf + D[0] * 0.2, yT + D[1] * 0.2 + h * 0.1], [xf + D[0] * 0.8, yT + D[1] * 0.8 + h * 0.1], [xf + D[0] * 0.8, gy(xf) + D[1] * 0.8], [xf + D[0] * 0.2, gy(xf) + D[1] * 0.2]], st === 'tierra' ? 'tierra' : 'grava', { layer: h * 0.2 }); ctx.restore(); }
+   if (o.glow) { ctx.strokeStyle = `rgba(255,212,71,${o.glow})`; ctx.lineWidth = 5; ctx.beginPath(); pts.forEach(([x, y], i) => (i ? ctx.lineTo(x, y - ph) : ctx.moveTo(x, y - ph))); ctx.stroke(); }
+  };
+  const outT = []; segs.forEach((sg, i) => { drawSeg(sg); const T = towers[i]; if (T && T.x - g.tw / 2 <= xe) outT.push(wsTower(ctx, gy, T, g, t)); });
+  ctx.restore();
+  return { towers: outT, walk: (x) => { for (const sg of segs) if (sg.pts && x >= sg.a && x <= sg.b) { for (let i = 1; i < sg.pts.length; i++) if (sg.pts[i][0] >= x) return sg.pts[i][1]; } return floor(x); } };
  };
+ // Compatibilidad: muralla a partir de puntos (x creciente) → sistema único. towers = fracciones del recorrido en x.
+ P.wallPath = (ctx, pts, t, o = {}) => { const gy = (x) => { if (x <= pts[0][0]) return pts[0][1]; for (let i = 1; i < pts.length; i++) if (pts[i][0] >= x) { const a = pts[i - 1], b = pts[i]; return lerp(a[1], b[1], (x - a[0]) / Math.max(1e-6, b[0] - a[0])); } return pts[pts.length - 1][1]; };
+  const xa = pts[0][0], xb = pts[pts.length - 1][0], fr = o.towers || [], towersX = fr.map((f) => lerp(xa, xb, f));
+  return P.wallSystem(ctx, gy, xa, xb, t, { ...o, h: o.h, towerH: o.towerS ? o.towerS * 0.5 : undefined, towersX, towerSmoke: fr.map((f) => (f === o.smokeAt ? o.smoke : 0)), towerFire: fr.map((f) => (f === o.fireAt ? o.fire : 0)), pavilionX: (o.pavilion || []).map((f) => lerp(xa, xb, f)) }); };
+ // Torre aislada sobre suelo plano (catálogo y usos sueltos), con la misma geometría
+ P.watchtower = (ctx, x, y, s, t, o = {}) => { const h = s * 0.42; return wsTower(ctx, () => y, { x, F: y - h, smoke: o.smoke, fire: o.fire, pavilion: o.pavilion }, { D: [h * 0.8 * 0.6, -h * 0.8 * 0.48], tw: h * 1.8, tdp: 1.5, pro: 0.25, thH: s - h, h, st: o.style || 'ladrillo', sunL: !!o.sunLeft, ru: o.ruin || 0 }, t); };
  // Texturas de materiales para cortes: tierra compactada (capas), grava/cascajo, piedra, ladrillo (aparejo con juntas), madera
  P.matFill = (ctx, pts, mat, o = {}) => { const R = H.rng(o.seed || 9); ctx.save(); ctx.beginPath(); pts.forEach((p, i) => (i ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1]))); ctx.closePath(); const xs = pts.map((p) => p[0]), ys = pts.map((p) => p[1]), x0 = Math.min(...xs), x1 = Math.max(...xs), y0 = Math.min(...ys), y1 = Math.max(...ys);
   const base = { tierra: '#A4774C', grava: '#8d8a7c', piedra: '#9ca29b', ladrillo: '#A45C42', madera: '#8f6643', cana: '#8a8a52' }[mat] || '#888'; ctx.fillStyle = o.glow ? '#d0a070' : base; ctx.fill(); ctx.clip();
