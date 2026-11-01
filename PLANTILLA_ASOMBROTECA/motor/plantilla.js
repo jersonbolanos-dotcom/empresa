@@ -505,6 +505,140 @@
   ctx.restore();
  };
 
+ // ======================= v1.7 · AGUA, ENERGÍA Y ELECTRICIDAD (centrales, máquinas, red eléctrica) =======================
+ const polyPath = (ctx, pts) => { ctx.beginPath(); pts.forEach((p, i) => (i ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1]))); ctx.closePath(); };
+ // Masa de agua (embalse, río, canal) en un polígono: degradado por profundidad entre o.top y o.bottom y, si o.surf = [x0, x1, y],
+ // superficie con brillo que se mueve. o: { c1, c2, c3, a }
+ P.waterBody = (ctx, pts, t, o = {}) => {
+  const ys = pts.map((p) => p[1]), top = o.top ?? Math.min(...ys), bot = o.bottom ?? Math.max(...ys);
+  ctx.save(); ctx.globalAlpha *= o.a ?? 1; const g = ctx.createLinearGradient(0, top, 0, bot); g.addColorStop(0, o.c1 || '#38C9FF'); g.addColorStop(0.18, o.c2 || '#1a86c8'); g.addColorStop(1, o.c3 || '#0a3358'); ctx.fillStyle = g; polyPath(ctx, pts); ctx.fill();
+  if (o.surf) { const [x0, x1, y] = o.surf; ctx.clip(); ctx.strokeStyle = 'rgba(245,250,255,0.75)'; ctx.lineWidth = 3; ctx.beginPath(); for (let x = x0; x <= x1; x += 8) { const yy = y + Math.sin(x * 0.03 + t * 2) * 2; x === x0 ? ctx.moveTo(x, yy) : ctx.lineTo(x, yy); } ctx.stroke(); ctx.strokeStyle = 'rgba(245,250,255,0.25)'; ctx.lineWidth = 2; for (let k = 0; k < 6; k++) { const xx = x0 + ((k * 0.17 + t * 0.03) % 1) * (x1 - x0), yy = y + 10 + k * 7; ctx.beginPath(); ctx.moveTo(xx, yy); ctx.lineTo(xx + 40 + k * 6, yy); ctx.stroke(); } }
+  ctx.restore();
+ };
+ // Hormigón (represas, muros, edificios técnicos) en un polígono: textura de juntas de vertido y manchas de humedad.
+ // o: { c, joints (px entre juntas), stains, light ('left' | 'right') }
+ P.concrete = (ctx, pts, o = {}) => {
+  const xs = pts.map((p) => p[0]), ys = pts.map((p) => p[1]), x0 = Math.min(...xs), x1 = Math.max(...xs), y0 = Math.min(...ys), y1 = Math.max(...ys);
+  ctx.save(); polyPath(ctx, pts); const g = ctx.createLinearGradient(x0, 0, x1, 0); const c = H.hex(o.c || '#778A99'), dk = H.rgba([c[0] * 0.72, c[1] * 0.72, c[2] * 0.72]), lt = H.rgba([Math.min(255, c[0] * 1.15), Math.min(255, c[1] * 1.15), Math.min(255, c[2] * 1.15)]);
+  g.addColorStop(0, o.light === 'right' ? dk : lt); g.addColorStop(1, o.light === 'right' ? lt : dk); ctx.fillStyle = g; ctx.fill(); ctx.clip();
+  ctx.strokeStyle = 'rgba(20,30,40,0.22)'; ctx.lineWidth = 2; for (let y = y0 + (o.joints || 46); y < y1; y += o.joints || 46) { ctx.beginPath(); ctx.moveTo(x0, y); ctx.lineTo(x1, y); ctx.stroke(); }
+  const R = H.rng(o.seed || 17); for (let i = 0; i < (o.stains ?? 14); i++) { const sx = x0 + R() * (x1 - x0), sy = y0 + R() * (y1 - y0) * 0.6, sh = R.range(40, 200); const sg = ctx.createLinearGradient(0, sy, 0, sy + sh); sg.addColorStop(0, 'rgba(30,40,50,0.18)'); sg.addColorStop(1, 'rgba(30,40,50,0)'); ctx.fillStyle = sg; ctx.fillRect(sx, sy, R.range(4, 14), sh); }
+  ctx.restore(); ctx.save(); ctx.strokeStyle = 'rgba(10,20,30,0.5)'; ctx.lineWidth = 3; polyPath(ctx, pts); ctx.stroke(); ctx.restore();
+ };
+ // Tubería (forzada, conducto) a lo largo de pts: pared metálica, sección transparente y agua que la LLENA y fluye.
+ // o: { fill 0..1 (hasta dónde llegó el agua), flow 0..1 (velocidad relativa), speed px/s, glass (pared translúcida), c }
+ P.pipe = (ctx, pts, w, t, o = {}) => {
+  const L = P.path(pts), fill = cl(o.fill ?? 1), flow = o.flow ?? 1;
+  P.strokePath(ctx, pts, w + 14, '#293F52', { cap: 'butt' }); P.strokePath(ctx, pts, w + 6, '#B8CCD8', { cap: 'butt', a: 0.55 });
+  P.strokePath(ctx, pts, w, o.glass === false ? '#1b2b3a' : 'rgba(10,30,50,0.9)', { cap: 'butt' });
+  if (fill > 0) { const part = []; let acc = 0; part.push(pts[0]); for (let i = 1; i < pts.length; i++) { const d = Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]); if (acc + d >= L.L * fill) { const q = L.at(L.L * fill); part.push([q[0], q[1]]); break; } acc += d; part.push(pts[i]); }
+   P.strokePath(ctx, part, w * 0.86, o.c || '#1a86c8', { cap: 'butt' }); P.strokePath(ctx, part, w * 0.3, 'rgba(56,201,255,0.45)', { cap: 'butt' });
+   if (flow > 0) { const sp = (o.speed || 300) * flow, n = Math.ceil(L.L / 70); ctx.save(); ctx.strokeStyle = 'rgba(220,245,255,0.8)'; ctx.lineCap = 'round'; ctx.lineWidth = Math.max(2, w * 0.08); for (let i = 0; i < n; i++) for (const off of [-0.22, 0.05, 0.25]) { const s = ((t * sp + i * 70 + off * 97) % L.L + L.L) % L.L; if (s > L.L * fill - 10) continue; const [x, y, a] = L.at(s), nx = -Math.sin(a) * w * off, ny = Math.cos(a) * w * off, len = Math.min(40, 14 + 26 * flow); ctx.beginPath(); ctx.moveTo(x + nx - Math.cos(a) * len / 2, y + ny - Math.sin(a) * len / 2); ctx.lineTo(x + nx + Math.cos(a) * len / 2, y + ny + Math.sin(a) * len / 2); ctx.stroke(); } ctx.restore(); }
+  }
+  return L;
+ };
+ // Compuerta de toma (deslizante vertical con guías). open 0..1 = cuánto se ha levantado.
+ P.gate = (ctx, x, y, w, h, open = 0) => {
+  ctx.save(); ctx.fillStyle = '#293F52'; ctx.fillRect(x - 10, y - h * 1.1, 10, h * 2.2); ctx.fillRect(x + w, y - h * 1.1, 10, h * 2.2);
+  const gy = y - h * open; const g = ctx.createLinearGradient(x, 0, x + w, 0); g.addColorStop(0, '#5d7387'); g.addColorStop(0.5, '#B8CCD8'); g.addColorStop(1, '#5d7387'); ctx.fillStyle = g; ctx.fillRect(x, gy, w, h);
+  ctx.strokeStyle = 'rgba(20,30,40,0.6)'; ctx.lineWidth = 2; for (let k = 1; k < 4; k++) { ctx.beginPath(); ctx.moveTo(x, gy + h * k / 4); ctx.lineTo(x + w, gy + h * k / 4); ctx.stroke(); } ctx.fillStyle = '#FF9D4D'; ctx.fillRect(x, gy, w, 6); ctx.restore();
+ };
+ // Turbina Francis vista desde arriba: carcasa espiral, álabes directrices (FIJOS, se orientan con o.open) y rodete (GIRA con ang).
+ // o: { casing, open 0..1, flow 0..1 (trazadores de agua entrando en espiral), t, blades }
+ P.francis = (ctx, x, y, r, ang, o = {}) => {
+  const t = o.t || 0, flow = o.flow ?? 0; ctx.save();
+  if (o.casing !== false) { ctx.fillStyle = '#293F52'; ctx.beginPath(); for (let k = 0; k <= 64; k++) { const a = -Math.PI / 2 + k / 64 * TAU, rr = r * (1.02 + 0.5 * (1 - k / 64)); const px = x + Math.cos(a) * rr, py = y + Math.sin(a) * rr; k ? ctx.lineTo(px, py) : ctx.moveTo(px, py); } ctx.lineTo(x + r * 1.52, y - r * 1.52); ctx.lineTo(x + r * 1.95, y - r * 1.52); ctx.lineTo(x + r * 1.95, y - r * 0.6); ctx.lineTo(x + r * 1.02, y - r * 0.1); ctx.closePath(); ctx.fill(); ctx.strokeStyle = '#B8CCD8'; ctx.lineWidth = 3; ctx.stroke();
+   ctx.fillStyle = 'rgba(18,104,168,0.85)'; ctx.beginPath(); ctx.arc(x, y, r * 1.0, 0, TAU); ctx.fill(); }
+  if (flow > 0) { ctx.save(); ctx.strokeStyle = `rgba(200,240,255,${0.75 * flow})`; ctx.lineWidth = Math.max(2, r * 0.018); ctx.lineCap = 'round'; for (let i = 0; i < 26; i++) { const u = ((t * 0.5 * flow + i / 26) % 1), a = -Math.PI / 2 + u * TAU * 1.15 + i * 0.7, rr = r * (1.45 - u * 0.75); ctx.beginPath(); ctx.arc(x, y, rr, a, a + 0.25); ctx.stroke(); } ctx.restore(); }
+  const nv = 18, op = o.open ?? 0.7; for (let i = 0; i < nv; i++) { const a = i / nv * TAU, px = x + Math.cos(a) * r * 0.88, py = y + Math.sin(a) * r * 0.88; ctx.save(); ctx.translate(px, py); ctx.rotate(a + Math.PI / 2 + 0.5 + (1 - op) * 0.9); ctx.fillStyle = '#9fb3c2'; ctx.beginPath(); ctx.ellipse(0, 0, r * 0.1, r * 0.028, 0, 0, TAU); ctx.fill(); ctx.restore(); }
+  ctx.fillStyle = '#3b5266'; ctx.beginPath(); ctx.arc(x, y, r * 0.74, 0, TAU); ctx.fill();
+  const nb = o.blades || 13; ctx.strokeStyle = '#d6e3ec'; ctx.lineWidth = r * 0.05; ctx.lineCap = 'round'; for (let i = 0; i < nb; i++) { const a = ang + i / nb * TAU; ctx.beginPath(); ctx.moveTo(x + Math.cos(a) * r * 0.7, y + Math.sin(a) * r * 0.7); ctx.quadraticCurveTo(x + Math.cos(a + 0.45) * r * 0.48, y + Math.sin(a + 0.45) * r * 0.48, x + Math.cos(a + 0.75) * r * 0.24, y + Math.sin(a + 0.75) * r * 0.24); ctx.stroke(); }
+  ctx.fillStyle = '#B8CCD8'; ctx.beginPath(); ctx.arc(x, y, r * 0.22, 0, TAU); ctx.fill(); ctx.fillStyle = '#293F52'; ctx.beginPath(); ctx.arc(x, y, r * 0.12, 0, TAU); ctx.fill();
+  ctx.strokeStyle = '#FF9D4D'; ctx.lineWidth = r * 0.03; ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x + Math.cos(ang) * r * 0.12, y + Math.sin(ang) * r * 0.12); ctx.stroke();
+  ctx.restore();
+ };
+ // Rueda de molino (de paletas, madera) que gira con ang
+ P.waterwheel = (ctx, x, y, r, ang, o = {}) => {
+  ctx.save(); ctx.translate(x, y); ctx.rotate(ang); ctx.strokeStyle = o.c || '#8a5a32'; ctx.lineWidth = r * 0.06; ctx.beginPath(); ctx.arc(0, 0, r, 0, TAU); ctx.stroke(); ctx.beginPath(); ctx.arc(0, 0, r * 0.82, 0, TAU); ctx.stroke();
+  const n = 12; for (let i = 0; i < n; i++) { const a = i / n * TAU; ctx.lineWidth = r * 0.05; ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(Math.cos(a) * r * 0.82, Math.sin(a) * r * 0.82); ctx.stroke(); ctx.save(); ctx.rotate(a); ctx.fillStyle = '#a8703f'; ctx.fillRect(r * 0.8, -r * 0.05, r * 0.32, r * 0.1); ctx.restore(); }
+  ctx.fillStyle = '#5a3a20'; ctx.beginPath(); ctx.arc(0, 0, r * 0.14, 0, TAU); ctx.fill(); ctx.restore();
+ };
+ // Generador en corte (vista desde el eje): ESTATOR fijo con bobinas y ROTOR que gira con polos N/S (electroimanes).
+ // o: { poles (par), slots, field 0..1 (líneas de campo conceptuales), current 0..1 (bobinas que se encienden al pasar un polo) }
+ P.genSection = (ctx, x, y, r, ang, o = {}) => {
+  const np = o.poles || 8, ns = o.slots || 36, field = o.field ?? 0, cur = o.current ?? 0; ctx.save();
+  ctx.fillStyle = '#293F52'; ctx.beginPath(); ctx.arc(x, y, r, 0, TAU); ctx.arc(x, y, r * 0.7, 0, TAU, true); ctx.fill(); ctx.strokeStyle = '#B8CCD8'; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(x, y, r, 0, TAU); ctx.stroke();
+  for (let i = 0; i < ns; i++) { const a = i / ns * TAU, k = Math.abs(Math.cos(np / 2 * (a - ang))), lit = cur * Math.pow(k, 6); const cx = x + Math.cos(a) * r * 0.8, cy = y + Math.sin(a) * r * 0.8; ctx.save(); ctx.translate(cx, cy); ctx.rotate(a); ctx.fillStyle = '#c47a3a'; ctx.fillRect(-r * 0.09, -r * 0.035, r * 0.18, r * 0.07); if (lit > 0.03) { ctx.fillStyle = `rgba(255,212,71,${lit})`; ctx.fillRect(-r * 0.09, -r * 0.035, r * 0.18, r * 0.07); } ctx.restore(); if (lit > 0.3) P.glow(ctx, cx, cy, r * 0.12, '255,212,71', 0.5 * lit); }
+  ctx.fillStyle = '#16283a'; ctx.beginPath(); ctx.arc(x, y, r * 0.69, 0, TAU); ctx.fill();
+  for (let i = 0; i < np; i++) { const a = ang + i / np * TAU, N = i % 2 === 0; ctx.save(); ctx.translate(x, y); ctx.rotate(a); ctx.fillStyle = N ? '#d9534f' : '#3f7fd1'; ctx.beginPath(); ctx.moveTo(r * 0.3, -r * 0.1); ctx.lineTo(r * 0.62, -r * 0.17); ctx.arc(0, 0, r * 0.64, -0.27, 0.27); ctx.lineTo(r * 0.3, r * 0.1); ctx.closePath(); ctx.fill(); ctx.fillStyle = '#c47a3a'; ctx.fillRect(r * 0.33, -r * 0.13, r * 0.2, r * 0.26); ctx.restore();
+   const lx = x + Math.cos(a) * r * 0.5, ly = y + Math.sin(a) * r * 0.5; ctx.save(); ctx.fillStyle = '#F5FAFF'; ctx.font = `800 ${r * 0.09}px Nunito`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(N ? 'N' : 'S', lx, ly); ctx.restore(); }
+  if (field > 0) { ctx.save(); ctx.strokeStyle = `rgba(85,232,255,${0.55 * field})`; ctx.lineWidth = 2.5; ctx.setLineDash([8, 7]); ctx.lineDashOffset = -(o.t || 0) * 30; for (let i = 0; i < np; i++) { const a0 = ang + i / np * TAU, a1 = ang + (i + 1) / np * TAU; for (const k of [0.66, 0.74]) { ctx.beginPath(); ctx.moveTo(x + Math.cos(a0) * r * 0.64, y + Math.sin(a0) * r * 0.64); const am = (a0 + a1) / 2; ctx.quadraticCurveTo(x + Math.cos(am) * r * (k + 0.3), y + Math.sin(am) * r * (k + 0.3), x + Math.cos(a1) * r * 0.64, y + Math.sin(a1) * r * 0.64); ctx.stroke(); } } ctx.restore(); }
+  ctx.fillStyle = '#B8CCD8'; ctx.beginPath(); ctx.arc(x, y, r * 0.2, 0, TAU); ctx.fill(); ctx.fillStyle = '#293F52'; ctx.beginPath(); ctx.arc(x, y, r * 0.1, 0, TAU); ctx.fill();
+  ctx.restore();
+ };
+ // Onda de corriente alterna que avanza (osciloscopio). o: { cycles, c, a, phases (1 o 3), lw, grid }
+ P.sine = (ctx, x, y, w, h, t, o = {}) => {
+  const a = o.a ?? 1; if (a <= 0) return; const cyc = o.cycles || 3, ph = o.phases || 1, cols = o.c ? [o.c] : ['#FFD447', '#FF9D4D', '#55E8FF']; ctx.save(); ctx.globalAlpha *= a;
+  if (o.grid !== false) { ctx.strokeStyle = 'rgba(245,250,255,0.18)'; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x + w, y); ctx.stroke(); }
+  for (let p = 0; p < ph; p++) { ctx.strokeStyle = cols[p % cols.length]; ctx.lineWidth = o.lw || 5; ctx.beginPath(); for (let i = 0; i <= w; i += 3) { const yy = y - Math.sin((i / w) * cyc * TAU - t * (o.speed || 6) + p * TAU / 3) * h / 2 * (o.amp ?? 1); i ? ctx.lineTo(x + i, yy) : ctx.moveTo(x + i, yy); } ctx.stroke(); }
+  ctx.restore();
+ };
+ // Transformador: núcleo laminado y dos devanados (n1 vueltas a la izquierda, n2 a la derecha). n2 > n1 = eleva la tensión.
+ // El flujo magnético (conceptual) recorre el núcleo. o: { n1, n2, flux 0..1, t, glow1, glow2 }
+ P.transformer = (ctx, x, y, s, o = {}) => {
+  const n1 = o.n1 || 4, n2 = o.n2 || 12, w = s * 1.6, h = s * 1.2, th = s * 0.26; ctx.save();
+  ctx.fillStyle = '#5d6f80'; ctx.fillRect(x - w / 2, y - h / 2, w, h); ctx.fillStyle = o.bg || '#061522'; ctx.fillRect(x - w / 2 + th, y - h / 2 + th, w - 2 * th, h - 2 * th);
+  ctx.strokeStyle = 'rgba(20,30,40,0.35)'; ctx.lineWidth = 1; for (let k = 4; k < th; k += 5) { ctx.strokeRect(x - w / 2 + k, y - h / 2 + k, w - 2 * k, h - 2 * k); }
+  if ((o.flux ?? 0) > 0) { ctx.strokeStyle = `rgba(85,232,255,${0.7 * o.flux})`; ctx.lineWidth = 3; ctx.setLineDash([10, 8]); ctx.lineDashOffset = -(o.t || 0) * 60; ctx.strokeRect(x - w / 2 + th / 2, y - h / 2 + th / 2, w - th, h - th); ctx.setLineDash([]); }
+  const coil = (cx, n, g) => { const ch = h - 2 * th + 10; for (let i = 0; i < n; i++) { const yy = y - ch / 2 + (i + 0.5) * ch / n; ctx.strokeStyle = '#c47a3a'; ctx.lineWidth = Math.max(3, ch / n * 0.7); ctx.beginPath(); ctx.ellipse(cx, yy, th * 0.85, ch / n * 0.4, 0, 0, TAU); ctx.stroke(); if (g > 0) { ctx.strokeStyle = `rgba(255,212,71,${g})`; ctx.stroke(); } } };
+  coil(x - w / 2 + th / 2, n1, o.glow1 || 0); coil(x + w / 2 - th / 2, n2, o.glow2 || 0);
+  ctx.restore();
+ };
+ // Torre de alta tensión (celosía). Devuelve los 3 puntos de amarre de los cables [[x, y]…].
+ P.pylon = (ctx, x, y, h, o = {}) => {
+  const c = o.c || '#B8CCD8', w = h * 0.32; ctx.save(); ctx.strokeStyle = c; ctx.lineWidth = Math.max(1.5, h * 0.012); ctx.lineJoin = 'round';
+  const top = y - h, legs = [[x - w / 2, y], [x - w * 0.08, top + h * 0.12], [x + w * 0.08, top + h * 0.12], [x + w / 2, y]];
+  ctx.beginPath(); ctx.moveTo(...legs[0]); ctx.lineTo(...legs[1]); ctx.moveTo(...legs[3]); ctx.lineTo(...legs[2]); ctx.stroke();
+  for (let k = 0; k < 6; k++) { const u0 = k / 6, u1 = (k + 1) / 6, l0 = [lerp(legs[0][0], legs[1][0], u0), lerp(y, top + h * 0.12, u0)], r1 = [lerp(legs[3][0], legs[2][0], u1), lerp(y, top + h * 0.12, u1)], r0 = [lerp(legs[3][0], legs[2][0], u0), lerp(y, top + h * 0.12, u0)], l1 = [lerp(legs[0][0], legs[1][0], u1), lerp(y, top + h * 0.12, u1)]; ctx.beginPath(); ctx.moveTo(...l0); ctx.lineTo(...r1); ctx.moveTo(...r0); ctx.lineTo(...l1); ctx.stroke(); }
+  const arms = [top + h * 0.12, top + h * 0.3]; ctx.beginPath(); ctx.moveTo(x - w * 0.75, arms[0]); ctx.lineTo(x + w * 0.75, arms[0]); ctx.moveTo(x - w * 0.55, arms[1]); ctx.lineTo(x + w * 0.55, arms[1]); ctx.moveTo(x, top); ctx.lineTo(x, top + h * 0.12); ctx.stroke(); ctx.restore();
+  return [[x - w * 0.75, arms[0] + 8], [x + w * 0.75, arms[0] + 8], [x - w * 0.55, arms[1] + 8]];
+ };
+ // Cable aéreo con flecha (catenaria) entre a y b; o.dots = paquetes de energía que viajan (amarillo), o.t, o.c, o.w
+ P.powerLine = (ctx, a, b, sag, t, o = {}) => {
+  const pts = []; for (let i = 0; i <= 20; i++) { const u = i / 20; pts.push([lerp(a[0], b[0], u), lerp(a[1], b[1], u) + sag * 4 * u * (1 - u)]); }
+  P.strokePath(ctx, pts, o.w || 2.5, o.c || 'rgba(200,215,225,0.8)');
+  if (o.dots) { const L = P.path(pts); for (let k = 0; k < o.dots; k++) { const s = ((t * (o.speed || 200) + k * L.L / o.dots) % L.L); const [x, y] = L.at(s); P.glow(ctx, x, y, 16, '255,212,71', 0.9); P.circle(ctx, x, y, 3.5, '#FFF4C2'); } }
+ };
+ // Casa (fachada) con ventanas que se encienden (lit 0..1); fábrica con chimenea sin humo; ciudad (siluetas con ventanas)
+ P.house = (ctx, x, y, s, lit = 0, o = {}) => {
+  ctx.save(); ctx.fillStyle = o.wall || '#d8dee6'; ctx.fillRect(x - s * 0.5, y - s * 0.6, s, s * 0.6); ctx.fillStyle = o.roof || '#a8503c'; ctx.beginPath(); ctx.moveTo(x - s * 0.62, y - s * 0.58); ctx.lineTo(x, y - s * 1.02); ctx.lineTo(x + s * 0.62, y - s * 0.58); ctx.closePath(); ctx.fill();
+  for (const dx of [-0.28, 0.28]) { ctx.fillStyle = lit > 0 ? `rgba(255,${200 + 30 * lit},${90 + 40 * lit},${0.35 + 0.65 * lit})` : '#2a3b4c'; ctx.fillRect(x + s * dx - s * 0.12, y - s * 0.45, s * 0.24, s * 0.2); if (lit > 0.2) P.glow(ctx, x + s * dx, y - s * 0.35, s * 0.35, '255,212,71', 0.35 * lit); }
+  ctx.fillStyle = '#5b4636'; ctx.fillRect(x - s * 0.08, y - s * 0.3, s * 0.16, s * 0.3); ctx.restore();
+ };
+ P.factory = (ctx, x, y, s, lit = 0) => {
+  ctx.save(); ctx.fillStyle = '#8a97a4'; ctx.fillRect(x - s * 0.7, y - s * 0.5, s * 1.4, s * 0.5); ctx.beginPath(); for (let i = 0; i < 4; i++) { ctx.moveTo(x - s * 0.7 + i * s * 0.35, y - s * 0.5); ctx.lineTo(x - s * 0.7 + i * s * 0.35, y - s * 0.75); ctx.lineTo(x - s * 0.7 + (i + 1) * s * 0.35, y - s * 0.5); } ctx.fill();
+  ctx.fillRect(x + s * 0.4, y - s * 1.1, s * 0.14, s * 0.6); for (let i = 0; i < 5; i++) { ctx.fillStyle = lit > 0 ? `rgba(255,220,120,${0.3 + 0.7 * lit})` : '#2a3b4c'; ctx.fillRect(x - s * 0.62 + i * s * 0.26, y - s * 0.35, s * 0.16, s * 0.14); } ctx.restore();
+ };
+ P.skyline = (ctx, x0, x1, y, lit = 0, seed = 3, o = {}) => {
+  const R = H.rng(seed); ctx.save(); let x = x0; while (x < x1) { const bw = R.range(40, 90), bh = R.range(80, o.maxH || 300); ctx.fillStyle = o.c || '#1b2f42'; ctx.fillRect(x, y - bh, bw - 6, bh); for (let wy = y - bh + 12; wy < y - 14; wy += 22) for (let wx = x + 8; wx < x + bw - 18; wx += 16) { const on = R() < lit * 0.9; ctx.fillStyle = on ? 'rgba(255,212,71,0.9)' : 'rgba(80,100,120,0.35)'; ctx.fillRect(wx, wy, 7, 10); } x += bw; } if (lit > 0) P.glow(ctx, (x0 + x1) / 2, y - 80, (x1 - x0) * 0.6, '255,212,71', 0.18 * lit); ctx.restore();
+ };
+ // Bombilla (on 0..1 = encendida, con halo y rayos) e interruptor de pared
+ P.bulb = (ctx, x, y, s, on = 0) => {
+  ctx.save(); if (on > 0) { P.glow(ctx, x, y, s * 3.2 * (0.8 + 0.2 * on), '255,226,140', 0.75 * on); ctx.strokeStyle = `rgba(255,226,140,${0.7 * on})`; ctx.lineWidth = s * 0.05; ctx.lineCap = 'round'; for (let i = 0; i < 10; i++) { const a = -Math.PI / 2 + (i - 4.5) * 0.32; ctx.beginPath(); ctx.moveTo(x + Math.cos(a) * s * 0.85, y + Math.sin(a) * s * 0.85); ctx.lineTo(x + Math.cos(a) * s * 1.25, y + Math.sin(a) * s * 1.25); ctx.stroke(); } }
+  ctx.fillStyle = on > 0 ? `rgba(255,${235},${170 + 40 * on},${0.55 + 0.45 * on})` : 'rgba(220,235,245,0.35)'; ctx.beginPath(); ctx.arc(x, y - s * 0.15, s * 0.62, Math.PI * 0.8, Math.PI * 2.2); ctx.lineTo(x + s * 0.28, y + s * 0.55); ctx.lineTo(x - s * 0.28, y + s * 0.55); ctx.closePath(); ctx.fill(); ctx.strokeStyle = 'rgba(245,250,255,0.8)'; ctx.lineWidth = s * 0.04; ctx.stroke();
+  ctx.strokeStyle = on > 0 ? '#fff6d0' : '#8a97a4'; ctx.lineWidth = s * 0.05; ctx.beginPath(); ctx.moveTo(x - s * 0.15, y + s * 0.4); ctx.lineTo(x - s * 0.15, y); ctx.quadraticCurveTo(x, y - s * 0.25, x + s * 0.15, y); ctx.lineTo(x + s * 0.15, y + s * 0.4); ctx.stroke();
+  ctx.fillStyle = '#8a97a4'; for (let k = 0; k < 3; k++) ctx.fillRect(x - s * 0.3, y + s * (0.55 + k * 0.12), s * 0.6, s * 0.09); ctx.restore();
+ };
+ P.switchWall = (ctx, x, y, s, on = false) => { ctx.save(); P.rr(ctx, x - s * 0.4, y - s * 0.6, s * 0.8, s * 1.2, s * 0.1, '#eef2f6', { sy: 6 }); ctx.fillStyle = '#c9d2dc'; ctx.fillRect(x - s * 0.18, y - s * 0.35, s * 0.36, s * 0.7); ctx.fillStyle = '#ffffff'; ctx.fillRect(x - s * 0.18, on ? y - s * 0.35 : y, s * 0.36, s * 0.35); ctx.restore(); };
+ // Nube (con lluvia si o.rain) y sol
+ P.cloud = (ctx, x, y, s, o = {}) => {
+  ctx.save(); if (o.rain) { ctx.strokeStyle = 'rgba(160,210,240,0.7)'; ctx.lineWidth = 3; const R = H.rng(o.seed || 2); for (let i = 0; i < 18; i++) { const rx = x + R.range(-s * 0.8, s * 0.8), sp = R.range(400, 600), ry = y + ((R() * s * 2 + (o.t || 0) * sp) % (s * 2.2)); ctx.beginPath(); ctx.moveTo(rx, ry); ctx.lineTo(rx - 6, ry + 22); ctx.stroke(); } }
+  ctx.fillStyle = o.c || '#dfe8f0'; for (const [dx, dy, r] of [[-0.6, 0.1, 0.42], [-0.15, -0.2, 0.55], [0.4, -0.05, 0.48], [0.8, 0.15, 0.32], [0.1, 0.2, 0.45]]) { ctx.beginPath(); ctx.arc(x + dx * s, y + dy * s, r * s, 0, TAU); ctx.fill(); } ctx.restore();
+ };
+ P.sun = (ctx, x, y, r, t = 0) => { P.glow(ctx, x, y, r * 3, '255,212,71', 0.5); ctx.save(); ctx.strokeStyle = '#FFD447'; ctx.lineWidth = r * 0.12; ctx.lineCap = 'round'; for (let i = 0; i < 10; i++) { const a = i / 10 * TAU + t * 0.2; ctx.beginPath(); ctx.moveTo(x + Math.cos(a) * r * 1.3, y + Math.sin(a) * r * 1.3); ctx.lineTo(x + Math.cos(a) * r * 1.65, y + Math.sin(a) * r * 1.65); ctx.stroke(); } ctx.restore(); P.circle(ctx, x, y, r, '#FFD447'); };
+ // Pez (perfil), dir 1 = mira a la derecha
+ P.fish = (ctx, x, y, s, dir = 1, c = '#9fd4c8') => { ctx.save(); ctx.translate(x, y); ctx.scale(dir, 1); ctx.fillStyle = c; ctx.beginPath(); ctx.ellipse(0, 0, s * 0.5, s * 0.22, 0, 0, TAU); ctx.fill(); ctx.beginPath(); ctx.moveTo(-s * 0.45, 0); ctx.lineTo(-s * 0.8, -s * 0.22); ctx.lineTo(-s * 0.8, s * 0.22); ctx.closePath(); ctx.fill(); ctx.fillStyle = '#061522'; ctx.beginPath(); ctx.arc(s * 0.28, -s * 0.05, s * 0.05, 0, TAU); ctx.fill(); ctx.restore(); };
+
  // ---------------- SUBTÍTULOS (arriba, palabra a palabra, palabra clave seleccionada) ----------------
  // Trozos de ≤3 palabras (≤4 si son cortas); las palabras aparecen al decirse: la actual en blanco y negrita,
  // las ya dichas en gris; la palabra clave lleva recuadro de selección con asas en el color de acento.
@@ -695,6 +829,16 @@
   ancla: (k, t) => { const R = H.rng(Math.round(t * 100)); for (let i = 0; i < 10; i++) k.play('tick', t + i * 0.05 + R() * 0.02, { f: 2800 + R() * 1600, gain: 0.22, minor: true }); k.play('thud', t + 0.55, { f: 70, gain: 0.45 }); k.noise(t + 0.55, { dur: 0.8, color: 'brown', filter: 'lowpass', f: 600, gain: 0.15 }); },
   rotura: (k, t) => { k.noise(t, { dur: 0.12, filter: 'highpass', f: 1500, gain: 0.4, a: 0.001 }); k.play('thud', t, { f: 110, gain: 0.4 }); k.tone(t + 0.02, { f: [[0, 900], [0.3, 120]], type: 'sawtooth', dur: 0.32, gain: 0.04, filter: 'lowpass', f2: 2000 }); },
   empalme: (k, t, d = 0.8) => { const R = H.rng(Math.round(t * 100) + 7); for (let x = 0; x < d; x += 0.03 + R() * 0.04) k.noise(t + x, { dur: 0.02, filter: 'highpass', f: 4000, gain: 0.12 + R() * 0.1, minor: true }); k.tone(t, { f: 240, type: 'square', dur: d, gain: 0.015, filter: 'lowpass', f2: 1500, a: 0.02, hold: d * 0.8 }); },
+  // v1.7 · agua, energía y electricidad
+  compuerta: (k, t, d = 1.6) => { k.play('click', t, { gain: 0.6 }); k.tone(t, { f: [[0, 60], [d, 75]], type: 'sawtooth', dur: d, gain: 0.04, filter: 'lowpass', f2: 380, a: 0.1, hold: d * 0.8 }); for (let x = 0.1; x < d; x += 0.18) k.play('tick', t + x, { f: 1300, gain: 0.1, minor: true }); k.play('thud', t + d, { f: 90, gain: 0.4 }); },
+  corriente: (k, t, d, g = 1) => { k.noise(t, { dur: d, color: 'pink', filter: 'lowpass', f: [[0, 300], [Math.min(1.2, d * 0.4), 900], [d, 700]], gain: 0.13 * g, a: Math.min(1, d * 0.3), hold: d * 0.6 }); k.noise(t, { dur: d, color: 'brown', filter: 'lowpass', f: 160, gain: 0.1 * g, a: 0.5, hold: d * 0.7 }); },
+  turbina: (k, t, d, g = 1, f0 = 90, f1 = 220) => { k.tone(t, { f: [[0, f0], [Math.min(2.5, d * 0.6), f1], [d, f1]], type: 'sawtooth', dur: d, gain: 0.035 * g, filter: 'lowpass', f2: 900, a: 0.4, hold: d * 0.75 }); k.noise(t, { dur: d, color: 'pink', filter: 'bandpass', f: [[0, 500], [Math.min(2.5, d * 0.6), 1400]], q: 2, gain: 0.05 * g, a: 0.5, hold: d * 0.7 }); },
+  generador: (k, t, d, g = 1) => { for (const [f, gg] of [[60, 0.06], [120, 0.035], [180, 0.015]]) k.tone(t, { f, dur: d, gain: gg * g, a: 0.4, hold: d * 0.8 }); },
+  induccion: (k, t, d = 1.2, g = 1) => { const R = H.rng(Math.round(t * 100)); for (let x = 0; x < d; x += 0.06) k.tone(t + x, { f: 1200 + R() * 1800, dur: 0.35, gain: 0.018 * g, a: 0.02, verb: 0.4, pan: R() - 0.5, minor: true }); k.play('riser', t, { dur: d, gain: 0.2 * g }); },
+  transformador: (k, t, d, g = 1) => { k.tone(t, { f: 100, type: 'square', dur: d, gain: 0.012 * g, filter: 'lowpass', f2: 500, a: 0.3, hold: d * 0.8 }); k.tone(t, { f: 200, dur: d, gain: 0.03 * g, a: 0.3, hold: d * 0.8 }); },
+  lineas: (k, t, d, g = 1) => { const R = H.rng(Math.round(t * 10) + 9); k.noise(t, { dur: d, color: 'white', filter: 'bandpass', f: 3500, q: 3, gain: 0.025 * g, a: 0.3, hold: d * 0.7 }); for (let x = 0; x < d; x += 0.2 + R() * 0.3) k.noise(t + x, { dur: 0.015, filter: 'highpass', f: 5000, gain: 0.08 * g, minor: true }); },
+  bombilla: (k, t) => { k.play('click', t, { gain: 0.8 }); k.tone(t + 0.04, { f: 'E6', dur: 0.9, gain: 0.06, verb: 0.35 }); k.tone(t + 0.04, { f: 'B6', dur: 0.6, gain: 0.03, verb: 0.35, minor: true }); },
+  lluvia: (k, t, d, g = 1) => { k.noise(t, { dur: d, color: 'white', filter: 'highpass', f: 2500, gain: 0.04 * g, a: 0.4, hold: d * 0.6 }); k.noise(t, { dur: d, color: 'pink', filter: 'bandpass', f: 1200, q: 0.6, gain: 0.04 * g, a: 0.4, hold: d * 0.6 }); },
  };
  window.PLANTILLA = { make, SKINS, P, FX, TRANS_SFX, setSkin: (n) => (SK = SKINS[n]), W, HH };
 })();

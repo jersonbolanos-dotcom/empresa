@@ -1,0 +1,140 @@
+[
+ {
+  "i": 0,
+  "s": 0.0,
+  "e": 4.8,
+  "text": "Esta enorme pared de concreto puede producir electricidad para ciudades enteras."
+ },
+ {
+  "i": 1,
+  "s": 5.244,
+  "e": 5.491,
+  "text": "Pero..."
+ },
+ {
+  "i": 2,
+  "s": 5.75,
+  "e": 8.225,
+  "text": "¿Cómo lo consigue utilizando solamente agua?"
+ },
+ {
+  "i": 3,
+  "s": 8.752,
+  "e": 13.749,
+  "text": "Todo comienza en un embalse, donde una represa almacena millones de litros de agua."
+ },
+ {
+  "i": 4,
+  "s": 14.127,
+  "e": 15.387,
+  "text": "Y aquí está el secreto."
+ },
+ {
+  "i": 5,
+  "s": 15.795,
+  "e": 20.62,
+  "text": "Cuanto mayor es la altura desde la que puede caer el agua, más energía puede aprovecharse."
+ },
+ {
+  "i": 6,
+  "s": 20.998,
+  "e": 26.793,
+  "text": "Cuando se abren las compuertas que controlan su paso, el agua desciende por enormes tuberías a gran presión."
+ },
+ {
+  "i": 7,
+  "s": 27.153,
+  "e": 30.122,
+  "text": "Pero no cae directamente sobre un generador eléctrico."
+ },
+ {
+  "i": 8,
+  "s": 30.522,
+  "e": 32.145,
+  "text": "Primero atraviesa una turbina."
+ },
+ {
+  "i": 9,
+  "s": 32.461,
+  "e": 36.519,
+  "text": "una máquina con grandes álaves que comienzan a girar impulsados por el agua."
+ },
+ {
+  "i": 10,
+  "s": 36.859,
+  "e": 40.526,
+  "text": "Es parecido a una rueda de molino, pero muchísimo más potente."
+ },
+ {
+  "i": 11,
+  "s": 40.979,
+  "e": 43.192,
+  "text": "La turbina está conectada a un generador."
+ },
+ {
+  "i": 12,
+  "s": 43.578,
+  "e": 45.404,
+  "text": "Y aquí ocurre algo sorprendente."
+ },
+ {
+  "i": 13,
+  "s": 45.758,
+  "e": 53.375,
+  "text": "Dentro del generador, el movimiento entre imanes y bobinas produce electricidad mediante un fenómeno llamado inducción electromagnética."
+ },
+ {
+  "i": 14,
+  "s": 53.716,
+  "e": 54.237,
+  "text": "Es decir..."
+ },
+ {
+  "i": 15,
+  "s": 54.547,
+  "e": 58.399,
+  "text": "El movimiento del agua termina convirtiéndose en energía eléctrica."
+ },
+ {
+  "i": 16,
+  "s": 58.827,
+  "e": 61.709,
+  "text": "Después, el agua continúa su recorrido hacia el río."
+ },
+ {
+  "i": 17,
+  "s": 61.971,
+  "e": 67.889,
+  "text": "Mientras la electricidad pasa por transformadores que elevan su voltaje para transportarla a grandes distancias."
+ },
+ {
+  "i": 18,
+  "s": 68.244,
+  "e": 73.493,
+  "text": "Finalmente, viaja por líneas de transmisión hasta llegar a ciudades, fábricas y hogares."
+ },
+ {
+  "i": 19,
+  "s": 73.839,
+  "e": 78.607,
+  "text": "Y lo más increíble es que no hace falta quemar combustible para producir esa electricidad."
+ },
+ {
+  "i": 20,
+  "s": 78.991,
+  "e": 83.635,
+  "text": "Aunque construir una represa también puede generar importantes impactos ambientales."
+ },
+ {
+  "i": 21,
+  "s": 84.038,
+  "e": 93.404,
+  "text": "Así que, la próxima vez que enciendas una bombilla, recuerda que parte de esa electricidad podría haber comenzado como agua almacenada detrás de una enorme represa."
+ },
+ {
+  "i": 22,
+  "s": 93.803,
+  "e": 96.444,
+  "text": "Sigue a Sombroteca para más curiosidades."
+ }
+]

@@ -35,6 +35,16 @@
   ['Mapa del mundo estilizado + ruta (v1.6)', (c, t) => { const pr = P.worldMap(c, 0, 40, 400, 220, { lon0: -130, lon1: 165, lat0: -50, lat1: 72 }); P.cableRoute(c, [[-76, 36.8], [-40, 40], [-3, 43]].map(pr), 1, t, { w: 3 }); }],
   ['Ancla · garfio · estación costera (v1.6)', (c, t) => { P.anchor(c, 90, 150, 90, 0.2); P.grapnel(c, 200, 160, 70); P.station(c, 320, 200, 100, { on: true }); }],
   ['Regla de profundidad (v1.6)', (c, t) => P.depthGauge(c, 120, 40, 270, 3000, 4000, { step: 1000 })],
+  ['Agua + hormigón (v1.7)', (c, t) => { P.waterBody(c, [[0, 80], [200, 80], [200, 300], [0, 300]], t, { surf: [0, 200, 82] }); P.concrete(c, [[200, 50], [250, 50], [380, 300], [200, 300]], { joints: 30 }); }],
+  ['Tubería forzada + compuerta (v1.7)', (c, t) => { P.pipe(c, [[40, 80], [200, 80], [360, 240]], 40, t, { fill: 0.8 }); P.gate(c, 30, 60, 16, 40, 0.6); }],
+  ['Turbina Francis (v1.7)', (c, t) => P.francis(c, 160, 160, 80, t * 2, { flow: 1, t })],
+  ['Rueda de molino (v1.7)', (c, t) => P.waterwheel(c, 200, 150, 110, t)],
+  ['Generador en corte (v1.7)', (c, t) => P.genSection(c, 200, 150, 125, t * 0.8, { field: 1, current: 1, t })],
+  ['Transformador + onda alterna (v1.7)', (c, t) => { P.transformer(c, 200, 120, 90, { n1: 4, n2: 12, flux: 1, t, bg: c.__sk === 'plana' ? '#2b2f5e' : '#0b0c10' }); P.sine(c, 40, 260, 320, 50, t, { phases: 3, lw: 3 }); }],
+  ['Torres y líneas (v1.7)', (c, t) => { const a = P.pylon(c, 100, 280, 200), b = P.pylon(c, 320, 280, 200); for (let k = 0; k < 3; k++) P.powerLine(c, a[k], b[k], 30, t, { dots: 2 }); }],
+  ['Ciudad · fábrica · casa (v1.7)', (c, t) => { P.skyline(c, 20, 220, 270, 0.8, 4, { maxH: 200 }); P.factory(c, 290, 270, 90, 1); P.house(c, 360, 270, 50, 1); }],
+  ['Bombilla · interruptor (v1.7)', (c, t) => { P.bulb(c, 140, 140, 60, 1); P.switchWall(c, 300, 160, 90, true); }],
+  ['Sol · nube con lluvia · pez (v1.7)', (c, t) => { P.sun(c, 90, 90, 40, t); P.cloud(c, 260, 110, 70, { rain: true, t }); P.fish(c, 200, 260, 60, 1); }],
  ];
  window.drawCatalog = function () {
   document.querySelectorAll('canvas[data-i]').forEach((cv) => {

@@ -144,6 +144,26 @@ La piel se elige con `skin: 'plana' | 'oscura'` en `PLANTILLA.make`. Los bloques
 | `rings` | Ondas de radio, en anillo o dirigidas |
 | `clock` | Reloj analógico |
 
+**Bloques v1.7 (episodio «La represa»)** — agua, energía y electricidad:
+
+| Bloque | Uso |
+|---|---|
+| `waterBody(ctx, pts, t, {surf, top, bottom})` | Masa de agua (embalse, río) en un polígono, con degradado por profundidad y superficie con brillo |
+| `concrete(ctx, pts, {joints, stains, light})` | Hormigón con juntas y manchas (represas, muros, edificios técnicos) |
+| `pipe(ctx, pts, w, t, {fill, flow, speed})` | Tubería con agua que la LLENA (`fill` = hasta dónde llegó) y trazadores de flujo |
+| `gate(ctx, x, y, w, h, open)` | Compuerta deslizante de toma |
+| `francis(ctx, x, y, r, ang, {open, flow, t})` | Turbina Francis vista desde arriba: carcasa espiral, álabes directrices FIJOS y rodete que GIRA |
+| `waterwheel(ctx, x, y, r, ang)` | Rueda de molino |
+| `genSection(ctx, x, y, r, ang, {poles, field, current})` | Generador en corte: rotor con electroimanes N/S que gira, estator fijo con bobinas que se encienden y líneas de campo conceptuales |
+| `sine(ctx, x, y, w, h, t, {phases})` | Corriente alterna (una o tres fases) |
+| `transformer(ctx, x, y, s, {n1, n2, flux})` | Transformador: núcleo y dos devanados (n2 > n1 = eleva la tensión) |
+| `pylon` y `powerLine` | Torre de alta tensión (**devuelve los puntos de amarre**) y cable con catenaria y paquetes de energía |
+| `house`, `factory`, `skyline` | Casa, fábrica y ciudad con ventanas que se encienden |
+| `bulb`, `switchWall` | Bombilla con halo e interruptor |
+| `cloud` (con `rain`), `sun`, `fish` | Ciclo del agua y ecosistemas |
+
+Efectos `FX` de v1.7: `compuerta`, `corriente` (agua que fluye), `turbina` (giro que acelera), `generador` (zumbido de 60 Hz), `induccion`, `transformador`, `lineas` (zumbido y chasquidos de alta tensión), `bombilla` y `lluvia`.
+
 **Bloques v1.6 (episodio «Internet bajo el mar»)** — océano, cables submarinos y telecomunicaciones:
 
 | Bloque | Uso |

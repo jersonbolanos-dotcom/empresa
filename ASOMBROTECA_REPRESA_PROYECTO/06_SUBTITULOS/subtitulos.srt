@@ -1,0 +1,263 @@
+1
+00:00:00,050 --> 00:00:01,360
+Esta enorme pared de
+
+2
+00:00:01,360 --> 00:00:03,490
+concreto puede
+producir electricidad
+
+3
+00:00:03,490 --> 00:00:05,150
+para ciudades enteras.
+
+4
+00:00:05,244 --> 00:00:05,750
+Pero...
+
+5
+00:00:05,750 --> 00:00:06,624
+¿Cómo lo consigue
+
+6
+00:00:06,624 --> 00:00:08,575
+utilizando
+solamente agua?
+
+7
+00:00:08,752 --> 00:00:10,416
+Todo comienza
+en un embalse,
+
+8
+00:00:10,416 --> 00:00:12,749
+donde una represa
+almacena millones
+
+9
+00:00:12,749 --> 00:00:14,099
+de litros de agua.
+
+10
+00:00:14,127 --> 00:00:15,737
+Y aquí está el secreto.
+
+11
+00:00:15,795 --> 00:00:17,534
+Cuanto mayor es
+la altura desde
+
+12
+00:00:17,534 --> 00:00:18,923
+la que puede
+caer el agua,
+
+13
+00:00:18,923 --> 00:00:20,970
+más energía puede
+aprovecharse.
+
+14
+00:00:20,998 --> 00:00:22,465
+Cuando se abren
+las compuertas
+
+15
+00:00:22,465 --> 00:00:23,606
+que controlan su paso,
+
+16
+00:00:23,606 --> 00:00:25,377
+el agua desciende
+por enormes
+
+17
+00:00:25,377 --> 00:00:27,143
+tuberías a gran presión.
+
+18
+00:00:27,153 --> 00:00:28,567
+Pero no cae directamente
+
+19
+00:00:28,567 --> 00:00:30,472
+sobre un generador
+eléctrico.
+
+20
+00:00:30,522 --> 00:00:32,461
+Primero atraviesa
+una turbina.
+
+21
+00:00:32,461 --> 00:00:34,177
+una máquina con
+grandes álabes
+
+22
+00:00:34,177 --> 00:00:35,270
+que comienzan a girar
+
+23
+00:00:35,270 --> 00:00:36,859
+impulsados por el agua.
+
+24
+00:00:36,859 --> 00:00:38,181
+Es parecido a una
+
+25
+00:00:38,181 --> 00:00:39,103
+rueda de molino,
+
+26
+00:00:39,103 --> 00:00:40,876
+pero muchísimo
+más potente.
+
+27
+00:00:40,979 --> 00:00:42,362
+La turbina
+está conectada
+
+28
+00:00:42,362 --> 00:00:43,542
+a un generador.
+
+29
+00:00:43,578 --> 00:00:45,754
+Y aquí ocurre
+algo sorprendente.
+
+30
+00:00:45,758 --> 00:00:46,847
+Dentro del generador,
+
+31
+00:00:46,847 --> 00:00:48,580
+el movimiento
+entre imanes y
+
+32
+00:00:48,580 --> 00:00:50,750
+bobinas produce
+electricidad mediante un
+
+33
+00:00:50,750 --> 00:00:53,716
+fenómeno llamado inducción
+electromagnética.
+
+34
+00:00:53,716 --> 00:00:54,547
+Es decir...
+
+35
+00:00:54,547 --> 00:00:56,242
+El movimiento
+del agua termina
+
+36
+00:00:56,242 --> 00:00:58,749
+convirtiéndose en
+energía eléctrica.
+
+37
+00:00:58,827 --> 00:01:00,279
+Después, el
+agua continúa su
+
+38
+00:01:00,279 --> 00:01:01,971
+recorrido hacia el río.
+
+39
+00:01:01,971 --> 00:01:03,661
+Mientras la
+electricidad pasa por
+
+40
+00:01:03,661 --> 00:01:05,859
+transformadores que
+elevan su voltaje
+
+41
+00:01:05,859 --> 00:01:08,239
+para transportarla a
+grandes distancias.
+
+42
+00:01:08,244 --> 00:01:10,221
+Finalmente, viaja
+por líneas de
+
+43
+00:01:10,221 --> 00:01:12,117
+transmisión hasta
+llegar a ciudades,
+
+44
+00:01:12,117 --> 00:01:13,839
+fábricas y hogares.
+
+45
+00:01:13,839 --> 00:01:14,992
+Y lo más increíble es
+
+46
+00:01:14,992 --> 00:01:16,197
+que no hace falta quemar
+
+47
+00:01:16,197 --> 00:01:18,957
+combustible para producir
+esa electricidad.
+
+48
+00:01:18,991 --> 00:01:20,593
+Aunque construir
+una represa
+
+49
+00:01:20,593 --> 00:01:21,776
+también puede generar
+
+50
+00:01:21,776 --> 00:01:23,985
+importantes impactos
+ambientales.
+
+51
+00:01:24,038 --> 00:01:24,530
+Así que,
+
+52
+00:01:24,530 --> 00:01:25,515
+la próxima vez que
+
+53
+00:01:25,515 --> 00:01:26,827
+enciendas una bombilla,
+
+54
+00:01:26,827 --> 00:01:28,719
+recuerda que parte
+de esa electricidad
+
+55
+00:01:28,719 --> 00:01:31,589
+podría haber comenzado
+como agua almacenada
+
+56
+00:01:31,589 --> 00:01:33,754
+detrás de una
+enorme represa.
+
+57
+00:01:33,803 --> 00:01:35,016
+Sigue a Asombroteca
+
+58
+00:01:35,016 --> 00:01:36,444
+para más curiosidades.
