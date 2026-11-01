@@ -13,6 +13,6 @@
 | Voz | md5 idéntico al archivo subido (d552b4e8e7f872d88a1c366e81a13763): sin alterar, acelerar ni recortar |
 | Subtítulos | barra (blanco + barra amarilla), 64 bloques (`06_SUBTITULOS/subtitulos.srt`); «Muralla China», «Asombroteca» y «2.000» corregidos |
 | Determinismo | `determinismo.txt`: dos ejecuciones idénticas |
-| Retrocompatibilidad v1.14 | RETRO_PENDIENTE |
+| Retrocompatibilidad v1.14 | IGUAL en los 10 episodios anteriores (Vikingos, Machu Picchu, Andrómeda, Barco, Pirámides, Represa, Internet submarino, GPS, Aire acondicionado y Microondas) |
 | Revisión visual | (1) Una ronda de hoja de contacto antes del render (31 fotogramas). Se corrigió: paneles de materiales con fondo vacío; franjas de luz demasiado marcadas en las laderas; etiquetas de Pekín y Shanhaiguan superpuestas. (2) Tras el primer render se revisaron 52 fotogramas del MP4. La escena de piedra local tenía piedras que parecían nubes y figuras flotando sobre la ladera: se rehízo con una línea de suelo explícita (cornisa, cantera, pila con sombra, sendero y muro). Se volvió a renderizar. (3) Revisión de 52 fotogramas del MP4 definitivo (`fotogramas_revision/`, `hoja_contacto.jpg`) |
 | Precisión | Sin «visible desde la Luna», sin «un solo emperador», sin cifras inventadas; mapa rotulado como esquema aproximado y tramos por periodos |
