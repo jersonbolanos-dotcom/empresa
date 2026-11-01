@@ -144,6 +144,26 @@ La piel se elige con `skin: 'plana' | 'oscura'` en `PLANTILLA.make`. Los bloques
 | `rings` | Ondas de radio, en anillo o dirigidas |
 | `clock` | Reloj analógico |
 
+**Bloques v1.6 (episodio «Internet bajo el mar»)** — océano, cables submarinos y telecomunicaciones:
+
+| Bloque | Uso |
+|---|---|
+| `spline(pts, seg)` | Curva suave que pasa por los puntos (rutas, cables colgando, contornos) |
+| `ocean(ctx, t, depth, {x,y,w,h,snow,rays,dy})` | Mar de perfil: color según profundidad (0 superficie → 1 abismo), rayos de luz y «nieve marina». `dy` crece durante un descenso |
+| `waves(ctx, y, t, {sky,amp,w})` | Superficie del mar con oleaje; `sky` pinta el cielo encima |
+| `seabed(ctx, y, t, {seed,rocks,bottom})` | Fondo marino; **devuelve `yAt(x)`** para apoyar cables u objetos en el fondo |
+| `ship(ctx, x, y, s, t, {tanks,flip})` | Barco cablero de perfil que se mece; **devuelve el punto de la roldana de popa** (de donde sale el cable) |
+| `cableSection(ctx, x, y, r, {p,armor})` | Corte del cable: fibras en gel y tubo, hilos de acero, cobre, polietileno (+ armadura y cubierta con `armor`). **Devuelve las capas con su radio** para rotular |
+| `fiber(ctx, x0, x1, y, h, t, {bits,gap,speed,att,boost})` | Fibra de perfil (revestimiento + núcleo) con pulsos de luz GUIADOS (sin zigzag). `att` = pérdida de brillo a lo largo; `boost` = posiciones de amplificadores |
+| `repeater(ctx, x, y, s, ang, glow)` | Repetidor submarino; `glow` = amplificando |
+| `worldMap(ctx, x, y, w, h, {lon0,lon1,lat0,lat1,...})` | Mapa del mundo ESTILIZADO (equirrectangular). **Devuelve `proj([lon,lat])`**. Rotular siempre «mapa estilizado» |
+| `cableRoute(ctx, pts, prog, t, {c,w,dots,speed,smooth})` | Ruta luminosa que se dibuja con paquetes de luz viajando; devuelve `P.path` |
+| `depthGauge(ctx, x, y0, y1, v, max, {step})` | Regla vertical de profundidad con marcador |
+| `rov`, `plow` | Vehículo submarino operado a distancia (focos, brazo, umbilical) y arado submarino que entierra cables |
+| `anchor`, `grapnel`, `station` | Ancla, garfio de recuperación y estación de aterrizaje en la costa |
+
+Efectos `FX` de v1.6: `bajoAgua` (ambiente submarino con burbujas), `inmersion` (zambullida), `olas`, `pulsoLuz` (destellos de luz/datos ópticos), `amplifica`, `cabrestante` (máquina que suelta o recoge cable), `ancla` (cadena + golpe), `rotura` y `empalme` (chispas de unión).
+
 Efectos `FX` de v1.5: `senal`, `datos`, `tictac` y `ubicacion`.
 
 Efectos `FX` de v1.4: `ventilador`, `compresion`, `expansion`, `goteo` y `calor`.

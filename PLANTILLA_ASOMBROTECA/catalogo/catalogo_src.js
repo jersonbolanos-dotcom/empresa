@@ -27,6 +27,14 @@
   ['Reloj analógico (v1.5)', (c, t) => P.clock(c, 200, 150, 100, 43200 + t * 60)],
   ['Mapa, pin y rango (v1.5)', (c, t) => { P.mapCity(c, 0, 0, 400, 300, 5, { block: 60, street: 12 }); P.rangeCircle(c, 170, 150, 90, 1, '#2f80ed'); P.pin(c, 170, 150, 60); }],
   ['Brillo / luz (v1.2)', (c, t) => { P.glow(c, 140, 150, 120, '255,190,120', 0.9); P.glow(c, 270, 150, 90, '80,220,255', 0.9); }],
+  ['Mar de perfil + fondo marino (v1.6)', (c, t) => { P.ocean(c, t, 0.5, { w: 400, h: 300, snow: 30 }); P.waves(c, 40, t, { w: 400, amp: 5, sky: '#2b5c8f' }); P.seabed(c, 240, t, { w: 400, bottom: 300, rocks: 3 }); }],
+  ['Barco cablero (v1.6)', (c, t) => { P.ocean(c, t, 0.3, { y: 170, w: 400, h: 130, snow: 0, rays: 0 }); P.waves(c, 170, t, { w: 400, amp: 4 }); const [sx, sy] = P.ship(c, 180, 172, 120, t); P.strokePath(c, P.spline([[sx, sy], [sx + 20, sy + 60], [380, 290]]), 5, '#1a2129'); }],
+  ['Corte del cable submarino (v1.6)', (c, t) => { P.cableSection(c, 120, 150, 110, { p: 1 }); P.cableSection(c, 300, 150, 90, { p: 1, armor: true }); }],
+  ['Fibra óptica con pulsos (v1.6)', (c, t) => P.fiber(c, 0, 400, 150, 120, t, { gap: 40, speed: 200, att: 0.8, boost: [200] })],
+  ['Repetidor · ROV · arado (v1.6)', (c, t) => { P.repeater(c, 90, 90, 50, 0, 1); P.rov(c, 300, 110, 90, t, { light: true }); P.plow(c, 200, 260, 90, t); }],
+  ['Mapa del mundo estilizado + ruta (v1.6)', (c, t) => { const pr = P.worldMap(c, 0, 40, 400, 220, { lon0: -130, lon1: 165, lat0: -50, lat1: 72 }); P.cableRoute(c, [[-76, 36.8], [-40, 40], [-3, 43]].map(pr), 1, t, { w: 3 }); }],
+  ['Ancla · garfio · estación costera (v1.6)', (c, t) => { P.anchor(c, 90, 150, 90, 0.2); P.grapnel(c, 200, 160, 70); P.station(c, 320, 200, 100, { on: true }); }],
+  ['Regla de profundidad (v1.6)', (c, t) => P.depthGauge(c, 120, 40, 270, 3000, 4000, { step: 1000 })],
  ];
  window.drawCatalog = function () {
   document.querySelectorAll('canvas[data-i]').forEach((cv) => {

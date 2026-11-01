@@ -1,0 +1,279 @@
+1
+00:00:00,050 --> 00:00:01,262
+Cada vez que envías un
+
+2
+00:00:01,262 --> 00:00:02,778
+mensaje a otro
+continente,
+
+3
+00:00:02,778 --> 00:00:04,689
+puede viajar miles
+de kilómetros
+
+4
+00:00:04,689 --> 00:00:06,603
+por el fondo del océano.
+
+5
+00:00:06,762 --> 00:00:07,076
+Y no,
+
+6
+00:00:07,076 --> 00:00:08,114
+la mayor parte del
+
+7
+00:00:08,114 --> 00:00:10,226
+tráfico internacional
+de internet
+
+8
+00:00:10,226 --> 00:00:11,968
+no viaja por satélites.
+
+9
+00:00:11,968 --> 00:00:14,171
+viaja por cables
+submarinos.
+
+10
+00:00:14,194 --> 00:00:14,772
+Pero...
+
+11
+00:00:14,772 --> 00:00:15,999
+¿Cómo es posible?
+
+12
+00:00:16,106 --> 00:00:17,175
+Bajo los océanos,
+
+13
+00:00:17,175 --> 00:00:18,954
+existe una enorme red de
+
+14
+00:00:18,954 --> 00:00:21,616
+cables que conecta
+continentes enteros.
+
+15
+00:00:21,620 --> 00:00:23,895
+Algunos recorren
+miles de kilómetros
+
+16
+00:00:23,895 --> 00:00:25,645
+y atraviesan
+zonas de varios
+
+17
+00:00:25,645 --> 00:00:27,745
+miles de metros
+de profundidad.
+
+18
+00:00:27,806 --> 00:00:29,171
+pero lo más sorprendente
+
+19
+00:00:29,171 --> 00:00:30,681
+está en su interior.
+
+20
+00:00:30,762 --> 00:00:32,091
+Estos cables contienen
+
+21
+00:00:32,091 --> 00:00:33,329
+fibras ópticas.
+
+22
+00:00:33,329 --> 00:00:35,812
+unos filamentos de
+vidrio extremadamente
+
+23
+00:00:35,812 --> 00:00:37,709
+delgados que
+transportan información
+
+24
+00:00:37,709 --> 00:00:39,391
+mediante pulsos de luz.
+
+25
+00:00:39,391 --> 00:00:40,742
+Cuando envías
+un mensaje,
+
+26
+00:00:40,742 --> 00:00:42,964
+los equipos de
+comunicación convierten
+
+27
+00:00:42,964 --> 00:00:44,845
+los datos en
+señales luminosas
+
+28
+00:00:44,845 --> 00:00:46,511
+que viajan por
+esas fibras.
+
+29
+00:00:46,511 --> 00:00:47,468
+y como la luz pierde
+
+30
+00:00:47,468 --> 00:00:49,395
+intensidad durante
+el recorrido,
+
+31
+00:00:49,395 --> 00:00:51,306
+Los cables utilizan
+repetidores que
+
+32
+00:00:51,306 --> 00:00:52,482
+amplifican la señal a
+
+33
+00:00:52,482 --> 00:00:53,861
+lo largo del camino.
+
+34
+00:00:53,881 --> 00:00:55,951
+Así, la información
+puede cruzar
+
+35
+00:00:55,951 --> 00:00:57,306
+todo un océano en
+
+36
+00:00:57,306 --> 00:00:59,011
+una fracción de segundo.
+
+37
+00:00:59,084 --> 00:01:00,564
+Pero ¿cómo colocan esos
+
+38
+00:01:00,564 --> 00:01:02,622
+cables a semejante
+profundidad?
+
+39
+00:01:02,760 --> 00:01:04,715
+Utilizan barcos
+especializados que
+
+40
+00:01:04,715 --> 00:01:06,669
+los van desenrollando
+cuidadosamente
+
+41
+00:01:06,669 --> 00:01:08,222
+sobre el fondo marino.
+
+42
+00:01:08,240 --> 00:01:09,351
+En las zonas cercanas
+
+43
+00:01:09,351 --> 00:01:09,986
+a la costa,
+
+44
+00:01:09,986 --> 00:01:11,835
+donde hay mayor
+riesgo de daños,
+
+45
+00:01:11,835 --> 00:01:13,370
+Muchas veces los
+entierran bajo
+
+46
+00:01:13,370 --> 00:01:15,563
+el lecho marino
+para protegerlos.
+
+47
+00:01:15,565 --> 00:01:17,633
+Y aquí viene
+algo increíble.
+
+48
+00:01:17,633 --> 00:01:18,585
+Si uno de estos
+
+49
+00:01:18,585 --> 00:01:19,379
+cables se rompe,
+
+50
+00:01:19,379 --> 00:01:20,818
+puede ser
+necesario enviar
+
+51
+00:01:20,818 --> 00:01:22,417
+un barco para
+localizarlo,
+
+52
+00:01:22,417 --> 00:01:24,539
+recuperarlo y
+repararlo en
+
+53
+00:01:24,539 --> 00:01:26,219
+medio del océano.
+
+54
+00:01:26,272 --> 00:01:26,799
+Así que,
+
+55
+00:01:26,799 --> 00:01:28,554
+la próxima vez
+que envíes un
+
+56
+00:01:28,554 --> 00:01:30,449
+mensaje al otro
+lado del mundo,
+
+57
+00:01:30,449 --> 00:01:31,588
+recuerda esto.
+
+58
+00:01:31,632 --> 00:01:33,175
+Detrás de ese
+simple clic,
+
+59
+00:01:33,175 --> 00:01:35,067
+existe una
+gigantesca red de
+
+60
+00:01:35,067 --> 00:01:37,117
+cables escondida
+bajo el mar.
+
+61
+00:01:37,117 --> 00:01:38,333
+Sigue a Asombroteca
+
+62
+00:01:38,333 --> 00:01:39,788
+para más curiosidades.
