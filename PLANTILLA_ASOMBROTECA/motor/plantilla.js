@@ -2633,6 +2633,282 @@
   const ce = T2(0, -0.6, 0); ctx.fillStyle = TK.blanco; ctx.beginPath(); ctx.arc(ce[0], ce[1], 6, 0, TAU); ctx.fill(); if (o.rot) { ctx.save(); ctx.globalAlpha *= o.rot; ctx.strokeStyle = TK.oro; ctx.lineWidth = 6; const r = (W2 + 2.2) * s; ctx.beginPath(); ctx.arc(ce[0], ce[1], r, -Math.PI / 2 - 0.6, -Math.PI / 2 + 0.6); ctx.stroke(); const ea = -Math.PI / 2 + 0.6, ex = ce[0] + Math.cos(ea) * r, ey = ce[1] + Math.sin(ea) * r; ctx.fillStyle = TK.oro; ctx.beginPath(); ctx.moveTo(ex + 14, ey - 4); ctx.lineTo(ex - 8, ey - 16); ctx.lineTo(ex - 4, ey + 10); ctx.closePath(); ctx.fill(); ctx.restore(); }
   ctx.restore(); return { girder: T2(W2 + 0.18, -0.6, 0), slab: T2(-W2 * 0.4, -0.05, 0), beams: T2(-W2 * 0.3, -0.9, 0.6), width: [T2(-W2, 0.9, 0), T2(W2, 0.9, 0)], center: ce, depthPt: T2(W2, 0.6, 1) };
  };
+ // ---------------- v1.18 · módulo COMUNICACIONES Y ÉPOCAS (1926 ↔ hoy) ----------------
+ // Dos mundos y una transformación progresiva: TELÉFONO ANTIGUO → IDEA → INALÁMBRICO → BOLSILLO → SMARTPHONE → VIDEOLLAMADA.
+ // Paletas oficiales de época (P.ERA.old / P.ERA.now), gradación de película sepia que se retira poco a poco (P.eraGrade),
+ // objetos de 1926 (teléfono de candelero, centralita con operadoras, calle con postes y cables, torre de radio, revista
+ // reconstruida, figura de Tesla anciano estilizada) y objetos de hoy (smartphone genérico con vista de corte, mano, videollamada,
+ // estación base, fibra óptica, paquetes de datos, Tierra nocturna con enlaces conceptuales). Todo determinista y apoyado en superficies.
+ P.ERA = {
+  old: { cafe: '#9D7954', ocre: '#C6A06B', oscuro: '#493627', papel: '#E1C9A1', bronce: '#A77C45', negro: '#202021', gris: '#73736E' },
+  now: { azul: '#176EAF', cian: '#48D5F2', noche: '#101F37', fondo: '#0C1421', gris: '#8E9EA9', hielo: '#D9E9F0', turq: '#6AD8E8', oro: '#FFD447', blanco: '#F5F7FA' },
+ };
+ P.mixc = (a, b, u) => H.rgba(H.mix(a, b, cl(u)));
+ let GRAIN_TILE = null;
+ const grainTile = () => { if (GRAIN_TILE) return GRAIN_TILE; const c = H.layer(256, 256), g = c.getContext('2d'), im = g.createImageData(256, 256), R = H.rng(1926); for (let i = 0; i < im.data.length; i += 4) { const v = R() * 255; im.data[i] = im.data[i + 1] = im.data[i + 2] = v; im.data[i + 3] = 255; } g.putImageData(im, 0, 0); GRAIN_TILE = c; return c; };
+ // Gradación de época sobre lo ya dibujado en el beat (antes de los subtítulos): amt 1 = película de 1926 (tono sepia, velo cálido,
+ // parpadeo, viñeta, grano, polvo y rayas, todo función de t), 0 = imagen digital limpia. Valores intermedios para la transición temporal.
+ P.eraGrade = (ctx, amt, t, o = {}) => { amt = cl(amt); if (amt <= 0.002) return; const f = Math.floor(t * 12), R = H.rng(f * 7 + 3);
+  ctx.save(); ctx.globalCompositeOperation = 'color'; ctx.globalAlpha = 0.88 * amt; ctx.fillStyle = '#9D7954'; ctx.fillRect(0, 0, W, HH);
+  ctx.globalCompositeOperation = 'multiply'; ctx.globalAlpha = 0.25 * amt; ctx.fillStyle = '#E1C9A1'; ctx.fillRect(0, 0, W, HH);
+  ctx.globalCompositeOperation = 'source-over'; const fl = (R() - 0.5) * 0.07 * amt; ctx.globalAlpha = Math.abs(fl); ctx.fillStyle = fl > 0 ? '#fff4dc' : '#1a1208'; ctx.fillRect(0, 0, W, HH);
+  const g = ctx.createRadialGradient(540, 900, 420, 540, 960, 1250); g.addColorStop(0, 'rgba(32,22,12,0)'); g.addColorStop(1, `rgba(32,22,12,${0.72 * amt})`); ctx.globalAlpha = 1; ctx.fillStyle = g; ctx.fillRect(0, 0, W, HH);
+  if (o.grain !== false) { const Rg = H.rng(Math.floor(t * 12) * 5 + 1); ctx.globalCompositeOperation = 'overlay'; ctx.globalAlpha = 0.06 * amt; const tl = grainTile(), ox = -Math.floor(Rg() * 512), oy = -Math.floor(Rg() * 512); for (let y = oy; y < HH; y += 512) for (let x = ox; x < W; x += 512) ctx.drawImage(tl, x, y, 512, 512); ctx.globalCompositeOperation = 'source-over'; }
+  if (o.dust !== false) { ctx.fillStyle = 'rgba(30,20,10,0.6)'; for (let i = 0; i < 7; i++) { const x = R() * W, y = R() * HH, r = 1 + R() * 3.2; ctx.globalAlpha = amt * 0.55 * R(); ctx.beginPath(); ctx.arc(x, y, r, 0, TAU); ctx.fill(); }
+   if (R() < 0.45) { const x = R() * W; ctx.globalAlpha = amt * 0.22; ctx.strokeStyle = 'rgba(245,232,205,0.9)'; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x + (R() - 0.5) * 30, HH); ctx.stroke(); } }
+  ctx.restore();
+ };
+ // Tono «tecnológico» (opuesto a eraGrade): velo azul profundo + brillo cian suave en el centro. amt 0..1.
+ P.techGrade = (ctx, amt) => { amt = cl(amt); if (amt <= 0.002) return; ctx.save(); ctx.globalCompositeOperation = 'soft-light'; ctx.globalAlpha = 0.35 * amt; ctx.fillStyle = '#176EAF'; ctx.fillRect(0, 0, W, HH); ctx.globalCompositeOperation = 'source-over'; const g = ctx.createRadialGradient(540, 960, 380, 540, 960, 1300); g.addColorStop(0, 'rgba(12,20,33,0)'); g.addColorStop(1, `rgba(12,20,33,${0.6 * amt})`); ctx.globalAlpha = 1; ctx.fillStyle = g; ctx.fillRect(0, 0, W, HH); ctx.restore(); };
+
+ // Arcos de señal (radio) que nacen en (x,y), viajan en dirección dir (rad) con apertura spread y se desvanecen. Conceptuales.
+ // o: { dir, spread, n, col, speed (px/s), r0, r1, w, a }
+ P.radioWaves = (ctx, x, y, t, o = {}) => { const n = o.n || 4, r0 = o.r0 ?? 20, r1 = o.r1 ?? 320, sp = o.speed ?? 220, dir = o.dir ?? -Math.PI / 2, ap = o.spread ?? 0.9, per = (r1 - r0) / sp; ctx.save(); ctx.strokeStyle = o.col || '#48D5F2'; ctx.lineCap = 'round';
+  for (let i = 0; i < n; i++) { const u = (((t / per) + i / n) % 1 + 1) % 1, r = lerp(r0, r1, u), a = (o.a ?? 1) * Math.sin(Math.PI * u) * (1 - u * 0.4); if (a <= 0.01) continue; ctx.globalAlpha = a; ctx.lineWidth = (o.w || 6) * (1 - u * 0.5); ctx.beginPath(); ctx.arc(x, y, r, dir - ap / 2, dir + ap / 2); ctx.stroke(); }
+  ctx.restore(); };
+
+ // Teléfono de candelero (años 20) apoyado en una superficie en y: base, columna, boquilla, horquilla y auricular colgado (con la
+ // copa arriba). s ≈ alto/300. o: { lift 0..1 (lleva el auricular a o.ear=[x,y]), ring 0..1 (vibración del timbre), wireTo [x,y], col }
+ P.candlestick = (ctx, x, y, s, t, o = {}) => { const C = P.ERA.old, met = o.col || '#1f1c1a', hi = 'rgba(255,238,205,0.28)', ring = o.ring ? Math.sin(t * 90) * 2.2 * o.ring : 0;
+  ctx.save(); ctx.translate(x + ring, y); ctx.scale(s, s);
+  ctx.fillStyle = 'rgba(0,0,0,0.32)'; ctx.beginPath(); ctx.ellipse(0, 2, 86, 13, 0, 0, TAU); ctx.fill();
+  if (o.wire !== false) { const wx = o.wireTo ? (o.wireTo[0] - x) / s : -520, wy = o.wireTo ? (o.wireTo[1] - y) / s : 4; ctx.strokeStyle = '#151311'; ctx.lineWidth = 5; ctx.beginPath(); ctx.moveTo(-58, -6); ctx.bezierCurveTo(-120, 6, wx * 0.5, wy * 0.5 + 10, wx, wy); ctx.stroke(); }
+  ctx.fillStyle = met; ctx.beginPath(); ctx.moveTo(-72, 0); ctx.quadraticCurveTo(-68, -28, -30, -36); ctx.lineTo(30, -36); ctx.quadraticCurveTo(68, -28, 72, 0); ctx.closePath(); ctx.fill(); ctx.fillStyle = hi; ctx.fillRect(-28, -35, 56, 4);
+  ctx.fillStyle = met; ctx.fillRect(-9, -252, 18, 220); ctx.fillStyle = hi; ctx.fillRect(-6, -250, 4, 214);
+  ctx.save(); ctx.translate(0, -258); ctx.rotate(-0.28); ctx.fillStyle = met; ctx.beginPath(); ctx.moveTo(-12, 8); ctx.lineTo(12, 8); ctx.lineTo(30, -36); ctx.lineTo(-30, -36); ctx.closePath(); ctx.fill(); ctx.fillStyle = '#34302b'; ctx.beginPath(); ctx.ellipse(0, -36, 31, 9, 0, 0, TAU); ctx.fill(); ctx.fillStyle = '#0b0a09'; ctx.beginPath(); ctx.ellipse(0, -36, 21, 6, 0, 0, TAU); ctx.fill(); ctx.restore();
+  ctx.strokeStyle = met; ctx.lineWidth = 6; ctx.lineCap = 'round'; ctx.beginPath(); ctx.moveTo(8, -176); ctx.lineTo(30, -182); ctx.lineTo(36, -198); ctx.stroke();
+  const lift = cl(o.lift || 0), u = E.inOut(lift); let rx = 46, ry = -196, ra = 0; if (lift > 0 && o.ear) { rx = lerp(46, (o.ear[0] - x) / s, u); ry = lerp(-196, (o.ear[1] - y) / s, u); ra = lerp(0, -0.5, u); }
+  ctx.strokeStyle = '#151311'; ctx.lineWidth = 4; ctx.beginPath(); ctx.moveTo(42, -12); ctx.bezierCurveTo(96, -14, rx + 40, ry + 150, rx, ry + 76); ctx.stroke();
+  ctx.save(); ctx.translate(rx, ry); ctx.rotate(ra); ctx.fillStyle = met; ctx.beginPath(); ctx.moveTo(-24, -6); ctx.lineTo(24, -6); ctx.lineTo(14, 12); ctx.lineTo(-14, 12); ctx.closePath(); ctx.fill(); ctx.beginPath(); ctx.roundRect(-10, 10, 20, 70, 8); ctx.fill(); ctx.fillStyle = hi; ctx.fillRect(-6, 16, 3, 58); ctx.restore();
+  ctx.restore(); return { mouth: [x + 10 * s, y - 296 * s], top: [x, y - 300 * s], base: [x, y] };
+ };
+
+ // Centralita telefónica manual (años 20): mueble de madera con paneles de jacks y lamparitas, repisa con clavijas y cordones, y
+ // operadoras sentadas de espaldas (sillas apoyadas en el suelo floorY). o: { n, plug(i,c,t)→0..1, lamps (0/1), h }
+ P.switchboard = (ctx, x, floorY, w, t, o = {}) => { const n = o.n || 3, h = o.h || 640, top = floorY - h, shelfY = floorY - 300, pw = (w - 40) / n, jx = (i, c) => x + 20 + i * pw + 22 + c * (pw - 44) / 7, jy = (r) => top + 52 + r * 25;
+  ctx.save(); ctx.fillStyle = 'rgba(0,0,0,0.3)'; ctx.fillRect(x - 20, floorY - 6, w + 40, 12);
+  ctx.fillStyle = '#4a3627'; ctx.fillRect(x, top, w, h); ctx.fillStyle = '#3a2a1e'; ctx.fillRect(x - 12, top - 26, w + 24, 32); ctx.fillStyle = 'rgba(255,230,190,0.12)'; ctx.fillRect(x - 12, top - 26, w + 24, 5);
+  for (let i = 0; i < n; i++) { const px = x + 20 + i * pw; ctx.fillStyle = '#2b2019'; ctx.fillRect(px + 8, top + 30, pw - 16, shelfY - top - 50);
+   for (let r = 0; r < 9; r++) for (let c = 0; c < 8; c++) { ctx.fillStyle = '#0f0b08'; ctx.beginPath(); ctx.arc(jx(i, c), jy(r), 5, 0, TAU); ctx.fill(); ctx.fillStyle = 'rgba(214,180,120,0.35)'; ctx.beginPath(); ctx.arc(jx(i, c), jy(r), 7, Math.PI * 1.1, Math.PI * 1.7); ctx.fill(); }
+   for (let c = 0; c < 8; c++) { const R = H.rng(i * 31 + c + 5), on = (o.lamps ?? 1) && Math.sin(t * (1.1 + R() * 2.2) + R() * 6) > 0.55; ctx.fillStyle = on ? '#ffd27a' : '#5a4630'; if (on) { ctx.shadowColor = '#ffc860'; ctx.shadowBlur = 14; } ctx.beginPath(); ctx.arc(jx(i, c), jy(9) + 4, 6, 0, TAU); ctx.fill(); ctx.shadowBlur = 0; } }
+  ctx.fillStyle = '#5c4230'; ctx.fillRect(x - 16, shelfY, w + 32, 26); ctx.fillStyle = '#3e2d20'; ctx.fillRect(x, shelfY + 26, w, floorY - shelfY - 26); ctx.fillStyle = 'rgba(255,230,190,0.14)'; ctx.fillRect(x - 16, shelfY, w + 32, 4);
+  const plugs = []; for (let i = 0; i < n; i++) for (let c = 0; c < 4; c++) { const px = x + 20 + i * pw, bx = px + 36 + c * (pw - 72) / 3, by = shelfY + 4, R = H.rng(i * 13 + c * 7 + 1), tj = [jx(i, Math.floor(R() * 8)), jy(Math.floor(R() * 9))], u = E.inOut(cl(o.plug ? o.plug(i, c, t) : 0)), ex = lerp(bx, tj[0], u), ey = lerp(by - 26, tj[1] + 6, u);
+   if (u > 0.01) { ctx.strokeStyle = c % 2 ? '#2a1f18' : '#17120e'; ctx.lineWidth = 4; ctx.beginPath(); ctx.moveTo(bx, by + 4); ctx.quadraticCurveTo((bx + ex) / 2, Math.max(by, ey) + 70 * (1 - u) + 30, ex, ey + 14); ctx.stroke(); }
+   ctx.fillStyle = '#b48a52'; ctx.fillRect(ex - 4, ey - 2, 8, 18); ctx.fillStyle = '#2a1f18'; ctx.fillRect(ex - 6, ey + 12, 12, 10); plugs.push([ex, ey]); }
+  const ops = []; for (let i = 0; i < n; i++) { const ox = x + 20 + i * pw + pw / 2, sy = floorY - 190, cb = ['#3b3a38', '#4a3d33', '#2f2a26'][i % 3], arm = 0.5 + 0.5 * Math.sin(t * 1.3 + i * 2.1);
+   ctx.fillStyle = '#2a1d14'; ctx.fillRect(ox - 52, sy, 104, 16); ctx.fillRect(ox - 48, sy + 16, 9, floorY - sy - 16); ctx.fillRect(ox + 39, sy + 16, 9, floorY - sy - 16);
+   ctx.fillStyle = cb; ctx.beginPath(); ctx.moveTo(ox - 56, sy + 2); ctx.quadraticCurveTo(ox - 62, sy - 150, ox - 34, sy - 172); ctx.lineTo(ox + 34, sy - 172); ctx.quadraticCurveTo(ox + 62, sy - 150, ox + 56, sy + 2); ctx.closePath(); ctx.fill();
+   ctx.strokeStyle = cb; ctx.lineWidth = 18; ctx.lineCap = 'round'; ctx.beginPath(); ctx.moveTo(ox + 30, sy - 150); ctx.quadraticCurveTo(ox + 64, sy - 190, ox + 52 + arm * 18, sy - 250 - arm * 70); ctx.stroke(); ctx.fillStyle = '#c9a882'; ctx.beginPath(); ctx.arc(ox + 52 + arm * 18, sy - 258 - arm * 70, 10, 0, TAU); ctx.fill();
+   ctx.fillStyle = '#c9a882'; ctx.fillRect(ox - 11, sy - 192, 22, 24); ctx.fillStyle = '#2a1a10'; ctx.beginPath(); ctx.ellipse(ox, sy - 218, 35, 40, 0, 0, TAU); ctx.fill(); ctx.beginPath(); ctx.ellipse(ox, sy - 188, 38, 12, 0, 0, TAU); ctx.fill();
+   ctx.strokeStyle = '#0c0b0a'; ctx.lineWidth = 5; ctx.beginPath(); ctx.arc(ox, sy - 218, 41, Math.PI * 1.02, Math.PI * 1.98); ctx.stroke(); ctx.fillStyle = '#0c0b0a'; ctx.beginPath(); ctx.arc(ox - 40, sy - 212, 9, 0, TAU); ctx.fill();
+   ctx.fillStyle = '#2a1d14'; ctx.fillRect(ox - 46, sy - 74, 92, 70); ctx.fillStyle = 'rgba(255,230,190,0.1)'; ctx.fillRect(ox - 46, sy - 74, 92, 5); ops.push([ox, sy - 218]); }
+  ctx.restore(); return { top, shelfY, plugs, ops, jack: (i, r, c) => [jx(i, c), jy(r)] };
+ };
+
+ // Calle de una gran ciudad de los años 20 (genérica, sin edificios reconocibles): rascacielos escalonados con ventanas, postes de
+ // teléfono con crucetas, aisladores y haces de cables, acera y calzada (suelo gy), autos de época que ruedan sobre la calzada.
+ // o: { gy, poles:[x...], wires 0..1, cut 0..1 (los cables desaparecen de izquierda a derecha → «el cable se vuelve señal»), cars, seed }
+ P.city1926 = (ctx, t, o = {}) => { const gy = o.gy ?? 1380, poles = o.poles || [170, 910], R0 = H.rng(o.seed || 11);
+  ctx.save(); const g = ctx.createLinearGradient(0, 0, 0, gy); g.addColorStop(0, '#c4a57c'); g.addColorStop(1, '#ead6b2'); ctx.fillStyle = g; ctx.fillRect(0, 0, W, gy);
+  for (const L of [{ c: '#b39572', w: 'rgba(250,230,190,0.18)', hm: 520, hx: 980, sd: 3 }, { c: '#8a6e50', w: 'rgba(255,226,170,0.28)', hm: 360, hx: 820, sd: 9 }]) { const R = H.rng(L.sd + (o.seed || 0)); let x = -30;
+   while (x < W + 30) { const bw = 90 + R() * 120, bh = L.hm + R() * (L.hx - L.hm), y0 = gy - bh; ctx.fillStyle = L.c; ctx.fillRect(x, y0, bw, bh); const t1 = R() < 0.7; if (t1) { ctx.fillRect(x + bw * 0.15, y0 - bh * 0.12, bw * 0.7, bh * 0.12 + 2); if (R() < 0.6) { ctx.fillRect(x + bw * 0.3, y0 - bh * 0.2, bw * 0.4, bh * 0.08 + 2); if (R() < 0.5) ctx.fillRect(x + bw * 0.47, y0 - bh * 0.27, bw * 0.06, bh * 0.07); } }
+    ctx.fillStyle = L.w; for (let wy = y0 + 18; wy < gy - 30; wy += 26) for (let wx = x + 10; wx < x + bw - 14; wx += 18) if (R() < 0.55) ctx.fillRect(wx, wy, 8, 12); x += bw + 6 + R() * 10; } }
+  ctx.fillStyle = '#6b5640'; ctx.fillRect(0, gy, W, 44); ctx.fillStyle = '#7e6750'; ctx.fillRect(0, gy, W, 6); ctx.fillStyle = '#4b3c2d'; ctx.fillRect(0, gy + 44, W, HH - gy - 44); ctx.fillStyle = 'rgba(225,201,161,0.25)'; for (let x = -((t * 40) % 160); x < W; x += 160) ctx.fillRect(x, gy + 190, 80, 8);
+  const top = 340, arms = [top + 30, top + 90, top + 150], wy = (ai, k) => arms[ai] - 8, cut = cl(o.cut || 0), wa = o.wires ?? 1;
+  const xs = [-80, ...poles, W + 80]; for (let s = 0; s < xs.length - 1; s++) for (let ai = 0; ai < 3; ai++) for (let k = 0; k < 6; k++) { const xa = xs[s], xb = xs[s + 1], ox = (k - 2.5) * 24, mid = (xa + xb) / 2, sag = 40 + k * 3 + ai * 6, vis = 1 - sm(cut * 1.3 - 0.15, cut * 1.3 + 0.05, (mid + 80) / (W + 160)); if (vis * wa <= 0.01) continue; ctx.globalAlpha = 0.85 * vis * wa; ctx.strokeStyle = '#2a2018'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(xa + ox, wy(ai, k)); ctx.quadraticCurveTo(mid + ox, wy(ai, k) + sag * 2, xb + ox, wy(ai, k)); ctx.stroke(); }
+  ctx.globalAlpha = 1; for (const px of poles) { ctx.fillStyle = '#3d2e21'; ctx.beginPath(); ctx.moveTo(px - 11, gy + 30); ctx.lineTo(px - 7, top); ctx.lineTo(px + 7, top); ctx.lineTo(px + 11, gy + 30); ctx.closePath(); ctx.fill(); for (const ay of arms) { ctx.fillRect(px - 82, ay, 164, 12); for (let k = 0; k < 6; k++) { ctx.fillStyle = '#d8c7a6'; ctx.fillRect(px + (k - 2.5) * 24 - 4, ay - 14, 8, 14); ctx.fillStyle = '#3d2e21'; } } }
+  if (o.cars !== false) for (let i = 0; i < 2; i++) { const dir = i ? -1 : 1, sp = 90 + i * 30, cx = dir > 0 ? ((t * sp + 300 * i) % 1500) - 220 : W + 220 - ((t * sp + 520) % 1500), cy = gy + (i ? 150 : 300); P.car1926(ctx, cx, cy, i ? 0.85 : 1.1, t, dir); }
+  ctx.restore(); return { gy, top, poles, wireY: arms.map((a) => a - 8) };
+ };
+ // Auto de los años 20 (silueta genérica de turismo cerrado) apoyado en y (suelo); ruedas de radios que giran según t.
+ P.car1926 = (ctx, x, y, s, t, dir = 1) => { ctx.save(); ctx.translate(x, y); ctx.scale(s * dir, s); ctx.fillStyle = 'rgba(0,0,0,0.3)'; ctx.beginPath(); ctx.ellipse(0, 0, 150, 12, 0, 0, TAU); ctx.fill();
+  ctx.fillStyle = '#1f1b18'; ctx.beginPath(); ctx.moveTo(-140, -40); ctx.lineTo(-140, -80); ctx.lineTo(-110, -88); ctx.lineTo(-100, -170); ctx.lineTo(40, -170); ctx.lineTo(54, -96); ctx.lineTo(140, -90); ctx.lineTo(146, -40); ctx.closePath(); ctx.fill();
+  ctx.fillStyle = '#c9b38c'; ctx.fillRect(-88, -158, 56, 54); ctx.fillRect(-22, -158, 54, 54); ctx.fillStyle = '#2b2622'; ctx.fillRect(-150, -48, 300, 10); ctx.fillStyle = '#e9dcbf'; ctx.beginPath(); ctx.arc(142, -82, 9, 0, TAU); ctx.fill();
+  for (const wx of [-92, 96]) { ctx.fillStyle = '#121010'; ctx.beginPath(); ctx.arc(wx, -34, 34, 0, TAU); ctx.fill(); ctx.strokeStyle = '#8c7a5e'; ctx.lineWidth = 3; const a0 = t * 4 * dir; for (let k = 0; k < 8; k++) { const a = a0 + k * Math.PI / 4; ctx.beginPath(); ctx.moveTo(wx, -34); ctx.lineTo(wx + Math.cos(a) * 26, -34 + Math.sin(a) * 26); ctx.stroke(); } ctx.fillStyle = '#8c7a5e'; ctx.beginPath(); ctx.arc(wx, -34, 6, 0, TAU); ctx.fill(); }
+  ctx.restore(); };
+
+ // Torre de radio de celosía de los años 20 apoyada en gy, con riostras y antena; o.waves 0..1 emite arcos de señal (conceptuales).
+ P.radioTower = (ctx, x, gy, h, t, o = {}) => { const top = gy - h, bw = h * 0.16; ctx.save(); ctx.strokeStyle = o.col || '#2c231b'; ctx.lineWidth = 5; ctx.beginPath(); ctx.moveTo(x - bw, gy); ctx.lineTo(x - 6, top); ctx.moveTo(x + bw, gy); ctx.lineTo(x + 6, top); ctx.stroke(); ctx.lineWidth = 2.5;
+  for (let k = 0; k < 14; k++) { const u0 = k / 14, u1 = (k + 1) / 14, w0 = lerp(bw, 6, u0), w1 = lerp(bw, 6, u1), y0 = lerp(gy, top, u0), y1 = lerp(gy, top, u1); ctx.beginPath(); ctx.moveTo(x - w0, y0); ctx.lineTo(x + w1, y1); ctx.moveTo(x + w0, y0); ctx.lineTo(x - w1, y1); ctx.moveTo(x - w1, y1); ctx.lineTo(x + w1, y1); ctx.stroke(); }
+  ctx.lineWidth = 1.5; ctx.globalAlpha = 0.6; for (const sg of [-1, 1]) { ctx.beginPath(); ctx.moveTo(x, top + h * 0.3); ctx.lineTo(x + sg * h * 0.55, gy); ctx.stroke(); } ctx.globalAlpha = 1;
+  ctx.fillStyle = o.col || '#2c231b'; ctx.fillRect(x - bw - 30, gy - 8, 2 * bw + 60, 10); ctx.fillRect(x - 2, top - 40, 4, 40); ctx.beginPath(); ctx.arc(x, top - 42, 7, 0, TAU); ctx.fill();
+  if (o.waves) { P.radioWaves(ctx, x - 10, top - 42, t, { dir: Math.PI, spread: 1.1, n: 4, col: o.wcol || '#E1C9A1', r1: o.r1 || 420, a: o.waves, w: 7 }); P.radioWaves(ctx, x + 10, top - 42, t + 0.4, { dir: 0, spread: 1.1, n: 4, col: o.wcol || '#E1C9A1', r1: o.r1 || 420, a: o.waves, w: 7 }); }
+  ctx.restore(); return { top: [x, top - 42] }; };
+
+ // Nikola Tesla hacia 1926 (≈70 años) — RECONSTRUCCIÓN ESTILIZADA, no un retrato: alto y muy delgado, traje oscuro de tres piezas,
+ // cuello alto blanco y corbata, pelo gris peinado con raya al medio, bigote gris, rostro enjuto. De pie con los zapatos en y.
+ // s: escala (alto ≈ 780·s px). o: { look −1..1 (giro de la cabeza), hand 'down'|'chin'|'point'|'pocket', tag (rótulo) } — sin labios
+ // animados ni diálogo inventado: solo respiración y parpadeo sutiles.
+ P.teslaOld = (ctx, x, y, s, t, o = {}) => { const suit = o.suit || '#262422', skin = o.skin || '#d2b190', hair = o.hair || '#b9b4ab', lk = cl(o.look || 0, -1, 1), br = 1 + Math.sin(t * 1.6) * 0.006, blink = (t % 4.3) < 0.12;
+  ctx.save(); ctx.translate(x, y); ctx.scale(s, s); ctx.fillStyle = 'rgba(0,0,0,0.3)'; ctx.beginPath(); ctx.ellipse(0, 2, 110, 14, 0, 0, TAU); ctx.fill();
+  ctx.fillStyle = '#121110'; ctx.beginPath(); ctx.ellipse(-30, -8, 34, 11, 0, 0, TAU); ctx.ellipse(32, -8, 34, 11, 0, 0, TAU); ctx.fill();
+  ctx.fillStyle = suit; ctx.beginPath(); ctx.moveTo(-50, -14); ctx.lineTo(-44, -390); ctx.lineTo(44, -390); ctx.lineTo(50, -14); ctx.lineTo(14, -14); ctx.lineTo(2, -330); ctx.lineTo(-12, -14); ctx.closePath(); ctx.fill();
+  ctx.save(); ctx.translate(0, -390); ctx.scale(1, br); ctx.translate(0, 390);
+  ctx.beginPath(); ctx.moveTo(-58, -330); ctx.lineTo(-74, -592); ctx.quadraticCurveTo(-70, -612, -40, -618); ctx.lineTo(40, -618); ctx.quadraticCurveTo(70, -612, 74, -592); ctx.lineTo(58, -330); ctx.closePath(); ctx.fill();
+  ctx.fillStyle = '#3a3633'; ctx.beginPath(); ctx.moveTo(-26, -612); ctx.lineTo(0, -470); ctx.lineTo(26, -612); ctx.closePath(); ctx.fill(); ctx.fillStyle = '#ece6da'; ctx.beginPath(); ctx.moveTo(-18, -612); ctx.lineTo(0, -560); ctx.lineTo(18, -612); ctx.closePath(); ctx.fill(); ctx.fillStyle = '#4a4440'; ctx.beginPath(); ctx.moveTo(-6, -596); ctx.lineTo(6, -596); ctx.lineTo(4, -540); ctx.lineTo(0, -532); ctx.lineTo(-4, -540); ctx.closePath(); ctx.fill();
+  ctx.fillStyle = '#c9b48a'; for (const by of [-520, -488, -456]) { ctx.beginPath(); ctx.arc(0, by, 3.2, 0, TAU); ctx.fill(); } ctx.strokeStyle = '#c9b48a'; ctx.lineWidth = 1.6; ctx.beginPath(); ctx.moveTo(0, -470); ctx.quadraticCurveTo(-22, -440, -34, -460); ctx.stroke();
+  ctx.strokeStyle = 'rgba(0,0,0,0.35)'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(-26, -612); ctx.lineTo(-40, -470); ctx.lineTo(-30, -330); ctx.moveTo(26, -612); ctx.lineTo(40, -470); ctx.lineTo(30, -330); ctx.stroke();
+  const arm = (sg, mode) => { ctx.strokeStyle = suit; ctx.lineWidth = 30; ctx.lineCap = 'round'; ctx.lineJoin = 'round'; const sx = sg * 66, sy = -590; let ex, ey, hx, hy; if (mode === 'chin') { ex = sg * 70; ey = -470; hx = sg * 18; hy = -650; } else if (mode === 'point') { ex = sg * 130; ey = -520; hx = sg * 200; hy = -560; } else if (mode === 'pocket') { ex = sg * 86; ey = -470; hx = sg * 36; hy = -500; } else { ex = sg * 80; ey = -460; hx = sg * 78; hy = -330; }
+   ctx.beginPath(); ctx.moveTo(sx, sy); ctx.lineTo(ex, ey); ctx.lineTo(hx, hy); ctx.stroke(); ctx.strokeStyle = '#ece6da'; ctx.lineWidth = 26; ctx.beginPath(); ctx.moveTo(lerp(ex, hx, 0.88), lerp(ey, hy, 0.88)); ctx.lineTo(lerp(ex, hx, 0.93), lerp(ey, hy, 0.93)); ctx.stroke(); ctx.fillStyle = skin; ctx.beginPath(); ctx.ellipse(hx, hy, 13, 17, 0, 0, TAU); ctx.fill(); };
+  arm(-1, o.handL || 'down'); arm(1, o.hand || 'down');
+  ctx.fillStyle = skin; ctx.fillRect(-15, -650, 30, 40); ctx.fillStyle = '#ece6da'; ctx.beginPath(); ctx.moveTo(-28, -618); ctx.lineTo(-24, -650); ctx.lineTo(24, -650); ctx.lineTo(28, -618); ctx.lineTo(0, -606); ctx.closePath(); ctx.fill();
+  ctx.save(); ctx.translate(lk * 8, 0); ctx.fillStyle = skin; ctx.beginPath(); ctx.moveTo(-40, -712); ctx.quadraticCurveTo(-42, -664, -22, -646); ctx.quadraticCurveTo(0, -634, 22, -646); ctx.quadraticCurveTo(42, -664, 40, -712); ctx.quadraticCurveTo(40, -770, 0, -772); ctx.quadraticCurveTo(-40, -770, -40, -712); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(-42, -705, 7, 14, 0, 0, TAU); ctx.ellipse(42, -705, 7, 14, 0, 0, TAU); ctx.fill();
+  ctx.fillStyle = 'rgba(120,80,50,0.18)'; ctx.beginPath(); ctx.ellipse(-24, -682, 10, 14, 0, 0, TAU); ctx.ellipse(24, -682, 10, 14, 0, 0, TAU); ctx.fill();
+  ctx.fillStyle = hair; ctx.beginPath(); ctx.moveTo(-43, -712); ctx.quadraticCurveTo(-48, -786, -2, -790); ctx.lineTo(-2, -770); ctx.quadraticCurveTo(-30, -762, -38, -726); ctx.closePath(); ctx.fill(); ctx.beginPath(); ctx.moveTo(43, -712); ctx.quadraticCurveTo(48, -786, 2, -790); ctx.lineTo(2, -770); ctx.quadraticCurveTo(30, -762, 38, -726); ctx.closePath(); ctx.fill();
+  const ex = lk * 6; ctx.fillStyle = '#2a2420'; if (blink) { ctx.fillRect(-24 + ex, -712, 14, 2.5); ctx.fillRect(10 + ex, -712, 14, 2.5); } else { ctx.beginPath(); ctx.ellipse(-17 + ex, -712, 4.5, 3.5, 0, 0, TAU); ctx.ellipse(17 + ex, -712, 4.5, 3.5, 0, 0, TAU); ctx.fill(); }
+  ctx.strokeStyle = '#8a857d'; ctx.lineWidth = 3.5; ctx.beginPath(); ctx.moveTo(-28 + ex, -726); ctx.quadraticCurveTo(-17 + ex, -732, -8 + ex, -726); ctx.moveTo(8 + ex, -726); ctx.quadraticCurveTo(17 + ex, -732, 28 + ex, -726); ctx.stroke();
+  ctx.strokeStyle = 'rgba(110,70,45,0.45)'; ctx.lineWidth = 2.5; ctx.beginPath(); ctx.moveTo(ex, -708); ctx.lineTo(ex - 4, -684); ctx.lineTo(ex + 3, -682); ctx.stroke();
+  ctx.fillStyle = '#a7a199'; ctx.beginPath(); ctx.moveTo(ex - 22, -668); ctx.quadraticCurveTo(ex - 10, -680, ex, -674); ctx.quadraticCurveTo(ex + 10, -680, ex + 22, -668); ctx.quadraticCurveTo(ex, -664, ex - 22, -668); ctx.fill();
+  ctx.strokeStyle = 'rgba(90,60,40,0.5)'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(ex - 9, -656); ctx.lineTo(ex + 9, -656); ctx.stroke();
+  ctx.restore(); ctx.restore();
+  ctx.restore(); return { head: [x + lk * 8 * s, y - 710 * s], hand: [x + (o.hand === 'point' ? 200 : o.hand === 'pocket' ? 36 : 78) * s, y - (o.hand === 'point' ? 560 : o.hand === 'pocket' ? 500 : 330) * s], pocket: [x + 34 * s, y - 500 * s], top: [x, y - 790 * s] };
+ };
+
+ // Revista de 1926 RECONSTRUIDA (no facsímil): papel envejecido, cabecera con tipografía genérica, metadatos reales que se pasen en o,
+ // ilustración abstracta y líneas de texto ilegibles (nunca citas inventadas) + sello «RECONSTRUCCIÓN CONCEPTUAL».
+ // o: { title, date, head, by, rot, tag, page 0..1 (pasa página), hi 0..1 (resalta un párrafo de líneas) }
+ P.magazine1926 = (ctx, cx, cy, s, t, o = {}) => { const w = 560, h = 760; ctx.save(); ctx.translate(cx, cy); ctx.rotate(o.rot ?? -0.04); ctx.scale(s, s);
+  ctx.shadowColor = 'rgba(0,0,0,0.5)'; ctx.shadowBlur = 40; ctx.shadowOffsetY = 18; ctx.fillStyle = '#e4cfa6'; ctx.fillRect(-w / 2, -h / 2, w, h); ctx.shadowColor = 'transparent';
+  const R = H.rng(77); ctx.fillStyle = 'rgba(120,85,45,0.08)'; for (let i = 0; i < 60; i++) { ctx.beginPath(); ctx.arc(-w / 2 + R() * w, -h / 2 + R() * h, 4 + R() * 26, 0, TAU); ctx.fill(); }
+  ctx.strokeStyle = '#3a2a1c'; ctx.lineWidth = 3; ctx.strokeRect(-w / 2 + 22, -h / 2 + 22, w - 44, h - 44);
+  ctx.fillStyle = '#2b1f15'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.font = '700 86px Fraunces'; ctx.fillText(o.title || 'REVISTA', 0, -h / 2 + 96); ctx.fillRect(-w / 2 + 40, -h / 2 + 150, w - 80, 4);
+  ctx.font = '600 30px Fraunces'; ctx.fillText(o.date || '', 0, -h / 2 + 184); ctx.fillRect(-w / 2 + 40, -h / 2 + 208, w - 80, 2);
+  ctx.font = 'italic 600 40px Fraunces'; ctx.fillText(o.head || '', 0, -h / 2 + 262); ctx.font = '500 26px Fraunces'; ctx.fillText(o.by || '', 0, -h / 2 + 306);
+  ctx.fillStyle = 'rgba(73,54,39,0.5)'; for (let c = 0; c < 2; c++) for (let l = 0; l < 13; l++) { const lx = -w / 2 + 48 + c * (w / 2 - 30), ly = -h / 2 + 352 + l * 26, lw = (w / 2 - 70) * (l === 12 ? 0.5 : 0.82 + R() * 0.18); ctx.fillRect(lx, ly, lw, 9); }
+  if (o.hi) { ctx.globalAlpha = o.hi; ctx.fillStyle = 'rgba(255,212,71,0.45)'; ctx.fillRect(-w / 2 + 42, -h / 2 + 344 + 5 * 26, w / 2 - 50, 26 * 4); ctx.globalAlpha = 1; }
+  if (o.page) { const u = E.inOut(cl(o.page)); ctx.save(); ctx.transform(1 - 2 * u, 0, -0.15 * Math.sin(Math.PI * u), 1, (w / 2) * 2 * u, 0); ctx.fillStyle = u < 0.5 ? '#dcc59a' : '#cdb58a'; ctx.fillRect(-w / 2, -h / 2, w, h); ctx.restore(); }
+  ctx.restore(); if (o.tag !== false) { ctx.save(); ctx.font = '700 32px "IBM Plex Mono"'; const tg = o.tag || 'RECONSTRUCCIÓN CONCEPTUAL', tw = ctx.measureText(tg).width; ctx.fillStyle = 'rgba(32,32,33,0.88)'; ctx.fillRect(cx - tw / 2 - 18, cy + (h / 2) * s + 22, tw + 36, 50); ctx.fillStyle = '#E1C9A1'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(tg, cx, cy + (h / 2) * s + 48); ctx.restore(); }
+  return { w: w * s, h: h * s };
+ };
+
+ // Chaleco en primer plano (bolsillo de reloj, botones, cadena) con un aparato CONCEPTUAL plano que asoma del bolsillo.
+ // dev 0..1 = cuánto sale; glow 0..1 = la pantalla se ilumina. Ocupa un rectángulo (x,y,w,h); el torso sale por el borde inferior.
+ P.vestPocket = (ctx, x, y, w, h, t, o = {}) => { const dev = cl(o.dev || 0), px = x + w * 0.62, py = y + h * 0.5, pw = w * 0.26; ctx.save(); ctx.beginPath(); ctx.rect(x, y, w, h); ctx.clip();
+  ctx.fillStyle = '#2b2622'; ctx.fillRect(x, y, w, h); ctx.strokeStyle = 'rgba(225,201,161,0.08)'; ctx.lineWidth = 2; for (let sx = x - h; sx < x + w; sx += 22) { ctx.beginPath(); ctx.moveTo(sx, y + h); ctx.lineTo(sx + h * 0.15, y); ctx.stroke(); }
+  ctx.fillStyle = '#1b1816'; ctx.beginPath(); ctx.moveTo(x + w * 0.46, y); ctx.lineTo(x + w * 0.5, y + h); ctx.lineTo(x, y + h); ctx.lineTo(x, y); ctx.closePath(); ctx.globalAlpha = 0.55; ctx.fill(); ctx.globalAlpha = 1;
+  ctx.fillStyle = '#c9b48a'; for (let k = 0; k < 4; k++) { ctx.beginPath(); ctx.arc(x + w * 0.47, y + h * (0.12 + k * 0.24), 13, 0, TAU); ctx.fill(); }
+  const dh = pw * 1.45, dy = py - dh * 0.92 * E.out(dev) + 6; ctx.save(); ctx.beginPath(); ctx.rect(px - pw / 2 - 20, y, pw + 40, py + 8 - y); ctx.clip(); ctx.fillStyle = '#3b3530'; ctx.beginPath(); ctx.roundRect(px - pw * 0.42, dy, pw * 0.84, dh, 12); ctx.fill(); ctx.fillStyle = o.glow ? P.mixc('#5a4a38', '#E1C9A1', o.glow) : '#5a4a38'; ctx.beginPath(); ctx.roundRect(px - pw * 0.34, dy + 14, pw * 0.68, dh * 0.62, 6); ctx.fill(); if (o.glow) { ctx.globalAlpha = o.glow * 0.6; ctx.shadowColor = '#ffe2a8'; ctx.shadowBlur = 40; ctx.fill(); ctx.shadowBlur = 0; ctx.globalAlpha = 1; } ctx.restore();
+  ctx.fillStyle = '#231f1c'; ctx.fillRect(px - pw / 2, py, pw, 16); ctx.fillStyle = 'rgba(225,201,161,0.22)'; ctx.fillRect(px - pw / 2, py, pw, 3);
+  ctx.strokeStyle = '#c9a85e'; ctx.lineWidth = 5; ctx.setLineDash([9, 5]); ctx.beginPath(); ctx.moveTo(x + w * 0.47, y + h * 0.36); ctx.quadraticCurveTo(x + w * 0.36, y + h * 0.62, x + w * 0.2, y + h * 0.52); ctx.stroke(); ctx.setLineDash([]);
+  ctx.restore(); return { device: [px, dy + dh * 0.3], pocket: [px, py] };
+ };
+
+ // Smartphone GENÉRICO (sin marca ni logotipo): cuerpo redondeado, cámara perforada, altavoz, botones laterales; pantalla dibujada
+ // por o.screen(ctx, x, y, w, h). o.cut 0..1 = vista de corte: la pantalla se desplaza y aparecen cámara, micrófono, procesador,
+ // antenas y batería (devuelve sus posiciones para rotular). o: { rot, glow (resplandor de pantalla), body }
+ P.smartphone = (ctx, cx, cy, h, t, o = {}) => { const w = h * 0.48, r = h * 0.075, cut = E.inOut(cl(o.cut || 0)), sx = w * 0.035, x = -w / 2, y = -h / 2; ctx.save(); ctx.translate(cx, cy); if (o.rot) ctx.rotate(o.rot);
+  ctx.shadowColor = 'rgba(0,0,0,0.5)'; ctx.shadowBlur = h * 0.06; ctx.shadowOffsetY = h * 0.03; ctx.fillStyle = o.body || '#1c2636'; ctx.beginPath(); ctx.roundRect(x, y, w, h, r); ctx.fill(); ctx.shadowColor = 'transparent';
+  ctx.strokeStyle = 'rgba(217,233,240,0.45)'; ctx.lineWidth = Math.max(2, h * 0.004); ctx.stroke(); ctx.fillStyle = '#2b3a50'; ctx.fillRect(w / 2 - 1, -h * 0.22, h * 0.008, h * 0.1); ctx.fillRect(w / 2 - 1, -h * 0.08, h * 0.008, h * 0.06);
+  const S = { x: x + sx, y: y + sx, w: w - 2 * sx, h: h - 2 * sx }, pts = {};
+  if (cut > 0) { ctx.save(); ctx.beginPath(); ctx.roundRect(S.x, S.y, S.w, S.h, r * 0.8); ctx.clip(); ctx.fillStyle = '#0f1a2a'; ctx.fillRect(S.x, S.y, S.w, S.h);
+   ctx.fillStyle = '#123a2e'; ctx.fillRect(S.x + S.w * 0.08, S.y + S.h * 0.04, S.w * 0.84, S.h * 0.3); ctx.strokeStyle = 'rgba(106,216,232,0.35)'; ctx.lineWidth = 2; for (let k = 0; k < 7; k++) { ctx.beginPath(); ctx.moveTo(S.x + S.w * 0.1, S.y + S.h * (0.07 + k * 0.035)); ctx.lineTo(S.x + S.w * 0.9, S.y + S.h * (0.07 + k * 0.035)); ctx.stroke(); }
+   const cam = [S.x + S.w * 0.28, S.y + S.h * 0.1]; ctx.fillStyle = '#0b0f16'; ctx.beginPath(); ctx.arc(cam[0], cam[1], S.w * 0.11, 0, TAU); ctx.fill(); ctx.strokeStyle = '#48D5F2'; ctx.lineWidth = 3; ctx.stroke(); ctx.fillStyle = '#176EAF'; ctx.beginPath(); ctx.arc(cam[0], cam[1], S.w * 0.05, 0, TAU); ctx.fill(); pts.camera = cam;
+   const soc = [S.x + S.w * 0.64, S.y + S.h * 0.2]; ctx.fillStyle = '#1e2a3a'; ctx.fillRect(soc[0] - S.w * 0.13, soc[1] - S.w * 0.13, S.w * 0.26, S.w * 0.26); ctx.strokeStyle = '#FFD447'; ctx.lineWidth = 3; ctx.strokeRect(soc[0] - S.w * 0.13, soc[1] - S.w * 0.13, S.w * 0.26, S.w * 0.26); pts.chip = soc;
+   ctx.fillStyle = '#26364c'; ctx.beginPath(); ctx.roundRect(S.x + S.w * 0.1, S.y + S.h * 0.38, S.w * 0.8, S.h * 0.48, 12); ctx.fill(); ctx.strokeStyle = 'rgba(142,158,169,0.6)'; ctx.lineWidth = 2; ctx.stroke(); pts.battery = [S.x + S.w * 0.5, S.y + S.h * 0.62];
+   const mic = [S.x + S.w * 0.5, S.y + S.h * 0.94]; ctx.fillStyle = '#0b0f16'; ctx.beginPath(); ctx.roundRect(mic[0] - S.w * 0.08, mic[1] - 8, S.w * 0.16, 16, 8); ctx.fill(); ctx.strokeStyle = '#48D5F2'; ctx.lineWidth = 3; ctx.stroke(); pts.mic = mic;
+   ctx.strokeStyle = '#6AD8E8'; ctx.lineWidth = 4; ctx.beginPath(); ctx.moveTo(S.x + 6, S.y + S.h * 0.02); ctx.lineTo(S.x + 6, S.y + S.h * 0.3); ctx.moveTo(S.x + S.w - 6, S.y + S.h * 0.7); ctx.lineTo(S.x + S.w - 6, S.y + S.h * 0.98); ctx.stroke(); pts.antenna = [S.x + 6, S.y + S.h * 0.16];
+   ctx.restore(); }
+  if (cut < 1) { ctx.save(); ctx.translate(cut * w * 1.15, -cut * h * 0.05); ctx.globalAlpha *= 1 - cut * 0.85; ctx.beginPath(); ctx.roundRect(S.x, S.y, S.w, S.h, r * 0.8); ctx.fillStyle = '#0C1421'; ctx.fill(); ctx.save(); ctx.clip(); if (o.screen) o.screen(ctx, S.x, S.y, S.w, S.h); ctx.restore();
+   ctx.fillStyle = '#05070b'; ctx.beginPath(); ctx.arc(0, S.y + S.h * 0.035, Math.max(5, h * 0.011), 0, TAU); ctx.fill(); ctx.fillStyle = 'rgba(255,255,255,0.06)'; ctx.beginPath(); ctx.moveTo(S.x, S.y); ctx.lineTo(S.x + S.w * 0.55, S.y); ctx.lineTo(S.x, S.y + S.h * 0.45); ctx.closePath(); ctx.fill();
+   if (o.glow) { ctx.globalAlpha = o.glow * 0.5; ctx.shadowColor = '#48D5F2'; ctx.shadowBlur = h * 0.12; ctx.strokeStyle = 'rgba(72,213,242,0.4)'; ctx.lineWidth = 3; ctx.beginPath(); ctx.roundRect(S.x, S.y, S.w, S.h, r * 0.8); ctx.stroke(); } ctx.restore(); }
+  ctx.restore(); const map = (p) => { const c = Math.cos(o.rot || 0), sn = Math.sin(o.rot || 0); return [cx + p[0] * c - p[1] * sn, cy + p[0] * sn + p[1] * c]; }; const out = { w, h, screen: { x: cx + S.x, y: cy + S.y, w: S.w, h: S.h } }; for (const k in pts) out[k] = map(pts[k]); return out;
+ };
+ // Mano que sostiene un teléfono vertical de alto h centrado en (cx,cy): layer 'back' (palma y dedos por detrás, antebrazo hasta el
+ // borde inferior del cuadro, nada flota) y 'front' (pulgar por delante). Llamar 'back' antes de P.phone y 'front' después.
+ P.handHold = (ctx, cx, cy, h, layer, o = {}) => { const w = h * 0.48, sk = o.skin || '#c98f6a', sl = o.sleeve || '#2a3e5c'; ctx.save(); ctx.fillStyle = sk;
+  if (layer === 'back') { ctx.fillStyle = sl; ctx.beginPath(); ctx.moveTo(cx - w * 0.15, cy + h * 0.42); ctx.lineTo(cx + w * 0.95, cy + h * 0.38); ctx.lineTo(cx + w * 1.25, HH + 40); ctx.lineTo(cx + w * 0.05, HH + 40); ctx.closePath(); ctx.fill(); ctx.fillStyle = sk; ctx.beginPath(); ctx.moveTo(cx - w * 0.62, cy + h * 0.05); ctx.quadraticCurveTo(cx - w * 0.75, cy + h * 0.4, cx - w * 0.1, cy + h * 0.5); ctx.lineTo(cx + w * 0.9, cy + h * 0.44); ctx.quadraticCurveTo(cx + w * 0.75, cy + h * 0.1, cx + w * 0.56, cy + h * 0.02); ctx.closePath(); ctx.fill();
+   for (let k = 0; k < 4; k++) { const fy = cy - h * 0.06 + k * h * 0.09; ctx.beginPath(); ctx.ellipse(cx + w * 0.55, fy, w * 0.14, h * 0.038, -0.2, 0, TAU); ctx.fill(); } }
+  else { ctx.beginPath(); ctx.moveTo(cx - w * 0.62, cy + h * 0.32); ctx.quadraticCurveTo(cx - w * 0.6, cy + h * 0.05, cx - w * 0.44, cy - h * 0.02); ctx.quadraticCurveTo(cx - w * 0.34, cy + 0, cx - w * 0.4, cy + h * 0.12); ctx.quadraticCurveTo(cx - w * 0.42, cy + h * 0.3, cx - w * 0.3, cy + h * 0.42); ctx.closePath(); ctx.fill(); ctx.fillStyle = 'rgba(255,220,200,0.35)'; ctx.beginPath(); ctx.ellipse(cx - w * 0.44, cy + h * 0.02, w * 0.05, h * 0.02, -0.4, 0, TAU); ctx.fill(); }
+  ctx.restore(); };
+
+ // Persona estilizada en plano medio (busto) para videollamadas o escenas: hombros, cuello, cabeza, pelo; parpadeo y leve
+ // movimiento de cabeza (sin labios sincronizados). o: { skin, hair, shirt, style 'short'|'long'|'bun', look, t }
+ P.persona = (ctx, cx, cy, s, t, o = {}) => { const sk = o.skin || '#c98f6a', hr = o.hair || '#2b1d14', sh = o.shirt || '#176EAF', nod = Math.sin(t * 1.1 + (o.ph || 0)) * 3, blink = ((t + (o.ph || 0)) % 3.7) < 0.12; ctx.save(); ctx.translate(cx, cy); ctx.scale(s, s);
+  ctx.fillStyle = sh; ctx.beginPath(); ctx.moveTo(-190, 260); ctx.quadraticCurveTo(-180, 120, -70, 100); ctx.lineTo(70, 100); ctx.quadraticCurveTo(180, 120, 190, 260); ctx.closePath(); ctx.fill(); ctx.fillStyle = sk; ctx.fillRect(-30, 40, 60, 70); ctx.beginPath(); ctx.moveTo(-34, 100); ctx.lineTo(0, 140); ctx.lineTo(34, 100); ctx.closePath(); ctx.fill();
+  ctx.translate(0, nod); if (o.style === 'long') { ctx.fillStyle = hr; ctx.beginPath(); ctx.roundRect(-88, -90, 176, 210, 70); ctx.fill(); }
+  ctx.fillStyle = sk; ctx.beginPath(); ctx.ellipse(0, -10, 74, 92, 0, 0, TAU); ctx.fill(); ctx.beginPath(); ctx.ellipse(-74, -6, 12, 20, 0, 0, TAU); ctx.ellipse(74, -6, 12, 20, 0, 0, TAU); ctx.fill();
+  ctx.fillStyle = hr; ctx.beginPath(); ctx.moveTo(-78, -10); ctx.quadraticCurveTo(-90, -110, 0, -108); ctx.quadraticCurveTo(90, -110, 78, -10); ctx.quadraticCurveTo(60, -70, 0, -66); ctx.quadraticCurveTo(-50, -66, -78, -10); ctx.fill(); if (o.style === 'bun') { ctx.beginPath(); ctx.arc(0, -112, 34, 0, TAU); ctx.fill(); }
+  const lx = (o.look || 0) * 6; ctx.fillStyle = '#1b1410'; if (blink) { ctx.fillRect(-36 + lx, -14, 20, 3); ctx.fillRect(16 + lx, -14, 20, 3); } else { ctx.beginPath(); ctx.ellipse(-26 + lx, -14, 7, 8, 0, 0, TAU); ctx.ellipse(26 + lx, -14, 7, 8, 0, 0, TAU); ctx.fill(); }
+  ctx.strokeStyle = 'rgba(40,20,10,0.6)'; ctx.lineWidth = 4; ctx.lineCap = 'round'; ctx.beginPath(); ctx.moveTo(-40 + lx, -36); ctx.lineTo(-14 + lx, -38); ctx.moveTo(14 + lx, -38); ctx.lineTo(40 + lx, -36); ctx.stroke(); ctx.beginPath(); ctx.arc(lx, 30, 22, 0.25, Math.PI - 0.25); ctx.stroke();
+  ctx.restore(); };
+ // Interfaz genérica de videollamada dentro de (x,y,w,h): fondo de la otra persona, persona remota, recuadro propio, barra superior con
+ // tiempo de llamada y botones (micrófono, cámara, colgar). o: { t0 (inicio de la llamada), remote:{...P.person}, self:{...}, connect 0..1 }
+ P.videoCall = (ctx, x, y, w, h, t, o = {}) => { const con = cl(o.connect ?? 1); ctx.save(); ctx.beginPath(); ctx.rect(x, y, w, h); ctx.clip();
+  const g = ctx.createLinearGradient(x, y, x, y + h); g.addColorStop(0, o.bg0 || '#2a4a6a'); g.addColorStop(1, o.bg1 || '#13243a'); ctx.fillStyle = g; ctx.fillRect(x, y, w, h); ctx.fillStyle = 'rgba(255,212,71,0.12)'; ctx.fillRect(x + w * 0.62, y + h * 0.12, w * 0.24, h * 0.3); ctx.fillStyle = 'rgba(217,233,240,0.08)'; ctx.fillRect(x, y + h * 0.66, w, h * 0.34);
+  if (con > 0) { ctx.globalAlpha = con; P.persona(ctx, x + w / 2, y + h * 0.52, w / 520, t, o.remote || {}); ctx.globalAlpha = 1; }
+  if (con < 1) { ctx.fillStyle = `rgba(12,20,33,${1 - con})`; ctx.fillRect(x, y, w, h); ctx.strokeStyle = '#48D5F2'; ctx.lineWidth = 6; ctx.globalAlpha = 1 - con; ctx.beginPath(); ctx.arc(x + w / 2, y + h * 0.45, w * 0.12, t * 5, t * 5 + 4.4); ctx.stroke(); ctx.globalAlpha = 1; }
+  const pw = w * 0.3, ph = pw * 1.4, px = x + w - pw - w * 0.05, py = y + h * 0.07; ctx.save(); ctx.beginPath(); ctx.roundRect(px, py, pw, ph, 16); ctx.clip(); ctx.fillStyle = '#3b4c5e'; ctx.fillRect(px, py, pw, ph); P.persona(ctx, px + pw / 2, py + ph * 0.55, pw / 520, t, { ...(o.self || {}), ph: 1.3 }); ctx.restore(); ctx.strokeStyle = 'rgba(245,247,250,0.7)'; ctx.lineWidth = 3; ctx.beginPath(); ctx.roundRect(px, py, pw, ph, 16); ctx.stroke();
+  const sec = Math.max(0, Math.floor(t - (o.t0 ?? t))); ctx.fillStyle = 'rgba(12,20,33,0.6)'; ctx.beginPath(); ctx.roundRect(x + w * 0.05, y + h * 0.07, w * 0.32, h * 0.055, h * 0.027); ctx.fill(); ctx.fillStyle = '#F5F7FA'; ctx.font = `700 ${Math.round(h * 0.03)}px "IBM Plex Mono"`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(`● ${String(Math.floor(sec / 60)).padStart(2, '0')}:${String(sec % 60).padStart(2, '0')}`, x + w * 0.21, y + h * 0.0975);
+  const by = y + h * 0.88, br = w * 0.075; [[-1, '#2f4258'], [0, '#e8505b'], [1, '#2f4258']].forEach(([k, c]) => { const bx = x + w / 2 + k * w * 0.24; ctx.fillStyle = c; ctx.beginPath(); ctx.arc(bx, by, br, 0, TAU); ctx.fill(); ctx.strokeStyle = '#F5F7FA'; ctx.lineWidth = 4; ctx.lineCap = 'round'; ctx.beginPath(); if (k === -1) { ctx.roundRect(bx - br * 0.18, by - br * 0.5, br * 0.36, br * 0.62, br * 0.18); ctx.moveTo(bx - br * 0.36, by); ctx.arc(bx, by, br * 0.36, Math.PI, 0, true); ctx.moveTo(bx, by + br * 0.36); ctx.lineTo(bx, by + br * 0.55); } else if (k === 1) { ctx.rect(bx - br * 0.45, by - br * 0.3, br * 0.6, br * 0.6); ctx.moveTo(bx + br * 0.15, by); ctx.lineTo(bx + br * 0.5, by - br * 0.25); ctx.lineTo(bx + br * 0.5, by + br * 0.25); ctx.closePath(); } else { ctx.moveTo(bx - br * 0.45, by + br * 0.1); ctx.quadraticCurveTo(bx, by - br * 0.35, bx + br * 0.45, by + br * 0.1); } ctx.stroke(); });
+  ctx.restore(); };
+
+ // Estación base de telefonía móvil apoyada en gy: monopolo troncocónico, plataforma con tres sectores de antenas de panel, escalera,
+ // armario de equipos y valla. o.waves 0..1 emite arcos hacia o.dir. Devuelve la posición de las antenas.
+ P.cellTower = (ctx, x, gy, h, t, o = {}) => { const top = gy - h; ctx.save(); ctx.fillStyle = 'rgba(0,0,0,0.3)'; ctx.beginPath(); ctx.ellipse(x, gy + 2, h * 0.2, 10, 0, 0, TAU); ctx.fill();
+  ctx.fillStyle = '#8E9EA9'; ctx.beginPath(); ctx.moveTo(x - h * 0.03, gy); ctx.lineTo(x - h * 0.012, top + 40); ctx.lineTo(x + h * 0.012, top + 40); ctx.lineTo(x + h * 0.03, gy); ctx.closePath(); ctx.fill(); ctx.fillStyle = 'rgba(255,255,255,0.18)'; ctx.fillRect(x - h * 0.008, top + 40, h * 0.006, h - 40);
+  ctx.fillStyle = '#6b7c88'; ctx.fillRect(x - h * 0.12, top + 30, h * 0.24, 10); ctx.fillRect(x - h * 0.12, top + 110, h * 0.24, 8); for (const k of [-1, 0, 1]) { const ax = x + k * h * 0.1; ctx.fillStyle = '#D9E9F0'; ctx.beginPath(); ctx.roundRect(ax - 11, top, 22, 120, 6); ctx.fill(); ctx.strokeStyle = 'rgba(16,31,55,0.4)'; ctx.lineWidth = 2; ctx.stroke(); }
+  ctx.fillStyle = '#5d6c78'; ctx.fillRect(x + h * 0.05, gy - 90, 70, 90); ctx.fillStyle = '#48D5F2'; ctx.fillRect(x + h * 0.05 + 10, gy - 76, 8, 8); ctx.strokeStyle = 'rgba(142,158,169,0.6)'; ctx.lineWidth = 2; for (let fx = x - h * 0.16; fx <= x + h * 0.16; fx += 16) { ctx.beginPath(); ctx.moveTo(fx, gy); ctx.lineTo(fx, gy - 50); ctx.stroke(); } ctx.beginPath(); ctx.moveTo(x - h * 0.16, gy - 50); ctx.lineTo(x + h * 0.16, gy - 50); ctx.stroke();
+  if (o.waves) { const d = o.dir ?? Math.PI; P.radioWaves(ctx, x + Math.cos(d) * 20, top + 60, t, { dir: d, spread: 0.9, n: 4, col: o.col || '#48D5F2', r1: o.r1 || 360, a: o.waves, w: 6 }); }
+  ctx.restore(); return { ant: [x, top + 60], base: [x, gy] };
+ };
+ // Fibra óptica: trazo (polilínea) con funda, núcleo brillante y pulsos de luz que viajan; prog 0..1 revela el tendido.
+ P.fiberPath = (ctx, pts, t, o = {}) => { if (pts.length < 2) return; const L = [0]; for (let i = 1; i < pts.length; i++) L.push(L[i - 1] + Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1])); const tot = L[L.length - 1], prog = cl(o.prog ?? 1), at = (d) => { let i = 1; while (i < L.length - 1 && L[i] < d) i++; const u = (d - L[i - 1]) / Math.max(1e-6, L[i] - L[i - 1]); return [lerp(pts[i - 1][0], pts[i][0], u), lerp(pts[i - 1][1], pts[i][1], u)]; };
+  ctx.save(); ctx.lineCap = 'round'; ctx.lineJoin = 'round'; ctx.setLineDash([tot * prog, tot + 10]); ctx.strokeStyle = o.sheath || '#22344d'; ctx.lineWidth = o.w || 18; ctx.beginPath(); pts.forEach((p, i) => (i ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1]))); ctx.stroke(); ctx.strokeStyle = o.col || '#48D5F2'; ctx.globalAlpha = 0.55; ctx.lineWidth = (o.w || 18) * 0.25; ctx.stroke(); ctx.setLineDash([]); ctx.globalAlpha = 1;
+  const n = o.pulses ?? 5, sp = o.speed ?? 420; ctx.fillStyle = '#F5F7FA'; ctx.shadowColor = o.col || '#48D5F2'; ctx.shadowBlur = 22; for (let k = 0; k < n; k++) { const d = ((t * sp + k * tot / n) % tot); if (d > tot * prog) continue; const p = at(d); ctx.beginPath(); ctx.arc(p[0], p[1], (o.w || 18) * 0.42, 0, TAU); ctx.fill(); }
+  ctx.restore(); return { at, len: tot };
+ };
+ // Paquetes de datos (cuadritos con 0/1) que viajan de (x0,y0) a (x1,y1). o: { n, col, speed (veces/s), size, a, arc (curvatura px) }
+ P.dataPackets = (ctx, x0, y0, x1, y1, t, o = {}) => { const n = o.n || 6, sz = o.size || 26, sp = o.speed ?? 0.5, arc = o.arc || 0; ctx.save(); ctx.font = `700 ${Math.round(sz * 0.7)}px "IBM Plex Mono"`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  for (let k = 0; k < n; k++) { const u = ((t * sp + k / n) % 1 + 1) % 1, a = (o.a ?? 1) * Math.sin(Math.PI * u); if (a < 0.03) continue; const px = lerp(x0, x1, u), py = lerp(y0, y1, u) - Math.sin(Math.PI * u) * arc; ctx.globalAlpha = a; ctx.fillStyle = o.col || '#48D5F2'; ctx.beginPath(); ctx.roundRect(px - sz / 2, py - sz / 2, sz, sz, 5); ctx.fill(); ctx.fillStyle = '#0C1421'; ctx.fillText(((k * 7 + Math.floor(t * 3)) % 3) ? '1' : '0', px, py + 1); }
+  ctx.restore(); };
+
+ // Tierra nocturna (proyección ortográfica): océano azul noche, luces de ciudades agrupadas alrededor de grandes metrópolis reales
+ // (lat, lon aproximadas), borde de atmósfera y ENLACES CONCEPTUALES (arcos punteados entre ciudades, con un punto que viaja).
+ // o: { lon0, lat0, arcs:[[lat1,lon1,lat2,lon2,t0]], lights 0..1 }. Los arcos son conceptuales: la señal real usa redes (no una onda).
+ const METROS = [[40.7, -74], [34, -118], [41.9, -87.6], [19.4, -99.1], [-23.5, -46.6], [-34.6, -58.4], [4.7, -74.1], [-12, -77], [10.5, -66.9], [43.7, -79.4], [45.5, -73.6], [29.8, -95.4], [33.7, -84.4], [25.8, -80.2], [47.6, -122.3], [37.8, -122.4], [51.5, -0.1], [48.9, 2.35], [40.4, -3.7], [41.4, 2.2], [52.5, 13.4], [41.9, 12.5], [55.8, 37.6], [59.9, 30.3], [50.1, 8.7], [45.5, 9.2], [52.4, 4.9], [38.7, -9.1], [41, 29], [30, 31.2], [6.5, 3.4], [-26.2, 28], [-1.3, 36.8], [33.6, -7.6], [24.7, 46.7], [25.2, 55.3], [35.7, 51.4], [19, 72.8], [28.6, 77.2], [13, 77.6], [22.6, 88.4], [23.8, 90.4], [13.7, 100.5], [1.35, 103.8], [-6.2, 106.8], [14.6, 121], [22.3, 114.2], [31.2, 121.5], [39.9, 116.4], [23.1, 113.3], [30.6, 114.3], [37.6, 127], [35.7, 139.7], [34.7, 135.5], [-33.9, 151.2], [-37.8, 145], [-36.8, 174.8], [64.1, -21.9], [61.2, -149.9], [21.3, -157.8], [-33.4, -70.6], [-15.8, -47.9], [-8, -34.9], [18.5, -69.9], [23.1, -82.4], [9, -79.5], [3.4, -76.5], [-0.2, -78.5], [6.2, -75.6]];
+ let EARTH_PTS = null;
+ P.earthNight = (ctx, cx, cy, r, t, o = {}) => { if (!EARTH_PTS) { const R = H.rng(42); EARTH_PTS = []; for (const [la, lo] of METROS) { EARTH_PTS.push([la, lo, 1]); for (let k = 0; k < 26; k++) EARTH_PTS.push([la + R.gauss() * 2.6, lo + R.gauss() * 3.2, 0.25 + R() * 0.5]); } }
+  const lon0 = (o.lon0 ?? -60) * Math.PI / 180, lat0 = (o.lat0 ?? 15) * Math.PI / 180, cl0 = Math.cos(lat0), sl0 = Math.sin(lat0), pr = (la, lo, alt = 0) => { const f = la * Math.PI / 180, l = lo * Math.PI / 180 - lon0, x = Math.cos(f) * Math.sin(l), y = cl0 * Math.sin(f) - sl0 * Math.cos(f) * Math.cos(l), z = sl0 * Math.sin(f) + cl0 * Math.cos(f) * Math.cos(l), k = r * (1 + alt); return [cx + x * k, cy - y * k, z]; };
+  ctx.save(); const ga = ctx.createRadialGradient(cx, cy, r * 0.9, cx, cy, r * 1.18); ga.addColorStop(0, 'rgba(72,213,242,0.35)'); ga.addColorStop(1, 'rgba(72,213,242,0)'); ctx.fillStyle = ga; ctx.beginPath(); ctx.arc(cx, cy, r * 1.18, 0, TAU); ctx.fill();
+  const go = ctx.createRadialGradient(cx - r * 0.3, cy - r * 0.35, r * 0.1, cx, cy, r); go.addColorStop(0, '#1b3554'); go.addColorStop(1, '#0a1626'); ctx.fillStyle = go; ctx.beginPath(); ctx.arc(cx, cy, r, 0, TAU); ctx.fill();
+  ctx.strokeStyle = 'rgba(106,216,232,0.08)'; ctx.lineWidth = 1.5; for (let la = -60; la <= 60; la += 30) { ctx.beginPath(); let st = false; for (let lo = -180; lo <= 180; lo += 6) { const p = pr(la, lo); if (p[2] > 0) { st ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1]); st = true; } else st = false; } ctx.stroke(); }
+  const li = o.lights ?? 1; for (const [la, lo, b] of EARTH_PTS) { const p = pr(la, lo); if (p[2] <= 0.02) continue; ctx.globalAlpha = li * b * Math.min(1, p[2] * 2.5); ctx.fillStyle = b > 0.9 ? '#FFE9A8' : '#FFD447'; ctx.beginPath(); ctx.arc(p[0], p[1], b > 0.9 ? 3.2 : 1.6, 0, TAU); ctx.fill(); }
+  ctx.globalAlpha = 1; ctx.strokeStyle = 'rgba(217,233,240,0.35)'; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(cx, cy, r, 0, TAU); ctx.stroke();
+  for (const A2 of o.arcs || []) { const [la1, lo1, la2, lo2, t0 = 0] = A2, u = cl((t - t0) / 1.2); if (u <= 0) continue; const f1 = la1 * Math.PI / 180, l1 = lo1 * Math.PI / 180, f2 = la2 * Math.PI / 180, l2 = lo2 * Math.PI / 180, v1 = [Math.cos(f1) * Math.cos(l1), Math.cos(f1) * Math.sin(l1), Math.sin(f1)], v2 = [Math.cos(f2) * Math.cos(l2), Math.cos(f2) * Math.sin(l2), Math.sin(f2)], om = Math.acos(cl(v1[0] * v2[0] + v1[1] * v2[1] + v1[2] * v2[2], -1, 1));
+   const P2 = (s2) => { const a = Math.sin((1 - s2) * om) / Math.sin(om), b = Math.sin(s2 * om) / Math.sin(om), v = [a * v1[0] + b * v2[0], a * v1[1] + b * v2[1], a * v1[2] + b * v2[2]]; return pr(Math.asin(cl(v[2], -1, 1)) * 180 / Math.PI, Math.atan2(v[1], v[0]) * 180 / Math.PI, Math.sin(Math.PI * s2) * 0.16); };
+   ctx.strokeStyle = o.arcCol || '#48D5F2'; ctx.lineWidth = 3.5; ctx.setLineDash([12, 10]); ctx.lineDashOffset = -t * 40; ctx.beginPath(); let st = false; for (let s2 = 0; s2 <= u + 1e-6; s2 += 0.02) { const p = P2(Math.min(s2, u)); if (p[2] > -0.15) { st ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1]); st = true; } else st = false; } ctx.stroke(); ctx.setLineDash([]);
+   for (const e of [0, 1]) { const p = P2(e); if (p[2] > 0 && (e === 0 || u >= 1)) { ctx.fillStyle = '#F5F7FA'; ctx.beginPath(); ctx.arc(p[0], p[1], 6, 0, TAU); ctx.fill(); } } if (u >= 1) { const p = P2((t * 0.5 + t0) % 1); if (p[2] > -0.1) { ctx.fillStyle = '#FFD447'; ctx.shadowColor = '#FFD447'; ctx.shadowBlur = 14; ctx.beginPath(); ctx.arc(p[0], p[1], 6, 0, TAU); ctx.fill(); ctx.shadowBlur = 0; } } }
+  ctx.restore(); return { pr };
+ };
+
+ // Contador de año que rueda como un marcador mecánico (cada dígito sube por separado): from → to con u 0..1.
+ P.yearRoll = (ctx, cx, cy, px, from, to, u, o = {}) => { const s1 = String(from), s2 = String(to), n = Math.max(s1.length, s2.length), dw = px * 0.66; ctx.save(); ctx.font = o.font || `800 ${px}px "Space Grotesk"`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  for (let i = 0; i < n; i++) { const a = +s1[i] || 0, b = +s2[i] || 0, x = cx + (i - (n - 1) / 2) * dw, uu = E.inOut(cl((u - i * 0.08) / 0.7)), steps = (b - a + 10) % 10, v = a + steps * uu, d0 = Math.floor(v), fr = v - d0; ctx.save(); ctx.beginPath(); ctx.rect(x - dw / 2, cy - px * 0.6, dw, px * 1.2); ctx.clip(); ctx.fillStyle = o.col || '#F5F7FA'; ctx.fillText(String(d0 % 10), x, cy - fr * px * 1.1); ctx.fillText(String((d0 + 1) % 10), x, cy + (1 - fr) * px * 1.1); ctx.restore(); }
+  ctx.restore(); };
+
+ // Cadena de evolución (rejilla 3×2): TELÉFONO ANTIGUO → IDEA → INALÁMBRICO → BOLSILLO → SMARTPHONE → VIDEOLLAMADA (o.steps).
+ // k (0..n) = cuántos pasos están encendidos (fraccional anima el último). Iconos dibujados, textos ≥ 32 px.
+ P.evoGrid = (ctx, cx, y, t, k, o = {}) => { const steps = o.steps || ['TELÉFONO ANTIGUO', 'IDEA', 'INALÁMBRICO', 'BOLSILLO', 'SMARTPHONE', 'VIDEOLLAMADA'], cw = 342, ch = 210, gx = 10;
+  const icon = (i, x, yy, c) => { ctx.save(); ctx.strokeStyle = c; ctx.fillStyle = c; ctx.lineWidth = 6; ctx.lineCap = 'round'; ctx.lineJoin = 'round'; ctx.beginPath();
+   if (i === 0) { ctx.moveTo(x - 26, yy + 34); ctx.lineTo(x + 26, yy + 34); ctx.moveTo(x, yy + 30); ctx.lineTo(x, yy - 24); ctx.moveTo(x - 14, yy - 30); ctx.lineTo(x + 14, yy - 30); ctx.moveTo(x + 22, yy - 10); ctx.lineTo(x + 22, yy + 20); ctx.stroke(); }
+   else if (i === 1) { ctx.arc(x, yy - 8, 24, Math.PI * 0.8, Math.PI * 2.2); ctx.lineTo(x + 10, yy + 26); ctx.lineTo(x - 10, yy + 26); ctx.closePath(); ctx.stroke(); ctx.beginPath(); ctx.moveTo(x - 9, yy + 36); ctx.lineTo(x + 9, yy + 36); ctx.stroke(); }
+   else if (i === 2) { ctx.arc(x, yy + 24, 5, 0, TAU); ctx.fill(); for (const r of [20, 36, 52]) { ctx.beginPath(); ctx.arc(x, yy + 24, r, -Math.PI * 0.75, -Math.PI * 0.25); ctx.stroke(); } }
+   else if (i === 3) { ctx.moveTo(x - 30, yy - 10); ctx.lineTo(x - 26, yy + 32); ctx.lineTo(x + 26, yy + 32); ctx.lineTo(x + 30, yy - 10); ctx.stroke(); ctx.beginPath(); ctx.roundRect(x - 12, yy - 36, 24, 40, 5); ctx.stroke(); }
+   else if (i === 4) { ctx.roundRect(x - 20, yy - 36, 40, 72, 8); ctx.stroke(); ctx.beginPath(); ctx.arc(x, yy - 28, 3, 0, TAU); ctx.fill(); }
+   else { ctx.roundRect(x - 34, yy - 20, 46, 40, 8); ctx.stroke(); ctx.beginPath(); ctx.moveTo(x + 16, yy - 4); ctx.lineTo(x + 34, yy - 16); ctx.lineTo(x + 34, yy + 16); ctx.lineTo(x + 16, yy + 4); ctx.closePath(); ctx.stroke(); }
+   ctx.restore(); };
+  steps.forEach((s, i) => { const row = Math.floor(i / 3), c = i % 3, x = cx + (c - 1) * (cw + gx), yy = y + row * (ch + 26), on = cl(k - i), a = 0.35 + 0.65 * on, era = i / (steps.length - 1), ac = P.mixc('#C6A06B', '#48D5F2', era);
+   ctx.save(); ctx.globalAlpha *= a; P.rr(ctx, x - cw / 2, yy, cw, ch, 26, on > 0 ? P.mixc('#493627', '#101F37', era) : 'rgba(20,24,32,0.75)', { shadow: false, rim: false }); if (on > 0) { ctx.strokeStyle = ac; ctx.lineWidth = 4; ctx.beginPath(); ctx.roundRect(x - cw / 2, yy, cw, ch, 26); ctx.stroke(); }
+   icon(i, x, yy + 74, on > 0 ? ac : '#8E9EA9'); ctx.font = '800 32px Nunito'; ctx.fillStyle = '#F5F7FA'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(s, x, yy + 168); ctx.restore();
+   if (i < steps.length - 1 && c < 2) { ctx.save(); ctx.globalAlpha *= 0.3 + 0.7 * cl(k - i - 0.5); ctx.fillStyle = ac; ctx.beginPath(); ctx.moveTo(x + cw / 2 + 2, yy + 66); ctx.lineTo(x + cw / 2 + gx - 2, yy + 74); ctx.lineTo(x + cw / 2 + 2, yy + 82); ctx.closePath(); ctx.fill(); ctx.restore(); } });
+  return { h: 2 * ch + 26 };
+ };
+
+ // Rótulo de época (cápsula) estilo 1926 o estilo hoy según era 0..1: fondo sepia oscuro → azul noche, texto papel → blanco.
+ P.eraLabel = (ctx, s, cx, cy, px, t, t0, era = 0, o = {}) => { const a = sm(t0, t0 + 0.3, t) * (o.t1 ? 1 - sm(o.t1 - 0.3, o.t1, t) : 1); if (a <= 0) return null; ctx.save(); ctx.globalAlpha *= a; ctx.font = `${o.w || 800} ${px}px ${era < 0.5 ? 'Fraunces' : 'Nunito'}`; const tw = ctx.measureText(s).width, w = tw + px * 1.2, h = px * 1.7, y0 = cy - h / 2 + (1 - E.out(sm(t0, t0 + 0.35, t))) * 12;
+  ctx.fillStyle = era < 0.5 ? 'rgba(32,32,33,0.86)' : 'rgba(12,20,33,0.88)'; ctx.beginPath(); ctx.roundRect(cx - w / 2, y0, w, h, era < 0.5 ? 6 : h / 2); ctx.fill(); ctx.strokeStyle = era < 0.5 ? '#C6A06B' : '#48D5F2'; ctx.lineWidth = 3; ctx.stroke(); ctx.fillStyle = era < 0.5 ? '#E1C9A1' : '#F5F7FA'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(s, cx, y0 + h / 2 + 2); ctx.restore(); return { x: cx - w / 2, y: y0, w, h }; };
+
  // ---------------- SUBTÍTULOS (arriba, palabra a palabra, palabra clave seleccionada) ----------------
  // Trozos de ≤3 palabras (≤4 si son cortas); las palabras aparecen al decirse: la actual en blanco y negrita,
  // las ya dichas en gris; la palabra clave lleva recuadro de selección con asas en el color de acento.
@@ -2903,6 +3179,31 @@
   aleteo: (k, t, d, per = 5, g = 1) => { for (let x = 0; x < d; x += per / 2) k.noise(t + x, { dur: per / 2, color: 'brown', filter: 'lowpass', f: [[0, 120], [per / 4, 260], [per / 2, 120]], gain: 0.09 * g, a: per / 6, hold: 0.1 }); },
   desgarro: (k, t, g = 1) => { k.noise(t, { dur: 0.7, color: 'white', filter: 'bandpass', f: [[0, 2600], [0.7, 900]], q: 3, gain: 0.07 * g, a: 0.01 }); k.tone(t, { f: [[0, 420], [0.6, 160]], type: 'sawtooth', dur: 0.6, gain: 0.03 * g, filter: 'lowpass', f2: 1200 }); k.play('thud', t + 0.05, { f: 60, gain: 0.3 * g }); },
   salpicadura: (k, t, g = 1) => { k.play('thud', t, { f: 50, gain: 0.5 * g }); k.noise(t, { dur: 2.4, color: 'pink', filter: 'lowpass', f: [[0, 3000], [2.4, 300]], gain: 0.22 * g, a: 0.02 }); FX.burbujas(k, t + 0.2, 1.6, 10, Math.round(t * 10), 0.8 * g); },
+  // ---- v1.18 · comunicaciones y épocas ----
+  // timbre electromecánico de un teléfono antiguo (campanillas alternas ~20 Hz) durante d s
+  timbre: (k, t, d = 1.2, g = 1) => { for (let x = 0; x < d; x += 0.05) { const f = (Math.round(x / 0.05) % 2) ? 2350 : 2610; k.tone(t + x, { f, dur: 0.12, gain: 0.035 * g, a: 0.002, verb: 0.25, minor: x > 0 }); k.tone(t + x, { f: f * 2.4, dur: 0.06, gain: 0.012 * g, a: 0.002, minor: true }); } },
+  // descolgar / colgar el auricular (horquilla metálica + golpe de baquelita)
+  auricular: (k, t, g = 1) => { k.play('click', t, { f: 1300, gain: 0.6 * g }); k.play('thud', t + 0.03, { f: 180, gain: 0.25 * g, minor: true }); k.noise(t + 0.02, { dur: 0.12, filter: 'bandpass', f: 2600, q: 3, gain: 0.08 * g, minor: true }); },
+  // clavija entrando en un jack de centralita
+  clavija: (k, t, g = 1) => { k.noise(t, { dur: 0.05, filter: 'bandpass', f: 1800, q: 2, gain: 0.12 * g, a: 0.002 }); k.play('click', t + 0.045, { f: 900, gain: 0.5 * g, minor: true }); },
+  // oficina de los años 20 (ambiente): murmullo, máquinas de escribir lejanas y algún timbre muy suave
+  oficina: (k, t, d, g = 1) => { k.noise(t, { dur: d, color: 'pink', filter: 'bandpass', f: 420, q: 0.5, gain: 0.02 * g, a: 0.6, hold: d - 1.2 }); const R = H.rng(Math.round(t * 7) + 3); for (let x = 0.4; x < d - 0.6; x += R.range(0.9, 1.8)) k.play('typing', t + x, { n: 4 + Math.floor(R() * 5), rate: 0.11, gain: 0.12 * g, pan: R() - 0.5, minor: true }); },
+  // páginas de revista
+  paginas: (k, t, n = 2, g = 1) => { for (let i = 0; i < n; i++) k.play('paper', t + i * 0.28, { dur: 0.32, gain: 0.5 * g, minor: i > 0 }); },
+  // radio de válvulas de los años 20: chisporroteo + portadora que se sintoniza
+  radio1920: (k, t, d = 1.6, g = 1) => { k.noise(t, { dur: d, color: 'white', filter: 'bandpass', f: 2400, q: 0.6, gain: 0.035 * g, a: 0.1, hold: d * 0.6 }); k.tone(t, { f: [[0, 1400], [d * 0.6, 820], [d, 880]], dur: d, gain: 0.012 * g, a: 0.2, hold: d * 0.5, filter: 'lowpass', f2: 2000 }); const R = H.rng(Math.round(t * 11)); for (let x = 0; x < d; x += R.range(0.03, 0.12)) k.play('tick', t + x, { f: 3000 + R() * 2000, gain: 0.12 * g, minor: true }); },
+  // transición temporal (1926 → hoy): barrido inverso + destello cristalino
+  saltoTiempo: (k, t, d = 1.2, g = 1) => { k.noise(t, { dur: d, color: 'pink', filter: 'bandpass', f: [[0, 4000], [d * 0.7, 400], [d, 1200]], q: 1, gain: 0.18 * g, a: d * 0.6 }); k.tone(t, { f: [[0, 220], [d, 880]], dur: d + 0.4, gain: 0.03 * g, a: d * 0.8, verb: 0.5 }); k.play('sparkle', t + d * 0.85, { gain: 0.5 * g, minor: true }); },
+  // señal de radio (pulsos cortos ascendentes)
+  senalRadio: (k, t, n = 3, g = 1) => { for (let i = 0; i < n; i++) k.tone(t + i * 0.16, { f: 1500 + i * 260, dur: 0.12, gain: 0.04 * g * (1 - i * 0.15), a: 0.003, verb: 0.3, minor: i > 0 }); },
+  // el teléfono se enciende (acorde suave)
+  encender: (k, t, g = 1) => { ['E5', 'B5', 'E6'].forEach((n, i) => k.tone(t + i * 0.07, { f: n, dur: 0.9, gain: 0.05 * g, a: 0.01, verb: 0.4, minor: i > 0 })); },
+  // conexión de llamada (dos tonos ascendentes y confirmación)
+  llamada: (k, t, g = 1) => { k.tone(t, { f: 'G5', dur: 0.16, gain: 0.05 * g, a: 0.005 }); k.tone(t + 0.18, { f: 'D6', dur: 0.4, gain: 0.05 * g, a: 0.005, verb: 0.3, minor: true }); },
+  // flujo de datos (blips rápidos durante d s)
+  flujoDatos: (k, t, d = 1, g = 1) => { const R = H.rng(Math.round(t * 13) + 1); for (let x = 0; x < d; x += 0.07) k.play('blip', t + x, { f: 1200 + Math.floor(R() * 6) * 180, dur: 0.035, gain: 0.25 * g, pan: R() - 0.5, minor: true }); },
+  // calle de los años 20: motores de explosión lejanos y bocinas de pera ocasionales
+  calle1920: (k, t, d, g = 1) => { k.noise(t, { dur: d, color: 'brown', filter: 'lowpass', f: 380, gain: 0.05 * g, a: 0.8, hold: d - 1.6 }); const R = H.rng(Math.round(t * 5) + 9); for (let x = 1; x < d - 1; x += R.range(2.2, 3.6)) k.tone(t + x, { f: [[0, 320], [0.25, 280]], type: 'sawtooth', dur: 0.32, gain: 0.012 * g, a: 0.02, filter: 'lowpass', f2: 1200, pan: R() - 0.5, minor: true }); },
  };
  // ---------------- MÚSICA ORQUESTAL SINTÉTICA (v1.13) ----------------
  // MUS.epica(k, t0, t1, { bpm, chords, gain, drums (0..1), strings (0..1), drone, ostinato (0..1) }): cuerdas con ataque lento,
@@ -2923,6 +3224,25 @@
   },
   // golpe orquestal para revelaciones: tambor grave + acorde de cuerdas
   golpe(k, t, p = {}) { const g = p.gain ?? 1; k.tone(t, { f: [[0, 80], [0.5, 40]], dur: 1.6, gain: 0.35 * g, a: 0.003, bus: 'music', verb: 0.5 }); (p.chord || ['D3', 'A3', 'D4', 'F4']).forEach((n, q) => k.tone(t, { f: n, type: 'sawtooth', dur: 2.2, gain: 0.016 * g, a: 0.02, hold: 0.4, filter: 'lowpass', f2: 1600, bus: 'music', verb: 0.5, pan: (q - 1.5) * 0.3 })); },
+  // ---- v1.18 ----
+  // MUS.piano(k, t0, t1, { bpm, chords, gain, strings 0..1, waltz }): piano sintético (ataque rápido y caída natural) con bajo,
+  // arpegio de acompañamiento y colchón de cuerdas suave. Para épocas antiguas, nostalgia, descubrimiento sereno.
+  piano(k, t0, t1, p = {}) { const g = p.gain ?? 1, bpm = p.bpm || 76, beat = 60 / bpm, bar = beat * (p.waltz ? 3 : 4), ch = p.chords || [['C3', 'E3', 'G3', 'C4'], ['A2', 'E3', 'A3', 'C4'], ['F2', 'C3', 'F3', 'A3'], ['G2', 'D3', 'G3', 'B3']], hz = (n) => (typeof n === 'number' ? n : k.hz(n)); let i = 0;
+   const key = (t, f, v, d = 1.8) => { k.tone(t, { f, type: 'triangle', dur: d, gain: 0.05 * g * v, a: 0.004, bus: 'music', verb: 0.35 }); k.tone(t, { f: f * 2, dur: d * 0.5, gain: 0.014 * g * v, a: 0.003, bus: 'music', verb: 0.35 }); };
+   for (let t = t0; t < t1 - 0.05; t += bar, i++) { const c = ch[i % ch.length], len = Math.min(bar, t1 - t), nb = p.waltz ? 3 : 4;
+    key(t, hz(c[0]) / 2, 1.1, bar * 1.1); for (let b = 0; b < nb * 2; b++) { const tb = t + b * beat / 2; if (tb > t1 - 0.1) break; const n = c[[1, 2, 3, 2, 1, 2, 3, 2][b % 8]]; key(tb, hz(n) * 2, b % 2 ? 0.45 : 0.65, 1.2); }
+    if (p.melody) { const m = p.melody[i % p.melody.length]; m.forEach(([off, n, dv]) => { if (t + off * beat < t1 - 0.1) key(t + off * beat, hz(n), 0.9, dv || 1.6); }); }
+    const st = p.strings ?? 0.5; if (st > 0) c.forEach((n, q) => k.tone(t, { f: hz(n) * 2, type: 'sawtooth', dur: len + 0.6, gain: 0.006 * g * st, a: Math.min(1, len * 0.4), hold: len - 0.6, filter: 'lowpass', f2: 900, bus: 'music', verb: 0.5, pan: (q - 1.5) * 0.4 })); }
+  },
+  // MUS.pulso(k, t0, t1, { bpm, chords, gain, kick 0..1, arp 0..1, pad 0..1 }): pulsos electrónicos (arpegio cuadrado filtrado en
+  // semicorcheas, pad de sierra, bombo suave y hi-hat). Para tecnología, datos, futuro.
+  pulso(k, t0, t1, p = {}) { const g = p.gain ?? 1, bpm = p.bpm || 104, beat = 60 / bpm, bar = beat * 4, ch = p.chords || [['A2', 'C3', 'E3', 'A3'], ['F2', 'A2', 'C3', 'F3'], ['C3', 'E3', 'G3', 'C4'], ['G2', 'B2', 'D3', 'G3']], hz = (n) => (typeof n === 'number' ? n : k.hz(n)); let i = 0;
+   for (let t = t0; t < t1 - 0.05; t += bar, i++) { const c = ch[i % ch.length], len = Math.min(bar, t1 - t);
+    const pd = p.pad ?? 0.7; if (pd > 0) c.forEach((n, q) => k.tone(t, { f: hz(n), type: 'sawtooth', dur: len + 0.4, gain: 0.008 * g * pd, a: 0.4, hold: len - 0.5, filter: 'lowpass', f2: 1400, bus: 'music', verb: 0.45, pan: (q - 1.5) * 0.4 }));
+    const ar = p.arp ?? 0.7; if (ar > 0) for (let s = 0; s < 16; s++) { const ts = t + s * beat / 4; if (ts > t1 - 0.05) break; const n = c[[0, 1, 2, 3, 2, 1, 2, 3][s % 8]]; k.tone(ts, { f: hz(n) * 4, type: 'square', dur: beat * 0.22, gain: 0.006 * g * ar * (s % 4 ? 0.7 : 1), a: 0.002, filter: 'lowpass', f2: 2600, bus: 'music', verb: 0.2, pan: s % 2 ? 0.25 : -0.25 }); }
+    k.tone(t, { f: hz(c[0]) / 2, type: 'sine', dur: len, gain: 0.05 * g, a: 0.05, hold: len * 0.7, bus: 'music' });
+    const kk = p.kick ?? 0.5; if (kk > 0) for (let b = 0; b < 4; b++) { const tb = t + b * beat; if (tb > t1 - 0.05) break; k.tone(tb, { f: [[0, 120], [0.12, 45]], dur: 0.32, gain: 0.22 * g * kk, a: 0.002, bus: 'music' }); k.noise(tb + beat / 2, { dur: 0.04, filter: 'highpass', f: 7000, gain: 0.05 * g * kk, a: 0.001, bus: 'music' }); } }
+  },
  };
  window.PLANTILLA = { make, SKINS, P, FX, MUS, TRANS_SFX, setSkin: (n) => (SK = SKINS[n]), W, HH };
 })();

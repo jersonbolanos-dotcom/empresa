@@ -157,6 +157,34 @@ La piel se elige con `skin: 'plana' | 'oscura'` en `PLANTILLA.make`. Los bloques
 | `laborer`, `porter`, `oxcart`, `packAnimal` | Trabajador con ropa y sombrero variados; porteador con pértiga y dos cestas; carro de dos ruedas con buey y ruedas que giran; mula con alforjas. Cargas: `tierra`, `piedra` o `ladrillos` |
 | `dust(ctx, x, y, t, t0, {s})` | Nube de polvo determinista |
 
+**v1.18 · comunicaciones y épocas, 1926 ↔ hoy (episodio «Nikola Tesla imaginó el celular en 1926»):**
+
+| Bloque | Uso |
+|---|---|
+| `ERA.old` / `ERA.now` · `mixc(a, b, u)` | Paletas oficiales de época: 1926 (sepia, café, papel, bronce) y hoy (azul, cian, noche, hielo, oro). `mixc` mezcla dos colores para transiciones graduales |
+| `eraGrade(ctx, amt, t, {grain, dust})` · `techGrade(ctx, amt)` | Gradación de película de 1926 sobre lo dibujado: tono sepia, velo cálido, parpadeo, viñeta, grano suave a 12 cambios/s, polvo y rayas, todo determinista. `amt` 1→0 para retirarla poco a poco. `techGrade` aplica velo azul y viñeta fría. Llamar dentro del beat (antes de los subtítulos); con `clip` sirve para una sola tarjeta |
+| `radioWaves(ctx, x, y, t, {dir, spread, n, col, r0, r1, speed, a, w})` | Arcos de señal que nacen en un punto y se desvanecen (conceptual) |
+| `candlestick(ctx, x, y, s, t, {lift, ear, ring, wireTo})` | Teléfono de candelero apoyado en una superficie: auricular colgado en la horquilla (`lift` lo lleva a `ear`), vibración de timbre y cable a la pared |
+| `switchboard(ctx, x, sueloY, w, t, {n, plug(i,c,t), lamps})` | Centralita manual: paneles de jacks, lamparitas, repisa con clavijas que se conectan con su cordón y operadoras de espaldas en sillas apoyadas en el suelo |
+| `city1926(ctx, t, {gy, poles, wires, cut, cars, seed})` · `car1926(ctx, x, y, s, t, dir)` | Calle genérica de los años 20: rascacielos escalonados, postes con crucetas, aisladores y haces de cables, autos de época con ruedas que giran. `cut` 0→1 hace desaparecer los cables de izquierda a derecha («el cable se vuelve señal») |
+| `radioTower(ctx, x, gy, h, t, {waves, wcol, r1})` | Torre de radio de celosía con riostras, apoyada en el suelo, que emite arcos |
+| `teslaOld(ctx, x, y, s, t, {hand, handL, look})` | Tesla hacia 1926 (≈70 años), figura ESTILIZADA y no retrato: delgado, traje de tres piezas, cuello alto, pelo gris con raya al medio y bigote. Manos `down`, `chin`, `point` o `pocket`. Solo respira y parpadea: sin labios ni diálogo. Rotular «RECONSTRUCCIÓN» |
+| `magazine1926(ctx, cx, cy, s, t, {title, date, head, by, page, hi, tag})` | Revista RECONSTRUIDA, no facsímil: cabecera en Fraunces, metadatos reales, texto ilegible (nunca citas inventadas), paso de página, resaltado de un párrafo y sello «RECONSTRUCCIÓN CONCEPTUAL» |
+| `vestPocket(ctx, x, y, w, h, t, {dev, glow})` | Chaleco en primer plano (botones, cadena de reloj, bolsillo) con un aparato conceptual que asoma |
+| `smartphone(ctx, cx, cy, h, t, {screen, cut, rot, glow, body})` | Smartphone GENÉRICO sin marca. `screen(ctx, x, y, w, h)` dibuja la pantalla. `cut` 0→1 abre la vista de corte y devuelve `camera`, `mic`, `chip`, `antenna` y `battery` para rotular |
+| `handHold(ctx, cx, cy, h, 'back'|'front', {skin, sleeve})` | Mano que sostiene el teléfono. El antebrazo llega al borde inferior (nada flota). Dibujar `back`, luego el teléfono y luego `front` |
+| `persona(ctx, cx, cy, s, t, {skin, hair, shirt, style, look, ph})` | Persona en plano medio con parpadeo y leve movimiento de cabeza (sin labios sincronizados) |
+| `videoCall(ctx, x, y, w, h, t, {t0, remote, self, connect})` | Interfaz genérica de videollamada: persona remota, recuadro propio, tiempo de llamada, micrófono, cámara y colgar. `connect` 0→1 para conectar |
+| `cellTower(ctx, x, gy, h, t, {waves, dir})` | Estación base: monopolo, tres sectores de antenas de panel, armario y valla. Devuelve `ant` |
+| `fiberPath(ctx, pts, t, {prog, pulses, speed, col, w})` | Fibra óptica con funda, núcleo y pulsos de luz. `prog` revela el tendido |
+| `dataPackets(ctx, x0, y0, x1, y1, t, {n, size, speed, arc, col, a})` | Paquetes de datos (0/1) que viajan entre dos puntos |
+| `earthNight(ctx, cx, cy, r, t, {lon0, lat0, arcs, lights})` | Tierra nocturna ortográfica con luces agrupadas en torno a ~70 metrópolis reales y arcos de ENLACE CONCEPTUAL con un punto que viaja. Rotularlos como conceptuales: la señal real viaja por redes |
+| `yearRoll(ctx, cx, cy, px, desde, hasta, u, {col, font})` | Marcador de año mecánico (1926 → 2026), cada dígito rueda por separado |
+| `evoGrid(ctx, cx, y, t, k, {steps})` | Cadena de evolución 3×2 con iconos (TELÉFONO ANTIGUO → IDEA → INALÁMBRICO → BOLSILLO → SMARTPHONE → VIDEOLLAMADA). `k` = pasos encendidos. El color pasa de sepia a cian |
+| `eraLabel(ctx, texto, cx, cy, px, t, t0, era, {t1})` | Título o cápsula de época: Fraunces sobre sepia oscuro (era < 0,5) o Nunito sobre azul noche |
+
+FX v1.18: `timbre`, `auricular`, `clavija`, `oficina`, `paginas`, `radio1920`, `saltoTiempo`, `senalRadio`, `encender`, `llamada`, `flujoDatos` y `calle1920`. Música v1.18: `MUS.piano(k, t0, t1, {bpm, chords, melody, strings, waltz})` (piano con caída natural y cuerdas) y `MUS.pulso(k, t0, t1, {bpm, chords, kick, arp, pad})` (pulsos electrónicos). Los nombres `P.phone`, `P.person`, `FX.senal`, `FX.datos` y `FX.tiempo` siguen siendo los de v1.5 y anteriores: comprueba que un nombre no exista antes de crearlo.
+
 **v1.17.1 · material documental, bandera y sección detallada (corrección final de «Tacoma Narrows»):**
 
 | Bloque | Uso |

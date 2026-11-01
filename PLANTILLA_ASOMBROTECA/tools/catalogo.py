@@ -11,6 +11,6 @@ body{{margin:0;background:#14132b;color:#fff;font-family:Nunito,sans-serif}} h1{
 .g{{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;padding:16px}} figure{{margin:0;background:#1d1b3a;border-radius:12px;overflow:hidden}} canvas{{width:100%;display:block}} figcaption{{padding:8px 10px;font-size:13px;color:#dcdaf2}}</style></head>
 <body><h1>Plantilla Asombroteca · catálogo de bloques</h1><p>Cada bloque en piel «plana» y «oscura». Dibujado con el mismo motor de los videos (motor/plantilla.js).</p><div class="g">{cells}</div>
 {js('lib/harness.js')}{js('motor/plantilla.js')}{js('catalogo/catalogo_src.js')}
-<script>(async()=>{{try{{await Promise.all(['700 40px "Nunito"','800 40px "Nunito"','900 40px "Nunito"','700 40px "Fredoka"','700 40px "Space Grotesk"','600 40px "IBM Plex Mono"'].map(f=>document.fonts.load(f,'Aa09')));}}catch(e){{}}drawCatalog();window.__ready=true;}})();</script></body></html>'''
+<script>(async()=>{{try{{await Promise.all(['700 40px "Nunito"','800 40px "Nunito"','900 40px "Nunito"','700 40px "Fredoka"','700 40px "Space Grotesk"','600 40px "IBM Plex Mono"','700 40px "Fraunces"'].map(f=>document.fonts.load(f,'Aa09')));}}catch(e){{}}drawCatalog();window.__ready=true;}})();</script></body></html>'''
 open(os.path.join(K, 'catalogo', 'catalogo.html'), 'w', encoding='utf-8').write(page)
 print(len(names), 'bloques')
