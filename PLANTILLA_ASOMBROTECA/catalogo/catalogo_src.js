@@ -45,6 +45,13 @@
   ['Ciudad · fábrica · casa (v1.7)', (c, t) => { P.skyline(c, 20, 220, 270, 0.8, 4, { maxH: 200 }); P.factory(c, 290, 270, 90, 1); P.house(c, 360, 270, 50, 1); }],
   ['Bombilla · interruptor (v1.7)', (c, t) => { P.bulb(c, 140, 140, 60, 1); P.switchWall(c, 300, 160, 90, true); }],
   ['Sol · nube con lluvia · pez (v1.7)', (c, t) => { P.sun(c, 90, 90, 40, t); P.cloud(c, 260, 110, 70, { rain: true, t }); P.fish(c, 200, 260, 60, 1); }],
+  ['Desierto + pirámide en construcción (v1.8)', (c, t) => { c.save(); c.scale(400 / 1080, 300 / 1920 * 2.4); P.desert(c, 600, t, { sunX: 850, sunY: 260 }); c.restore(); P.pyramid(c, 200, 250, 300, 190, { built: 0.7, courses: 14 }); }],
+  ['Pirámide con revestimiento (v1.8)', (c, t) => P.pyramid(c, 200, 260, 320, 220, { courses: 14, casing: 1 })],
+  ['Bloque de piedra (v1.8)', (c, t) => { P.block(c, 80, 120, 150, 100, {}); P.block(c, 260, 140, 90, 80, { c: '#8a7f86' }); }],
+  ['Trineo + trabajadores + cuerda (v1.8)', (c, t) => { const a = P.sled(c, 90, 230, 140, {}); const hs = [0, 1, 2].map((i) => P.worker(c, 230 + i * 50, 240, 90, t * 0.5 + i * 0.2, { pose: 'pull' })); P.rope(c, [a, ...hs], 3); }],
+  ['Rampas: recta y zigzag (v1.8)', (c, t) => { const a = P.pyramid(c, 130, 260, 200, 150, { built: 0.8, courses: 8 }); P.ramp(c, a, 'zigzag', 1, { top: 0.8, w: 5 }); const b = P.pyramid(c, 320, 260, 140, 110, { built: 0.8, courses: 6 }); P.ramp(c, b, 'recta', 1, { top: 0.8, len: 60 }); }],
+  ['Papiro · herramientas (v1.8)', (c, t) => { P.papyrus(c, 30, 40, 170, 110, {}); P.tool(c, 'cincel', 250, 100, 90, -0.4); P.tool(c, 'sierra', 330, 100, 90, 0.3); P.tool(c, 'codo', 110, 230, 150, 0); P.tool(c, 'plomada', 280, 230, 80, 0); }],
+  ['Palmera · signos de pregunta (v1.8)', (c, t) => { P.palm(c, 120, 280, 230, t); P.qmark(c, 280, 130, 90, t); P.qmark(c, 340, 220, 60, t + 1); }],
  ];
  window.drawCatalog = function () {
   document.querySelectorAll('canvas[data-i]').forEach((cv) => {

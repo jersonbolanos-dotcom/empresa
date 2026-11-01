@@ -639,6 +639,103 @@
  // Pez (perfil), dir 1 = mira a la derecha
  P.fish = (ctx, x, y, s, dir = 1, c = '#9fd4c8') => { ctx.save(); ctx.translate(x, y); ctx.scale(dir, 1); ctx.fillStyle = c; ctx.beginPath(); ctx.ellipse(0, 0, s * 0.5, s * 0.22, 0, 0, TAU); ctx.fill(); ctx.beginPath(); ctx.moveTo(-s * 0.45, 0); ctx.lineTo(-s * 0.8, -s * 0.22); ctx.lineTo(-s * 0.8, s * 0.22); ctx.closePath(); ctx.fill(); ctx.fillStyle = '#061522'; ctx.beginPath(); ctx.arc(s * 0.28, -s * 0.05, s * 0.05, 0, TAU); ctx.fill(); ctx.restore(); };
 
+ // ======================= v1.8 · HISTORIA ANTIGUA Y CONSTRUCCIÓN (pirámides, desierto, trabajo humano) =======================
+ // Desierto: cielo cálido (o.sky [arriba, abajo]), sol, dunas en dos planos y suelo de arena. Devuelve yAt(x) del suelo.
+ P.desert = (ctx, y, t, o = {}) => {
+  const sk = o.sky || ['#f3c27a', '#fbe3b0'], g = ctx.createLinearGradient(0, 0, 0, y); g.addColorStop(0, sk[0]); g.addColorStop(1, sk[1]); ctx.fillStyle = g; ctx.fillRect(0, 0, W, y + 2);
+  if (o.sun !== false) { const sx = o.sunX ?? 820, sy = o.sunY ?? 380; P.glow(ctx, sx, sy, 260, '255,230,170', 0.6); P.circle(ctx, sx, sy, 60, '#fff3d6'); }
+  const dune = (yy, amp, c, ph) => { ctx.fillStyle = c; ctx.beginPath(); ctx.moveTo(-10, HH); for (let x = -10; x <= W + 10; x += 10) ctx.lineTo(x, yy + Math.sin(x * 0.006 + ph) * amp + Math.sin(x * 0.017 + ph * 2) * amp * 0.3); ctx.lineTo(W + 10, HH); ctx.closePath(); ctx.fill(); };
+  dune(y - 40, 26, o.far || '#e2b674', 1.3); const yAt = (x) => y + Math.sin(x * 0.004 + 0.4) * 8;
+  ctx.fillStyle = o.ground || '#d9a865'; ctx.beginPath(); ctx.moveTo(-10, HH); for (let x = -10; x <= W + 10; x += 10) ctx.lineTo(x, yAt(x)); ctx.lineTo(W + 10, HH); ctx.closePath(); ctx.fill();
+  const R = H.rng(o.seed || 3); ctx.fillStyle = 'rgba(120,80,40,0.18)'; for (let i = 0; i < 80; i++) { const x = R() * W, yy = y + 10 + R() * (HH - y); ctx.fillRect(x, yy, R.range(6, 30), 2); }
+  return yAt;
+ };
+ // Pirámide en vista 3/4 (cara izquierda iluminada, derecha en sombra) hecha por hiladas de bloques.
+ // o: { built 0..1 (altura construida: pirámide truncada con plataforma), courses (nº de hiladas visibles), casing 0..1 (revestimiento
+ // liso de caliza blanca), lit, shade, joints }. Devuelve { apex, at(face, u, v) } para colocar cosas sobre las caras (u: 0 base → 1 cúspide).
+ P.pyramid = (ctx, x, y, w, h, o = {}) => {
+  const Lb = [x - w * 0.5, y - w * 0.05], Fb = [x + w * 0.1, y + w * 0.05], Rb = [x + w * 0.5, y - w * 0.07], Bb = [Lb[0] + Rb[0] - Fb[0], Lb[1] + Rb[1] - Fb[1]], Ap = [x + w * 0.04, y - h];
+  const L = (p, u) => [lerp(p[0], Ap[0], u), lerp(p[1], Ap[1], u)], ub = cl(o.built ?? 1), n = o.courses || 26;
+  const lit = o.lit || '#e2c08a', shade = o.shade || '#a9814f';
+  const face = (A, B, col) => { ctx.fillStyle = col; ctx.beginPath(); ctx.moveTo(...A); ctx.lineTo(...B); ctx.lineTo(...L(B, ub)); ctx.lineTo(...L(A, ub)); ctx.closePath(); ctx.fill();
+   if ((o.joints ?? 1) > 0) { ctx.save(); ctx.clip(); ctx.strokeStyle = 'rgba(90,60,30,0.35)'; ctx.lineWidth = Math.max(1, w / 900); for (let k = 1; k < n; k++) { const u = k / n; if (u > ub) break; const a = L(A, u), b = L(B, u); ctx.beginPath(); ctx.moveTo(...a); ctx.lineTo(...b); ctx.stroke(); const nb = Math.max(3, Math.round(22 * (1 - u))); for (let j = 0; j < nb; j++) { const v = (j + (k % 2) * 0.5) / nb, u2 = (k + 1) / n; const p0 = [lerp(a[0], b[0], v), lerp(a[1], b[1], v)], a2 = L(A, Math.min(u2, ub)), b2 = L(B, Math.min(u2, ub)); const p1 = [lerp(a2[0], b2[0], v), lerp(a2[1], b2[1], v)]; ctx.beginPath(); ctx.moveTo(...p0); ctx.lineTo(...p1); ctx.stroke(); } } ctx.restore(); } };
+  ctx.save(); ctx.fillStyle = 'rgba(80,50,20,0.25)'; ctx.beginPath(); ctx.moveTo(...Fb); ctx.lineTo(...Rb); ctx.lineTo(Rb[0] + w * 0.3, Rb[1] + w * 0.08); ctx.lineTo(Fb[0] + w * 0.3, Fb[1] + w * 0.06); ctx.closePath(); ctx.fill();
+  face(Lb, Fb, lit); face(Fb, Rb, shade);
+  if (ub < 1) { ctx.fillStyle = o.top || '#ecd2a2'; ctx.beginPath(); ctx.moveTo(...L(Lb, ub)); ctx.lineTo(...L(Fb, ub)); ctx.lineTo(...L(Rb, ub)); ctx.lineTo(...L(Bb, ub)); ctx.closePath(); ctx.fill(); }
+  const cs = o.casing || 0; if (cs > 0) { ctx.globalAlpha = cs; const g = ctx.createLinearGradient(Lb[0], 0, Fb[0], 0); g.addColorStop(0, '#fbf3e2'); g.addColorStop(1, '#efe2c6'); ctx.fillStyle = g; ctx.beginPath(); ctx.moveTo(...Lb); ctx.lineTo(...Fb); ctx.lineTo(...L(Fb, ub)); ctx.lineTo(...L(Lb, ub)); ctx.closePath(); ctx.fill(); ctx.fillStyle = '#cdbb98'; ctx.beginPath(); ctx.moveTo(...Fb); ctx.lineTo(...Rb); ctx.lineTo(...L(Rb, ub)); ctx.lineTo(...L(Fb, ub)); ctx.closePath(); ctx.fill(); ctx.globalAlpha = 1; }
+  ctx.strokeStyle = 'rgba(255,240,210,0.6)'; ctx.lineWidth = Math.max(1.5, w / 500); ctx.beginPath(); ctx.moveTo(...Fb); ctx.lineTo(...L(Fb, ub)); ctx.stroke();
+  ctx.restore();
+  return { apex: Ap, base: { L: Lb, F: Fb, R: Rb, B: Bb }, at: (f, u, v) => { const A = f === 'right' ? Fb : Lb, B2 = f === 'right' ? Rb : Fb, a = L(A, u), b = L(B2, u); return [lerp(a[0], b[0], v), lerp(a[1], b[1], v)]; } };
+ };
+ // Bloque de piedra en falsa perspectiva (frente + tapa + lateral), con vetas. o: { c (caliza '#d8b97f' | granito '#8a7f86'), d (profundidad) }
+ P.block = (ctx, x, y, w, h, o = {}) => {
+  const c = H.hex(o.c || '#d8b97f'), d = o.d ?? w * 0.25, f = (k) => H.rgba([c[0] * k, c[1] * k, c[2] * k]); ctx.save();
+  ctx.fillStyle = 'rgba(60,40,20,0.25)'; ctx.fillRect(x + 6, y + h - 4, w + d * 0.8, 10);
+  ctx.fillStyle = f(1.08); ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x + d * 0.8, y - d * 0.5); ctx.lineTo(x + w + d * 0.8, y - d * 0.5); ctx.lineTo(x + w, y); ctx.closePath(); ctx.fill();
+  ctx.fillStyle = f(0.72); ctx.beginPath(); ctx.moveTo(x + w, y); ctx.lineTo(x + w + d * 0.8, y - d * 0.5); ctx.lineTo(x + w + d * 0.8, y + h - d * 0.5); ctx.lineTo(x + w, y + h); ctx.closePath(); ctx.fill();
+  ctx.fillStyle = f(0.92); ctx.fillRect(x, y, w, h); const R = H.rng(o.seed || Math.round(x + y)); ctx.strokeStyle = f(0.75); ctx.lineWidth = 1.5; for (let i = 0; i < 4; i++) { const yy = y + R() * h; ctx.beginPath(); ctx.moveTo(x + R() * w * 0.3, yy); ctx.lineTo(x + w * (0.5 + R() * 0.5), yy + R.range(-6, 6)); ctx.stroke(); }
+  ctx.restore();
+ };
+ // Trineo de madera de perfil (patines curvados al frente a la DERECHA) con un bloque encima. Devuelve el punto de amarre de la cuerda.
+ P.sled = (ctx, x, y, s, o = {}) => {
+  ctx.save(); ctx.strokeStyle = '#7a4f2a'; ctx.lineWidth = s * 0.06; ctx.lineCap = 'round'; ctx.beginPath(); ctx.moveTo(x - s * 0.6, y); ctx.lineTo(x + s * 0.5, y); ctx.quadraticCurveTo(x + s * 0.68, y, x + s * 0.7, y - s * 0.14); ctx.stroke();
+  ctx.fillStyle = '#9a6a3a'; for (let i = 0; i < 4; i++) ctx.fillRect(x - s * 0.55 + i * s * 0.32, y - s * 0.1, s * 0.07, s * 0.1); ctx.fillRect(x - s * 0.6, y - s * 0.14, s * 1.15, s * 0.05); ctx.restore();
+  if (o.block !== false) P.block(ctx, x - s * 0.5, y - s * 0.14 - s * 0.55, s * 0.9, s * 0.55, { c: o.c, seed: 7 });
+  ctx.save(); ctx.strokeStyle = '#c9a46a'; ctx.lineWidth = s * 0.02; ctx.beginPath(); ctx.moveTo(x - s * 0.5, y - s * 0.4); ctx.lineTo(x + s * 0.55, y - s * 0.4); ctx.stroke(); ctx.restore();
+  return [x + s * 0.7, y - s * 0.14];
+ };
+ // Trabajador (silueta estilizada, de perfil mirando a la derecha). o.pose: 'pull' (inclinado tirando de una cuerda), 'walk', 'pour'
+ // (vierte agua con una vasija), 'stand', 'chisel'. ph = fase de la marcha (0..1 se repite). Devuelve la posición de las manos.
+ P.worker = (ctx, x, y, h, ph = 0, o = {}) => {
+  const pose = o.pose || 'walk', c = o.c || '#4a2f1c', lean = pose === 'pull' ? 0.42 : pose === 'pour' ? 0.12 : 0.05, sw = Math.sin(ph * TAU);
+  ctx.save(); ctx.strokeStyle = c; ctx.fillStyle = c; ctx.lineCap = 'round'; ctx.lineWidth = h * 0.09;
+  const hip = [x, y - h * 0.48], sh = [x + Math.sin(lean) * h * 0.32, hip[1] - Math.cos(lean) * h * 0.32], head = [sh[0] + Math.sin(lean) * h * 0.12, sh[1] - Math.cos(lean) * h * 0.12];
+  const st = pose === 'stand' || pose === 'pour' || pose === 'chisel' ? 0.15 : 1; for (const s of [1, -1]) { const k = sw * s * st; ctx.beginPath(); ctx.moveTo(...hip); ctx.lineTo(x + k * h * 0.14 + h * 0.02, y - h * 0.24); ctx.lineTo(x + k * h * 0.22 - (pose === 'pull' ? h * 0.12 : 0), y); ctx.stroke(); }
+  ctx.beginPath(); ctx.moveTo(...hip); ctx.lineTo(...sh); ctx.stroke(); ctx.fillStyle = o.cloth || '#efe6d2'; ctx.beginPath(); ctx.moveTo(hip[0] - h * 0.08, hip[1] - h * 0.02); ctx.lineTo(hip[0] + h * 0.09, hip[1] - h * 0.02); ctx.lineTo(hip[0] + h * 0.11, hip[1] + h * 0.12); ctx.lineTo(hip[0] - h * 0.1, hip[1] + h * 0.12); ctx.closePath(); ctx.fill();
+  ctx.fillStyle = c; ctx.beginPath(); ctx.arc(head[0], head[1], h * 0.075, 0, TAU); ctx.fill();
+  let hand; if (pose === 'pull') hand = [sh[0] + h * 0.28, sh[1] + h * 0.12]; else if (pose === 'pour') hand = [sh[0] + h * 0.26, sh[1] + h * 0.02]; else if (pose === 'chisel') hand = [sh[0] + h * 0.22, sh[1] + h * 0.1 + Math.abs(sw) * h * 0.05]; else hand = [sh[0] + sw * h * 0.12, sh[1] + h * 0.25];
+  ctx.lineWidth = h * 0.07; ctx.beginPath(); ctx.moveTo(...sh); ctx.lineTo(...hand); ctx.stroke();
+  if (pose === 'pour') { ctx.fillStyle = '#b5653a'; ctx.beginPath(); ctx.ellipse(hand[0] + h * 0.06, hand[1], h * 0.09, h * 0.07, 0.9, 0, TAU); ctx.fill(); }
+  ctx.restore(); return hand;
+ };
+ // Cuerda (trenzada) por una polilínea
+ P.rope = (ctx, pts, w = 4, o = {}) => { P.strokePath(ctx, pts, w, o.c || '#b8935a'); ctx.save(); ctx.setLineDash([w * 0.8, w * 1.2]); P.strokePath(ctx, pts, w * 0.45, 'rgba(90,60,30,0.6)', { cap: 'butt' }); ctx.restore(); };
+ // Rampa de construcción sobre la pirámide (esquema): 'recta' (frontal), 'zigzag', 'espiral' (envolvente), 'interna'. p 0..1 = cuánto se ha dibujado.
+ P.ramp = (ctx, pyr, type, p = 1, o = {}) => {
+  const c = o.c || 'rgba(160,110,60,0.92)', ub = o.top ?? 0.8; let pts = [];
+  if (type === 'recta') { const a = pyr.base.L, top = pyr.at('left', ub, 0.55); pts = [[a[0] - (o.len || 260), a[1] + 30], top]; ctx.save(); ctx.fillStyle = c; ctx.beginPath(); ctx.moveTo(pts[0][0], pts[0][1]); ctx.lineTo(top[0], top[1]); ctx.lineTo(top[0], a[1] + 30); ctx.closePath(); ctx.globalAlpha *= cl(p * 1.5); ctx.fill(); ctx.restore(); return P.path(pts); }
+  if (type === 'zigzag') { const N = 6; for (let i = 0; i <= N; i++) { const u = i / N * ub; pts.push(pyr.at('left', u, i % 2 ? 0.85 : 0.15)); } }
+  else if (type === 'espiral') { const N = 16; for (let i = 0; i <= N; i++) { const u = i / N * ub, f = (i % 4) < 2 ? 'left' : 'right', v = (i % 2) ? 0.95 : 0.05; pts.push(pyr.at(f, u, v)); } }
+  else { const N = 8; for (let i = 0; i <= N; i++) { const u = i / N * ub; pts.push(pyr.at('left', u, i % 2 ? 0.7 : 0.3)); } }
+  const L = P.path(pts), part = [pts[0]]; let acc = 0; for (let i = 1; i < pts.length; i++) { const d = Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]); if (acc + d >= L.L * p) { const q = L.at(L.L * p); part.push([q[0], q[1]]); break; } acc += d; part.push(pts[i]); }
+  ctx.save(); if (type === 'interna') ctx.setLineDash([12, 10]); P.strokePath(ctx, part, o.w || 12, c); ctx.restore(); return L;
+ };
+ // Papiro (rollo) con signos estilizados (no es texto real). o: { rows, seed, c }
+ P.papyrus = (ctx, x, y, w, h, o = {}) => {
+  ctx.save(); const g = ctx.createLinearGradient(x, 0, x + w, 0); g.addColorStop(0, '#e6cf98'); g.addColorStop(0.5, '#f1dfb0'); g.addColorStop(1, '#dcc086'); ctx.fillStyle = g; ctx.fillRect(x, y, w, h);
+  ctx.fillStyle = '#c8a86c'; ctx.fillRect(x - 12, y - 6, 16, h + 12); ctx.fillRect(x + w - 4, y - 6, 16, h + 12);
+  const R = H.rng(o.seed || 4); ctx.fillStyle = o.c || '#4a3220'; const rows = o.rows || 6; for (let r = 0; r < rows; r++) { const yy = y + 20 + r * (h - 30) / rows; for (let xx = x + 20; xx < x + w - 24; xx += R.range(16, 26)) { const k = R(); if (k < 0.3) ctx.fillRect(xx, yy, 10, 3); else if (k < 0.55) { ctx.beginPath(); ctx.arc(xx + 5, yy + 2, 4, 0, TAU); ctx.fill(); } else if (k < 0.8) ctx.fillRect(xx + 3, yy - 6, 3, 12); else { ctx.beginPath(); ctx.moveTo(xx, yy + 4); ctx.lineTo(xx + 5, yy - 6); ctx.lineTo(xx + 10, yy + 4); ctx.fill(); } } }
+  ctx.restore();
+ };
+ // Herramientas: 'cincel' (cobre), 'mazo', 'codo' (vara de medir), 'plomada' (nivel en A con plomada), 'escuadra', 'sierra'
+ P.tool = (ctx, kind, x, y, s, rot = 0) => {
+  ctx.save(); ctx.translate(x, y); ctx.rotate(rot); ctx.lineCap = 'round';
+  if (kind === 'cincel') { ctx.fillStyle = '#c47a3a'; ctx.fillRect(-s * 0.06, -s * 0.5, s * 0.12, s * 0.85); ctx.beginPath(); ctx.moveTo(-s * 0.06, s * 0.35); ctx.lineTo(s * 0.06, s * 0.35); ctx.lineTo(0, s * 0.5); ctx.closePath(); ctx.fill(); ctx.fillStyle = 'rgba(255,255,255,0.3)'; ctx.fillRect(-s * 0.04, -s * 0.48, s * 0.03, s * 0.8); }
+  else if (kind === 'mazo') { ctx.fillStyle = '#8a5a32'; ctx.fillRect(-s * 0.04, -s * 0.1, s * 0.08, s * 0.6); ctx.beginPath(); ctx.ellipse(0, -s * 0.25, s * 0.18, s * 0.22, 0, 0, TAU); ctx.fill(); }
+  else if (kind === 'codo') { ctx.fillStyle = '#6b4a2b'; ctx.fillRect(-s * 0.6, -s * 0.05, s * 1.2, s * 0.1); ctx.fillStyle = '#e6cf98'; for (let i = 0; i <= 7; i++) ctx.fillRect(-s * 0.6 + i * s * 1.2 / 7 - 1, -s * 0.05, 2, s * 0.06); }
+  else if (kind === 'plomada') { ctx.strokeStyle = '#6b4a2b'; ctx.lineWidth = s * 0.07; ctx.beginPath(); ctx.moveTo(-s * 0.4, s * 0.4); ctx.lineTo(0, -s * 0.45); ctx.lineTo(s * 0.4, s * 0.4); ctx.moveTo(-s * 0.2, 0); ctx.lineTo(s * 0.2, 0); ctx.stroke(); ctx.strokeStyle = '#e6cf98'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(0, -s * 0.45); ctx.lineTo(0, s * 0.05); ctx.stroke(); ctx.fillStyle = '#c47a3a'; ctx.beginPath(); ctx.arc(0, s * 0.1, s * 0.06, 0, TAU); ctx.fill(); }
+  else if (kind === 'escuadra') { ctx.strokeStyle = '#6b4a2b'; ctx.lineWidth = s * 0.1; ctx.beginPath(); ctx.moveTo(-s * 0.4, -s * 0.4); ctx.lineTo(-s * 0.4, s * 0.4); ctx.lineTo(s * 0.4, s * 0.4); ctx.stroke(); }
+  else if (kind === 'sierra') { ctx.fillStyle = '#c47a3a'; ctx.beginPath(); ctx.moveTo(-s * 0.5, -s * 0.08); ctx.lineTo(s * 0.4, -s * 0.08); for (let i = 0; i < 10; i++) { ctx.lineTo(s * 0.4 - i * s * 0.09 - s * 0.045, s * 0.06); ctx.lineTo(s * 0.4 - (i + 1) * s * 0.09, -s * 0.0); } ctx.closePath(); ctx.fill(); ctx.fillStyle = '#6b4a2b'; ctx.fillRect(s * 0.38, -s * 0.12, s * 0.2, s * 0.16); }
+  ctx.restore();
+ };
+ // Palmera (de perfil) que se mece con t
+ P.palm = (ctx, x, y, h, t = 0) => {
+  ctx.save(); const sw = Math.sin(t * 1.2) * h * 0.02, tx = x + h * 0.08 + sw, ty = y - h; ctx.strokeStyle = '#7a5a3a'; ctx.lineWidth = h * 0.05; ctx.lineCap = 'round'; ctx.beginPath(); ctx.moveTo(x, y); ctx.quadraticCurveTo(x + h * 0.1, y - h * 0.5, tx, ty); ctx.stroke();
+  ctx.strokeStyle = '#3d6b3a'; ctx.lineWidth = h * 0.035; for (let i = 0; i < 7; i++) { const a = -Math.PI / 2 + (i - 3) * 0.55 + Math.sin(t + i) * 0.04; ctx.beginPath(); ctx.moveTo(tx, ty); ctx.quadraticCurveTo(tx + Math.cos(a) * h * 0.25, ty + Math.sin(a) * h * 0.2 - h * 0.05, tx + Math.cos(a) * h * 0.38, ty + Math.sin(a) * h * 0.25 + h * 0.12); ctx.stroke(); } ctx.restore();
+ };
+ // Signo de interrogación flotante (dudas, hipótesis abiertas)
+ P.qmark = (ctx, x, y, s, t = 0, c = '#FFD447') => { ctx.save(); ctx.translate(x, y + Math.sin(t * 2 + x) * s * 0.08); ctx.rotate(Math.sin(t + y) * 0.1); ctx.font = `800 ${s}px Fredoka`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillStyle = 'rgba(0,0,0,0.35)'; ctx.fillText('?', 3, 4); ctx.fillStyle = c; ctx.fillText('?', 0, 0); ctx.restore(); };
+
  // ---------------- SUBTÍTULOS (arriba, palabra a palabra, palabra clave seleccionada) ----------------
  // Trozos de ≤3 palabras (≤4 si son cortas); las palabras aparecen al decirse: la actual en blanco y negrita,
  // las ya dichas en gris; la palabra clave lleva recuadro de selección con asas en el color de acento.
@@ -839,6 +936,14 @@
   lineas: (k, t, d, g = 1) => { const R = H.rng(Math.round(t * 10) + 9); k.noise(t, { dur: d, color: 'white', filter: 'bandpass', f: 3500, q: 3, gain: 0.025 * g, a: 0.3, hold: d * 0.7 }); for (let x = 0; x < d; x += 0.2 + R() * 0.3) k.noise(t + x, { dur: 0.015, filter: 'highpass', f: 5000, gain: 0.08 * g, minor: true }); },
   bombilla: (k, t) => { k.play('click', t, { gain: 0.8 }); k.tone(t + 0.04, { f: 'E6', dur: 0.9, gain: 0.06, verb: 0.35 }); k.tone(t + 0.04, { f: 'B6', dur: 0.6, gain: 0.03, verb: 0.35, minor: true }); },
   lluvia: (k, t, d, g = 1) => { k.noise(t, { dur: d, color: 'white', filter: 'highpass', f: 2500, gain: 0.04 * g, a: 0.4, hold: d * 0.6 }); k.noise(t, { dur: d, color: 'pink', filter: 'bandpass', f: 1200, q: 0.6, gain: 0.04 * g, a: 0.4, hold: d * 0.6 }); },
+  // v1.8 · historia antigua y construcción
+  arrastre: (k, t, d, g = 1, f = 700) => { k.noise(t, { dur: d, color: 'brown', filter: 'bandpass', f, q: 0.8, gain: 0.1 * g, a: 0.3, hold: d * 0.7 }); const R = H.rng(Math.round(t * 10) + 1); for (let x = 0; x < d; x += 0.15 + R() * 0.2) k.noise(t + x, { dur: 0.06, color: 'pink', filter: 'bandpass', f: 1800 + R() * 900, q: 1, gain: 0.04 * g, minor: true }); },
+  cuerda: (k, t, g = 1) => { k.tone(t, { f: [[0, 180], [0.35, 140]], type: 'sawtooth', dur: 0.4, gain: 0.03 * g, filter: 'bandpass', f2: 700, q: 4, a: 0.05 }); k.noise(t, { dur: 0.3, filter: 'bandpass', f: 1200, q: 2, gain: 0.05 * g, a: 0.05 }); },
+  esfuerzo: (k, t, n = 4, gap = 0.9, g = 1) => { for (let i = 0; i < n; i++) { k.play('thud', t + i * gap, { f: 70, gain: 0.25 * g }); k.noise(t + i * gap, { dur: 0.25, color: 'brown', filter: 'bandpass', f: 400, q: 1.5, gain: 0.06 * g, a: 0.02 }); FX.cuerda(k, t + i * gap + 0.05, 0.6 * g); } },
+  vertido: (k, t, d = 1.2, g = 1) => { k.noise(t, { dur: d, color: 'pink', filter: 'bandpass', f: [[0, 900], [d, 1500]], q: 1.2, gain: 0.08 * g, a: 0.1, hold: d * 0.7 }); FX.goteo(k, t + 0.1, Math.round(d * 6), 0.15, Math.round(t * 10)); },
+  cincel: (k, t, n = 4, gap = 0.32) => { for (let i = 0; i < n; i++) { k.tone(t + i * gap, { f: 2400, dur: 0.12, gain: 0.05, a: 0.001, verb: 0.2 }); k.noise(t + i * gap, { dur: 0.04, filter: 'highpass', f: 2500, gain: 0.25, minor: true }); k.play('tock', t + i * gap, { f: 600, gain: 0.25, minor: true }); } },
+  piedra: (k, t, g = 1) => { k.play('thud', t, { f: 55, gain: 0.6 * g }); k.noise(t, { dur: 0.6, color: 'brown', filter: 'lowpass', f: [[0, 900], [0.6, 120]], gain: 0.2 * g, a: 0.005 }); k.noise(t + 0.02, { dur: 0.4, color: 'pink', filter: 'bandpass', f: 2500, q: 0.8, gain: 0.04 * g, a: 0.01 }); },
+  viento: (k, t, d, g = 1) => k.noise(t, { dur: d, color: 'pink', filter: 'bandpass', f: [[0, 500], [d * 0.4, 900], [d, 600]], q: 1.4, gain: 0.05 * g, a: Math.min(1.5, d * 0.3), hold: d * 0.5 }),
  };
  window.PLANTILLA = { make, SKINS, P, FX, TRANS_SFX, setSkin: (n) => (SK = SKINS[n]), W, HH };
 })();

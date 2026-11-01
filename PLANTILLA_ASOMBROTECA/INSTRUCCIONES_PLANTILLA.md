@@ -144,6 +144,22 @@ La piel se elige con `skin: 'plana' | 'oscura'` en `PLANTILLA.make`. Los bloques
 | `rings` | Ondas de radio, en anillo o dirigidas |
 | `clock` | Reloj analógico |
 
+**Bloques v1.8 (episodio «Las pirámides»)** — historia antigua, construcción y trabajo humano:
+
+| Bloque | Uso |
+|---|---|
+| `desert(ctx, y, t, {sky, sunX, sunY})` | Desierto con sol y dunas; **devuelve `yAt(x)`** del suelo |
+| `pyramid(ctx, x, y, w, h, {built, courses, casing, joints})` | Pirámide 3/4 por hiladas: `built` la construye por niveles (con plataforma), `casing` añade el revestimiento liso. **Devuelve `{apex, base, at(cara, u, v)}`** para poner rampas, personas o marcas sobre las caras |
+| `block(ctx, x, y, w, h, {c})` | Bloque de piedra en perspectiva (caliza o granito) |
+| `sled(ctx, x, y, s)` | Trineo de madera con bloque; **devuelve el punto de amarre de la cuerda** |
+| `worker(ctx, x, y, h, fase, {pose})` | Persona estilizada que camina (`walk`), tira (`pull`), vierte agua (`pour`), está quieta (`stand`) o trabaja (`chisel`); **devuelve la posición de las manos** |
+| `rope(ctx, pts, w)` | Cuerda trenzada |
+| `ramp(ctx, pir, tipo, p, {top})` | Rampas sobre una pirámide: `recta`, `zigzag`, `espiral`, `interna` (hipótesis) |
+| `papyrus`, `tool(ctx, tipo, …)` | Papiro con signos estilizados; herramientas: `cincel`, `mazo`, `sierra`, `codo`, `plomada`, `escuadra` |
+| `palm`, `qmark` | Palmera que se mece; signo de interrogación flotante (dudas e hipótesis abiertas) |
+
+Efectos `FX` de v1.8: `arrastre` (piedra sobre arena), `cuerda` (tensión), `esfuerzo` (tirones rítmicos), `vertido` (agua), `cincel`, `piedra` (bloque que se asienta) y `viento` (desierto).
+
 **Bloques v1.7 (episodio «La represa»)** — agua, energía y electricidad:
 
 | Bloque | Uso |
