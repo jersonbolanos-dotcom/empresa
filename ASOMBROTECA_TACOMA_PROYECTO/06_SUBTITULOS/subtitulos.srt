@@ -1,0 +1,277 @@
+1
+00:00:00,050 --> 00:00:02,943
+El 7 de
+noviembre de 1940
+
+2
+00:00:02,943 --> 00:00:05,293
+un puente gigantesco
+comenzó a retorcerse
+
+3
+00:00:05,293 --> 00:00:07,599
+como si estuviera
+hecho de goma.
+
+4
+00:00:07,858 --> 00:00:09,275
+No hubo terremoto.
+
+5
+00:00:09,383 --> 00:00:10,757
+Y el viento ni
+siquiera era
+
+6
+00:00:10,757 --> 00:00:12,755
+el más fuerte que
+había soportado.
+
+7
+00:00:12,911 --> 00:00:14,047
+Pero ese día,
+
+8
+00:00:14,164 --> 00:00:16,443
+el puente terminó
+desplomándose.
+
+9
+00:00:16,690 --> 00:00:18,051
+¿Cómo pudo ocurrir?
+
+10
+00:00:18,209 --> 00:00:20,002
+Era el puente de
+Tacoma Narrows,
+
+11
+00:00:20,002 --> 00:00:21,429
+en Estados Unidos.
+
+12
+00:00:21,526 --> 00:00:23,445
+Había sido
+inaugurado apenas
+
+13
+00:00:23,445 --> 00:00:24,574
+cuatro meses antes.
+
+14
+00:00:24,636 --> 00:00:25,704
+Y desde el principio,
+
+15
+00:00:25,704 --> 00:00:27,499
+algo extraño sucedía.
+
+16
+00:00:27,611 --> 00:00:28,847
+Cuando soplaba
+el viento,
+
+17
+00:00:28,847 --> 00:00:30,371
+la carretera subía y
+
+18
+00:00:30,371 --> 00:00:32,583
+bajaba formando
+enormes ondas.
+
+19
+00:00:32,685 --> 00:00:33,893
+Pero el
+verdadero peligro
+
+20
+00:00:33,893 --> 00:00:35,400
+estaba en su diseño.
+
+21
+00:00:35,482 --> 00:00:36,949
+Su tablero era largo,
+
+22
+00:00:36,949 --> 00:00:39,051
+estrecho, y
+demasiado flexible
+
+23
+00:00:39,051 --> 00:00:41,012
+frente a ciertos
+movimientos.
+
+24
+00:00:41,073 --> 00:00:43,773
+Además, sus grandes vigas
+laterales modificaban
+
+25
+00:00:43,773 --> 00:00:44,700
+la forma en que el
+
+26
+00:00:44,700 --> 00:00:47,059
+aire circulaba
+alrededor del puente.
+
+27
+00:00:47,172 --> 00:00:49,704
+Entonces llegó el
+momento decisivo.
+
+28
+00:00:49,754 --> 00:00:51,931
+El tablero comenzó
+a retorcerse.
+
+29
+00:00:51,977 --> 00:00:53,251
+Un borde subía mientras
+
+30
+00:00:53,251 --> 00:00:54,556
+el otro bajaba.
+
+31
+00:00:54,629 --> 00:00:55,182
+Y aquí,
+
+32
+00:00:55,182 --> 00:00:57,250
+ocurrió algo
+extraordinario.
+
+33
+00:00:57,322 --> 00:00:57,853
+Al girar,
+
+34
+00:00:57,853 --> 00:00:59,280
+el puente cambiaba el
+
+35
+00:00:59,280 --> 00:01:00,672
+flujo del viento.
+
+36
+00:01:00,769 --> 00:01:02,746
+Ese flujo producía
+nuevas fuerzas
+
+37
+00:01:02,746 --> 00:01:04,744
+que podían
+reforzar el giro.
+
+38
+00:01:04,815 --> 00:01:07,416
+Cada oscilación
+recibía más energía.
+
+39
+00:01:07,491 --> 00:01:08,763
+En lugar de detenerse,
+
+40
+00:01:08,763 --> 00:01:10,496
+el movimiento crecía.
+
+41
+00:01:10,592 --> 00:01:11,707
+Los ingenieros llaman a
+
+42
+00:01:11,707 --> 00:01:14,636
+este fenómeno
+inestabilidad aeroelástica.
+
+43
+00:01:14,721 --> 00:01:15,663
+El puente terminó
+
+44
+00:01:15,663 --> 00:01:16,960
+retorciéndose tanto,
+
+45
+00:01:16,960 --> 00:01:18,483
+que partes de
+su estructura
+
+46
+00:01:18,483 --> 00:01:20,525
+no pudieron soportar
+las fuerzas.
+
+47
+00:01:20,573 --> 00:01:21,384
+Y el tablero,
+
+48
+00:01:21,384 --> 00:01:23,320
+se rompió y
+cayó al agua.
+
+49
+00:01:23,472 --> 00:01:25,167
+Aquel desastre
+cambió para siempre
+
+50
+00:01:25,167 --> 00:01:27,058
+la ingeniería
+de los puentes.
+
+51
+00:01:27,109 --> 00:01:27,951
+Desde entonces,
+
+52
+00:01:27,951 --> 00:01:29,570
+comprender cómo
+interactúan el
+
+53
+00:01:29,570 --> 00:01:30,907
+viento y las estructuras
+
+54
+00:01:30,907 --> 00:01:32,426
+se volvió fundamental.
+
+55
+00:01:32,525 --> 00:01:33,350
+Porque a veces,
+
+56
+00:01:33,350 --> 00:01:34,742
+el mayor peligro no es
+
+57
+00:01:34,742 --> 00:01:36,136
+la fuerza del viento.
+
+58
+00:01:36,213 --> 00:01:37,337
+Sino lo que esa fuerza,
+
+59
+00:01:37,337 --> 00:01:38,419
+puede hacer que una
+
+60
+00:01:38,419 --> 00:01:40,370
+estructura
+empiece a hacer.
+
+61
+00:01:40,569 --> 00:01:41,822
+Asombroteca.
+
+62
+00:01:41,846 --> 00:01:44,124
+La ciencia oculta
+de lo imposible.

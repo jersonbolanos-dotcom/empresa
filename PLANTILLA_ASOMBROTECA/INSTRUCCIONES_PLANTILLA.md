@@ -157,6 +157,20 @@ La piel se elige con `skin: 'plana' | 'oscura'` en `PLANTILLA.make`. Los bloques
 | `laborer`, `porter`, `oxcart`, `packAnimal` | Trabajador con ropa y sombrero variados; porteador con pértiga y dos cestas; carro de dos ruedas con buey y ruedas que giran; mula con alforjas. Cargas: `tierra`, `piedra` o `ladrillos` |
 | `dust(ctx, x, y, t, t0, {s})` | Nube de polvo determinista |
 
+**v1.17 · motor 3D ligero y puente colgante (episodio «Tacoma Narrows»):**
+
+| Bloque | Uso |
+|---|---|
+| `cam3(pos, tgt, f, roll)` | Cámara 3D en perspectiva: `pr(p)` proyecta un punto, `clip(pts)` recorta un polígono contra el plano cercano antes de proyectar (evita caras perdidas o invertidas), `depth(p)`. Base para cualquier escena 3D con orden del pintor y ocultación de caras traseras |
+| `TAC`, `TK` | Geometría del puente de 1940 (vano 853 m, laterales 335 m, tablero 11,9 m, vigas de alma llena de 2,4 m, torres de ~130 m, péndolas cada 15,24 m) y paleta del episodio. `TAC.w(x, m)` modo vertical (semiondas) y `TAC.th(x, m)` torsión con un nodo en el centro del vano |
+| `tacBridge(ctx, t, {cam, m, cars, xray, glow, fog})` | Puente colgante completo en 3D: tablero por estaciones (calzada, cara exterior de las vigas, coronación, fondo) que se deforma con `w` y gira con `th` sección a sección; dos cables parabólicos que siguen a cada borde; péndolas conectadas; torres con dos patas, travesaños y arriostramiento en X sobre pilas; pilas de los vanos laterales y anclajes. Colapso por tramos `m.fail = [[xa, xb, tRotura, giro, cabeceo], …]` (caída con gravedad y giro, hundimiento), péndolas que se rompen `m.snap`, cable que sube al perder carga (`m.lift`), vanos laterales que se hunden (`m.sideSag`). Coches de 1940. Devuelve `sect(x)` (puntos de la sección deformada) y `cableY` |
+| `tacWorld(ctx, t, {cam, warm})` | Estrecho en 3D: cielo con nubes, colinas boscosas, orillas con talud y árboles, agua con destellos y niebla ligera |
+| `tacWind(ctx, t, cam, {k})` | Trazos de viento semitransparentes que cruzan el estrecho |
+| `tacSection(ctx, cx, cy, s, th, t, {flow, vortex, moment, w, edges, type})` | Sección transversal del mismo tablero (`'H'` 1940 o `'cajon'`) que gira `th`; líneas de corriente que la rodean sin atravesarla, separación y estela, remolinos que recorren el tablero según la fase del giro y momento aerodinámico (flecha curva) en el sentido de la velocidad de giro `w` (aporta energía) |
+| `windTunnel(ctx, cx, cy, w, h, th, t, {type})` | Ensayo de un modelo seccional sobre muelles en un túnel de viento |
+| `mapWA(ctx, x, y, w, h, t)` | Mapa estilizado del estado de Washington con Puget Sound y el punto de Tacoma Narrows |
+| FX `aleteo`, `desgarro`, `salpicadura` | Oscilación lenta del tablero (un golpe de aire por medio ciclo), desgarro de acero (sin explosión), impacto de un tramo en el agua |
+
 **v1.16.1 · tuneladora como un solo sistema mecánico (corrección final de «Túnel bajo el río»):**
 
 | Bloque | Uso |
