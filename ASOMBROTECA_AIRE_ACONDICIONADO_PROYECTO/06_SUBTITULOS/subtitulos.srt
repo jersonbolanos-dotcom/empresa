@@ -1,0 +1,246 @@
+1
+00:00:00,050 --> 00:00:01,425
+¡Tu aire acondicionado
+
+2
+00:00:01,425 --> 00:00:02,692
+no produce frío!
+
+3
+00:00:02,833 --> 00:00:03,599
+En realidad,
+
+4
+00:00:03,599 --> 00:00:04,673
+lo que hace es sacar
+
+5
+00:00:04,673 --> 00:00:06,053
+el calor de
+tu habitación
+
+6
+00:00:06,053 --> 00:00:07,887
+y expulsarlo
+al exterior.
+
+7
+00:00:07,955 --> 00:00:08,544
+Pero…
+
+8
+00:00:08,544 --> 00:00:09,985
+¿cómo consigue hacerlo?
+
+9
+00:00:10,191 --> 00:00:11,470
+Todo comienza con una
+
+10
+00:00:11,470 --> 00:00:13,984
+sustancia especial
+llamada refrigerante,
+
+11
+00:00:13,984 --> 00:00:15,540
+que circula
+constantemente por
+
+12
+00:00:15,540 --> 00:00:16,978
+un circuito cerrado.
+
+13
+00:00:17,071 --> 00:00:18,697
+Primero, el
+refrigerante pasa
+
+14
+00:00:18,697 --> 00:00:19,800
+por el evaporador,
+
+15
+00:00:19,800 --> 00:00:21,838
+ubicado dentro
+de la habitación.
+
+16
+00:00:21,869 --> 00:00:23,387
+Allí absorbe
+el calor del
+
+17
+00:00:23,387 --> 00:00:24,736
+aire y se evapora,
+
+18
+00:00:24,736 --> 00:00:26,788
+pasando de
+líquido a gas.
+
+19
+00:00:26,830 --> 00:00:28,567
+Un ventilador
+impulsa el aire de
+
+20
+00:00:28,567 --> 00:00:30,594
+la habitación a
+través del evaporador,
+
+21
+00:00:30,594 --> 00:00:32,877
+devolviéndolo
+mucho más fresco.
+
+22
+00:00:32,915 --> 00:00:34,562
+Pero ahora el
+refrigerante ha
+
+23
+00:00:34,562 --> 00:00:36,510
+absorbido toda
+esa energía.
+
+24
+00:00:36,576 --> 00:00:37,904
+¿Qué sucede con ella?
+
+25
+00:00:38,030 --> 00:00:39,942
+Aquí entra en
+acción el compresor,
+
+26
+00:00:39,942 --> 00:00:40,953
+que comprime el gas,
+
+27
+00:00:40,953 --> 00:00:43,493
+aumentando su presión
+y temperatura.
+
+28
+00:00:43,515 --> 00:00:45,501
+Después, el
+refrigerante caliente
+
+29
+00:00:45,501 --> 00:00:47,013
+viaja hasta el
+condensador,
+
+30
+00:00:47,013 --> 00:00:49,004
+ubicado en la
+unidad exterior.
+
+31
+00:00:49,035 --> 00:00:51,300
+Allí, otro ventilador
+ayuda a liberar
+
+32
+00:00:51,300 --> 00:00:52,753
+el calor hacia
+el ambiente,
+
+33
+00:00:52,753 --> 00:00:54,256
+mientras el
+refrigerante se
+
+34
+00:00:54,256 --> 00:00:56,443
+convierte nuevamente
+en líquido.
+
+35
+00:00:56,499 --> 00:00:58,370
+Pero todavía
+falta un paso.
+
+36
+00:00:58,400 --> 00:01:00,222
+El refrigerante
+atraviesa una
+
+37
+00:01:00,222 --> 00:01:01,286
+válvula de expansión,
+
+38
+00:01:01,286 --> 00:01:02,006
+donde su presión
+
+39
+00:01:02,006 --> 00:01:03,159
+disminuye bruscamente,
+
+40
+00:01:03,159 --> 00:01:04,397
+permitiendo que vuelva a
+
+41
+00:01:04,397 --> 00:01:05,887
+entrar al evaporador a
+
+42
+00:01:05,887 --> 00:01:08,720
+una temperatura
+suficientemente baja.
+
+43
+00:01:08,742 --> 00:01:09,551
+Y entonces,
+
+44
+00:01:09,551 --> 00:01:11,689
+todo el ciclo
+comienza de nuevo.
+
+45
+00:01:11,788 --> 00:01:12,965
+Así que la próxima vez
+
+46
+00:01:12,965 --> 00:01:14,878
+que enciendas tu
+aire acondicionado,
+
+47
+00:01:14,878 --> 00:01:16,273
+recuerda esto:
+
+48
+00:01:16,306 --> 00:01:17,461
+No está creando frío
+
+49
+00:01:17,461 --> 00:01:18,360
+de la nada.
+
+50
+00:01:18,360 --> 00:01:20,045
+¡Está transportando
+el calor de
+
+51
+00:01:20,045 --> 00:01:21,817
+tu habitación
+hacia el exterior,
+
+52
+00:01:21,817 --> 00:01:23,015
+una y otra vez!
+
+53
+00:01:23,115 --> 00:01:24,710
+¡Sigue a
+Asombroteca para
+
+54
+00:01:24,710 --> 00:01:26,988
+descubrir más curiosidades
+sorprendentes!

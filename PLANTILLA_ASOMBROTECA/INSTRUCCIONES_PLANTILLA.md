@@ -122,6 +122,17 @@ La piel se elige con `skin: 'plana' | 'oscura'` en `PLANTILLA.make`. Los bloques
 | `wave` | Onda electromagnética como cinta sinusoidal. Con `over: true` se dibuja sobre fondos claros |
 | `water` | Molécula de agua con su ángulo de dipolo y color térmico |
 
+**Añadidos en v1.4** (episodio del aire acondicionado):
+
+| Bloque | Uso |
+|---|---|
+| `path(pts)` + `strokePath` | Recorridos medidos para tuberías, cables o rutas |
+| `fluid(ctx, path, t, {phase, temp})` | Fluido dentro de un tubo. La FASE (líquido, vapor, mezcla) y la TEMPERATURA se representan por separado |
+| `airStreaks` | Trazadores de aire, en lugar de humo |
+| `fanAxial` y `fanCross` | Ventiladores axial y de flujo cruzado |
+
+Efectos `FX` de v1.4: `ventilador`, `compresion`, `expansion`, `goteo` y `calor`.
+
 Efectos `FX` añadidos: `pitido`, `zumbido`, `motor`, `campo`, `escala`, `revelar`, `puerta`, `fin`.
 
 **Subtítulos «barra»** (`capStyle: 'barra'`, estándar Asombroteca): frase completa en blanco, barra amarilla animada bajo la palabra que se dice y palabras clave en amarillo. Por defecto van en la franja segura inferior (y ≈ 1500). El estilo «selección» (arriba, con asas) sigue disponible.

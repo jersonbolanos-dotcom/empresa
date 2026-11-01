@@ -1,0 +1,128 @@
+[
+ {
+  "i": 0,
+  "s": 0.0,
+  "e": 2.342,
+  "text": "Tu aire acondicionado no produce frío."
+ },
+ {
+  "i": 1,
+  "s": 2.833,
+  "e": 7.537,
+  "text": "En realidad, lo que hace es sacar el calor de tu habitación y expulsarlo al exterior."
+ },
+ {
+  "i": 2,
+  "s": 7.955,
+  "e": 8.241,
+  "text": "Pero..."
+ },
+ {
+  "i": 3,
+  "s": 8.544,
+  "e": 9.635,
+  "text": "¿Cómo consigue hacerlo?"
+ },
+ {
+  "i": 4,
+  "s": 10.191,
+  "e": 13.709,
+  "text": "Todo comienza con una sustancia especial llamada refrigerante."
+ },
+ {
+  "i": 5,
+  "s": 13.984,
+  "e": 16.628,
+  "text": "que circula constantemente por un circuito cerrado."
+ },
+ {
+  "i": 6,
+  "s": 17.071,
+  "e": 21.488,
+  "text": "Primero, el refrigerante pasa por el evaporador, ubicado dentro de la habitación."
+ },
+ {
+  "i": 7,
+  "s": 21.869,
+  "e": 26.438,
+  "text": "Allí absorbe el calor del aire y se evapora, pasando de líquido a gas."
+ },
+ {
+  "i": 8,
+  "s": 26.83,
+  "e": 32.527,
+  "text": "Un ventilador impulsa el aire de la habitación a través del evaporador, devolviéndolo mucho más fresco."
+ },
+ {
+  "i": 9,
+  "s": 32.915,
+  "e": 36.16,
+  "text": "Pero ahora, el refrigerante ha absorbido toda esa energía."
+ },
+ {
+  "i": 10,
+  "s": 36.576,
+  "e": 37.554,
+  "text": "¿Qué sucede con ella"
+ },
+ {
+  "i": 11,
+  "s": 38.03,
+  "e": 43.143,
+  "text": "Aquí entra en acción el compresor, que comprime el gas aumentando su presión y temperatura."
+ },
+ {
+  "i": 12,
+  "s": 43.515,
+  "e": 48.654,
+  "text": "Después, el refrigerante caliente viaja hasta el condensador, ubicado en la unidad exterior."
+ },
+ {
+  "i": 13,
+  "s": 49.035,
+  "e": 56.093,
+  "text": "Allí, otro ventilador ayuda a liberar el calor hacia el ambiente, mientras el refrigerante se convierte nuevamente en líquido."
+ },
+ {
+  "i": 14,
+  "s": 56.499,
+  "e": 58.02,
+  "text": "pero todavía falta un paso."
+ },
+ {
+  "i": 15,
+  "s": 58.4,
+  "e": 68.37,
+  "text": "El refrigerante atraviesa una válvula de expansión, donde su presión disminuye bruscamente, permitiendo que vuelva a entrar al evaporador a una temperatura suficientemente baja."
+ },
+ {
+  "i": 16,
+  "s": 68.742,
+  "e": 71.339,
+  "text": "y entonces todo el ciclo comienza de nuevo."
+ },
+ {
+  "i": 17,
+  "s": 71.788,
+  "e": 75.923,
+  "text": "Así que, la próxima vez que enciendas tu aire acondicionado, recuerda esto."
+ },
+ {
+  "i": 18,
+  "s": 76.306,
+  "e": 78.039,
+  "text": "No está creando frío de la nada."
+ },
+ {
+  "i": 19,
+  "s": 78.36,
+  "e": 82.665,
+  "text": "Está transportando el calor de tu habitación hacia el exterior, una y otra vez."
+ },
+ {
+  "i": 20,
+  "s": 83.115,
+  "e": 86.988,
+  "text": "sigue a Sombroteca para descubrir más curiosidades sorprendentes."
+ }
+]

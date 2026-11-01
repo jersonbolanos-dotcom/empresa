@@ -17,6 +17,10 @@
   ['Onda electromagnética (v1.2)', (c, t) => P.wave(c, [[30, 150], [370, 150]], t, { amp: 40, lam: 140 })],
   ['Molécula de agua (v1.2)', (c, t) => { P.water(c, 130, 150, 60, -1.2); P.water(c, 280, 150, 60, 0.6, { hot: 1 }); }],
   ['Rampa térmica (v1.2)', (c, t) => { for (let i = 0; i < 300; i++) { c.fillStyle = H.rgba(P.heat(i / 299)); c.fillRect(50 + i, 120, 1, 60); } P.text(c, 'FRÍO → CALIENTE', 200, 220, 26, '#ffffff'); }],
+  ['Fluido en tubo: fase ≠ temperatura (v1.4)', (c, t) => { const pa = P.path([[30, 100], [370, 100]]), pb = P.path([[30, 200], [370, 200]]); c.fillStyle = 'rgba(255,255,255,0.15)'; c.fillRect(20, 84, 360, 32); c.fillRect(20, 184, 360, 32); P.fluid(c, pa, t, { w: 26, phase: (u) => u, temp: () => 0.12, seed: 2 }); P.fluid(c, pb, t, { w: 26, phase: (u) => 1 - u, temp: () => 0.85, seed: 3 }); }],
+  ['Trazadores de aire (v1.4)', (c, t) => { P.airStreaks(c, P.path([[20, 150], [200, 120], [380, 150]]), t, { n: 14, temp: 0.12, spread: 120, seed: 4 }); }],
+  ['Ventilador axial (v1.4)', (c, t) => P.fanAxial(c, 200, 150, 120, t * 3)],
+  ['Ventilador de flujo cruzado (v1.4)', (c, t) => P.fanCross(c, 50, 120, 300, 60, t * 4)],
   ['Brillo / luz (v1.2)', (c, t) => { P.glow(c, 140, 150, 120, '255,190,120', 0.9); P.glow(c, 270, 150, 90, '80,220,255', 0.9); }],
  ];
  window.drawCatalog = function () {
