@@ -70,6 +70,11 @@
   ['Galaxia HD (v1.11)', (c, t) => { c.fillStyle = '#03050f'; c.fillRect(0, 0, 400, 300); P.galaxyHD(c, 200, 150, 190, { seed: 31, tilt: 0.4, rot: -0.5 }); }],
   ['Reloj holográfico (v1.11)', (c, t) => P.holoClock(c, 200, 150, 120, 37, '#46E6D2', 'NAVE', '28,6 años', { sub: 'tiempo propio' })],
   ['Gráfica científica (escala log) (v1.11)', (c, t) => { c.save(); c.scale(0.5, 0.5); P.chart(c, 160, 90, 560, 360, [{ f: (u) => [u * 28.6, Math.max(1, Math.sinh(u * 14.3) / 1.0323)], c: '#FFB45B', label: 'Tierra' }, { f: (u) => [u * 28.6, Math.max(1, u * 28.6)], c: '#46E6D2', dash: [10, 8] }], { xr: [0, 28.6], yr: [1, 1e7], logY: true, yTicks: [[1, '1'], [1e3, '1.000'], [1e6, '1 M']], xTicks: [[0, '0'], [28.6, '29']], xLabel: 'años en la nave', yLabel: 'años Tierra' }); c.restore(); }],
+  ['Andes + niebla + ciudadela (v1.12)', (c, t) => { c.save(); c.scale(400 / 1080, 300 / 1080); P.andes(c, t, { sun: [820, 300], peaks: [760, 260, 900] }); P.fog(c, 620, 260, t, { a: 0.6 }); P.citadel(c, 470, 820, 430, t, { age: 0, canal: 1 }); c.restore(); }],
+  ['Terrazas en corte (v1.12)', (c, t) => { c.save(); c.scale(0.4, 0.4); c.fillStyle = '#91B9D0'; c.fillRect(0, 0, 1000, 750); P.terraces(c, 0, 760, 260, 160, 3, t, { cut: 1, water: 1 }); c.restore(); }],
+  ['Corte de terraza: capas y drenaje (v1.12)', (c, t) => { c.save(); c.scale(0.38, 0.38); c.fillStyle = '#91B9D0'; c.fillRect(0, 0, 1060, 800); P.terraceCut(c, 60, 80, 900, 620, t, { water: 1, labels: 1 }); c.restore(); }],
+  ['Muro poligonal · sillería · rústico (v1.12)', (c, t) => { P.stoneWall(c, 20, 30, 170, 240, { style: 'poligonal', seed: 23 }); P.stoneWall(c, 210, 30, 170, 110, { style: 'sillar', seed: 7, rows: 3 }); P.stoneWall(c, 210, 160, 170, 110, { style: 'rustica', seed: 4, rows: 4 }); }],
+  ['Canal + fuente inca + lluvia (v1.12)', (c, t) => { c.fillStyle = '#587348'; c.fillRect(0, 0, 400, 300); P.channel(c, [[380, 40], [200, 110], [120, 150]], t, { w: 16 }); P.incaFountain(c, 110, 230, 80, t, 1); P.rainSheet(c, t, { w: 400, h: 300, n: 40 }); }],
  ];
  window.drawCatalog = function () {
   document.querySelectorAll('canvas[data-i]').forEach((cv) => {

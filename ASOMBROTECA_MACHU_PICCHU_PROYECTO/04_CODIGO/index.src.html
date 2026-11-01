@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Machu Picchu</title>
+<!-- @inline-css ../../PLANTILLA_ASOMBROTECA/fonts/fuentes.css -->
+<style>
+ :root { --bg: #1d1b3a; --ink: #f6faff; --grey: #bde5f8; --gold: #ffd23f; }
+ html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink); font-family: Nunito, system-ui, sans-serif; }
+ body { display: flex; flex-direction: column; }
+ #stage { flex: 1; display: flex; align-items: center; justify-content: center; min-height: 0; padding: 8px; }
+ canvas { height: 100%; max-height: calc(100vh - 72px); aspect-ratio: 9 / 16; max-width: 100%; background: #000; box-shadow: 0 0 0 1px #1d2028; }
+ #bar { display: flex; gap: 10px; align-items: center; padding: 10px 16px; background: #0b0c10; border-top: 1px solid #1d2028; }
+ button { background: #1d2028; color: var(--ink); border: 1px solid #2a2d38; border-radius: 8px; padding: 6px 12px; font: 500 15px Nunito, sans-serif; cursor: pointer; }
+ button[aria-pressed="true"] { border-color: var(--gold); color: var(--gold); }
+ input[type=range] { flex: 1; accent-color: var(--gold); min-width: 80px; }
+ #time { font: 400 13px ui-monospace, monospace; color: var(--grey); min-width: 110px; text-align: right; }
+ #note { font: 400 12px Nunito, sans-serif; color: var(--grey); padding: 0 16px 8px; background: #0b0c10; }
+</style>
+</head>
+<body>
+<div id="stage"><canvas id="cv" width="1080" height="1920"></canvas></div>
+<div id="bar">
+ <button id="play">▶ Play</button>
+ <input id="seek" type="range" min="0" max="1000" step="1" value="0" aria-label="Posición">
+ <span id="time">0:00.0 / 0:00.0</span>
+ <button id="snd" aria-pressed="true">Sonido</button>
+ <button id="loop" aria-pressed="true">Loop</button>
+</div>
+<div id="note">Voz original + música original + efectos (SOUND). Recreación conceptual; Plantilla Asombroteca v1.12; fuentes en FUENTES_Y_DECISIONES.md.</div>
+<audio id="voice" preload="auto" src="VOZ"></audio>
+<!-- @inline-js ../../PLANTILLA_ASOMBROTECA/lib/harness.js -->
+<!-- @inline-js ../../PLANTILLA_ASOMBROTECA/lib/sound.js -->
+<!-- @inline-js js/datos.js -->
+<!-- @inline-js ../../PLANTILLA_ASOMBROTECA/motor/plantilla.js -->
+<!-- @inline-js js/episodio.js -->
+<script>
+(async function () {
+ const cv = document.getElementById('cv'), ctx = cv.getContext('2d');
+ const W = 1080, Hh = 1920, DURATION = window.EPISODIO.DURATION;
+ window.DURATION = DURATION;
+ const specs = ['700 40px "Nunito"', '800 40px "Nunito"', '900 40px "Nunito"', '700 40px "Fredoka"', '700 40px "Space Grotesk"', '600 40px "IBM Plex Mono"'];
+ try { await Promise.all(specs.map((f) => document.fonts.load(f, 'AaZz09áéíóúñ¿$'))); await document.fonts.ready; } catch (e) {}
+ await window.EPISODIO.init();
+ let lastT = -1;
+ function draw(t) {
+  t = Math.max(0, Math.min(DURATION, t));
+  ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.globalAlpha = 1; ctx.globalCompositeOperation = 'source-over'; ctx.filter = 'none';
+  ctx.clearRect(0, 0, W, Hh);
+  window.EPISODIO.explainer(ctx, W, Hh, t);
+  lastT = t;
+ }
+ // seek(t): recalcula el fotograma exacto, en cualquier orden (cada fotograma es función pura de t)
+ window.seek = (t) => { draw(t); return true; };
+ window.scoreSound = window.scoreSound;
+ window.explainer = window.EPISODIO.explainer;
+ window.__ready = true;
+ if (window.__HEADLESS) { draw(0); return; }
+
+ // ---------- reproductor ----------
+ const voice = document.getElementById('voice'), seekEl = document.getElementById('seek'), timeEl = document.getElementById('time');
+ const playB = document.getElementById('play'), sndB = document.getElementById('snd'), loopB = document.getElementById('loop');
+ let playing = false, soundOn = true, loop = true, t0 = 0, wall0 = 0, stopFx = null, stopMusic = null;
+ const fmt = (s) => `${Math.floor(s / 60)}:${(s % 60).toFixed(1).padStart(4, '0')}`;
+ function stopAudio() { if (stopFx) { stopFx(); stopFx = null; } if (stopMusic) { stopMusic(); stopMusic = null; } voice.pause(); }
+ function startAudio(t) {
+  stopAudio();
+  if (!soundOn) return;
+  voice.currentTime = t; voice.play().catch(() => {});
+  stopFx = SOUND.live(window.scoreSound, t, { voiceover: true });
+  stopMusic = SOUND.live(window.scoreMusic, t, { voiceover: false, master: 0.55 });
+ }
+ function cur() { return playing ? (soundOn && !voice.paused ? voice.currentTime : t0 + (performance.now() - wall0) / 1000) : t0; }
+ function setT(t) { t0 = t; wall0 = performance.now(); }
+ function play() { if (t0 >= DURATION - 0.05) setT(0); playing = true; playB.textContent = '❚❚ Pausa'; setT(t0); startAudio(t0); }
+ function pause() { t0 = cur(); playing = false; playB.textContent = '▶ Play'; stopAudio(); }
+ playB.onclick = () => (playing ? pause() : play());
+ sndB.onclick = () => { soundOn = !soundOn; sndB.setAttribute('aria-pressed', soundOn); const t = cur(); setT(t); if (playing) startAudio(t); else stopAudio(); };
+ loopB.onclick = () => { loop = !loop; loopB.setAttribute('aria-pressed', loop); };
+ seekEl.oninput = () => { const t = (seekEl.value / 1000) * DURATION; setT(t); if (playing) startAudio(t); draw(t); };
+ function tick() {
+  let t = cur();
+  if (playing && t >= DURATION) { if (loop) { setT(0); startAudio(0); t = 0; } else { pause(); t = DURATION; setT(t); } }
+  if (Math.abs(t - lastT) > 1e-4) draw(t);
+  seekEl.value = Math.round((t / DURATION) * 1000); timeEl.textContent = `${fmt(t)} / ${fmt(DURATION)}`;
+  requestAnimationFrame(tick);
+ }
+ draw(0); tick();
+})();
+</script>
+</body>
+</html>

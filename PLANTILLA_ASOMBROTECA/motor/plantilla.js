@@ -1055,6 +1055,140 @@
   ctx.restore(); return map;
  };
 
+ // ======================= v1.12 · ANDES, MAMPOSTERÍA, TERRAZAS, DRENAJE Y AGUA (ingeniería histórica en montaña) =======================
+ // Paisaje de montaña por capas con perspectiva atmosférica (lejos = más azulado y claro). o: { sky [arriba, abajo], sun [x, y], layers, seed, base }
+ P.andes = (ctx, t, o = {}) => {
+  const sk = o.sky || ['#5d8fb0', '#c9dbe2'], g = ctx.createLinearGradient(0, 0, 0, HH * 0.7); g.addColorStop(0, sk[0]); g.addColorStop(1, sk[1]); ctx.fillStyle = g; ctx.fillRect(-400, -400, W + 800, HH + 800);
+  if (o.sun) { P.glow(ctx, o.sun[0], o.sun[1], 420, '255,236,200', 0.55); P.circle(ctx, o.sun[0], o.sun[1], 46, '#fff6e4'); }
+  const nz = H.makeNoise(o.seed || 5), L = o.layers || [['#9db3bd', 620, 260, 0.003], ['#7d9a95', 760, 300, 0.004], ['#5f7f68', 920, 320, 0.005]];
+  L.forEach(([c, y, amp, fq], i) => { ctx.fillStyle = c; ctx.beginPath(); ctx.moveTo(-400, HH + 400); for (let x = -400; x <= W + 400; x += 12) { const v = nz.fbm2(x * fq + i * 7.3, i * 3.1, 4); ctx.lineTo(x, y - Math.abs(v) * amp * 1.6 - (o.peaks ? Math.max(0, 1 - Math.abs(x - o.peaks[i % o.peaks.length]) / 220) * amp * 0.7 : 0)); } ctx.lineTo(W + 400, HH + 400); ctx.closePath(); ctx.fill(); });
+ };
+ // Banda de niebla que deriva (nubes bajas entre montañas). o: { a, seed, speed }
+ let FOGC = null;
+ P.fog = (ctx, y, h, t, o = {}) => {
+  if (!FOGC) { const S = 256, c = H.layer(S * 2, S / 2), q = c.getContext('2d'), nz = H.makeNoise(41), img = q.createImageData(S * 2, S / 2); for (let j = 0; j < S / 2; j++) for (let i = 0; i < S * 2; i++) { const v = nz.fbm2(i * 0.02, j * 0.05, 4), fall = Math.sin(j / (S / 2) * Math.PI), k = (j * S * 2 + i) * 4, a = Math.max(0, (v + 0.35)) * fall; img.data[k] = 236; img.data[k + 1] = 242; img.data[k + 2] = 236; img.data[k + 3] = Math.min(255, a * 300); } q.putImageData(img, 0, 0); FOGC = c; }
+  const a = o.a ?? 0.8; if (a <= 0) return; const off = ((t * (o.speed ?? 18) + (o.seed || 0) * 137) % (W * 2)); ctx.save(); ctx.globalAlpha *= a; for (let k = -1; k <= 1; k++) ctx.drawImage(FOGC, -off + k * W * 2, y, W * 2, h); ctx.restore();
+ };
+ // Lluvia en diagonal sobre un área. o: { x, y, w, h, a, n, ang, seed }
+ P.rainSheet = (ctx, t, o = {}) => { const a = o.a ?? 1; if (a <= 0) return; const x0 = o.x ?? 0, y0 = o.y ?? 0, w = o.w ?? W, h = o.h ?? HH, n = o.n || 220, ang = o.ang ?? 0.18, R = H.rng(o.seed || 3); ctx.save(); ctx.strokeStyle = `rgba(210,232,245,${0.55 * a})`; ctx.lineWidth = 2; ctx.lineCap = 'round'; for (let i = 0; i < n; i++) { const sp = R.range(1100, 1700), L = R.range(22, 40), x = x0 + ((R() * w + t * sp * Math.sin(ang)) % w), y = y0 + ((R() * h + t * sp) % h); ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x - Math.sin(ang) * L, y - L); ctx.stroke(); } ctx.restore(); };
+ // Relleno de granito (motas claras y oscuras) para cualquier polígono
+ P.granite = (ctx, pts, o = {}) => {
+  const xs = pts.map((p) => p[0]), ys = pts.map((p) => p[1]), x0 = Math.min(...xs), x1 = Math.max(...xs), y0 = Math.min(...ys), y1 = Math.max(...ys);
+  ctx.save(); ctx.beginPath(); pts.forEach((p, i) => (i ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1]))); ctx.closePath(); const g = ctx.createLinearGradient(x0, y0, x1, y1); g.addColorStop(0, o.c1 || '#c3c8bd'); g.addColorStop(1, o.c2 || '#858d86'); ctx.fillStyle = g; ctx.fill(); ctx.clip();
+  const R = H.rng(o.seed || Math.round(x0 * 7 + y0)); const n = Math.min(160, ((x1 - x0) * (y1 - y0)) / 220); for (let i = 0; i < n; i++) { ctx.fillStyle = R() < 0.5 ? 'rgba(40,45,42,0.25)' : 'rgba(255,255,250,0.28)'; ctx.fillRect(x0 + R() * (x1 - x0), y0 + R() * (y1 - y0), R.range(1, 3), R.range(1, 3)); }
+  ctx.restore();
+  if (o.bevel !== false) { ctx.save(); ctx.lineJoin = 'round'; ctx.strokeStyle = 'rgba(255,255,250,0.35)'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(pts[pts.length - 1][0], pts[pts.length - 1][1]); for (let i = 0; i < Math.ceil(pts.length / 2); i++) ctx.lineTo(pts[i][0], pts[i][1]); ctx.stroke(); ctx.strokeStyle = 'rgba(30,34,32,0.55)'; ctx.lineWidth = o.joint ?? 2; ctx.beginPath(); pts.forEach((p, i) => (i ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1]))); ctx.closePath(); ctx.stroke(); ctx.restore(); }
+ };
+ // Muro de piedra. o.style: 'poligonal' (bloques irregulares que comparten vértices → encajan sin huecos), 'sillar' (hiladas rectangulares
+ // finas), 'rustica' (piedras de campo con juntas de barro). o: { seed, rows, cols, skip (índice de bloque que NO se dibuja: hueco), gap }
+ // Devuelve la lista de bloques (polígonos) para animar uno de ellos o hacer zoom a una junta.
+ P.stoneWall = (ctx, x, y, w, h, o = {}) => {
+  const st = o.style || 'poligonal', R = H.rng(o.seed || 9), cells = [];
+  if (st === 'rustica') { ctx.save(); ctx.fillStyle = o.mortar || '#6b5a44'; ctx.fillRect(x, y, w, h); ctx.beginPath(); ctx.rect(x, y, w, h); ctx.clip(); const rows = o.rows || Math.round(h / 36); for (let r = 0; r < rows; r++) { let cx = x - R() * 30; const rh = h / rows; while (cx < x + w) { const sw = R.range(rh * 0.9, rh * 2), pts = []; for (let k = 0; k < 7; k++) { const a = k / 7 * TAU, rx = sw / 2 - 3, ry = rh / 2 - 3; pts.push([cx + sw / 2 + Math.cos(a) * rx * R.range(0.8, 1.05), y + r * rh + rh / 2 + Math.sin(a) * ry * R.range(0.8, 1.05)]); } P.granite(ctx, pts, { seed: cells.length + 3, c1: '#b6bbb1', c2: '#7c847d', joint: 1 }); cells.push(pts); cx += sw + R.range(2, 6); } } ctx.restore(); return cells; }
+  if (st === 'sillar') { const rows = o.rows || 5, rh = h / rows; for (let r = 0; r < rows; r++) { let cx = x - (r % 2) * R.range(10, 40); while (cx < x + w) { const bw = R.range(rh * 1.4, rh * 2.6), x2 = Math.min(x + w, cx + bw), x1 = Math.max(x, cx); const pts = [[x1, y + r * rh], [x2, y + r * rh], [x2, y + (r + 1) * rh], [x1, y + (r + 1) * rh]]; cells.push(pts); cx += bw; } } }
+  else { const nx = o.cols || 5, ny = o.rows || 4, nodes = []; for (let j = 0; j <= ny; j++) { nodes.push([]); for (let i = 0; i <= nx; i++) { const ex = i === 0 || i === nx, ey = j === 0 || j === ny; nodes[j].push([x + i * w / nx + (ex ? 0 : R.range(-0.28, 0.28) * w / nx), y + j * h / ny + (ey ? 0 : R.range(-0.25, 0.25) * h / ny)]); } }
+   for (let j = 0; j < ny; j++) for (let i = 0; i < nx; i++) { const a = nodes[j][i], b = nodes[j][i + 1], c2 = nodes[j + 1][i + 1], d = nodes[j + 1][i], pts = [a]; if (R() < 0.5 && i < nx - 1) { const m = [lerp(b[0], c2[0], 0.45) + R.range(-8, 8), lerp(b[1], c2[1], 0.45)]; pts.push(b, m, c2); } else pts.push(b, c2); pts.push(d); cells.push(pts); } }
+  cells.forEach((pts, k) => { if (k === o.skip) return; const gp = o.gap || 0; let q = pts; if (gp) { const cx = pts.reduce((s, p) => s + p[0], 0) / pts.length, cy = pts.reduce((s, p) => s + p[1], 0) / pts.length; q = pts.map(([px, py]) => [cx + (px - cx) * (1 - gp), cy + (py - cy) * (1 - gp)]); } P.granite(ctx, q, { seed: k * 13 + 1, joint: st === 'poligonal' ? 1.4 : 2 }); });
+  return cells;
+ };
+ // TERRAZAS en corte (de abajo-izquierda a arriba-derecha sobre una ladera). Cada terraza: muro de contención y relleno por capas
+ // (de abajo arriba: piedras grandes → grava → arena → suelo cultivable). o: { build 0..1, cut 0..1 (muestra capas), water 0..1
+ // (gotas que se infiltran y salen al pie del muro), crops, seed }. Devuelve { tops: [[x0, x1, y]…], walls: [[x, yBase, yTop]…] }.
+ P.terraces = (ctx, x0, y0, sw, sh, n, t, o = {}) => {
+  const b = o.build ?? 1, cut = o.cut ?? 0, tops = [], walls = [], wt = sw * 0.09;
+  // roca y subsuelo bajo la ladera original
+  ctx.save(); ctx.fillStyle = '#5a4a3a'; ctx.beginPath(); ctx.moveTo(x0 - 400, y0 + 900); ctx.lineTo(x0 - 400, y0 + 40); ctx.lineTo(x0, y0); ctx.lineTo(x0 + n * sw, y0 - n * sh); ctx.lineTo(x0 + n * sw + 600, y0 - n * sh - 120); ctx.lineTo(x0 + n * sw + 600, y0 + 900); ctx.closePath(); ctx.fill();
+  const Rr = H.rng(o.seed || 4); ctx.fillStyle = 'rgba(133,141,134,0.5)'; for (let i = 0; i < 60; i++) { const px = x0 - 300 + Rr() * (n * sw + 800), py = y0 + 40 + Rr() * 600 - (px - x0) * sh / sw * 0.9; ctx.beginPath(); ctx.ellipse(px, py, Rr.range(8, 22), Rr.range(5, 12), Rr() * 3, 0, TAU); ctx.fill(); } ctx.restore();
+  for (let i = 0; i < n; i++) { const p = cl((b * n - i) * 1.2); if (p <= 0) break; const xi = x0 + i * sw, base = y0 - i * sh, top = y0 - (i + 1) * sh, xn = xi + sw;
+   walls.push([xi, base, top]); tops.push([xi, xn, top]);
+   const tri = [[xi + wt, top], [xn, top], [xi + wt, base]];
+   ctx.save(); ctx.globalAlpha *= p; ctx.beginPath(); tri.forEach((q, k) => (k ? ctx.lineTo(q[0], q[1]) : ctx.moveTo(q[0], q[1]))); ctx.closePath(); ctx.clip();
+   const layers = [[0, 0.16, '#5b4330', 'suelo'], [0.16, 0.3, '#c7b18a', 'arena'], [0.3, 0.55, '#a6a79b', 'grava'], [0.55, 1.01, '#7c7f78', 'piedras']];
+   if (cut > 0) { for (const [d0, d1, c] of layers) { ctx.fillStyle = c; ctx.fillRect(xi, top + d0 * sh, sw, (d1 - d0) * sh + 1); } const R = H.rng(i * 31 + 7); for (let k = 0; k < 90; k++) { const px = xi + R() * sw, py = top + (0.3 + R() * 0.25) * sh; ctx.fillStyle = 'rgba(80,82,76,0.6)'; ctx.beginPath(); ctx.arc(px, py, R.range(2, 4.5), 0, TAU); ctx.fill(); } for (let k = 0; k < 26; k++) { const px = xi + R() * sw, py = top + (0.58 + R() * 0.4) * sh; P.granite(ctx, [[px - 14, py - 8], [px + 12, py - 10], [px + 16, py + 8], [px - 10, py + 10]], { seed: k + i * 50, bevel: false }); } for (let k = 0; k < 60; k++) { ctx.fillStyle = 'rgba(150,130,95,0.6)'; ctx.fillRect(xi + R() * sw, top + (0.17 + R() * 0.12) * sh, 2, 2); } }
+   ctx.fillStyle = `rgba(88,115,72,${1 - cut})`; ctx.fillRect(xi, top, sw, sh);
+   if ((o.water || 0) > 0 && cut > 0.3) { const R = H.rng(i * 7 + 2); ctx.globalCompositeOperation = 'source-over'; for (let k = 0; k < 18; k++) { const u = ((t * 0.35 + R()) % 1), dx = R() * sw * 0.8, px = xn - dx - u * sw * 0.15, py = top + u * (base - top - 6) * (1 - dx / sw * 0.2); if (px < xi + wt) continue; ctx.fillStyle = `rgba(55,185,217,${0.9 * o.water})`; ctx.beginPath(); ctx.ellipse(px, py, 3.5, 5.5, 0, 0, TAU); ctx.fill(); } }
+   ctx.restore();
+   // superficie: cultivo
+   ctx.save(); ctx.globalAlpha *= p; ctx.fillStyle = '#87a46b'; ctx.fillRect(xi, top - 6, sw, 8); if (o.crops !== false) { const R = H.rng(i + 90); ctx.strokeStyle = '#587348'; ctx.lineWidth = 3; for (let x = xi + wt + 10; x < xn - 6; x += 16) { const hh = R.range(10, 22); ctx.beginPath(); ctx.moveTo(x, top - 4); ctx.lineTo(x + R.range(-3, 3), top - 4 - hh); ctx.stroke(); } } ctx.restore();
+   // muro de contención (piedra) con ligera inclinación
+   ctx.save(); ctx.globalAlpha *= p; ctx.beginPath(); ctx.moveTo(xi - wt * 0.3, base); ctx.lineTo(xi + wt * 0.2, top); ctx.lineTo(xi + wt, top); ctx.lineTo(xi + wt, base); ctx.closePath(); ctx.clip(); P.stoneWall(ctx, xi - wt * 0.4, top, wt * 1.5, sh, { style: 'rustica', seed: i + 3, rows: Math.round(sh / 26) }); ctx.restore();
+   // salida del agua al pie del muro
+   if ((o.water || 0) > 0) { const R = H.rng(i + 5); for (let k = 0; k < 6; k++) { const u = (t * 0.9 + R()) % 1; ctx.fillStyle = `rgba(122,230,242,${o.water * (1 - u)})`; ctx.beginPath(); ctx.arc(xi - u * 26, base - 8 + u * u * 30, 4, 0, TAU); ctx.fill(); } }
+  }
+  return { tops, walls };
+ };
+ // CORTE DETALLADO DE UNA TERRAZA (diagrama grande): muro de contención a la izquierda, relleno por capas horizontales (suelo, arena,
+ // grava, piedras), ladera natural (roca) debajo en diagonal, gotas que se infiltran y salen por el pie del muro.
+ // o: { layers [[nombre, fracción, color]…], water 0..1, rain 0..1, labels 0..1 (fracción de capas rotuladas), reveal 0..1 }
+ P.terraceCut = (ctx, x, y, w, h, t, o = {}) => {
+  const L = o.layers || [['SUELO CULTIVABLE', 0.16, '#5b4330'], ['ARENA', 0.14, '#c7b18a'], ['GRAVA', 0.26, '#a6a79b'], ['PIEDRAS', 0.44, '#7c7f78']], wt = w * 0.13, rv = o.reveal ?? 1;
+  const bed = (xx) => y + h + 40 - (xx - x) / w * h * 0.55; // roca natural (ladera) bajo el relleno
+  ctx.save(); ctx.beginPath(); ctx.rect(x - 60, y - 40, w + 120, h + 400); ctx.clip();
+  ctx.fillStyle = '#4a3c30'; ctx.beginPath(); ctx.moveTo(x - 60, y + h + 400); ctx.lineTo(x - 60, bed(x - 60)); ctx.lineTo(x + w + 60, bed(x + w + 60)); ctx.lineTo(x + w + 60, y + h + 400); ctx.closePath(); ctx.fill();
+  const Rb = H.rng(3); for (let i = 0; i < 30; i++) { const px = x + Rb() * w, py = bed(px) + 20 + Rb() * 200; ctx.fillStyle = 'rgba(133,141,134,0.45)'; ctx.beginPath(); ctx.ellipse(px, py, Rb.range(10, 30), Rb.range(6, 14), 0, 0, TAU); ctx.fill(); }
+  // relleno por capas (por encima de la roca)
+  ctx.save(); ctx.beginPath(); ctx.moveTo(x + wt, y); ctx.lineTo(x + w + 60, y); ctx.lineTo(x + w + 60, bed(x + w + 60)); ctx.lineTo(x + wt, bed(x + wt)); ctx.closePath(); ctx.clip();
+  let yy = y; const R = H.rng(o.seed || 12); L.forEach(([s, f, c], k) => { const lh = f * h; const a = cl(rv * L.length - k); ctx.globalAlpha = a; ctx.fillStyle = c; ctx.fillRect(x, yy, w + 60, lh + 1);
+   if (s === 'GRAVA') for (let i = 0; i < 260; i++) { ctx.fillStyle = R() < 0.5 ? 'rgba(80,82,76,0.6)' : 'rgba(220,222,214,0.6)'; ctx.beginPath(); ctx.arc(x + R() * (w + 40), yy + R() * lh, R.range(2.5, 6), 0, TAU); ctx.fill(); }
+   if (s === 'ARENA') for (let i = 0; i < 400; i++) { ctx.fillStyle = 'rgba(140,118,84,0.55)'; ctx.fillRect(x + R() * (w + 40), yy + R() * lh, 2, 2); }
+   if (s === 'PIEDRAS') for (let i = 0; i < 34; i++) { const px = x + wt + R() * w, py = yy + 20 + R() * (lh - 30), sz = R.range(26, 48); P.granite(ctx, [[px - sz, py - sz * 0.6], [px + sz * 0.8, py - sz * 0.7], [px + sz, py + sz * 0.5], [px - sz * 0.7, py + sz * 0.6]], { seed: i + 3, bevel: false, c1: '#a8ada4', c2: '#6f766f' }); }
+   if (s.startsWith('SUELO')) { for (let i = 0; i < 200; i++) { ctx.fillStyle = 'rgba(40,28,18,0.5)'; ctx.fillRect(x + R() * (w + 40), yy + R() * lh, 3, 2); } }
+   yy += lh; }); ctx.globalAlpha = 1;
+  // agua que se infiltra (rápida en grava/piedras, más lenta arriba) y sale por la base del muro
+  const wa = o.water || 0; if (wa > 0) { const Rw = H.rng(8); for (let i = 0; i < 70; i++) { const u = ((t * Rw.range(0.18, 0.3) + Rw()) % 1), px0 = x + wt + 40 + Rw() * (w - wt - 60); const py = y + u * h * 1.05, px = px0 - Math.max(0, u - 0.75) * 4 * (px0 - x - wt) * 0.9; const yb = bed(px); if (py > yb - 6) continue; ctx.fillStyle = `rgba(55,185,217,${0.9 * wa})`; ctx.beginPath(); ctx.ellipse(px, py, 4, 6.5, 0, 0, TAU); ctx.fill(); }
+   ctx.save(); ctx.globalAlpha = wa; ctx.setLineDash([12, 12]); ctx.lineDashOffset = t * 50; ctx.strokeStyle = 'rgba(122,230,242,0.9)'; ctx.lineWidth = 6; ctx.beginPath(); ctx.moveTo(x + w, bed(x + w) - 14); ctx.lineTo(x + wt, bed(x + wt) - 14); ctx.stroke(); ctx.restore(); }
+  ctx.restore();
+  // superficie: cultivo
+  ctx.fillStyle = '#87a46b'; ctx.fillRect(x + wt, y - 10, w + 60, 12); const Rc = H.rng(90); ctx.strokeStyle = '#587348'; ctx.lineWidth = 4; for (let xx2 = x + wt + 14; xx2 < x + w + 50; xx2 += 22) { const hh = Rc.range(18, 40); ctx.beginPath(); ctx.moveTo(xx2, y - 8); ctx.lineTo(xx2 + Rc.range(-4, 4), y - 8 - hh); ctx.stroke(); }
+  // muro de contención
+  ctx.save(); ctx.beginPath(); ctx.moveTo(x - wt * 0.25, bed(x)); ctx.lineTo(x + wt * 0.15, y - 12); ctx.lineTo(x + wt, y - 12); ctx.lineTo(x + wt, bed(x + wt)); ctx.closePath(); ctx.clip(); P.stoneWall(ctx, x - wt * 0.4, y - 14, wt * 1.5, bed(x) - y + 20, { style: 'rustica', seed: 6, rows: Math.round(h / 46) }); ctx.restore();
+  // salida del agua al pie del muro
+  if (wa > 0) { const ox = x - wt * 0.1, oy = bed(x + wt) - 16; ctx.fillStyle = '#2b2620'; ctx.fillRect(ox, oy - 10, wt * 0.9, 20); const Rs = H.rng(5); for (let k = 0; k < 14; k++) { const u = (t * 0.8 + Rs()) % 1; ctx.fillStyle = `rgba(122,230,242,${wa * (1 - u)})`; ctx.beginPath(); ctx.arc(ox - u * 80, oy + u * u * 160, 5, 0, TAU); ctx.fill(); } }
+  ctx.restore();
+  // rótulos dentro de cada capa
+  const lb = o.labels ?? 0; if (lb > 0) { let y2 = y; L.forEach(([s, f, c], k) => { const a = cl(lb * L.length - k); if (a > 0) { ctx.save(); ctx.globalAlpha = a; ctx.font = '800 34px Nunito'; ctx.textAlign = 'left'; ctx.textBaseline = 'middle'; const tw = ctx.measureText(s).width; P.rr(ctx, x + wt + 30, y2 + f * h / 2 - 26, tw + 30, 52, 26, 'rgba(17,26,25,0.75)'); ctx.fillStyle = '#F4F7F3'; ctx.fillText(s, x + wt + 45, y2 + f * h / 2 + 1); ctx.restore(); } y2 += f * h; }); }
+  return { bed, wt };
+ };
+ // Canal de piedra (en planta o perfil) con agua que fluye por una polilínea. o: { fill 0..1, speed, w }
+ P.channel = (ctx, pts, t, o = {}) => {
+  const w = o.w || 22, L = P.path(pts); P.strokePath(ctx, pts, w + 14, '#858d86', { cap: 'butt' }); P.strokePath(ctx, pts, w + 14, 'rgba(30,34,32,0.25)', { cap: 'butt', a: 0.4 }); P.strokePath(ctx, pts, w, '#3c4a46', { cap: 'butt' });
+  const f = cl(o.fill ?? 1); if (f <= 0) return L; const part = [pts[0]]; let acc = 0; for (let i = 1; i < pts.length; i++) { const d = Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]); if (acc + d >= L.L * f) { const q = L.at(L.L * f); part.push([q[0], q[1]]); break; } acc += d; part.push(pts[i]); }
+  P.strokePath(ctx, part, w * 0.8, '#37b9d9', { cap: 'butt' }); ctx.save(); ctx.setLineDash([14, 22]); ctx.lineDashOffset = -t * (o.speed || 90); P.strokePath(ctx, part, w * 0.25, 'rgba(244,247,243,0.75)', { cap: 'round' }); ctx.restore(); return L;
+ };
+ // Fuente inca (bloque tallado con caño, chorro parabólico y pila). on 0..1
+ P.incaFountain = (ctx, x, y, s, t, on = 1) => {
+  P.granite(ctx, [[x - s * 0.5, y - s * 0.9], [x + s * 0.5, y - s * 0.9], [x + s * 0.5, y], [x - s * 0.5, y]], { seed: Math.round(x) });
+  ctx.fillStyle = '#3c4a46'; ctx.fillRect(x - s * 0.06, y - s * 0.95, s * 0.12, s * 0.1);
+  P.granite(ctx, [[x - s * 0.45, y + s * 0.02], [x + s * 0.45, y + s * 0.02], [x + s * 0.4, y + s * 0.32], [x - s * 0.4, y + s * 0.32]], { seed: Math.round(x) + 9 }); ctx.fillStyle = 'rgba(55,185,217,0.85)'; ctx.fillRect(x - s * 0.36, y + s * 0.08, s * 0.72, s * 0.14);
+  if (on > 0) { ctx.save(); ctx.strokeStyle = `rgba(122,230,242,${0.9 * on})`; ctx.lineWidth = s * 0.07; ctx.lineCap = 'round'; ctx.beginPath(); ctx.moveTo(x, y - s * 0.88); ctx.quadraticCurveTo(x + s * 0.08, y - s * 0.6, x + s * 0.05, y + s * 0.1); ctx.stroke(); for (let k = 0; k < 3; k++) { const u = (t * 1.5 + k / 3) % 1; ctx.strokeStyle = `rgba(244,247,243,${0.7 * (1 - u) * on})`; ctx.lineWidth = 2; ctx.beginPath(); ctx.ellipse(x + s * 0.05, y + s * 0.12, s * 0.06 + u * s * 0.25, s * 0.02 + u * s * 0.05, 0, 0, TAU); ctx.stroke(); } ctx.restore(); }
+ };
+ // CIUDADELA DE MONTAÑA estilizada (inspirada en Machu Picchu, no a escala): cresta con terrazas agrícolas, sector urbano con recintos
+ // de piedra (puertas trapezoidales, hastiales), plaza y el pico tras ella. o.age 0 = reconstrucción (techos de paja), 1 = estado actual
+ // (sin techos, pasto); o.canal (agua visible), o.glow { walls, drain, water } para resaltar sistemas. s ≈ ancho/2 en px.
+ P.citadel = (ctx, cx, cy, s, t, o = {}) => {
+  const age = o.age ?? 1, gl = o.glow || {};
+  // pico (tipo Huayna Picchu) detrás a la derecha
+  ctx.save(); const pg = ctx.createLinearGradient(cx + s * 0.4, cy - s * 1.3, cx + s * 0.9, cy); pg.addColorStop(0, '#4f6b52'); pg.addColorStop(1, '#2f4438'); ctx.fillStyle = pg; ctx.beginPath(); ctx.moveTo(cx + s * 0.05, cy + s * 0.1); ctx.quadraticCurveTo(cx + s * 0.35, cy - s * 1.25, cx + s * 0.62, cy - s * 1.3); ctx.quadraticCurveTo(cx + s * 0.95, cy - s * 1.15, cx + s * 1.3, cy + s * 0.2); ctx.closePath(); ctx.fill(); ctx.restore();
+  // cresta / montaña principal
+  ctx.save(); const mg = ctx.createLinearGradient(0, cy - s * 0.3, 0, cy + s * 1.4); mg.addColorStop(0, '#587348'); mg.addColorStop(1, '#2c3d33'); ctx.fillStyle = mg; ctx.beginPath(); ctx.moveTo(cx - s * 1.5, cy + s * 1.6); ctx.lineTo(cx - s * 1.1, cy + s * 0.2); ctx.quadraticCurveTo(cx - s * 0.6, cy - s * 0.18, cx - s * 0.2, cy - s * 0.12); ctx.lineTo(cx + s * 0.55, cy - s * 0.1); ctx.quadraticCurveTo(cx + s * 1.0, cy + s * 0.05, cx + s * 1.5, cy + s * 1.6); ctx.closePath(); ctx.fill(); ctx.restore();
+  // terrazas agrícolas (izquierda)
+  const nT = 9; for (let i = 0; i < nT; i++) { const y = cy - s * 0.1 + i * s * 0.07, x0 = cx - s * (0.25 + i * 0.1), x1 = cx - s * (0.02 + i * 0.03); ctx.fillStyle = age < 0.5 ? '#87a46b' : '#7fa060'; ctx.fillRect(x0, y - s * 0.035, x1 - x0, s * 0.03); ctx.fillStyle = '#9aa197'; ctx.fillRect(x0, y - s * 0.006, x1 - x0, s * 0.03); ctx.strokeStyle = 'rgba(40,45,42,0.35)'; ctx.lineWidth = 1; ctx.strokeRect(x0, y - s * 0.006, x1 - x0, s * 0.03); if (gl.walls) { ctx.strokeStyle = `rgba(212,172,100,${gl.walls})`; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(x0, y); ctx.lineTo(x1, y); ctx.stroke(); } if (gl.drain) { ctx.save(); ctx.setLineDash([6, 6]); ctx.strokeStyle = `rgba(55,185,217,${gl.drain})`; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(x0 + 8, y + s * 0.035); ctx.lineTo(x1 - 8, y + s * 0.035); ctx.stroke(); ctx.restore(); } }
+  // plaza
+  ctx.fillStyle = '#7fa060'; ctx.beginPath(); ctx.ellipse(cx + s * 0.12, cy - s * 0.12, s * 0.2, s * 0.045, 0, 0, TAU); ctx.fill();
+  // sector urbano: tres filas de recintos (atrás → delante)
+  const R = H.rng(o.seed || 21); const rows = [[cy - s * 0.2, 0.75, cx - s * 0.12, cx + s * 0.62], [cy - s * 0.14, 0.88, cx + s * 0.28, cx + s * 0.75], [cy - s * 0.06, 1, cx + s * 0.2, cx + s * 0.85]];
+  rows.forEach(([by, k, xa, xb], ri) => { let x = xa; while (x < xb) { const bw = s * R.range(0.1, 0.15) * k, bh = s * R.range(0.07, 0.095) * k, ruin = age > 0.5 && R() < 0.35 ? R.range(0.5, 0.8) : 1; const top = by - bh * ruin;
+   P.granite(ctx, [[x, top], [x + bw, top], [x + bw, by], [x, by]], { seed: Math.round(x + by), bevel: false });
+   ctx.fillStyle = '#2c3530'; const dw = bw * 0.22; ctx.beginPath(); ctx.moveTo(x + bw * 0.4, by); ctx.lineTo(x + bw * 0.4 + dw * 0.12, by - bh * 0.6 * ruin); ctx.lineTo(x + bw * 0.4 + dw * 0.88, by - bh * 0.6 * ruin); ctx.lineTo(x + bw * 0.4 + dw, by); ctx.closePath(); ctx.fill();
+   if (ruin === 1) { ctx.fillStyle = '#9aa197'; ctx.beginPath(); ctx.moveTo(x, top); ctx.lineTo(x + bw * 0.5, top - bh * 0.55); ctx.lineTo(x + bw, top); ctx.closePath(); ctx.fill(); }
+   if (age < 1 && ruin === 1) { ctx.save(); ctx.globalAlpha *= 1 - age; ctx.fillStyle = '#9a7b45'; ctx.beginPath(); ctx.moveTo(x - bw * 0.08, top + 2); ctx.lineTo(x + bw * 0.5, top - bh * 0.7); ctx.lineTo(x + bw * 1.08, top + 2); ctx.closePath(); ctx.fill(); ctx.strokeStyle = 'rgba(90,70,40,0.6)'; ctx.lineWidth = 1; for (let q = 1; q < 5; q++) { ctx.beginPath(); ctx.moveTo(x - bw * 0.08 + q * bw * 0.23, top + 2); ctx.lineTo(x + bw * 0.5, top - bh * 0.7); ctx.stroke(); } ctx.restore(); }
+   if (age > 0.6) { ctx.fillStyle = `rgba(110,140,80,${(age - 0.6) * 1.5})`; ctx.fillRect(x, by - 3, bw, 3); }
+   if (gl.walls) { ctx.strokeStyle = `rgba(212,172,100,${gl.walls})`; ctx.lineWidth = 2; ctx.strokeRect(x, top, bw, by - top); }
+   x += bw + s * R.range(0.015, 0.03); } });
+  // canal de abastecimiento: desde la ladera del pico hasta el sector urbano (bajando)
+  if ((o.canal ?? 0) > 0) { const pts = [[cx + s * 1.05, cy - s * 0.32], [cx + s * 0.8, cy - s * 0.25], [cx + s * 0.55, cy - s * 0.22], [cx + s * 0.3, cy - s * 0.17]]; ctx.save(); ctx.globalAlpha *= o.canal; P.strokePath(ctx, pts, 8, '#858d86'); ctx.setLineDash([10, 10]); ctx.lineDashOffset = -t * 40; P.strokePath(ctx, pts, 4, gl.water ? `rgba(122,230,242,${0.6 + 0.4 * gl.water})` : '#37b9d9'); ctx.restore(); }
+ };
+
  // ---------------- SUBTÍTULOS (arriba, palabra a palabra, palabra clave seleccionada) ----------------
  // Trozos de ≤3 palabras (≤4 si son cortas); las palabras aparecen al decirse: la actual en blanco y negrita,
  // las ya dichas en gris; la palabra clave lleva recuadro de selección con asas en el color de acento.
@@ -1285,6 +1419,13 @@
   encendido: (k, t, d = 2.5, g = 1) => { k.tone(t, { f: [[0, 30], [d, 70]], type: 'sawtooth', dur: d + 1, gain: 0.05 * g, filter: 'lowpass', f2: 320, a: d * 0.7, hold: 0.8 }); k.noise(t, { dur: d + 1, color: 'brown', filter: 'lowpass', f: [[0, 80], [d, 520]], gain: 0.18 * g, a: d * 0.8, hold: 0.5 }); k.tone(t + d * 0.6, { f: [[0, 220], [0.8, 440]], dur: 1.2, gain: 0.03 * g, verb: 0.4, a: 0.3 }); k.play('thud', t + d, { f: 60, gain: 0.4 * g }); },
   pasada: (k, t, d = 1.6, g = 1) => { k.noise(t, { dur: d, color: 'pink', filter: 'bandpass', f: [[0, 200], [d * 0.5, 1200], [d, 180]], q: 0.8, gain: 0.25 * g, a: d * 0.5 }); k.tone(t, { f: [[0, 70], [d * 0.5, 110], [d, 55]], type: 'sawtooth', dur: d, gain: 0.03 * g, filter: 'lowpass', f2: 300, a: d * 0.5 }); },
   holo: (k, t, g = 1) => { k.tone(t, { f: [[0, 900], [0.25, 1800]], dur: 0.35, gain: 0.04 * g, a: 0.01, verb: 0.3 }); k.tone(t + 0.08, { f: 2600, dur: 0.25, gain: 0.02 * g, a: 0.005, minor: true }); k.noise(t, { dur: 0.3, filter: 'highpass', f: 5000, gain: 0.03 * g, a: 0.05 }); },
+  // v1.12 · montaña, piedra y agua
+  lluviaFuerte: (k, t, d, g = 1) => { k.noise(t, { dur: d, color: 'white', filter: 'bandpass', f: 2800, q: 0.6, gain: 0.06 * g, a: Math.min(1.2, d * 0.3), hold: d * 0.6 }); k.noise(t, { dur: d, color: 'pink', filter: 'lowpass', f: 900, gain: 0.08 * g, a: Math.min(1.2, d * 0.3), hold: d * 0.6 }); },
+  golpePiedra: (k, t, n = 4, gap = 0.4, g = 1) => { for (let i = 0; i < n; i++) { k.play('thud', t + i * gap, { f: 120, gain: 0.3 * g }); k.noise(t + i * gap, { dur: 0.06, filter: 'bandpass', f: 1800, q: 1.5, gain: 0.25 * g, a: 0.001 }); k.tone(t + i * gap, { f: 1600 + (i % 2) * 300, dur: 0.08, gain: 0.03 * g, a: 0.001, minor: true }); } },
+  abrasion: (k, t, d, g = 1) => { const R = H.rng(Math.round(t * 10) + 4); for (let x = 0; x < d; x += 0.32) k.noise(t + x, { dur: 0.28, color: 'pink', filter: 'bandpass', f: 1400 + R() * 400, q: 0.9, gain: 0.07 * g, a: 0.1 }); },
+  encaje: (k, t, g = 1) => { k.play('thud', t, { f: 70, gain: 0.5 * g }); k.noise(t, { dur: 0.08, filter: 'bandpass', f: 900, q: 2, gain: 0.25 * g }); k.tone(t + 0.02, { f: 'A4', dur: 0.8, gain: 0.04 * g, verb: 0.3, minor: true }); },
+  arroyo: (k, t, d, g = 1) => { k.noise(t, { dur: d, color: 'pink', filter: 'bandpass', f: [[0, 1200], [d * 0.5, 1700], [d, 1300]], q: 1.2, gain: 0.06 * g, a: Math.min(1, d * 0.3), hold: d * 0.6 }); FX.goteo(k, t, Math.round(d * 2), 0.5, Math.round(t * 10)); },
+  tiempo: (k, t, d = 2, g = 1) => { k.noise(t, { dur: d, color: 'pink', filter: 'bandpass', f: [[0, 400], [d, 3000]], q: 1.5, gain: 0.1 * g, a: d * 0.6 }); for (let i = 0; i < 8; i++) k.tone(t + i * d / 8, { f: 1800 - i * 120, dur: 0.3, gain: 0.02 * g, verb: 0.4, minor: true }); },
  };
  window.PLANTILLA = { make, SKINS, P, FX, TRANS_SFX, setSkin: (n) => (SK = SKINS[n]), W, HH };
 })();

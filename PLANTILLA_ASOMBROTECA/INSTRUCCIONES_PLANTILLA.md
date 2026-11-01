@@ -144,6 +144,23 @@ La piel se elige con `skin: 'plana' | 'oscura'` en `PLANTILLA.make`. Los bloques
 | `rings` | Ondas de radio, en anillo o dirigidas |
 | `clock` | Reloj analógico |
 
+**Bloques v1.12 (episodio «Machu Picchu»)** — montaña, mampostería, terrazas, drenaje y agua:
+
+| Bloque | Uso |
+|---|---|
+| `andes(ctx, t, {sky, sun, peaks, layers})` | Cordillera por capas con perspectiva atmosférica |
+| `fog(ctx, y, h, t, {a, speed})` | Banda de niebla que deriva entre montañas |
+| `rainSheet(ctx, t, {x, y, w, h, n, a})` | Lluvia en diagonal sobre un área |
+| `granite(ctx, pts, {c1, c2, bevel})` | Relleno de granito con motas y bisel, para cualquier polígono |
+| `stoneWall(ctx, x, y, w, h, {style, skip})` | Muro `poligonal` (bloques que comparten vértices: encajan sin huecos), `sillar` (hiladas) o `rustica` (piedra de campo con juntas de barro). `skip` deja un hueco para animar un bloque que encaja. **Devuelve los polígonos** |
+| `terraces(ctx, x0, y0, sw, sh, n, t, {build, cut, water})` | Terrazas escalonadas sobre una ladera, en corte: muros y relleno por capas que se construyen y se revelan, con agua que se infiltra |
+| `terraceCut(ctx, x, y, w, h, t, {reveal, labels, water})` | **Corte grande de una terraza** (diagrama clave): muro, capas suelo/arena/grava/piedras con rótulos, roca de la ladera, infiltración y salida del agua al pie del muro |
+| `channel(ctx, pts, t, {fill})` | Canal de piedra con agua que fluye (abastecimiento por gravedad) |
+| `incaFountain(ctx, x, y, s, t, on)` | Fuente tallada con caño, chorro y pila |
+| `citadel(ctx, cx, cy, s, t, {age, canal, glow})` | Ciudadela de montaña estilizada: terrazas, recintos de piedra, plaza y pico. `age` 0 = reconstrucción (techos de paja) → 1 = estado actual. `glow` resalta muros, drenaje y agua por separado |
+
+Efectos `FX` de v1.12: `lluviaFuerte`, `golpePiedra` (percusión), `abrasion`, `encaje` (bloque que asienta), `arroyo` (agua por un canal) y `tiempo` (transición histórica).
+
 **Bloques v1.11 (Andrómeda V2, rediseño cinematográfico)** — 3D ligero, nave, espacio profundo y gráficas:
 
 | Bloque | Uso |

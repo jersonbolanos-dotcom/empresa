@@ -88,3 +88,7 @@ Si sientes que al prompt le falta algo para que el video se vea mejor, hazlo y e
 10. **Procesos con pasos.** Cuando el guion enumera pasos («localizar, recuperar y reparar»), muéstralos como una fila numerada que se enciende con la voz.
 11. **Cierres circulares.** Vuelve a la imagen del gancho, ahora entendida.
 12. **Transcripción.** Corrige en los subtítulos los errores de Whisper (nombres, cifras, «Asombroteca») sin tocar el audio. Las cifras habladas se escriben `2|dos` en `tramos.txt`.
+13. **Revelar lo oculto.** Si la clave está dentro o debajo de algo (terrazas, cascos, generadores), muestra primero la superficie y luego vuélvela transparente o córtala. La revelación es un momento, no un rótulo.
+14. **Antes y después en la misma toma.** Las transiciones temporales (reconstrucción ↔ estado actual) se hacen sobre el mismo encuadre para que se puedan comparar.
+15. **Sistemas parecidos, separados.** Si dos sistemas se parecen (drenaje de lluvia y abastecimiento de agua; aire y empuje…), dales colores distintos y dilo en pantalla.
+16. **Cuantificadores honestos.** «En algunos muros», «muchas estructuras», «con conservación», «no sabemos cómo se movió cada bloque»: si el guion generaliza, la pantalla matiza sin contradecir la voz.
