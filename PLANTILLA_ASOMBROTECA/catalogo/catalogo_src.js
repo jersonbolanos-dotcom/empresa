@@ -52,6 +52,13 @@
   ['Rampas: recta y zigzag (v1.8)', (c, t) => { const a = P.pyramid(c, 130, 260, 200, 150, { built: 0.8, courses: 8 }); P.ramp(c, a, 'zigzag', 1, { top: 0.8, w: 5 }); const b = P.pyramid(c, 320, 260, 140, 110, { built: 0.8, courses: 6 }); P.ramp(c, b, 'recta', 1, { top: 0.8, len: 60 }); }],
   ['Papiro · herramientas (v1.8)', (c, t) => { P.papyrus(c, 30, 40, 170, 110, {}); P.tool(c, 'cincel', 250, 100, 90, -0.4); P.tool(c, 'sierra', 330, 100, 90, 0.3); P.tool(c, 'codo', 110, 230, 150, 0); P.tool(c, 'plomada', 280, 230, 80, 0); }],
   ['Palmera · signos de pregunta (v1.8)', (c, t) => { P.palm(c, 120, 280, 230, t); P.qmark(c, 280, 130, 90, t); P.qmark(c, 340, 220, 60, t + 1); }],
+  ['Mar de perfil + portacontenedores (v1.9)', (c, t) => { c.save(); c.translate(0, -60); P.seaProfile(c, 230, t, { x0: 0, x1: 400, bottom: 400, sun: [330, 120], snow: 10 }); P.cargoShip(c, 200, 230, 340, 28, t, { H: 40, rows: 3 }); P.underwater(c, 230, t, { x0: 0, x1: 400, bottom: 400 }); c.restore(); }],
+  ['Portacontenedores en corte + inundación (v1.9)', (c, t) => { c.fillStyle = '#063A5B'; c.fillRect(0, 180, 400, 120); P.cargoShip(c, 200, 180, 360, 50, t, { H: 80, rows: 2, cut: 1, comps: 6, flood: [0, 0, 0, 0.7, 0, 0] }); }],
+  ['Sección del casco + volumen desplazado (v1.9)', (c, t) => { c.fillStyle = '#063A5B'; c.fillRect(0, 170, 400, 130); P.hullSection(c, 200, 170, 220, 160, 80, t, { disp: 1, cargo: 2 }); }],
+  ['Flechas de fuerza + presión (v1.9)', (c, t) => { P.forceArrow(c, 140, 260, 180, 1, '#37E6C0', 'EMPUJE', { w: 18, px: 22 }); P.forceArrow(c, 280, 60, 180, -1, '#FF7D65', 'PESO', { w: 18, px: 22 }); }],
+  ['Grúa de muelle + contenedor (v1.9)', (c, t) => { const s = P.gantryCrane(c, 90, 290, 220, 0.6, 120); P.container(c, s[0] - 25, s[1], 50, 22, '#B7473C'); }],
+  ['Salpicadura (v1.9)', (c, t) => { c.fillStyle = '#1378A8'; c.fillRect(0, 200, 400, 100); P.splash(c, 200, 200, 0.35, 0, { s: 70 }); }],
+  ['Vaso con rebosadero · Arquímedes · columna (v1.9)', (c, t) => { P.column(c, 50, 290, 200, 30); P.greek(c, 130, 290, 160, { point: 1 }); P.beaker(c, 210, 150, 110, 130, 0.7, t, { spout: true, overflow: 1 }); }],
  ];
  window.drawCatalog = function () {
   document.querySelectorAll('canvas[data-i]').forEach((cv) => {

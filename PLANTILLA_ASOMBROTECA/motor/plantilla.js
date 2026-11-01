@@ -736,6 +736,121 @@
  // Signo de interrogación flotante (dudas, hipótesis abiertas)
  P.qmark = (ctx, x, y, s, t = 0, c = '#FFD447') => { ctx.save(); ctx.translate(x, y + Math.sin(t * 2 + x) * s * 0.08); ctx.rotate(Math.sin(t + y) * 0.1); ctx.font = `800 ${s}px Fredoka`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillStyle = 'rgba(0,0,0,0.35)'; ctx.fillText('?', 3, 4); ctx.fillStyle = c; ctx.fillText('?', 0, 0); ctx.restore(); };
 
+ // ======================= v1.9 · FLOTACIÓN Y BARCOS (hidrostática, ingeniería naval, puertos) =======================
+ // Mar de perfil completo: cielo (o.sky), sol, agua bajo la superficie con cáusticas cerca de la superficie y oleaje.
+ // o: { x0, x1 (ancho del mundo), bottom, depth (0..1 oscuridad del fondo), sun [x, y], caustics }
+ P.seaProfile = (ctx, y, t, o = {}) => {
+  const x0 = o.x0 ?? -600, x1 = o.x1 ?? W + 600, bot = o.bottom ?? HH + 600, sk = o.sky || ['#0e3554', '#8cc6e6'];
+  const g = ctx.createLinearGradient(0, y - 1400, 0, y); g.addColorStop(0, sk[0]); g.addColorStop(1, sk[1]); ctx.fillStyle = g; ctx.fillRect(x0, y - 2600, x1 - x0, 2600);
+  if (o.sun) { P.glow(ctx, o.sun[0], o.sun[1], 260, '255,236,190', 0.55); P.circle(ctx, o.sun[0], o.sun[1], 48, '#fff4d8'); }
+  P.ocean(ctx, t, o.depth ?? 0.5, { x: x0, y, w: x1 - x0, h: bot - y, snow: o.snow ?? 70, rays: 1 });
+  if (o.caustics !== false) { ctx.save(); ctx.globalCompositeOperation = 'lighter'; ctx.strokeStyle = 'rgba(160,230,255,0.10)'; ctx.lineWidth = 3; for (let k = 0; k < 7; k++) { ctx.beginPath(); for (let x = x0; x <= x1; x += 16) { const yy = y + 30 + k * 26 + Math.sin(x * 0.02 + t * 1.3 + k) * 8 + Math.sin(x * 0.047 - t * 0.9 + k * 2) * 5; x === x0 ? ctx.moveTo(x, yy) : ctx.lineTo(x, yy); } ctx.stroke(); } ctx.restore(); }
+  return P.waves(ctx, y, t, { x: x0, w: x1 - x0, amp: o.amp ?? 6 });
+ };
+ // Velo de agua sobre lo que está sumergido (se dibuja DESPUÉS del objeto): tiñe de azul y oscurece con la profundidad
+ P.underwater = (ctx, y, t, o = {}) => { const x0 = o.x0 ?? -600, x1 = o.x1 ?? W + 600, bot = o.bottom ?? HH + 600; ctx.save(); const g = ctx.createLinearGradient(0, y, 0, y + 900); g.addColorStop(0, `rgba(19,120,168,${o.a0 ?? 0.22})`); g.addColorStop(1, `rgba(3,24,39,${o.a1 ?? 0.6})`); ctx.fillStyle = g; ctx.fillRect(x0, y + 2, x1 - x0, bot - y); ctx.restore(); P.waves(ctx, y, t, { x: x0, w: x1 - x0, amp: o.amp ?? 6, c: 'rgba(230,248,255,0.55)' }); };
+ // Contenedor (caja con nervios) y pila de contenedores
+ const CONT = ['#B7473C', '#2f6f9f', '#3f8f7a', '#d6a33a', '#7d8a99', '#8e4f7a', '#c8653a', '#4a6b8a'];
+ P.container = (ctx, x, y, w, h, c) => { ctx.save(); ctx.fillStyle = c; ctx.fillRect(x, y, w, h); ctx.strokeStyle = 'rgba(0,0,0,0.28)'; ctx.lineWidth = 1; for (let k = 1; k < 6; k++) { ctx.beginPath(); ctx.moveTo(x + w * k / 6, y + 1); ctx.lineTo(x + w * k / 6, y + h - 1); ctx.stroke(); } ctx.strokeStyle = 'rgba(0,0,0,0.45)'; ctx.strokeRect(x + 0.5, y + 0.5, w - 1, h - 1); ctx.restore(); };
+ // Portacontenedores de perfil (proa a la DERECHA). y = línea de flotación; draft = calado en px (cuánto está bajo el agua).
+ // o: { H (puntal), rows (pisos de contenedores), cut 0..1 (corte longitudinal: muestra mamparos, cubiertas y espacios con aire),
+ //      flood [0..1 por compartimento] (agua dentro), comps (nº de compartimentos), extra (contenedores añadidos), plimsoll, trim (rad) }
+ // Devuelve { x0, x1, deck, keel, bay(i) → [x, y] de la pila i, comps: [[xa, xb]…] }
+ P.cargoShip = (ctx, x, y, L, draft, t, o = {}) => {
+  const Hh = o.H ?? L * 0.09, keel = y + draft, deck = keel - Hh, x0 = x - L / 2, x1 = x + L / 2, bob = Math.sin(t * 0.9) * 2;
+  ctx.save(); ctx.translate(x, y); ctx.rotate(o.trim || 0); ctx.translate(-x, -y + bob);
+  const hullPts = [[x0, deck - Hh * 0.05], [x1 - L * 0.04, deck], [x1 + L * 0.01, deck - Hh * 0.12], [x1 - L * 0.005, keel - Hh * 0.45], [x1 + L * 0.012, keel - Hh * 0.28], [x1 - L * 0.02, keel - Hh * 0.05], [x1 - L * 0.08, keel], [x0 + L * 0.07, keel], [x0 + L * 0.01, keel - Hh * 0.35], [x0, deck - Hh * 0.05]];
+  const poly = (pts) => { ctx.beginPath(); pts.forEach((p, i) => (i ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1]))); ctx.closePath(); };
+  // casco: obra muerta oscura y obra viva roja (antiincrustante) por debajo de la línea de flotación de diseño
+  const dwl = keel - (o.design ?? draft) ; ctx.save(); poly(hullPts); ctx.clip(); ctx.fillStyle = '#26394a'; ctx.fillRect(x0 - 20, deck - Hh, L + 40, Hh * 2); ctx.fillStyle = '#B7473C'; ctx.fillRect(x0 - 20, dwl, L + 40, Hh * 2); ctx.fillStyle = 'rgba(255,255,255,0.08)'; ctx.fillRect(x0 - 20, deck, L + 40, Hh * 0.18);
+  // corte longitudinal: interior con mamparos y cubiertas
+  const nc = o.comps || 7, comps = []; for (let i = 0; i < nc; i++) comps.push([x0 + L * 0.1 + i * L * 0.8 / nc, x0 + L * 0.1 + (i + 1) * L * 0.8 / nc]);
+  const cut = o.cut || 0; if (cut > 0) { ctx.globalAlpha = cut; const th = Math.max(4, Hh * 0.06); ctx.fillStyle = '#0d2233'; ctx.fillRect(x0 + th, deck + th, L - 2 * th, Hh - 2 * th); const ag = ctx.createLinearGradient(0, deck, 0, keel); ag.addColorStop(0, 'rgba(244,250,255,0.22)'); ag.addColorStop(1, 'rgba(57,217,255,0.12)'); ctx.fillStyle = ag; ctx.fillRect(x0 + th, deck + th, L - 2 * th, Hh - 2 * th);
+   ctx.fillStyle = '#A9C2D1'; for (const [a] of comps) ctx.fillRect(a - th / 2, deck, th, Hh); ctx.fillRect(comps[nc - 1][1] - th / 2, deck, th, Hh); ctx.fillRect(x0, keel - Hh * 0.14, L, th * 0.8); ctx.fillRect(x0, deck + Hh * 0.45, L * 0.1, th * 0.6);
+   (o.flood || []).forEach((f, i) => { if (!f || !comps[i]) return; const [a, b] = comps[i], top = lerp(keel - th, deck + th, cl(f)); const wg = ctx.createLinearGradient(0, top, 0, keel); wg.addColorStop(0, 'rgba(57,217,255,0.85)'); wg.addColorStop(1, 'rgba(19,120,168,0.95)'); ctx.fillStyle = wg; ctx.fillRect(a + th / 2, top, b - a - th, keel - th - top); ctx.strokeStyle = 'rgba(244,250,255,0.8)'; ctx.lineWidth = 2; ctx.beginPath(); for (let xx = a + th; xx < b - th; xx += 6) { const yy = top + Math.sin(xx * 0.1 + t * 5) * 2; xx === a + th ? ctx.moveTo(xx, yy) : ctx.lineTo(xx, yy); } ctx.stroke(); });
+   ctx.globalAlpha = 1; }
+  if (o.disp) { ctx.fillStyle = `rgba(57,217,255,${0.4 * o.disp})`; ctx.fillRect(x0 - 20, y - bob, L + 40, Hh * 3); ctx.strokeStyle = `rgba(57,217,255,${o.disp})`; ctx.lineWidth = 4; ctx.setLineDash([12, 8]); ctx.beginPath(); ctx.moveTo(x0 - 20, y - bob); ctx.lineTo(x1 + 20, y - bob); ctx.stroke(); ctx.setLineDash([]); }
+  ctx.restore();
+  ctx.strokeStyle = '#A9C2D1'; ctx.lineWidth = Math.max(2, L / 500); poly(hullPts); ctx.stroke();
+  // marca Plimsoll (línea de carga) en el centro del costado
+  if (o.plimsoll) { const px = x - L * 0.05, py = keel - (o.plimsollDraft ?? draft); ctx.save(); ctx.strokeStyle = '#FFD447'; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(px, py, Hh * 0.13, 0, TAU); ctx.moveTo(px - Hh * 0.22, py); ctx.lineTo(px + Hh * 0.22, py); ctx.stroke(); ctx.restore(); }
+  // superestructura (habilitación y puente) cerca de popa
+  const sx = x0 + L * 0.13, sw = L * 0.06; ctx.fillStyle = '#e9eef3'; ctx.fillRect(sx, deck - Hh * 1.25, sw, Hh * 1.25); ctx.fillStyle = '#c9d3dc'; ctx.fillRect(sx - sw * 0.25, deck - Hh * 1.32, sw * 1.5, Hh * 0.1); ctx.fillStyle = '#16283a'; for (let r = 0; r < 5; r++) for (let c2 = 0; c2 < 3; c2++) ctx.fillRect(sx + sw * 0.12 + c2 * sw * 0.29, deck - Hh * 1.18 + r * Hh * 0.22, sw * 0.18, Hh * 0.09); ctx.fillStyle = '#B7473C'; ctx.fillRect(sx - L * 0.035, deck - Hh * 1.0, L * 0.022, Hh * 1.0);
+  // pilas de contenedores sobre cubierta
+  const rows = o.rows ?? 5, bays = Math.floor((L * 0.66) / (L * 0.04)), bw = L * 0.04, ch = Hh * 0.26; const R = H.rng(o.seed || 11);
+  const bay = (i) => [x0 + L * 0.22 + i * bw, deck];
+  for (let i = 0; i < bays; i++) { const [bx] = bay(i); const n = rows - (i < 2 || i > bays - 3 ? 1 : 0) + (o.extraBay && o.extraBay[i] ? o.extraBay[i] : 0); for (let r = 0; r < n; r++) P.container(ctx, bx + 1, deck - (r + 1) * ch, bw - 2, ch - 1, CONT[Math.floor(R() * CONT.length)]); }
+  ctx.restore();
+  return { x0, x1, deck: deck + bob, keel: keel + bob, bay: (i) => { const [bx] = bay(i); return [bx + bw / 2, deck + bob]; }, bw, ch, bays, comps };
+ };
+ // Sección transversal del casco (forma en U) a escala de diagrama: paredes y doble fondo de acero, interior con aire
+ // (luz suave) y contenedores. sink = cuánto está bajo el agua (px). Muestra el volumen desplazado (cian) si o.disp > 0.
+ // o: { disp 0..1, sep 0..1 (separa el volumen desplazado a un lado), cargo (pisos de contenedores en bodega), flood 0..1 }
+ // Devuelve { bottom, top, wl (y de la línea de agua en el casco), cob [x, y] (centro de empuje), area (px² sumergidos) }
+ P.hullSection = (ctx, cx, wl, w, h, sink, t, o = {}) => {
+  const bottom = wl + sink, top = bottom - h, r = w * 0.16, x0 = cx - w / 2, x1 = cx + w / 2;
+  const shape = (pad = 0) => { ctx.beginPath(); ctx.moveTo(x0 - pad, top); ctx.lineTo(x0 - pad, bottom - r); ctx.quadraticCurveTo(x0 - pad, bottom + pad, x0 + r, bottom + pad); ctx.lineTo(x1 - r, bottom + pad); ctx.quadraticCurveTo(x1 + pad, bottom + pad, x1 + pad, bottom - r); ctx.lineTo(x1 + pad, top); };
+  const sub = Math.max(0, Math.min(h, sink)), area = sub * w;
+  // volumen desplazado (cian), en su sitio o separado hacia un lado
+  const dA = o.disp || 0; if (dA > 0) { const dx = (o.sep || 0) * (o.sepX ?? 0), dy = (o.sep || 0) * (o.sepY ?? h * 0.75); ctx.save(); ctx.translate(dx, dy); ctx.beginPath(); ctx.rect(x0 - 4, wl, w + 8, sub + 6); ctx.clip(); shape(4); ctx.closePath(); ctx.fillStyle = `rgba(57,217,255,${0.42 * dA})`; ctx.fill(); ctx.strokeStyle = `rgba(57,217,255,${0.95 * dA})`; ctx.lineWidth = 4; ctx.setLineDash([12, 8]); ctx.stroke(); ctx.restore(); }
+  // casco
+  ctx.save(); shape(0); ctx.lineTo(x1, top); ctx.closePath(); const sg = ctx.createLinearGradient(x0, 0, x1, 0); sg.addColorStop(0, '#5d7a8f'); sg.addColorStop(0.5, '#A9C2D1'); sg.addColorStop(1, '#3D5669'); ctx.fillStyle = sg; ctx.fill(); ctx.clip();
+  const th = Math.max(8, w * 0.035); ctx.fillStyle = '#0b2131'; ctx.beginPath(); ctx.moveTo(x0 + th, top - 2); ctx.lineTo(x0 + th, bottom - r - th * 0.4); ctx.quadraticCurveTo(x0 + th, bottom - th * 1.6, x0 + r, bottom - th * 1.6); ctx.lineTo(x1 - r, bottom - th * 1.6); ctx.quadraticCurveTo(x1 - th, bottom - th * 1.6, x1 - th, bottom - r - th * 0.4); ctx.lineTo(x1 - th, top - 2); ctx.closePath(); ctx.fill();
+  const ag = ctx.createRadialGradient(cx, bottom - h * 0.45, 10, cx, bottom - h * 0.45, w * 0.6); ag.addColorStop(0, 'rgba(244,250,255,0.28)'); ag.addColorStop(1, 'rgba(244,250,255,0.04)'); ctx.fillStyle = ag; ctx.fillRect(x0, top, w, h);
+  ctx.fillStyle = '#A9C2D1'; ctx.fillRect(x0, bottom - th * 3.2, w, th * 0.5); // doble fondo
+  if (o.flood) { const fy = lerp(bottom - th * 1.6, top + th, cl(o.flood)); ctx.fillStyle = 'rgba(19,120,168,0.92)'; ctx.fillRect(x0 + th, fy, w - 2 * th, bottom - fy); }
+  const cg = o.cargo || 0, cw = (w - 2 * th - 20) / 6, chh = cw * 0.45; const R = H.rng(5); for (let r2 = 0; r2 < cg; r2++) for (let k = 0; k < 6; k++) P.container(ctx, x0 + th + 10 + k * cw, bottom - th * 3.2 - (r2 + 1) * chh, cw - 3, chh - 2, CONT[Math.floor(R() * CONT.length)]);
+  ctx.restore();
+  ctx.fillStyle = '#B7473C'; ctx.save(); shape(0); ctx.lineTo(x1, top); ctx.closePath(); ctx.clip(); ctx.globalAlpha = 0.9; ctx.beginPath(); shape(0); ctx.lineTo(x1, top); ctx.closePath(); ctx.restore();
+  ctx.strokeStyle = '#d6e3ec'; ctx.lineWidth = 3; shape(0); ctx.stroke();
+  return { bottom, top, wl, cob: [cx, wl + sub / 2], area, x0, x1 };
+ };
+ // Flecha de fuerza vertical (o horizontal) gruesa con etiqueta: dir 1 = arriba, -1 = abajo. len en px (∝ magnitud).
+ P.forceArrow = (ctx, x, y, len, dir, c, label, o = {}) => {
+  if (len <= 2) return; const w = o.w || 22, hw = w * 1.9, hl = Math.min(len * 0.45, w * 2.2), ey = y - dir * len; ctx.save(); ctx.shadowColor = 'rgba(0,0,0,0.45)'; ctx.shadowBlur = 12; ctx.fillStyle = c;
+  ctx.beginPath(); ctx.moveTo(x - w / 2, y); ctx.lineTo(x - w / 2, ey + dir * hl); ctx.lineTo(x - hw / 2, ey + dir * hl); ctx.lineTo(x, ey); ctx.lineTo(x + hw / 2, ey + dir * hl); ctx.lineTo(x + w / 2, ey + dir * hl); ctx.lineTo(x + w / 2, y); ctx.closePath(); ctx.fill(); ctx.restore();
+  if (label) { ctx.save(); ctx.font = `800 ${o.px || 34}px Nunito`; ctx.textAlign = o.align || 'left'; ctx.textBaseline = 'middle'; ctx.fillStyle = c; ctx.shadowColor = 'rgba(0,0,0,0.9)'; ctx.shadowBlur = 10; ctx.fillText(label, x + (o.align === 'right' ? -w * 1.4 : w * 1.4), (y + ey) / 2); ctx.restore(); }
+ };
+ // Flechas de presión normales a una superficie sumergida (pts en orden), longitud ∝ profundidad bajo y0.
+ P.pressureArrows = (ctx, pts, y0, t, o = {}) => {
+  const a = o.a ?? 1; if (a <= 0) return; const k = o.k || 0.25, step = o.step || 46, c = o.c || '57,217,255'; const L = P.path(pts); ctx.save(); ctx.globalAlpha *= a; ctx.strokeStyle = `rgba(${c},0.95)`; ctx.fillStyle = `rgba(${c},0.95)`; ctx.lineWidth = 4; ctx.lineCap = 'round';
+  for (let s = step / 2; s < L.L; s += step) { const [x, y, ang] = L.at(s); const d = y - y0; if (d <= 2) continue; const nx = Math.sin(ang), ny = -Math.cos(ang), len = (10 + d * k) * (0.92 + 0.08 * Math.sin(t * 4 + s)); const sx = x + nx * (len + 8), sy = y + ny * (len + 8), ex = x + nx * 8, ey = y + ny * 8; ctx.beginPath(); ctx.moveTo(sx, sy); ctx.lineTo(ex, ey); ctx.stroke(); ctx.beginPath(); ctx.moveTo(ex, ey); ctx.lineTo(ex + nx * 12 - ny * 7, ey + ny * 12 + nx * 7); ctx.lineTo(ex + nx * 12 + ny * 7, ey + ny * 12 - nx * 7); ctx.closePath(); ctx.fill(); }
+  ctx.restore();
+ };
+ // Salpicadura determinista (corona de gotas + anillo) en (x, y) desde t0. o: { s (tamaño), c }
+ P.splash = (ctx, x, y, t, t0, o = {}) => {
+  const u = t - t0; if (u < 0 || u > 1.6) return; const s = o.s || 120, R = H.rng(o.seed || 9); ctx.save();
+  ctx.strokeStyle = `rgba(244,250,255,${0.8 * (1 - u / 1.6)})`; ctx.lineWidth = 4; ctx.beginPath(); ctx.ellipse(x, y, s * (0.4 + u * 1.6), s * 0.12 * (0.4 + u), 0, 0, TAU); ctx.stroke();
+  for (let i = 0; i < 26; i++) { const ang = -Math.PI / 2 + R.range(-1.2, 1.2), v = R.range(0.6, 1.4) * s * 3.2, gx = x + Math.cos(ang) * v * u * 0.6, gy = y + Math.sin(ang) * v * u + 0.5 * 1800 * u * u; if (gy > y + 4) continue; ctx.fillStyle = `rgba(220,245,255,${0.9 * (1 - u / 1.6)})`; ctx.beginPath(); ctx.arc(gx, gy, R.range(3, 8), 0, TAU); ctx.fill(); }
+  ctx.restore();
+ };
+ // Grúa portuaria de muelle (pórtico) de perfil, con el brazo hacia la DERECHA. trolley 0..1 recorre el brazo; hoist = bajada en px.
+ // Devuelve [x, y] del spreader (donde cuelga el contenedor).
+ P.gantryCrane = (ctx, x, y, h, trolley = 0.5, hoist = 100, o = {}) => {
+  const c = o.c || '#d6a33a', reach = h * 1.1, by = y - h; ctx.save(); ctx.strokeStyle = c; ctx.lineWidth = Math.max(3, h * 0.025); ctx.lineJoin = 'round';
+  ctx.beginPath(); ctx.moveTo(x - h * 0.2, y); ctx.lineTo(x - h * 0.16, by); ctx.moveTo(x + h * 0.2, y); ctx.lineTo(x + h * 0.16, by); ctx.moveTo(x - h * 0.19, y - h * 0.45); ctx.lineTo(x + h * 0.19, y - h * 0.45); ctx.moveTo(x - h * 0.19, y - h * 0.45); ctx.lineTo(x + h * 0.17, by + h * 0.02); ctx.stroke();
+  ctx.fillStyle = c; ctx.fillRect(x - h * 0.5, by - h * 0.05, reach + h * 0.5, h * 0.05); ctx.beginPath(); ctx.moveTo(x, by - h * 0.05); ctx.lineTo(x, by - h * 0.3); ctx.lineTo(x + reach * 0.75, by - h * 0.05); ctx.stroke(); ctx.beginPath(); ctx.moveTo(x, by - h * 0.3); ctx.lineTo(x - h * 0.45, by - h * 0.05); ctx.stroke();
+  ctx.fillStyle = '#e9eef3'; ctx.fillRect(x - h * 0.08, by + h * 0.02, h * 0.1, h * 0.07);
+  const tx = x + h * 0.1 + trolley * (reach - h * 0.15); ctx.fillStyle = '#3D5669'; ctx.fillRect(tx - h * 0.04, by, h * 0.08, h * 0.03); ctx.strokeStyle = '#3D5669'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(tx - h * 0.03, by + h * 0.03); ctx.lineTo(tx - h * 0.03, by + hoist); ctx.moveTo(tx + h * 0.03, by + h * 0.03); ctx.lineTo(tx + h * 0.03, by + hoist); ctx.stroke(); ctx.fillStyle = '#FFD447'; ctx.fillRect(tx - h * 0.06, by + hoist, h * 0.12, h * 0.015);
+  ctx.restore(); return [tx, by + hoist + h * 0.015];
+ };
+ // Vaso de laboratorio (o recipiente antiguo) con agua y rebosadero. level 0..1; obj(ctx) dibuja algo dentro; o: { spout, overflow 0..1 }
+ P.beaker = (ctx, x, y, w, h, level, t, o = {}) => {
+  ctx.save(); const wl = y + h - h * level; P.waterBody(ctx, [[x + 6, wl], [x + w - 6, wl], [x + w - 6, y + h - 6], [x + 6, y + h - 6]], t, { surf: [x + 6, x + w - 6, wl], top: wl, bottom: y + h }); if (o.obj) o.obj(wl);
+  ctx.strokeStyle = o.c || 'rgba(230,240,250,0.9)'; ctx.lineWidth = 5; ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x, y + h); ctx.lineTo(x + w, y + h); ctx.lineTo(x + w, y); if (o.spout) { ctx.moveTo(x + w, y + h * 0.12); ctx.lineTo(x + w + w * 0.22, y + h * 0.2); } ctx.stroke();
+  if (o.spout && (o.overflow || 0) > 0) { ctx.strokeStyle = 'rgba(57,217,255,0.9)'; ctx.lineWidth = 6; ctx.lineCap = 'round'; for (let k = 0; k < 3; k++) { const u = (t * 2 + k / 3) % 1; ctx.beginPath(); ctx.moveTo(x + w + w * 0.2, y + h * 0.2 + u * h * 0.5); ctx.lineTo(x + w + w * 0.21, y + h * 0.2 + u * h * 0.5 + 16); ctx.stroke(); } }
+  ctx.restore(); return wl;
+ };
+ // Figura clásica estilizada (túnica griega, de perfil mirando a la derecha) — referencia histórica sin dramatizar
+ P.greek = (ctx, x, y, h, o = {}) => {
+  ctx.save(); ctx.fillStyle = o.c || '#e9e2d0'; ctx.beginPath(); ctx.moveTo(x - h * 0.16, y); ctx.lineTo(x - h * 0.12, y - h * 0.62); ctx.quadraticCurveTo(x, y - h * 0.72, x + h * 0.12, y - h * 0.62); ctx.lineTo(x + h * 0.18, y); ctx.closePath(); ctx.fill();
+  ctx.strokeStyle = 'rgba(120,100,70,0.5)'; ctx.lineWidth = 2; for (let k = 0; k < 4; k++) { ctx.beginPath(); ctx.moveTo(x - h * 0.1 + k * h * 0.06, y - h * 0.58); ctx.lineTo(x - h * 0.12 + k * h * 0.08, y); ctx.stroke(); }
+  ctx.fillStyle = o.skin || '#c08a5a'; ctx.beginPath(); ctx.arc(x + h * 0.02, y - h * 0.8, h * 0.1, 0, TAU); ctx.fill(); ctx.fillStyle = '#d9d9d9'; ctx.beginPath(); ctx.ellipse(x + h * 0.06, y - h * 0.72, h * 0.06, h * 0.07, 0, 0, TAU); ctx.fill();
+  ctx.strokeStyle = o.skin || '#c08a5a'; ctx.lineWidth = h * 0.05; ctx.lineCap = 'round'; ctx.beginPath(); ctx.moveTo(x + h * 0.08, y - h * 0.58); ctx.lineTo(x + h * 0.26, y - h * (0.5 + (o.point || 0) * 0.15)); ctx.stroke(); ctx.restore();
+ };
+ // Columna clásica (fondos históricos)
+ P.column = (ctx, x, y, h, w = 60, c = '#e9e2d0') => { ctx.save(); ctx.fillStyle = c; ctx.fillRect(x - w / 2, y - h, w, h); ctx.fillRect(x - w * 0.7, y - h - w * 0.25, w * 1.4, w * 0.25); ctx.fillRect(x - w * 0.7, y - w * 0.2, w * 1.4, w * 0.2); ctx.strokeStyle = 'rgba(120,100,70,0.35)'; ctx.lineWidth = 2; for (let k = 1; k < 5; k++) { ctx.beginPath(); ctx.moveTo(x - w / 2 + k * w / 5, y - h); ctx.lineTo(x - w / 2 + k * w / 5, y - w * 0.2); ctx.stroke(); } ctx.restore(); };
+
  // ---------------- SUBTÍTULOS (arriba, palabra a palabra, palabra clave seleccionada) ----------------
  // Trozos de ≤3 palabras (≤4 si son cortas); las palabras aparecen al decirse: la actual en blanco y negrita,
  // las ya dichas en gris; la palabra clave lleva recuadro de selección con asas en el color de acento.
@@ -944,6 +1059,15 @@
   cincel: (k, t, n = 4, gap = 0.32) => { for (let i = 0; i < n; i++) { k.tone(t + i * gap, { f: 2400, dur: 0.12, gain: 0.05, a: 0.001, verb: 0.2 }); k.noise(t + i * gap, { dur: 0.04, filter: 'highpass', f: 2500, gain: 0.25, minor: true }); k.play('tock', t + i * gap, { f: 600, gain: 0.25, minor: true }); } },
   piedra: (k, t, g = 1) => { k.play('thud', t, { f: 55, gain: 0.6 * g }); k.noise(t, { dur: 0.6, color: 'brown', filter: 'lowpass', f: [[0, 900], [0.6, 120]], gain: 0.2 * g, a: 0.005 }); k.noise(t + 0.02, { dur: 0.4, color: 'pink', filter: 'bandpass', f: 2500, q: 0.8, gain: 0.04 * g, a: 0.01 }); },
   viento: (k, t, d, g = 1) => k.noise(t, { dur: d, color: 'pink', filter: 'bandpass', f: [[0, 500], [d * 0.4, 900], [d, 600]], q: 1.4, gain: 0.05 * g, a: Math.min(1.5, d * 0.3), hold: d * 0.5 }),
+  // v1.9 · flotación y barcos
+  chapuzon: (k, t, g = 1) => { k.play('thud', t, { f: 90, gain: 0.5 * g }); k.noise(t, { dur: 1.2, color: 'pink', filter: 'lowpass', f: [[0, 4000], [1.2, 600]], gain: 0.28 * g, a: 0.005 }); FX.burbujas(k, t + 0.1, 1.2, 14, Math.round(t * 10), 1.2 * g); },
+  hundirse: (k, t, d, g = 1) => { k.noise(t, { dur: d, color: 'brown', filter: 'lowpass', f: [[0, 400], [d, 120]], gain: 0.12 * g, a: 0.2, hold: d * 0.6 }); FX.burbujas(k, t, d, 3, Math.round(t * 10) + 2, 0.8 * g); },
+  casco: (k, t, g = 1, f = 70) => k.tone(t, { f: [[0, f], [0.6, f * 0.85], [1.2, f * 1.05]], type: 'sawtooth', dur: 1.3, gain: 0.04 * g, filter: 'bandpass', f2: f * 3, q: 4, a: 0.2 }),
+  grua: (k, t, d, g = 1) => { k.tone(t, { f: [[0, 90], [d * 0.5, 120], [d, 95]], type: 'sawtooth', dur: d, gain: 0.03 * g, filter: 'lowpass', f2: 500, a: 0.15, hold: d * 0.7 }); k.noise(t, { dur: d, color: 'pink', filter: 'bandpass', f: 1600, q: 3, gain: 0.02 * g, a: 0.2, hold: d * 0.6 }); },
+  contenedor: (k, t, g = 1) => { k.play('thud', t, { f: 75, gain: 0.45 * g }); k.tone(t, { f: 310, dur: 0.6, gain: 0.04 * g, a: 0.002, verb: 0.3 }); k.tone(t, { f: 523, dur: 0.4, gain: 0.02 * g, a: 0.002, minor: true }); },
+  inundacion: (k, t, d, g = 1) => { k.noise(t, { dur: d, color: 'pink', filter: 'lowpass', f: [[0, 1800], [d, 500]], gain: 0.16 * g, a: 0.1, hold: d * 0.7 }); FX.burbujas(k, t, d, 10, Math.round(t * 10) + 5, g); },
+  bocina: (k, t, d = 1.6, g = 1) => { for (const [f, gg] of [[73, 0.09], [110, 0.05], [146, 0.03]]) k.tone(t, { f, type: 'sawtooth', dur: d, gain: gg * g, filter: 'lowpass', f2: 700, a: 0.08, hold: d * 0.8, verb: 0.4 }); },
+  equilibrio: (k, t, g = 1) => { k.tone(t, { f: 'C5', dur: 1.6, gain: 0.07 * g, verb: 0.4 }); k.tone(t + 0.12, { f: 'G5', dur: 1.5, gain: 0.06 * g, verb: 0.4 }); k.tone(t + 0.24, { f: 'C6', dur: 1.4, gain: 0.05 * g, verb: 0.4 }); },
  };
  window.PLANTILLA = { make, SKINS, P, FX, TRANS_SFX, setSkin: (n) => (SK = SKINS[n]), W, HH };
 })();

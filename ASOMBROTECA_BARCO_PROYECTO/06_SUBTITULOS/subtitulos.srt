@@ -1,0 +1,280 @@
+1
+00:00:00,050 --> 00:00:00,965
+Si lanzas un bloque
+
+2
+00:00:00,965 --> 00:00:02,033
+de acero al agua,
+
+3
+00:00:02,033 --> 00:00:03,994
+se hunde inmediatamente.
+
+4
+00:00:04,064 --> 00:00:05,026
+Entonces...
+
+5
+00:00:05,026 --> 00:00:06,156
+¿Cómo es posible que
+
+6
+00:00:06,156 --> 00:00:07,287
+un barco gigantesco,
+
+7
+00:00:07,287 --> 00:00:08,460
+construido con miles de
+
+8
+00:00:08,460 --> 00:00:09,801
+toneladas de acero,
+
+9
+00:00:09,801 --> 00:00:10,979
+pueda flotar?
+
+10
+00:00:11,083 --> 00:00:12,151
+La respuesta está en
+
+11
+00:00:12,151 --> 00:00:13,721
+una fuerza invisible.
+
+12
+00:00:13,829 --> 00:00:15,192
+Cuando un objeto entra
+
+13
+00:00:15,192 --> 00:00:15,834
+en el agua,
+
+14
+00:00:15,834 --> 00:00:17,393
+desplaza parte de ella.
+
+15
+00:00:17,441 --> 00:00:19,108
+Y el agua
+ejerce sobre ese
+
+16
+00:00:19,108 --> 00:00:20,944
+objeto una fuerza
+hacia arriba,
+
+17
+00:00:20,944 --> 00:00:22,818
+conocida como empuje.
+
+18
+00:00:22,912 --> 00:00:24,930
+Este fenómeno fue
+explicado hace
+
+19
+00:00:24,930 --> 00:00:26,017
+más de 2.000 años por
+
+20
+00:00:26,017 --> 00:00:28,192
+el científico
+griego Arquímedes.
+
+21
+00:00:28,192 --> 00:00:30,193
+Pero aquí viene
+lo sorprendente.
+
+22
+00:00:30,271 --> 00:00:32,006
+Un bloque macizo
+de acero es
+
+23
+00:00:32,006 --> 00:00:33,714
+mucho más denso
+que el agua.
+
+24
+00:00:33,714 --> 00:00:34,881
+Por eso se hunde.
+
+25
+00:00:34,965 --> 00:00:35,747
+Sin embargo,
+
+26
+00:00:35,747 --> 00:00:36,634
+un barco no es
+
+27
+00:00:36,634 --> 00:00:38,050
+un bloque macizo.
+
+28
+00:00:38,112 --> 00:00:39,516
+Su casco tiene un enorme
+
+29
+00:00:39,516 --> 00:00:41,738
+espacio interior
+que contiene aire.
+
+30
+00:00:41,795 --> 00:00:42,731
+Esto hace que la
+
+31
+00:00:42,731 --> 00:00:44,135
+densidad promedio
+del barco,
+
+32
+00:00:44,135 --> 00:00:45,957
+incluyendo
+esos espacios,
+
+33
+00:00:45,957 --> 00:00:46,937
+pueda ser menor que
+
+34
+00:00:46,937 --> 00:00:47,940
+la del agua.
+
+35
+00:00:47,998 --> 00:00:49,352
+A medida que el barco se
+
+36
+00:00:49,352 --> 00:00:50,709
+hunde un poco
+en el agua,
+
+37
+00:00:50,709 --> 00:00:52,881
+desplaza un volumen
+cada vez mayor.
+
+38
+00:00:52,887 --> 00:00:54,389
+Y cuanto más
+agua desplaza,
+
+39
+00:00:54,389 --> 00:00:56,497
+mayor es el
+empuje que recibe.
+
+40
+00:00:56,520 --> 00:00:58,636
+Hasta que ocurre
+algo increíble.
+
+41
+00:00:58,667 --> 00:01:01,130
+El empuje hacia arriba
+iguala exactamente
+
+42
+00:01:01,130 --> 00:01:03,074
+el peso del barco
+hacia abajo.
+
+43
+00:01:03,119 --> 00:01:04,050
+En ese momento,
+
+44
+00:01:04,050 --> 00:01:06,167
+el barco flota
+en equilibrio.
+
+45
+00:01:06,193 --> 00:01:06,870
+Y por eso,
+
+46
+00:01:06,870 --> 00:01:08,803
+cuando un barco
+transporta más carga,
+
+47
+00:01:08,803 --> 00:01:10,034
+se hunde un poco más,
+
+48
+00:01:10,034 --> 00:01:12,190
+hasta desplazar
+suficiente agua para
+
+49
+00:01:12,190 --> 00:01:14,509
+sostener ese
+peso adicional.
+
+50
+00:01:14,513 --> 00:01:15,813
+Pero si entra demasiada
+
+51
+00:01:15,813 --> 00:01:16,824
+agua en su interior,
+
+52
+00:01:16,824 --> 00:01:18,279
+puede perder
+flotabilidad
+
+53
+00:01:18,279 --> 00:01:19,923
+y terminar hundiéndose.
+
+54
+00:01:19,987 --> 00:01:20,418
+Así que,
+
+55
+00:01:20,418 --> 00:01:21,817
+la próxima vez
+que veas un
+
+56
+00:01:21,817 --> 00:01:24,327
+barco gigantesco
+navegando por el océano,
+
+57
+00:01:24,327 --> 00:01:25,747
+recuerda esto.
+
+58
+00:01:25,795 --> 00:01:26,650
+No flota porque el
+
+59
+00:01:26,650 --> 00:01:28,066
+acero sea ligero.
+
+60
+00:01:28,066 --> 00:01:29,396
+Sino porque su forma le
+
+61
+00:01:29,396 --> 00:01:31,723
+permite desplazar
+suficiente agua para
+
+62
+00:01:31,723 --> 00:01:33,394
+sostener todo su peso.
+
+63
+00:01:33,466 --> 00:01:34,670
+Sigue a Asombroteca
+
+64
+00:01:34,670 --> 00:01:36,026
+para más curiosidades.

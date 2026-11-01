@@ -144,6 +144,22 @@ La piel se elige con `skin: 'plana' | 'oscura'` en `PLANTILLA.make`. Los bloques
 | `rings` | Ondas de radio, en anillo o dirigidas |
 | `clock` | Reloj analógico |
 
+**Bloques v1.9 (episodio «El barco de acero»)** — flotación, hidrostática y barcos:
+
+| Bloque | Uso |
+|---|---|
+| `seaProfile(ctx, y, t, {sky, sun, depth, x0, x1, bottom})` | Mar de perfil completo: cielo, sol, agua con cáusticas y oleaje |
+| `underwater(ctx, y, t, {...})` | Velo de agua para lo sumergido (se dibuja DESPUÉS del objeto) |
+| `cargoShip(ctx, x, y, L, draft, t, {H, rows, cut, comps, flood, disp, plimsoll, trim, extraBay})` | Portacontenedores de perfil: calado real, corte longitudinal con mamparos, compartimentos que se inundan, volumen sumergido resaltado, marca Plimsoll, asiento y contenedores añadidos. **Devuelve geometría** (`deck`, `keel`, `bay(i)`, `comps`) |
+| `hullSection(ctx, cx, wl, w, h, sink, t, {disp, sep, cargo, flood})` | Sección transversal del casco con aire, carga y el volumen desplazado (que se puede separar). **Devuelve `cob`** (centro de empuje) |
+| `forceArrow(ctx, x, y, len, dir, color, label)` | Flecha de fuerza gruesa (empuje, peso, tensión…) |
+| `pressureArrows(ctx, pts, y0, t)` | Presión normal a una superficie sumergida, creciendo con la profundidad |
+| `splash(ctx, x, y, t, t0)` | Salpicadura determinista |
+| `container`, `gantryCrane` | Contenedor y grúa de muelle (**devuelve el spreader**) |
+| `beaker`, `greek`, `column` | Vaso con rebosadero, figura clásica y columna (historia de la ciencia) |
+
+Efectos `FX` de v1.9: `chapuzon`, `hundirse`, `casco` (crujido metálico), `grua`, `contenedor`, `inundacion`, `bocina` (de barco) y `equilibrio` (acorde de resolución).
+
 **Bloques v1.8 (episodio «Las pirámides»)** — historia antigua, construcción y trabajo humano:
 
 | Bloque | Uso |
