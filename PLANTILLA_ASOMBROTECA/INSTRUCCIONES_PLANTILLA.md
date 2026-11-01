@@ -160,3 +160,26 @@ ffmpeg -framerate 30 -i frames/f_%05d.jpg -i mix.wav -c:v libx264 -preset slow -
 - [ ] Hoja de contacto revisada: sin textos encimados, sin rótulos cortados, nada importante abajo del todo.
 - [ ] Datos en pantalla verificados y con fuente.
 - [ ] Documentación: README, QC.md, FUENTES_Y_DECISIONES.md y mapa voz → escenas.
+
+## 9. La plantilla crece: cómo añadir algo nuevo
+
+Si un video necesita algo que la plantilla no tiene, se crea y **se incorpora a la plantilla** para que los videos siguientes también puedan usarlo. Puede ser un objeto o personaje, un tipo de gráfico, una transición, un efecto de sonido o una piel nueva.
+
+Pasos:
+
+1. **Decidir dónde va.**
+   - Si es reutilizable (gráfico de barras, mapa, línea de tiempo, personaje genérico, transición), va en `motor/plantilla.js` como bloque de `P`, transición o efecto de `FX`.
+   - Si es exclusivo del tema (el submarino, un intestino concreto), se queda en el `episodio.js` del video.
+2. **Hacerlo genérico.**
+   - Colores semánticos (`col('accent')`, `fill('#hex')`) para que funcione en las pieles «plana» y «oscura».
+   - Parámetros con tiempos (`t`, `t0`).
+   - Determinista (`H.rng`).
+   - Con su sonido en `FX`.
+3. **No romper lo anterior.**
+   - Los bloques existentes no cambian de firma.
+   - Antes y después del cambio, el `ejemplo_submarino` debe dar los mismos md5 de fotograma (prueba de determinismo).
+4. **Mostrarlo.** Añadirlo al catálogo (`catalogo/catalogo_src.js`) y regenerar `catalogo.png`.
+5. **Documentarlo.**
+   - Añadirlo a la tabla de bloques (sección 6).
+   - Anotar en `CAMBIOS_PLANTILLA.md` la versión, qué se añadió y para qué video.
+6. **Entregar.** Regenerar `PLANTILLA_ASOMBROTECA_KIT.zip`, hacer commit y push.

@@ -7,7 +7,8 @@ Es la plantilla oficial para **todos los videos** de Asombroteca: verticales 108
 | Carpeta o archivo | Para qué sirve |
 |---|---|
 | `SUPERPROMPT_PLANTILLA_ASOMBROTECA.md` | Prompt para pegar a Claude Code con tu audio y tu tema. Produce el video completo con esta plantilla. |
-| `INSTRUCCIONES_PLANTILLA.md` | Reglas, estructura narrativa, subtítulos, sonido, pieles, bloques, paso a paso y control de calidad. |
+| `INSTRUCCIONES_PLANTILLA.md` | Reglas, estructura narrativa, subtítulos, sonido, pieles, bloques, paso a paso, control de calidad y cómo ampliar la plantilla. |
+| `CAMBIOS_PLANTILLA.md` | Historial de lo que se va añadiendo a la plantilla. |
 | `catalogo/catalogo.png` y `catalogo.html` | Todos los bloques visuales en las dos pieles: «plana» (ilustración) y «oscura» (editor técnico). |
 | `motor/plantilla.js` | El motor. No se toca entre videos. |
 | `lib/` | H y SOUND (sin modificar). |

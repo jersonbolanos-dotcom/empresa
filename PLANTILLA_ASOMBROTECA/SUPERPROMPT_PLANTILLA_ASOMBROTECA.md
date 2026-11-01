@@ -60,4 +60,15 @@ Actúa como director científico, guionista visual, animador Canvas/JavaScript, 
 7. QC completo (ffprobe, decodificación, negros y congelados, sonoridad, md5 de la voz, determinismo) y documentación (README, QC, fuentes).
 8. Commit y push. Entrégame el MP4 en el chat y dime qué mejoras hiciste al prompt.
 
+**SI FALTA ALGO EN LA PLANTILLA**
+
+Si mi video necesita algo que la plantilla no tiene (un objeto, gráfico, transición, efecto de sonido o piel), créalo. Si es reutilizable, **añádelo a la plantilla** siguiendo la sección 9 de `INSTRUCCIONES_PLANTILLA.md`:
+- hazlo genérico;
+- no rompas el ejemplo;
+- añádelo al catálogo;
+- anótalo en `CAMBIOS_PLANTILLA.md`;
+- regenera el ZIP.
+
+Dime qué añadiste.
+
 Si sientes que al prompt le falta algo para que el video se vea mejor, hazlo y explícamelo.
