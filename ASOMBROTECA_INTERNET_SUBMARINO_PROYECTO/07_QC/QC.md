@@ -10,6 +10,6 @@
 | Sonoridad | −14,1 LUFS integrados; pico verdadero −2,3 dBTP |
 | Voz | md5 idéntico al archivo subido (413bc9a8…); no se alteró ni recortó |
 | Determinismo | md5 iguales en t = 5,3 / 17,9 / 41 en dos órdenes de búsqueda (`determinismo.txt`) |
-| Retrocompatibilidad de la plantilla v1.6 | ver nota abajo |
+| Retrocompatibilidad de la plantilla v1.6 | GPS, Aire acondicionado y Microondas dan hashes idénticos a los de su QC original |
 | Revisión visual | hojas de contacto antes del render; se corrigieron etiquetas cortadas, textos superpuestos, legibilidad de subtítulos sobre la arena y la regla «−0 m» |
 | Subtítulos | barra (blanco + barra amarilla), `06_SUBTITULOS/subtitulos.srt` (62 bloques) |
