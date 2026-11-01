@@ -20,3 +20,10 @@
 - **Ciclo de la máquina**: excavar empujando contra el último anillo → montar el anillo; en «excava y reviste» el tiempo se acelera y se rotula.
 - **Impermeabilización**: se rotula que depende del diseño, la instalación y la presión (no es absoluta).
 - Paleta del SUPERPROMPT (#0B1821, #123D54, #2987A7, #D7EDF0, #76624D, #A27B59, #C2A67C, #8E8B80, #626C71, #354751, #A9BCC5, #E4A33B, #B4BEC0, #303C43, #FF735A, #43D0C6, #FFD447, #F4F7F8). Música y efectos originales sintetizados (sin material protegido).
+
+## Revisión V2 (coherencia mecánica)
+- **Ciclo EPB**: avance con los cilindros apoyados en el último anillo → retracción de los cilindros del sector a montar → montaje del anillo con el erector → apoyo de los cilindros en el anillo nuevo → siguiente avance (Herrenknecht, descripciones técnicas de EPB Shield; Maidl et al., 2012; FHWA, *Technical Manual for Design and Construction of Road Tunnels — Civil Elements*, FHWA-NHI-10-034, cap. 7 y 10).
+- **Regulación de la presión**: en una EPB la presión de soporte se mantiene con el material acondicionado en la cámara y se ajusta con la velocidad de avance y la de extracción del tornillo sinfín (FHWA-NHI-10-034; BTS/ICE 2005). Se representa con un indicador cualitativo (baja · margen de diseño · alta), sin cifras.
+- **Rojo / cian**: rojo = presión exterior del terreno y del agua subterránea; cian = presión de soporte del material en la cámara. El empuje de los cilindros se muestra aparte como movimiento mecánico, no como una flecha de presión. Se rotula que las flechas son fuerzas, no movimiento del terreno.
+- **Juntas escalonadas**: las juntas longitudinales de anillos consecutivos se desfasan para no formar juntas cruciformes continuas (ITA WG2, 2019).
+- **Aplicabilidad**: la EPB es adecuada en suelos cohesivos o acondicionables; en otros terrenos se usan hidroescudos de lodos u otros métodos. No todos los túneles bajo ríos se construyen así (también túneles sumergidos).

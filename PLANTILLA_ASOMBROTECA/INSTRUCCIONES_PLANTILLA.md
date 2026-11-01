@@ -157,6 +157,18 @@ La piel se elige con `skin: 'plana' | 'oscura'` en `PLANTILLA.make`. Los bloques
 | `laborer`, `porter`, `oxcart`, `packAnimal` | Trabajador con ropa y sombrero variados; porteador con pértiga y dos cestas; carro de dos ruedas con buey y ruedas que giran; mula con alforjas. Cargas: `tierra`, `piedra` o `ladrillos` |
 | `dust(ctx, x, y, t, t0, {s})` | Nube de polvo determinista |
 
+**v1.16.1 · tuneladora como un solo sistema mecánico (corrección final de «Túnel bajo el río»):**
+
+| Bloque | Uso |
+|---|---|
+| `tbmState` (ciclo completo) | excavar (0–0,6) → retraer cilindros (0,6–0,66) → montar 7 dovelas (0,66–0,94) → apoyar cilindros en el anillo nuevo (0,94–1). Añade `retr` |
+| `tbmSide` (rediseñado) | Todas las piezas se sitúan respecto al frente `xm` y al eje: cabeza con aberturas que giran (el terreno pasa por ellas a la cámara), árbol al rodamiento principal, mamparo con sensores, cámara LLENA de terreno acondicionado, boca del tornillo dentro de la cámara, hélice que gira con marina visible, motor y compuerta, tolva a la cinta, 4 cilindros anclados al anillo de empuje con vástago y zapata sobre el último anillo, erector con brazo telescópico y alimentador de dovelas. Mismo orden de montaje que `ringBuild` (solera primero, llave en la clave) |
+| `cutterFace` (rediseñado) | Cabeza EPB 2,5D: aro robusto con cortadores perimetrales, 6 brazos en cajón con profundidad, placas frontales con ranuras de entrada, rascadores, rippers, refuerzo interior, centro con cortador cola de pez y terreno moviéndose tras las ranuras |
+| `ringBuild` (rediseñado) | Dovelas con volumen (cara + canto), anillo anterior con juntas longitudinales escalonadas, erector con corona giratoria, contrapeso, brazo telescópico y pinza de dos patines; devuelve `held` y `prev` |
+| `ringSection(ctx, cx, cy, R, t, {grout, press, glowJoint})` | Sección transversal del revestimiento en el terreno: terreno con agua en los poros, hueco anular que la lechada llena desde la solera hacia la clave, 7 dovelas con sellos en las juntas, interior seco |
+| `tunWorld` / `tunCross` | Capa de sedimentos sobre el lecho, cáusticas y neblina en el agua; nuevos puntos de anclaje para rótulos (`bulkhead`, `screwIn`, `screwOut`, `cyl`, `tail`) |
+| `tunnelView` | Vía con ancho proporcionado al túnel, andén con barandilla, bandejas de cables y niebla de profundidad |
+
 **v1.16 · túneles bajo ríos (episodio «Túnel bajo el río»):**
 
 | Bloque | Uso |

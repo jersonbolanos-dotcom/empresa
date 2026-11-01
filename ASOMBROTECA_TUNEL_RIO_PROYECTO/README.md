@@ -1,7 +1,7 @@
 # ASOMBROTECA · ¿Cómo construyen túneles debajo de los ríos sin que se inunden?
 
-- **Video final:** `07_OUTPUT/ASOMBROTECA_TUNEL_BAJO_EL_RIO_FINAL.mp4` (1080×1920, 30 fps, 105,12 s, −14,1 LUFS).
-- **Plantilla:** v1.16 (módulo de túneles: `TUN`, `tunWorld`, `tbmSide`, `tunCross`, `riverAerial`, `cutterFace`, `ringBuild`, `gasketHD`, `tunnelView`; FX `corteTBM`, `sinfin`, `tren`).
+- **Video final (V2):** `07_OUTPUT/ASOMBROTECA_TUNEL_BAJO_RIO_FINAL.mp4` (1080×1920, 30 fps, 105,12 s, −14,1 LUFS). La V1 está en `07_OUTPUT/V1/`.
+- **Plantilla:** v1.16.1 (tuneladora como un solo sistema, `ringSection`) sobre v1.16 (módulo de túneles: `TUN`, `tunWorld`, `tbmSide`, `tunCross`, `riverAerial`, `cutterFace`, `ringBuild`, `gasketHD`, `tunnelView`; FX `corteTBM`, `sinfin`, `tren`).
 - **Código:** `04_CODIGO/js/episodio.js` (+ `index.src.html`, `alineacion.json`, `js/datos.js`). Construir: `python3 -I ../../PLANTILLA_ASOMBROTECA/tools/build.py`.
 - **Audio:** `05_AUDIO/voz_original.mp3` (intacta), `musica_original.wav`, `efectos_sonido.wav`, `mezcla_final.wav`.
 - **Subtítulos:** `06_SUBTITULOS/subtitulos.srt`. **Guion/tramos:** `03_GUION/`.

@@ -109,8 +109,9 @@
  }, sfx(k) { FX.corteTBM(k, TB.maquina + 0.3, TB.nombre - TB.maquina, 0.8); FX.aparece(k, T.maquina3 - 0.1); MUS.golpe(k, T.extraordinaria, { gain: 0.7, chord: ['A2', 'E3', 'A3', 'C4'] }); } });
  B.push({ t0: TB.nombre, t1: TB.fabrica, in: { type: 'fade', d: 0.5 }, draw(ctx, t) {
   const S = ST(t), u = E.inOut(win(t, TB.nombre, TB.fabrica)), cam = [lerp(S.xm - 60, S.xm - 150, u), TUN.TY, lerp(2.6, 1.9, u)];
-  world(ctx, t, cam, { st: S, glow: { head: 0.8 * (1 - u) } });
-  const h = camPt(cam, [S.xm, TUN.TY]); callout(ctx, h[0], h[1] - 60, 600, 560, 'CABEZA DE CORTE', sm(T.tuneladora4, T.tuneladora4 + 0.3, t), C.corte, 'right');
+  world(ctx, t, cam, { st: S, glow: { head: 0.8 * (1 - u) }, support: sm(T.tuneladora4 + 0.4, T.tuneladora4 + 0.8, t) });
+  const h = camPt(cam, [S.xm, TUN.TY - TUN.R * 0.8]); callout(ctx, h[0], h[1], 640, 520, 'CABEZA DE CORTE', sm(T.tuneladora4, T.tuneladora4 + 0.3, t), C.corte, 'right');
+  tag(ctx, 'FRENTE SOSTENIDO, NO ABIERTO', 540, 1330, 34, sm(T.tuneladora4 + 0.5, T.tuneladora4 + 0.8, t), C.protegida);
   title(ctx, 'TUNELADORA', t, T.tuneladora4 - 0.1); scrim(ctx);
  }, sfx(k) { FX.corteTBM(k, TB.nombre, TB.fabrica - TB.nombre, 0.7); FX.motor(k, TB.nombre, TB.fabrica - TB.nombre + 3, 0.6); FX.aparece(k, T.tuneladora4 - 0.1); MUS.golpe(k, T.tuneladora4, { gain: 0.8, chord: ['A2', 'E3', 'A3', 'C#4'] }); } });
 
@@ -123,41 +124,42 @@
   title(ctx, 'UNA FÁBRICA SUBTERRÁNEA', t, T.excavadora - 0.2); scrim(ctx);
  }, sfx(k) { k.play('whoosh', TB.fabrica, { dur: 1.8, top: 700, gain: 0.25 }); FX.etiqueta(k, T.pero5 + 0.1); FX.etiqueta(k, T.excavadora); FX.etiqueta(k, T.excavadora + 0.6); FX.aparece(k, T.excavadora - 0.2); } });
 
- // 6 · PRESIÓN CONTROLADA — tuneladora EPB: la cámara llena de terreno acondicionado sostiene el frente frente al terreno y al agua
+ // 6 · PRESIÓN CONTROLADA — EPB: la cámara LLENA de terreno acondicionado sostiene el frente; rojo = presión exterior, cian = soporte
  B.push({ t0: TB.presion, t1: TB.cabeza, in: { type: 'fade', d: 0.4 }, draw(ctx, t) {
-  const S = ST(t), u = E.inOut(win(t, TB.presion, T.mantener)), cam = [lerp(S.xm - 300, S.xm - 40, u), lerp(1200, TUN.TY - 30, u), lerp(0.75, 1.9, u)];
-  const r = world(ctx, t, cam, { st: S, press: sm(T.presion6, T.presion6 + 0.4, t), support: sm(T.mantener, T.controlada + 0.3, t), watertable: 1, glow: { chamber: 0.9 * sm(T.mantener, T.mantener + 0.3, t) } });
-  const ch = camPt(cam, r.chamber); callout(ctx, ch[0], ch[1], 160, 600, 'CÁMARA DE EXCAVACIÓN', sm(T.mantener, T.mantener + 0.3, t), C.protegida);
-  const fc = camPt(cam, [S.xm + 70, TUN.TY - TUN.R * 0.7]); callout(ctx, fc[0], fc[1], 620, 1240, 'TERRENO Y AGUA', sm(T.presion6 + 0.2, T.presion6 + 0.5, t), C.presion);
-  tag(ctx, 'TUNELADORA EPB (PRESIÓN DE TIERRAS)', 540, 370, 34, sm(T.especiales6, T.especiales6 + 0.3, t), C.blanco);
+  const S = ST(t), c0 = P.camAt([[TB.presion, S.xm - 260, TUN.TY, 1.25], [T.mantener, S.xm - 40, TUN.TY, 2.6], [T.presion6, S.xm - 20, TUN.TY, 2.1], [TB.cabeza, S.xm - 30, TUN.TY, 2.2]], t), cam = [c0[0], c0[1], c0[2]];
+  const r = world(ctx, t, cam, { st: S, press: sm(T.presion6, T.presion6 + 0.4, t), support: sm(T.mantener, T.controlada + 0.3, t), watertable: 1, glow: { chamber: 0.9 * sm(T.mantener, T.mantener + 0.3, t) * (1 - sm(T.presion6, T.presion6 + 0.5, t) * 0.6) } });
+  const L = (p, x, y, s2, t0, c, al) => { const q = camPt(cam, p); callout(ctx, q[0], q[1], x, y, s2, sm(t0, t0 + 0.3, t), c, al); };
+  L(r.chamber, 120, 470, 'MATERIAL ACONDICIONADO', T.mantener, C.arcilla); L(r.bulkhead, 120, 1200, 'SENSORES DE PRESIÓN', T.controlada + 0.2, C.protegida);
+  tag(ctx, 'TUNELADORA EPB (PRESIÓN DE TIERRAS)', 540, 370, 34, sm(T.especiales6, T.especiales6 + 0.3, t) * (1 - sm(T.presion6 - 0.3, T.presion6, t)), C.blanco);
+  const lg = sm(T.presion6 + 0.2, T.presion6 + 0.5, t); if (lg > 0) { ctx.save(); ctx.globalAlpha *= lg; P.rr(ctx, 60, 1290, 960, 110, 24, 'rgba(11,24,33,0.88)'); P.hArrow(ctx, 90, 1325, 60, C.presion, 14); txt(ctx, 'presión del terreno y del agua', 170, 1325, 32, C.blanco, { al: 'left', w: 700 }); P.hArrow(ctx, 90, 1368, 60, C.protegida, 14); txt(ctx, 'presión de soporte (cámara llena)', 170, 1368, 32, C.blanco, { al: 'left', w: 700 }); ctx.restore(); }
+  tag(ctx, 'LAS FLECHAS SON FUERZAS, NO MOVIMIENTO', 540, 370, 32, sm(T.presion6 + 0.6, T.presion6 + 0.9, t), C.blanco);
   title(ctx, 'PRESIÓN CONTROLADA', t, T.controlada - 0.1); scrim(ctx);
- }, sfx(k) { FX.motor(k, TB.presion, TB.cabeza - TB.presion, 0.5); FX.etiqueta(k, T.especiales6); FX.etiqueta(k, T.mantener); FX.aparece(k, T.controlada - 0.1); FX.etiqueta(k, T.presion6 + 0.2); FX.compresion(k, T.presion6 - 0.4, 1.0); } });
+ }, sfx(k) { FX.motor(k, TB.presion, TB.cabeza - TB.presion, 0.5); FX.etiqueta(k, T.especiales6); FX.etiqueta(k, T.mantener); FX.aparece(k, T.controlada - 0.1); FX.etiqueta(k, T.controlada + 0.2); FX.etiqueta(k, T.presion6 + 0.2); FX.compresion(k, T.presion6 - 0.4, 1.0); } });
 
  // 7 · CABEZA DE CORTE — de frente: herramientas contra el terreno y aberturas por donde entra; después en sección
  B.push({ t0: TB.cabeza, t1: TB.cabezaL, in: { type: 'fade', d: 0.4 }, draw(ctx, t) {
   ctx.fillStyle = '#3a2b1f'; ctx.fillRect(0, 0, W, HH); const Rr = H.rng(3); for (let i = 0; i < 300; i++) { ctx.fillStyle = Rr() < 0.5 ? 'rgba(162,123,89,0.5)' : 'rgba(90,68,50,0.5)'; ctx.fillRect(Rr.range(0, W), Rr.range(0, HH), 6, 4); }
-  const R = 470, ang = t * 1.1; P.cutterFace(ctx, 540, 900, R, ang, t);
-  // terreno que se desprende y cae hacia las aberturas
-  const R2 = H.rng(9); ctx.fillStyle = 'rgba(110,82,58,0.9)'; for (let i = 0; i < 70; i++) { const a = R2() * TAU, ph = (R2() + t * 0.9) % 1, rr = R * (0.95 - ph * 0.55); ctx.fillRect(540 + Math.cos(a + ang * 0.2) * rr, 900 + Math.sin(a + ang * 0.2) * rr + ph * 30, 7, 6); }
-  callout(ctx, 540 + Math.cos(ang) * R * 0.6, 900 + Math.sin(ang) * R * 0.6, 640, 330 + 20, 'CORTADORES DE DISCO', sm(T.giratoria, T.giratoria + 0.3, t), C.aceroL);
-  callout(ctx, 540 + Math.cos(ang + 0.52) * R * 0.6, 900 + Math.sin(ang + 0.52) * R * 0.6, 130, 1330, 'ABERTURAS', sm(T.rompe - 0.4, T.rompe - 0.1, t), C.arcilla);
+  const R = 470, ang = t * 1.1, fc = P.cutterFace(ctx, 540, 900, R, ang, t);
+  callout(ctx, fc.tool[0], fc.tool[1], 600, 1330, 'HERRAMIENTAS DE CORTE', sm(T.giratoria, T.giratoria + 0.3, t), C.aceroL);
+  callout(ctx, fc.opening[0], fc.opening[1], 120, 470, 'RANURAS DE ENTRADA', sm(T.rompe - 0.4, T.rompe - 0.1, t), C.arcilla);
   title(ctx, 'CABEZA DE CORTE', t, T.rueda - 0.1); tag(ctx, 'GIRA LA CABEZA; EL ESCUDO NO GIRA', 540, 370, 34, sm(T.avanza7, T.avanza7 + 0.3, t), C.blanco); scrim(ctx);
  }, sfx(k) { FX.corteTBM(k, TB.cabeza, TB.cabezaL - TB.cabeza + 0.2, 1); FX.aparece(k, T.rueda - 0.1); FX.etiqueta(k, T.avanza7); FX.etiqueta(k, T.giratoria); } });
  B.push({ t0: TB.cabezaL, t1: TB.extrae, in: { type: 'fade', d: 0.35 }, draw(ctx, t) {
-  const S = ST(t), cam = [S.xm - 70, TUN.TY, 3.0]; world(ctx, t, cam, { st: S, glow: { cyl: 0.8 } });
-  const cy = camPt(cam, [S.xm - 160, TUN.TY - TUN.R + 22]); callout(ctx, cy[0], cy[1], 140, 560, 'CILINDROS DE EMPUJE', sm(TB.cabezaL + 0.1, TB.cabezaL + 0.4, t), C.oro);
-  const fc = camPt(cam, [S.xm + 4, TUN.TY + 40]); callout(ctx, fc[0], fc[1], 700, 1250, 'EXCAVA EL SUELO', sm(T.excava7, T.excava7 + 0.3, t), C.corte, 'right');
+  const S = ST(t), cam = [S.xm - 110, TUN.TY, lerp(2.4, 2.7, win(t, TB.cabezaL, TB.extrae))]; world(ctx, t, cam, { st: S, glow: { cyl: 0.8 } });
+  const cy = camPt(cam, [S.xm - 180, TUN.TY - TUN.R + 26]); callout(ctx, cy[0], cy[1], 120, 470, 'CILINDROS: EMPUJAN CONTRA EL ÚLTIMO ANILLO', sm(TB.cabezaL + 0.1, TB.cabezaL + 0.4, t), C.oro);
+  const fc = camPt(cam, [S.xm - 9, TUN.TY + TUN.R * 0.62 * Math.sin(t * 1.2)]); callout(ctx, fc[0], fc[1], 640, 1290, 'EL TERRENO PASA A LA CÁMARA', sm(T.excava7, T.excava7 + 0.3, t), C.arcilla, 'right');
   title(ctx, 'CABEZA DE CORTE', t, TB.cabezaL); scrim(ctx);
  }, sfx(k) { FX.corteTBM(k, TB.cabezaL, TB.extrae - TB.cabezaL, 0.8); FX.hidraulico(k, TB.cabezaL + 0.1, 1.2, 0.6); FX.etiqueta(k, TB.cabezaL + 0.1); FX.etiqueta(k, T.excava7); } });
 
- // 8 · EXTRACCIÓN DEL TERRENO — la cámara sigue a la marina: cámara → tornillo sinfín → cinta → vagonetas
+ // 8 · EXTRACCIÓN DEL TERRENO — la cámara sigue a la marina: boca del tornillo en la cámara → hélice → motor y compuerta → cinta → vagonetas
  B.push({ t0: TB.extrae, t1: TB.revela, in: { type: 'cut' }, draw(ctx, t) {
-  const S = ST(t), u = E.inOut(win(t, TB.extrae, TB.revela)), cam = [lerp(S.xm - 70, S.xm - 1000, u), TUN.TY, lerp(3.0, 1.4, Math.min(1, u * 1.5))];
-  const r = world(ctx, t, cam, { st: S, glow: { screw: 0.8 * sm(T.material, T.material + 0.4, t) } });
-  const L = (p, x, y, s, t0, c, al) => { const q = camPt(cam, p); if (q[0] > -50 && q[0] < W + 50) callout(ctx, q[0], q[1], x, y, s, sm(t0, t0 + 0.3, t), c, al); };
-  L([(r.screwIn[0] + r.screwOut[0]) / 2, (r.screwIn[1] + r.screwOut[1]) / 2], 620, 1250, 'TORNILLO SINFÍN', T.material, C.oro, 'right'); L([cam[0] + 60, TUN.TY - TUN.R * 0.2 - 4], 140, 620, 'CINTA TRANSPORTADORA', T.sistemas8, C.blanco); L([S.xm - 1130, TUN.TY + 50], 560, 1250, 'VAGONETAS', T.transporte, '#d9b27c');
+  const S = ST(t), cam = P.camAt([[TB.extrae, S.xm - 60, TUN.TY + TUN.R - 40, 3.2], [T.retira, S.xm - 250, TUN.TY - 10, 2.5], [T.sistemas8, S.xm - 520, TUN.TY - 10, 2.0], [TB.revela, S.xm - 1120, TUN.TY + 20, 1.7]], t);
+  const r = world(ctx, t, cam, { st: S, glow: { screw: 0.7 * sm(T.material, T.material + 0.4, t) * (1 - sm(T.sistemas8, T.sistemas8 + 0.4, t)) } });
+  const L = (p, x, y, s2, t0, t1, c, al) => { const q = camPt(cam, p); if (q[0] > 20 && q[0] < W - 20 && q[1] > 300 && q[1] < 1400) callout(ctx, q[0], q[1], x, y, s2, sm(t0, t0 + 0.3, t) * (1 - sm(t1, t1 + 0.3, t)), c, al); };
+  L(r.screwIn, 640, 1180, 'ENTRADA DEL TORNILLO', TB.extrae + 0.1, T.retira - 0.2, C.oro, 'right'); L([(r.screwIn[0] * 0.4 + r.screwOut[0] * 0.6), (r.screwIn[1] * 0.4 + r.screwOut[1] * 0.6)], 120, 1300, 'TORNILLO SINFÍN', T.material + 0.3, T.sistemas8, C.oro); L([r.screwOut[0] - 10, r.screwOut[1] - 18], 120, 470, 'MOTOR Y COMPUERTA', T.retira, T.sistemas8 + 0.4, C.aceroL);
+  L([cam[0] + 40, TUN.TY - TUN.R * 0.18 - 4], 600, 470, 'CINTA TRANSPORTADORA', T.sistemas8, T.transporte + 0.2, C.blanco, 'right'); L([S.xm - 1180, TUN.TY + 50], 120, 1300, 'VAGONETAS', T.transporte, 99, '#d9b27c');
   title(ctx, 'EXTRACCIÓN DEL TERRENO', t, T.material - 0.1); scrim(ctx);
- }, sfx(k) { FX.sinfin(k, TB.extrae, TB.revela - TB.extrae, 0.9); FX.vertido(k, T.retira, 1.2, 0.6); FX.aparece(k, T.material - 0.1); FX.etiqueta(k, T.material); FX.etiqueta(k, T.sistemas8); FX.etiqueta(k, T.transporte); FX.ruedas(k, T.transporte - 0.2, 1.4, 0.6); } });
+ }, sfx(k) { FX.sinfin(k, TB.extrae, TB.revela - TB.extrae, 0.9); FX.vertido(k, T.retira, 1.2, 0.6); FX.aparece(k, T.material - 0.1); FX.etiqueta(k, TB.extrae + 0.1); FX.etiqueta(k, T.material + 0.3); FX.etiqueta(k, T.retira); FX.etiqueta(k, T.sistemas8); FX.etiqueta(k, T.transporte); FX.ruedas(k, T.transporte - 0.2, 1.4, 0.6); } });
 
  // 9 · ¡CONSTRUYE MIENTRAS AVANZA! — de la cabeza a la cola: la luz revela el erector con una dovela
  B.push({ t0: TB.revela, t1: TB.dovelas, in: { type: 'fade', d: 0.35 }, draw(ctx, t) {
@@ -171,23 +173,30 @@
  B.push({ t0: TB.dovelas, t1: TB.sellos, in: { type: 'fade', d: 0.4 }, draw(ctx, t) {
   ctx.fillStyle = '#0d1418'; ctx.fillRect(0, 0, W, HH); const pass = sm(T.paredes, TB.sellos, t), Rr = 410 * (1 + 2.6 * E.in(pass));
   const r = P.ringBuild(ctx, 540, 900, Rr, t, { placed: ringAt(t) }); if (pass > 0) vign(ctx, 0.5 * pass);
-  callout(ctx, r.erector[0] + 60, r.erector[1], 700, 1240, 'ERECTOR', sm(T.instalando - 0.2, T.instalando + 0.1, t) * (1 - pass), C.oro);
-  callout(ctx, r.ring[0], r.ring[1], 140, 1240, 'DOVELA', sm(T.segmentos10, T.segmentos10 + 0.3, t) * (1 - pass), C.hormigon);
-  callout(ctx, r.shield[0], r.shield[1], 700, 450, 'ESCUDO', sm(T.prefabricados, T.prefabricados + 0.3, t) * (1 - sm(TB.anillos, TB.anillos + 0.3, t)), C.aceroL);
+  callout(ctx, r.erector[0], r.erector[1], 640, 1240, 'ERECTOR', sm(T.instalando - 0.2, T.instalando + 0.1, t) * (1 - pass), C.oro);
+  callout(ctx, r.held[0], r.held[1], 120, 1240, 'DOVELA', sm(T.segmentos10, T.segmentos10 + 0.3, t) * (1 - sm(TB.anillos, TB.anillos + 0.3, t)), C.hormigon); callout(ctx, r.prev[0], r.prev[1], 120, 470, 'ANILLO ANTERIOR', sm(T.unen, T.unen + 0.3, t) * (1 - pass), '#9aa4a7');
+  callout(ctx, r.shield[0], r.shield[1], 700, 470, 'ESCUDO', sm(T.prefabricados, T.prefabricados + 0.3, t) * (1 - sm(TB.anillos, TB.anillos + 0.3, t)), C.aceroL);
   title(ctx, 'DOVELAS DE HORMIGÓN', t, T.segmentos10 - 0.2, TB.anillos + 0.2); title(ctx, 'ANILLOS ESTRUCTURALES', t, T.anillos - 0.1);
-  tag(ctx, 'JUNTAS ALINEADAS, SIN SUPERPONERSE', 540, 370, 34, sm(T.unen, T.unen + 0.3, t) * (1 - pass), C.blanco); scrim(ctx);
+  tag(ctx, 'JUNTAS ESCALONADAS ENTRE ANILLOS', 540, 370, 34, sm(T.unen, T.unen + 0.3, t) * (1 - pass), C.blanco); scrim(ctx);
  }, sfx(k) { for (let i = 0; i < 7; i++) { const tt = i < 3 ? TB.dovelas + 0.6 + (i + 0.85) * (TB.anillos - TB.dovelas - 0.6) / 2.6 : TB.anillos + (i - 2.6 + 0.85) * (T.paredes - 0.2 - TB.anillos) / 4.4; FX.hidraulico(k, tt - 0.9, 0.8, 0.5); FX.encaje(k, tt, 0.7); } FX.aparece(k, T.segmentos10 - 0.2); FX.aparece(k, T.anillos - 0.1); FX.etiqueta(k, T.instalando - 0.2); FX.etiqueta(k, T.segmentos10); FX.etiqueta(k, T.unen); k.play('whoosh', T.paredes, { dur: 0.9, top: 2200, gain: 0.3 }); } });
 
- // 12 · JUNTAS IMPERMEABLES — macro de la junta: el sello elastomérico se comprime y frena el agua a presión
- B.push({ t0: TB.sellos, t1: TB.reviste, in: { type: 'fade', d: 0.35 }, draw(ctx, t) {
-  ctx.fillStyle = '#0d1418'; ctx.fillRect(0, 0, W, HH); const close = E.inOut(win(t, TB.sellos + 0.3, T.sellos + 0.3));
+ // 12a · relleno anular y sellos en contexto: sección del anillo en el terreno; la lechada llena el hueco exterior desde abajo
+ const TJ = T.sellos + 0.5;
+ B.push({ t0: TB.sellos, t1: TJ, in: { type: 'fade', d: 0.35 }, draw(ctx, t) {
+  ctx.fillStyle = '#0d1418'; ctx.fillRect(0, 0, W, HH); const z = 1 + 3.2 * E.in(win(t, TJ - 0.6, TJ)), jx = 540 + Math.cos(-Math.PI / 2 + Math.PI / 7 + (3 * TAU) / 7) * 380 * 0.95, jy = 880 + Math.sin(-Math.PI / 2 + Math.PI / 7 + (3 * TAU) / 7) * 380 * 0.95;
+  ctx.save(); ctx.translate(jx, jy); ctx.scale(z, z); ctx.translate(-jx, -jy); const r = P.ringSection(ctx, 540, 880, 380, t, { grout: E.inOut(win(t, TB.sellos + 0.2, T.sellos)), press: sm(T.juntas, T.juntas + 0.4, t), glowJoint: sm(T.sellos, T.sellos + 0.3, t) }); ctx.restore();
+  const k = 1 - sm(TJ - 0.6, TJ - 0.3, t); const L = (p, x, y, s2, t0, c, al) => callout(ctx, p[0], p[1], x, y, s2, sm(t0, t0 + 0.3, t) * k, c, al);
+  L(r.grout, 640, 470, 'LECHADA (RELLENO ANULAR)', TB.sellos + 0.3, '#d6cfc2', 'right'); L(r.seg, 640, 1300, 'DOVELAS', T.juntas, C.hormigon, 'right'); L(r.joint, 120, 1300, 'SELLOS EN LAS JUNTAS', T.sellos - 0.1, C.blanco); L(r.soil, 120, 580, 'TERRENO CON AGUA', T.juntas + 0.2, C.presion);
+  title(ctx, 'JUNTAS IMPERMEABLES', t, T.juntas - 0.1); scrim(ctx);
+ }, sfx(k) { FX.vertido(k, TB.sellos + 0.2, 1.6, 0.5); FX.aparece(k, T.juntas - 0.1); FX.etiqueta(k, TB.sellos + 0.3); FX.etiqueta(k, T.juntas); FX.etiqueta(k, T.sellos - 0.1); k.play('whoosh', TJ - 0.6, { dur: 0.6, top: 2200, gain: 0.25, minor: true }); } });
+ // 12b · macro de la junta: el sello elastomérico se comprime y frena el agua a presión
+ B.push({ t0: TJ, t1: TB.reviste, in: { type: 'fade', d: 0.25 }, draw(ctx, t) {
+  ctx.fillStyle = '#0d1418'; ctx.fillRect(0, 0, W, HH); const close = E.inOut(win(t, TJ, TJ + 0.6));
   const r = P.gasketHD(ctx, 540, 940, 150, t, { close, water: sm(T.impedir - 0.3, T.impedir + 0.2, t) });
-  callout(ctx, r.gasket[0], r.gasket[1], 700, 700, 'SELLO ELASTOMÉRICO', sm(T.sellos, T.sellos + 0.3, t), C.blanco);
-  callout(ctx, r.segL[0], r.segL[1], 120, 1230, 'DOVELA', sm(T.juntas, T.juntas + 0.3, t), C.hormigon); callout(ctx, r.segR[0], r.segR[1], 700, 1230, 'DOVELA', sm(T.juntas, T.juntas + 0.3, t), C.hormigon);
-  callout(ctx, r.grout[0], r.grout[1], 120, 560, 'RELLENO ANULAR', sm(T.juntas + 0.5, T.juntas + 0.8, t), '#d6cfc2'); callout(ctx, r.water[0], r.water[1], 700, 460, 'AGUA A PRESIÓN', sm(T.impedir, T.impedir + 0.3, t), C.presion);
-  callout(ctx, r.inside[0], r.inside[1], 160, 1350, 'INTERIOR SECO', sm(T.agua12, T.agua12 + 0.3, t), C.protegida);
-  title(ctx, 'JUNTAS IMPERMEABLES', t, T.juntas - 0.1); tag(ctx, 'DEPENDE DEL DISEÑO, LA INSTALACIÓN Y LA PRESIÓN', 540, 370, 32, sm(T.agua12 + 0.2, T.agua12 + 0.5, t), C.blanco); scrim(ctx);
- }, sfx(k) { FX.hidraulico(k, TB.sellos + 0.3, 1.4, 0.6); FX.encaje(k, T.sellos + 0.3, 0.9); FX.aparece(k, T.juntas - 0.1); FX.etiqueta(k, T.juntas); FX.etiqueta(k, T.sellos); FX.etiqueta(k, T.impedir); FX.agua(k, T.impedir - 0.3, 1.5); } });
+  callout(ctx, r.gasket[0], r.gasket[1], 640, 650, 'SELLO COMPRIMIDO', sm(TJ + 0.3, TJ + 0.6, t), C.blanco);
+  callout(ctx, r.water[0], r.water[1], 640, 470, 'AGUA A PRESIÓN', sm(T.impedir, T.impedir + 0.3, t), C.presion); callout(ctx, r.inside[0], r.inside[1], 120, 1330, 'INTERIOR SECO', sm(T.agua12, T.agua12 + 0.3, t), C.protegida);
+  title(ctx, 'JUNTAS IMPERMEABLES', t, TJ); tag(ctx, 'DEPENDE DEL DISEÑO, LA INSTALACIÓN Y LA PRESIÓN', 540, 370, 32, sm(T.agua12 + 0.2, T.agua12 + 0.5, t), C.blanco); scrim(ctx);
+ }, sfx(k) { FX.hidraulico(k, TJ, 0.8, 0.5); FX.encaje(k, TJ + 0.6, 0.8); FX.etiqueta(k, TJ + 0.3); FX.etiqueta(k, T.impedir); FX.agua(k, T.impedir - 0.3, 1.5); } });
 
  // 13 · EXCAVA Y REVISTE — travelling longitudinal: la máquina avanza (tiempo acelerado) y deja anillos y lechada detrás
  B.push({ t0: TB.reviste, t1: TB.desafio, in: { type: 'fade', d: 0.4 }, draw(ctx, t) {
@@ -207,13 +216,13 @@
  }, sfx(k) { k.play('whoosh', TB.desafio + 0.3, { dur: 2, top: 700, gain: 0.25 }); FX.bajoAgua(k, TB.desafio + 0.6, 2.8, 0.5); FX.aparece(k, T.presion15 - 0.1); FX.compresion(k, T.agua15, 1.2); k.play('whoosh', T.terreno15, { dur: 1.2, top: 900, gain: 0.25, minor: true }); } });
 
  // 15 · EQUILIBRIO DE PRESIONES — frente en sección: empuje del terreno y del agua frente a la presión de soporte, regulada dentro de márgenes
- const gauge = (ctx, x, y, r, v, a) => { if (a <= 0) return; ctx.save(); ctx.globalAlpha *= a; P.rr(ctx, x - r - 40, y - r - 70, 2 * r + 80, r + 150, 26, 'rgba(11,24,33,0.88)'); const a0 = Math.PI, a1 = TAU; ctx.lineWidth = 26; ctx.lineCap = 'butt';
-  ctx.strokeStyle = 'rgba(255,115,90,0.55)'; ctx.beginPath(); ctx.arc(x, y, r, a0, a0 + Math.PI * 0.32); ctx.stroke(); ctx.beginPath(); ctx.arc(x, y, r, a1 - Math.PI * 0.26, a1); ctx.stroke(); ctx.strokeStyle = C.protegida; ctx.beginPath(); ctx.arc(x, y, r, a0 + Math.PI * 0.34, a1 - Math.PI * 0.28); ctx.stroke();
-  const an = a0 + Math.PI * (0.34 + 0.38 * v); ctx.strokeStyle = C.blanco; ctx.lineWidth = 6; ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x + Math.cos(an) * (r - 6), y + Math.sin(an) * (r - 6)); ctx.stroke(); ctx.fillStyle = C.blanco; ctx.beginPath(); ctx.arc(x, y, 10, 0, TAU); ctx.fill();
-  txt(ctx, 'PRESIÓN DE SOPORTE', x, y - r - 38, 34, C.blanco, { w: 800 }); txt(ctx, 'margen de diseño', x, y + 40, 32, C.protegida, { w: 700 }); txt(ctx, 'indicador cualitativo', x, y + 78, 32, 'rgba(244,247,248,0.7)', { w: 600 }); ctx.restore(); };
+ const gauge = (ctx, x, y, w2, v, a) => { if (a <= 0) return; ctx.save(); ctx.globalAlpha *= a; P.rr(ctx, x - w2 / 2 - 30, y - 70, w2 + 60, 170, 24, 'rgba(11,24,33,0.9)'); txt(ctx, 'PRESIÓN DE SOPORTE', x, y - 38, 34, C.blanco, { w: 800 });
+  const x0 = x - w2 / 2; P.rr(ctx, x0, y - 4, w2 * 0.22, 30, 15, 'rgba(255,115,90,0.6)'); P.rr(ctx, x0 + w2 * 0.78, y - 4, w2 * 0.22, 30, 15, 'rgba(255,115,90,0.6)'); P.rr(ctx, x0 + w2 * 0.24, y - 4, w2 * 0.52, 30, 15, C.protegida);
+  const mx = x0 + w2 * (0.3 + 0.4 * v); ctx.fillStyle = C.blanco; ctx.beginPath(); ctx.moveTo(mx - 14, y - 22); ctx.lineTo(mx + 14, y - 22); ctx.lineTo(mx, y - 4); ctx.closePath(); ctx.fill(); ctx.fillRect(mx - 2, y - 4, 4, 30);
+  txt(ctx, 'baja', x0 + w2 * 0.11, y + 60, 32, C.presion, { w: 700 }); txt(ctx, 'margen de diseño', x, y + 60, 32, C.protegida, { w: 700 }); txt(ctx, 'alta', x0 + w2 * 0.89, y + 60, 32, C.presion, { w: 700 }); ctx.restore(); };
  B.push({ t0: TB.equilibrio, t1: TB.fin, in: { type: 'fade', d: 0.4 }, draw(ctx, t) {
-  const S = ST(t), cam = [S.xm - 90, TUN.TY + 60, 2.3]; const r = world(ctx, t, cam, { st: S, press: sm(T.controlan, T.controlan + 0.3, t), support: sm(T.controlan + 0.3, T.controlan + 0.6, t), glow: { chamber: 0.8, screw: 0.7 * sm(T.evitar - 0.3, T.evitar, t) } });
-  gauge(ctx, 540, 560, 190, 0.5 + 0.28 * Math.sin(t * 1.3) * Math.sin(t * 0.37 + 1), sm(T.presiones - 0.2, T.presiones + 0.2, t));
+  const S = ST(t), cam = [S.xm - 110, TUN.TY + 90, 2.1]; const r = world(ctx, t, cam, { st: S, press: sm(T.controlan, T.controlan + 0.3, t), support: sm(T.controlan + 0.3, T.controlan + 0.6, t), glow: { chamber: 0.8, screw: 0.7 * sm(T.evitar - 0.3, T.evitar, t) } });
+  gauge(ctx, 540, 520, 820, 0.5 + 0.45 * Math.sin(t * 1.3) * Math.sin(t * 0.37 + 1), sm(T.presiones - 0.2, T.presiones + 0.2, t));
   const sc = camPt(cam, [(r.screwIn[0] + r.screwOut[0]) / 2, (r.screwIn[1] + r.screwOut[1]) / 2]); callout(ctx, sc[0], sc[1], 140, 1260, 'EL TORNILLO REGULA LA SALIDA', sm(T.evitar - 0.2, T.evitar + 0.1, t), C.oro);
   title(ctx, 'EQUILIBRIO DE PRESIONES', t, T.controlan - 0.1, 0, 200); scrim(ctx);
  }, sfx(k) { FX.motor(k, TB.equilibrio, TB.fin - TB.equilibrio, 0.5); FX.aparece(k, T.controlan - 0.1); FX.etiqueta(k, T.presiones - 0.2); FX.sinfin(k, T.evitar - 0.3, 2.2, 0.6); FX.etiqueta(k, T.evitar - 0.2); FX.equilibrio(k, T.estabilidad); } });

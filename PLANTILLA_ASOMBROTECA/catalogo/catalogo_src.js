@@ -102,6 +102,7 @@
   ['Tuneladora EPB en detalle (v1.16)', (c, t) => { const S = P.tbmState(30.3); c.save(); c.translate(200, 150); c.scale(0.75, 0.75); c.translate(-(S.xm - 150), -P.TUN.TY); P.tunWorld(c, t, { st: S }); c.restore(); }],
   ['Cabeza de corte · montaje de anillo (v1.16)', (c, t) => { c.fillStyle = '#0B1821'; c.fillRect(0, 0, 400, 300); P.cutterFace(c, 105, 150, 95, 0.3, t); P.ringBuild(c, 300, 150, 90, t, { placed: 3.5 }); }],
   ['Junta con sello elastomérico (v1.16)', (c, t) => { c.fillStyle = '#0B1821'; c.fillRect(0, 0, 400, 300); P.gasketHD(c, 200, 160, 44, t, { close: 1 }); }],
+  ['Relleno anular y sellos (v1.16.1)', (c, t) => { P.ringSection(c, 200, 150, 95, t, { grout: 0.7, press: 1 }); }],
  ];
  window.drawCatalog = function () {
   document.querySelectorAll('canvas[data-i]').forEach((cv) => {
