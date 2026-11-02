@@ -1,12 +1,12 @@
 # FUENTES Y DECISIONES · «Yakhchal: hielo en el desierto» (Episodio 03)
 
-Asombroteca · Plantilla v1.20 (módulo yakhchal)
+Asombroteca · Plantilla v1.21 (yakhchal fiel a la fotografía) · V2
 
 ## Datos y su base
 | Dato | Uso en pantalla | Fuente |
 |---|---|---|
 | *Yakhchal* (یخچال): *yakh* «hielo» + *chāl* «pozo» | ««POZO DE HIELO» EN PERSA» | Etimología estándar del persa |
-| Edificios con cúpula (a menudo escalonada) y depósito excavado bajo el suelo | Modelo maestro: cúpula escalonada con entrada y pozo | Fotografías aportadas por el usuario (yakhchal de cúpula y yakhchal cónico escalonado); literatura general sobre los yakhchal de Irán |
+| Edificios con cúpula y depósito excavado bajo el suelo | V2: cúpula de perfil CURVO medido sobre la fotografía de Meybod (r = R0·(1 − y/H)^0,55; desviación < 4 % respecto a la silueta de la foto), vestíbulo al sur, depósito con muro de contención, escalera, sumidero y drenaje (V1 usaba una cúpula escalonada, ya descartada) | Fotografías aportadas por el usuario (yakhchal de cúpula y yakhchal cónico escalonado); literatura general sobre los yakhchal de Irán |
 | En algunas instalaciones el agua se extendía en capas de ≈ 5–10 cm que se congelaban en noches de invierno suficientemente frías; después se añadía otra capa | «≈ 5–10 CM EN ALGUNAS INSTALACIONES», con «NOCHE 1, 2, 3 · TIEMPO ACELERADO · VARIAS NOCHES» | Encyclopaedia Iranica, según el encargo. **No se pudo consultar desde la sesión** (red restringida) |
 | Muro de sombra al sur del estanque, de este a oeste, que da sombra al estanque | Modelo maestro y sección del sitio | Encargo del usuario y descripción habitual de los yakhchal con muro de sombra |
 | Sol de invierno a mediodía ≈ 34,6° sobre el horizonte, al sur (latitud ≈ 32° N, solsticio: 90 − 32 − 23,44) | Las sombras del modelo y la comprobación automática | Cálculo astronómico (latitud aproximada de Yazd y Meybod) |
@@ -50,3 +50,28 @@ Asombroteca · Plantilla v1.20 (módulo yakhchal)
 - **Efectos:**
   - nuevos: `hieloCrujir`, `pico`, `bloque`, `escarcha`;
   - existentes: viento, calor, agua, goteo, salto de tiempo, etiquetas, sello y campana.
+
+## V2 · Corrección cinematográfica profunda (2026-11-02)
+- **Versión oficial elegida por el usuario: la que contiene la fotografía real del yakhchal.**
+  - `07_OUTPUT/ASOMBROTECA_03_YAKHCHAL_FINAL.mp4` contiene la foto A con «FOTOGRAFÍA ACTUAL», el pie «YAKHCHAL DE MEYBOD · IRÁN» y el crédito «Foto: Ggia · CC BY-SA 3.0», de 21,5 a 27,5 s.
+  - La versión sin foto queda solo como respaldo en `07_OUTPUT/V1/`.
+  - Recordatorio de licencia (CC BY-SA 3.0): atribución y enlace a la licencia en la descripción. La autoría y la licencia no se pudieron verificar en Commons desde la sesión.
+- **Tratamiento de la foto (pedido por el usuario):**
+  - tarjeta con acercamiento lento;
+  - ampliación hasta alinear la silueta de la foto con la del modelo (misma cámara, bordes difuminados);
+  - fundido a la reconstrucción.
+  - El contenido de la foto no se altera: solo se escala y se funde. Lo recreado se rotula «RECONSTRUCCIÓN».
+- **No se usó ninguna foto de interior:** no se recibió una verificada. La segunda imagen adjunta es otro exterior y sigue sin usarse.
+- **Depósito:**
+  - pozo excavado con muro de contención revestido de adobe;
+  - escalera tallada en el muro, desde la entrada, fuera del volumen del hielo;
+  - paja entre capas, rotulada como aislante;
+  - sumidero y drenaje del agua de fusión;
+  - parte del hielo llega al verano, pero no todo.
+- **Muro de sombra:** al sur del estanque, de este a oeste. Los rayos del sol de invierno rozan su arista y la sombra cubre el estanque. El muro da sombra al estanque y la cúpula aísla el depósito: funciones relacionadas pero distintas, y así se rotulan.
+- **Física, sin cifras inventadas:**
+  - el agua pierde energía hacia el cielo nocturno y el aire;
+  - la congelación crece desde la superficie y desde las orillas;
+  - el calor avanza más despacio por la pared, que no es una barrera perfecta;
+  - no hay temperaturas;
+  - la Luna no aparece como fuente de frío.

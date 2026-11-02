@@ -173,6 +173,22 @@ La piel se elige con `skin: 'plana' | 'oscura'` en `PLANTILLA.make`. Los bloques
 | `seasonDial(ctx, cx, cy, r, u, {label})` | Indicador de estaciones (invierno → primavera → verano → otoño) |
 | `ykDesert(ctx, t, {heat, horizon, sunX, sunY})` | Desierto 2D: cielo de calor, sol, dunas y reverberación |
 
+**v1.21 · yakhchal fiel a la fotografía (bloques nuevos; los de v1.20 siguen igual):**
+
+| Bloque | Uso |
+|---|---|
+| `YK2` · `ykR2(y)` · `ykRin2(y)` · `ykPitR(y)` | Perfil CURVO medido sobre la foto de Meybod (r = R0·(1 − y/H)^0,55, sin escalones), interior con la misma ley (12 dm de bóveda), muro de contención ataluzado del pozo, vestíbulo `YK2.ent`, escalera `YK2.stair` (sur → oeste), zanja de corte `YK2.cut` |
+| `ykDome2(ctx, cam, t, {sun, night, col, amb, cutx, noVest})` | Cúpula lisa de adobe en 3D: sombreado por cara con la normal del perfil, textura mineral, desgaste en la base, hiladas tenues, muescas de la escalera, agujeros del remate, vestíbulo en bóveda al sur y sombra de contacto |
+| `ykWorld2(ctx, cam, t, {sun, night, water, ice, ripple, dry, town, rays, cut:{c, ice, melt, straw, warm, dim, actors}, skyTop, skyMid, actors})` | Escena completa (sustituye a `ykWorld`): montañas lejanas, estanque histórico, camino desde el vestíbulo, sombras del muro y de la silueta completa de la cúpula, muro de adobe con hiladas, `actors` ordenados por profundidad ({d, f}) y, con `cut`, el depósito en corte |
+| `ykCutaway(ctx, cam, t, {c, ice, melt, straw, warm, dim, seed, actors})` | Depósito en CORTE por x = c (visto desde el este, sur a la izquierda): bóveda interior con luz indirecta, sección de la pared y del paso de entrada, rellano, revestimiento, escalera tallada, sumidero y drenaje, pila de hielo. Con `c: 1e9` la cámara puede estar DENTRO de la cúpula. Devuelve puntos (`pit`, `wall`, `entrance`, `stairPt(k)`…) |
+| `iceBox3(ctx, cam, x0, x1, y0, y1, z0, z1, {seed, melt, dim, straw})` · `ykIceStack({fill, straw, seed})` | Bloque 3D translúcido (canto claro, burbujas, fisuras, línea de contacto) y pila variada y estable (apoyo ≥ 40 %, paja entre capas, sin invadir la escalera) |
+| `ykPond3` · `ykSunRays(ctx, cam, sun, t, {a, xs, L})` | Estanque con taludes, caballón, volumen, ondas y cristales que crecen desde las orillas; rayos del sol que rozan la arista del muro y marcan el borde de la sombra |
+| `ykSection2(ctx, ox, gy, s, t, {flip, ice, melt, heat, grad, tint, site, sun, night, straw})` | Sección técnica con el perfil curvo, revoque claro, núcleo de adobe, vestíbulo, pozo ataluzado con escalera separada del hielo por un murete, drenaje al norte, calor cualitativo que se atenúa (llega una pequeña parte) |
+| `ykPondSide(ctx, x0, gy, w, L, t, {n, water, freeze, loss, grooves, cut, night, maxN})` | Estanque en corte lateral: capas de noches anteriores, lámina que se congela desde arriba con agujas, flechas de pérdida de energía y ranuras de corte |
+| `persianWorker2(ctx, x, y, h, t, {pose, lift, ph, dir, var, feet, surf, block, release, tip})` · `iceSlab2` | Trabajador con anatomía mejorada. Poses `pry`, `lift`, `carry`, `descend`, `place`, `rake`, `walk`, `stand`; las manos agarran el bloque o la barra y los pies se apoyan (o `feet` en peldaños) |
+| `iceMacro(ctx, t, {zoom, drip, warm})` | Macro del hielo para ganchos: burbujas, fracturas, escarcha, gotas de condensación y una gota que resbala |
+| `ykLabel(ctx, s, anchor, x, y, t, t0, t1, {sub, al, col, px})` · `ykKicker(ctx, num, s, t, t0, t1, {sub})` · `ykRecon(ctx, t, t0, t1)` | Rótulos editoriales discretos: etiqueta con guía fina, rótulo de capítulo en la esquina y sello pequeño «RECONSTRUCCIÓN» |
+
 FX v1.20: `hieloCrujir`, `pico`, `bloque` y `escarcha`. Música: `MUS.persa(k, t0, t1, {bpm, root, santur, daf, drone, mode})` (original, de inspiración persa: santur pulsado sobre un modo de tipo Homayun, bordón y daf).
 
 **v1.19.2 · manos coherentes:**
