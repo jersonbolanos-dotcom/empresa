@@ -157,6 +157,33 @@ La piel se elige con `skin: 'plana' | 'oscura'` en `PLANTILLA.make`. Los bloques
 | `laborer`, `porter`, `oxcart`, `packAnimal` | Trabajador con ropa y sombrero variados; porteador con pértiga y dos cestas; carro de dos ruedas con buey y ruedas que giran; mula con alforjas. Cargas: `tierra`, `piedra` o `ladrillos` |
 | `dust(ctx, x, y, t, t0, {s})` | Nube de polvo determinista |
 
+**v1.19 · almacenamiento: del IBM 350 (1956) al HDD, la flash y la microSD (episodio «El primer disco duro era una máquina gigantesca»):**
+
+| Bloque | Uso |
+|---|---|
+| `RM` · `R350` · `r350y(k)` | Paleta del módulo (fondo industrial, metal de época, madera, luz cálida, disco, cian, datos, oro) y geometría del IBM 350 en **centímetros**: armario ≈ 152 × 172 × 74, 50 discos de 61 cm (R = 30,5), paso 1,27 cm. `r350y(k)` da la altura del disco k |
+| `box3(ctx, cam, x0, x1, y0, y1, z0, z1, col, {only, alpha, k, edge})` | Caja 3D con caras sombreadas y ocultación. `only: 'back' \| 'front'` para dibujar el interior entre las caras traseras y las delanteras |
+| `ibm350(ctx, cam, t, {rot, open, xray, arm:{k, ext}, hl, count, extract:{k, u}, lights, x, z})` | IBM 350 en 3D con `P.cam3`: armario con ventana, rejillas y pilotos; panel frontal que se retira (`open`); cubiertas transparentes (`xray`); 50 discos con grosor sobre un eje, con huecos oscuros entre ellos y marcas que giran; motor; columna con carro y brazo radial que entra en el hueco `k` (`ext` 0 = fuera, 1 = pista interior); resaltado y recuento de discos; extracción de un disco. Devuelve puntos para rótulos (`top`, `front`, `armTip`, `column`, `disk(k)`…). La cámara puede entrar entre dos discos |
+| `room1956(ctx, cam, t, {warm, door, back})` | Sala informática de 1956: baldosas, paredes con zócalo, puerta de 2,1 m como referencia, ventanas altas y luz cálida |
+| `worker1956(ctx, cam, foot, t, {pose, var, h})` | Técnico de los años 50 (camisa, corbata, pantalón) a la escala de la proyección en el punto 3D `foot`. Referencia de tamaño. Pose `point` para señalar o sostener algo |
+| `ramac305(ctx, cam, t, {x, z, consoleDx})` | Resto del sistema IBM 305 RAMAC (genérico): armario de proceso con pilotos, consola de madera con máquina de escribir e impresora |
+| `microSD(ctx, cx, cy, mm, {rot, back, glow, tilt})` | Tarjeta microSD con su forma real (11 × 15 mm, escalón lateral). `back` muestra los contactos. `mm` = px por milímetro |
+| `fingertip(ctx, cx, tipY, fw, t, {skin, card, cardRot, glow})` | Yema del dedo (lado de la palma) que sale del borde inferior, con la microSD apoyada y sombra de contacto (escala real: dedo ≈ 17 mm) |
+| `photoTile(ctx, x, y, s, seed, {rot})` | Miniatura de foto (paisaje estilizado) para visualizar contenido de forma conceptual |
+| `platterFace(ctx, cx, cy, r, t, {tilt, rot})` | Disco del IBM 350 en 2D (frente o inclinado) con pistas, brillo y agujero central |
+| `magSurface(ctx, x, y, w, h, t, {rows, speed, write})` | Macro de la superficie magnética: pistas que pasan con regiones magnetizadas (flechas N→/←S didácticas) |
+| `magSection(ctx, x, y, w, h, t, {n, speed})` | Corte: sustrato de aluminio + recubrimiento magnético con regiones. Devuelve puntos para rótulos |
+| `headTrack(ctx, x, y, w, h, t, {mode: 'write'\|'read', speed})` | Cabeza sobre una pista, con colchón de aire visible (nunca toca el disco). En `write` la bobina magnetiza al pasar; en `read` los cambios generan una señal eléctrica |
+| `capBars(ctx, x, y, w, items, max, u, {bh, gap})` | Barras de capacidad en escala lineal (`items: [{label, mb, col}]`) |
+| `hdd35(ctx, cx, cy, s, t, {rot, arm, plate, cover, angle})` | HDD de 3,5″ abierto (genérico): plato, eje, brazo pivotante que apunta al plato e imán. `plate` 0→1 hace desaparecer el plato (para pasar a flash). `s` = px/mm |
+| `driveBox(ctx, cx, baseY, s, kind, t)` | Unidades cerradas a escala: `'1970'` (armario de discos removibles), `'525'`, `'35'` y `'25'` |
+| `flashChip(ctx, cx, cy, s, t, {die, glow})` | Chip flash sobre placa con patas y pistas. `die` abre la matriz de celdas |
+| `flashCells(ctx, x, y, w, h, t, {cols, rows, prog})` | Celdas flash conceptuales: puerta flotante que retiene electrones (carga = bit), sin piezas que giran |
+| `floppy35(ctx, cx, cy, s, {rot, shutter, col})` | Disquete de 3,5″ (90 × 94 mm): persiana metálica, etiqueta y muesca |
+| `dimLine(ctx, x0, y0, x1, y1, label, {col, px, off, a})` · `rulerCm(ctx, x, y, L, s)` | Cota con flechas y rótulo (≥ 32 px) y regla graduada en cm para comparar tamaños |
+
+FX v1.19: `sala1956`, `motorDiscos` (suave, nunca una turbina), `carro`, `panel`, `interruptor`, `escribir`, `leer`, `chipFlash`, `disquete` y `miniaturizar`. Música: `MUS.industrial(k, t0, t1, {bpm, chords, perc, strings})` (percusión mecánica suave, relés, bordón y cuerdas).
+
 **v1.18 · comunicaciones y épocas, 1926 ↔ hoy (episodio «Nikola Tesla imaginó el celular en 1926»):**
 
 | Bloque | Uso |
