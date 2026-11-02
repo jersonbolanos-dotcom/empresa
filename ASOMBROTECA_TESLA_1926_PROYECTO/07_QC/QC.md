@@ -35,3 +35,33 @@
    - `FX.senalRadio`, `FX.flujoDatos`, `FX.saltoTiempo`.
 
    El render de Tesla dio el mismo md5 de fotogramas antes y después del cambio. Las pistas de audio difieren solo en ~1e-8, que es redondeo de coma flotante.
+
+## Corrección V2 (2026-11-02): la mano que sostiene el teléfono
+Pedido: «arregla la mano… que se mire natural… parece que la mano se transporta». Solo se cambió eso.
+- **Dibujo (`P.handHold`, plantilla v1.18.1).** Agarre real:
+  - la palma va detrás del teléfono y el talón asoma bajo el borde inferior;
+  - los cuatro dedos rodean el borde izquierdo, con las yemas y las uñas apoyadas en el frente;
+  - el pulgar se apoya en la pantalla con sombra de contacto;
+  - la muñeca y el antebrazo están unidos a la palma.
+- **Movimiento:**
+  - la mano ya no aparece con fundidos semitransparentes ni salta de sitio;
+  - sube opaca desde abajo («celulares», cierre) y se desliza de forma continua hasta la vista de corte;
+  - entra con barrido en «Datos → imagen + sonido» y dentro de la tarjeta «HOY»;
+  - las miniaturas con mano aparecen con escala.
+- **Audio.** Los efectos automáticos de transición cambian con las nuevas entradas (barrido en vez de sonido de fundido), así que se regeneró `efectos_sonido.wav` y se rehízo la mezcla con los mismos ajustes. Voz y música sin cambios.
+- **Respaldo de la versión anterior:**
+  - `07_OUTPUT/V1/`;
+  - `07_QC/V1/` (hoja de contacto y `handHold` anterior);
+  - `05_AUDIO/V1/`;
+  - `04_CODIGO/V1/episodio.js`.
+- **QC V2:**
+  - 74,0 MB, 85,506 s, 2565 fotogramas;
+  - 0 errores de decodificación, 0 tramos negros, 0 congelados, 0 silencios;
+  - −14,1 LUFS, pico −1,2 dBTP;
+  - md5 de la voz sin cambios;
+  - determinismo comprobado (mismo md5 en orden directo e inverso).
+- **Revisión visual:**
+  - `mano_escenas.jpg`: todas las escenas con mano;
+  - `movimiento_mano_t50.6.jpg`: la mano sube con el teléfono;
+  - `movimiento_mano_t51.9.jpg`: deslizamiento continuo a la vista de corte;
+  - `movimiento_mano_t79.1.jpg`: cierre.

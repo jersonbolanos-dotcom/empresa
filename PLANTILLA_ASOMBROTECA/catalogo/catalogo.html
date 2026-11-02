@@ -2942,10 +2942,40 @@ body{margin:0;background:#14132b;color:#fff;font-family:Nunito,sans-serif} h1{fo
  };
  // Mano que sostiene un teléfono vertical de alto h centrado en (cx,cy): layer 'back' (palma y dedos por detrás, antebrazo hasta el
  // borde inferior del cuadro, nada flota) y 'front' (pulgar por delante). Llamar 'back' antes de P.phone y 'front' después.
- P.handHold = (ctx, cx, cy, h, layer, o = {}) => { const w = h * 0.48, sk = o.skin || '#c98f6a', sl = o.sleeve || '#2a3e5c'; ctx.save(); ctx.fillStyle = sk;
-  if (layer === 'back') { ctx.fillStyle = sl; ctx.beginPath(); ctx.moveTo(cx - w * 0.15, cy + h * 0.42); ctx.lineTo(cx + w * 0.95, cy + h * 0.38); ctx.lineTo(cx + w * 1.25, HH + 40); ctx.lineTo(cx + w * 0.05, HH + 40); ctx.closePath(); ctx.fill(); ctx.fillStyle = sk; ctx.beginPath(); ctx.moveTo(cx - w * 0.62, cy + h * 0.05); ctx.quadraticCurveTo(cx - w * 0.75, cy + h * 0.4, cx - w * 0.1, cy + h * 0.5); ctx.lineTo(cx + w * 0.9, cy + h * 0.44); ctx.quadraticCurveTo(cx + w * 0.75, cy + h * 0.1, cx + w * 0.56, cy + h * 0.02); ctx.closePath(); ctx.fill();
-   for (let k = 0; k < 4; k++) { const fy = cy - h * 0.06 + k * h * 0.09; ctx.beginPath(); ctx.ellipse(cx + w * 0.55, fy, w * 0.14, h * 0.038, -0.2, 0, TAU); ctx.fill(); } }
-  else { ctx.beginPath(); ctx.moveTo(cx - w * 0.62, cy + h * 0.32); ctx.quadraticCurveTo(cx - w * 0.6, cy + h * 0.05, cx - w * 0.44, cy - h * 0.02); ctx.quadraticCurveTo(cx - w * 0.34, cy + 0, cx - w * 0.4, cy + h * 0.12); ctx.quadraticCurveTo(cx - w * 0.42, cy + h * 0.3, cx - w * 0.3, cy + h * 0.42); ctx.closePath(); ctx.fill(); ctx.fillStyle = 'rgba(255,220,200,0.35)'; ctx.beginPath(); ctx.ellipse(cx - w * 0.44, cy + h * 0.02, w * 0.05, h * 0.02, -0.4, 0, TAU); ctx.fill(); }
+ P.handHold = (ctx, cx, cy, h, layer, o = {}) => { const w = h * 0.48, a = w / 2, b = h / 2, sk = o.skin || '#c98f6a', sl = o.sleeve || '#2a3e5c', dk = H.rgba(H.mix(sk, '#3a1e10', 0.32)), dk2 = H.rgba(H.mix(sk, '#3a1e10', 0.5)), lt = H.rgba(H.mix(sk, '#fff1e6', 0.28)), nail = H.rgba(H.mix(sk, '#f6d3c6', 0.42)), X = (u) => cx + u * w, Y = (v) => cy + v;
+  // dedos (índice → meñique): fila a la altura v, grosor fw, saliente L hacia fuera del borde izquierdo
+  const F = [[0.02 * h, 0.24 * w, 0.21 * w], [0.125 * h, 0.24 * w, 0.24 * w], [0.228 * h, 0.225 * w, 0.22 * w], [0.322 * h, 0.195 * w, 0.17 * w]];
+  // pulgar: base fuera del borde derecho → articulación → punta sobre la pantalla
+  const TB = [0.66, 0.3 * h], TJ = [0.47, 0.205 * h], TT = [0.27, 0.125 * h], tw0 = 0.27 * w, tw1 = 0.205 * w;
+  const thumbPath = (dx = 0, dy = 0) => { const pts = [TB, TJ, TT].map(([u, v]) => [X(u) + dx, Y(v) + dy]), wd = [tw0, (tw0 + tw1) / 2, tw1], L = [], R = []; for (let i = 0; i < 3; i++) { const p = pts[i], q = pts[Math.min(2, i + 1)], r = pts[Math.max(0, i - 1)], dxx = q[0] - r[0], dyy = q[1] - r[1], n = Math.hypot(dxx, dyy) || 1, nx = -dyy / n, ny = dxx / n; L.push([p[0] + nx * wd[i] / 2, p[1] + ny * wd[i] / 2]); R.push([p[0] - nx * wd[i] / 2, p[1] - ny * wd[i] / 2]); }
+   const ang = Math.atan2(pts[2][1] - pts[1][1], pts[2][0] - pts[1][0]); ctx.beginPath(); ctx.moveTo(L[0][0], L[0][1]); ctx.quadraticCurveTo(L[1][0], L[1][1], L[2][0], L[2][1]); ctx.arc(pts[2][0], pts[2][1], wd[2] / 2, ang + Math.PI / 2, ang - Math.PI / 2, true); ctx.quadraticCurveTo(R[1][0], R[1][1], R[0][0], R[0][1]); const a0 = Math.atan2(R[0][1] - pts[0][1], R[0][0] - pts[0][0]); ctx.arc(pts[0][0], pts[0][1], wd[0] / 2, a0, a0 + Math.PI, false); ctx.closePath(); return { pts, ang }; };
+  ctx.save(); ctx.lineJoin = 'round'; ctx.lineCap = 'round';
+  if (layer === 'back') {
+   // antebrazo (llega al borde inferior del cuadro) y manga
+   const wl = [X(0.0), Y(b + 0.34 * w)], wr = [X(0.66), Y(b + 0.26 * w)], fl = [X(0.12), HH + 60], fr = [X(1.0), HH + 60];
+   ctx.fillStyle = sk; ctx.beginPath(); ctx.moveTo(wl[0], wl[1]); ctx.lineTo(wr[0], wr[1]); ctx.lineTo(fr[0], fr[1]); ctx.lineTo(fl[0], fl[1]); ctx.closePath(); ctx.fill();
+   const cu = (k) => [lerp(wl[0], fl[0], k), lerp(wl[1], fl[1], k)], cv = (k) => [lerp(wr[0], fr[0], k), lerp(wr[1], fr[1], k)], k0 = cl((cy + b + 0.75 * w - wl[1]) / Math.max(1, fl[1] - wl[1]), 0.05, 0.9);
+   ctx.fillStyle = sl; ctx.beginPath(); ctx.moveTo(...cu(k0)); ctx.quadraticCurveTo((cu(k0)[0] + cv(k0)[0]) / 2, (cu(k0)[1] + cv(k0)[1]) / 2 + w * 0.06, ...cv(k0)); ctx.lineTo(fr[0] + w * 0.1, fr[1]); ctx.lineTo(fl[0] - w * 0.1, fl[1]); ctx.closePath(); ctx.fill();
+   ctx.strokeStyle = 'rgba(255,255,255,0.12)'; ctx.lineWidth = Math.max(2, w * 0.025); ctx.beginPath(); ctx.moveTo(...cu(k0 + 0.03)); ctx.quadraticCurveTo((cu(k0)[0] + cv(k0)[0]) / 2, (cu(k0)[1] + cv(k0)[1]) / 2 + w * 0.09, ...cv(k0 + 0.03)); ctx.stroke();
+   // palma detrás del teléfono: talón bajo el borde inferior y eminencia del pulgar fuera del borde derecho
+   const g = ctx.createLinearGradient(X(-0.3), 0, X(0.7), 0); g.addColorStop(0, dk); g.addColorStop(0.55, sk); g.addColorStop(1, sk); ctx.fillStyle = g;
+   ctx.beginPath(); ctx.moveTo(X(-0.4), Y(0.0)); ctx.lineTo(X(-0.42), Y(b - 0.02 * w)); ctx.quadraticCurveTo(X(-0.38), Y(b + 0.16 * w), X(-0.05), Y(b + 0.2 * w)); ctx.quadraticCurveTo(X(0.0), Y(b + 0.28 * w), wl[0], wl[1]); ctx.lineTo(wr[0], wr[1]); ctx.bezierCurveTo(X(0.86), Y(b - 0.02 * w), X(0.9), Y(0.3 * h), X(0.7), Y(0.2 * h)); ctx.lineTo(X(0.3), Y(0.0)); ctx.closePath(); ctx.fill();
+   // dedos que rodean el borde izquierdo (se ven sus falanges por fuera del borde)
+   F.forEach(([v, fw, L], i) => { const y = Y(v), x0 = X(-0.5) - L, x1 = X(-0.25); const gg = ctx.createLinearGradient(0, y - fw / 2, 0, y + fw / 2); gg.addColorStop(0, lt); gg.addColorStop(0.45, sk); gg.addColorStop(1, dk); ctx.fillStyle = gg; ctx.beginPath(); ctx.roundRect(x0, y - fw / 2, x1 - x0, fw, [fw * 0.42, 0, 0, fw * 0.42]); ctx.fill();
+    ctx.strokeStyle = dk2; ctx.lineWidth = Math.max(1.2, w * 0.01); ctx.beginPath(); ctx.moveTo(x1, y + fw / 2); ctx.lineTo(x0 + fw * 0.35, y + fw / 2); ctx.stroke();
+    ctx.strokeStyle = dk; ctx.globalAlpha = 0.6; ctx.lineWidth = Math.max(1, w * 0.007); const kx = X(-0.5) - L * 0.45; ctx.beginPath(); ctx.moveTo(kx - fw * 0.04, y - fw * 0.22); ctx.quadraticCurveTo(kx + fw * 0.03, y, kx - fw * 0.04, y + fw * 0.22); ctx.stroke(); ctx.globalAlpha = 1; });
+  } else {
+   // yemas de los dedos apoyadas en el frente del borde izquierdo, con uña y sombra de contacto
+   F.forEach(([v, fw], i) => { const y = Y(v) + fw * 0.02, x = X(-0.5) + w * 0.02, rx = w * 0.06, ry = fw * 0.43; ctx.save(); ctx.fillStyle = 'rgba(0,0,0,0.3)'; ctx.filter = `blur(${Math.max(1, w * 0.02)}px)`; ctx.beginPath(); ctx.ellipse(x + w * 0.03, y + fw * 0.06, rx, ry, 0, 0, TAU); ctx.fill(); ctx.restore();
+    ctx.fillStyle = sk; ctx.beginPath(); ctx.moveTo(X(-0.5) - w * 0.04, y - ry); ctx.lineTo(x, y - ry); ctx.ellipse(x, y, rx, ry, 0, -Math.PI / 2, Math.PI / 2); ctx.lineTo(X(-0.5) - w * 0.04, y + ry); ctx.closePath(); ctx.fill();
+    const gp = ctx.createLinearGradient(0, y - ry, 0, y + ry); gp.addColorStop(0, 'rgba(255,240,230,0.18)'); gp.addColorStop(0.6, 'rgba(0,0,0,0)'); gp.addColorStop(1, 'rgba(60,25,10,0.35)'); ctx.fillStyle = gp; ctx.fill();
+    ctx.fillStyle = nail; ctx.globalAlpha = 0.75; ctx.beginPath(); ctx.ellipse(x + rx * 0.3, y - ry * 0.02, rx * 0.42, ry * 0.5, 0, 0, TAU); ctx.fill(); ctx.globalAlpha = 1; ctx.strokeStyle = dk; ctx.lineWidth = Math.max(1, w * 0.007); ctx.beginPath(); ctx.moveTo(X(-0.5) - w * 0.02, y - ry * 0.9); ctx.lineTo(X(-0.5) - w * 0.02, y + ry * 0.9); ctx.stroke(); });
+   // pulgar sobre la pantalla: sombra de contacto, volumen, uña y pliegue
+   ctx.save(); ctx.beginPath(); ctx.roundRect(X(-0.5), Y(-b), w, h, h * 0.075); ctx.clip(); ctx.fillStyle = 'rgba(0,0,0,0.38)'; ctx.filter = `blur(${Math.max(2, w * 0.035)}px)`; thumbPath(w * 0.035, w * 0.05); ctx.fill(); ctx.restore();
+   const gt = ctx.createLinearGradient(X(0.45), Y(0.1 * h), X(0.58), Y(0.32 * h)); gt.addColorStop(0, lt); gt.addColorStop(0.55, sk); gt.addColorStop(1, sk); ctx.fillStyle = gt; const th = thumbPath(); ctx.fill();
+   const [p0, p1, p2] = th.pts, an = th.ang; ctx.strokeStyle = dk; ctx.lineWidth = Math.max(1.2, w * 0.011); ctx.beginPath(); ctx.moveTo(p1[0] - Math.sin(an) * tw1 * 0.3, p1[1] + Math.cos(an) * tw1 * 0.3); ctx.quadraticCurveTo(p1[0] + Math.cos(an) * w * 0.02, p1[1] + Math.sin(an) * w * 0.02, p1[0] + Math.sin(an) * tw1 * 0.32, p1[1] - Math.cos(an) * tw1 * 0.32); ctx.stroke();
+   ctx.save(); ctx.translate(p2[0] - Math.cos(an) * tw1 * 0.12, p2[1] - Math.sin(an) * tw1 * 0.12); ctx.rotate(an); ctx.fillStyle = nail; ctx.beginPath(); ctx.ellipse(0, -tw1 * 0.04, tw1 * 0.42, tw1 * 0.3, 0, 0, TAU); ctx.fill(); ctx.fillStyle = 'rgba(255,255,255,0.35)'; ctx.beginPath(); ctx.ellipse(tw1 * 0.08, -tw1 * 0.14, tw1 * 0.16, tw1 * 0.08, 0, 0, TAU); ctx.fill(); ctx.restore();
+  }
   ctx.restore(); };
 
  // Persona estilizada en plano medio (busto) para videollamadas o escenas: hombros, cuello, cabeza, pelo; parpadeo y leve
