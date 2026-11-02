@@ -1,0 +1,17 @@
+OK   Estanque al norte del muro de sombra  · estanque z 190–300 dm · muro z 318–334 dm (z = sur)
+OK   Muro orientado este–oeste  · largo 760 dm · espesor 16 dm
+OK   El estanque no invade la cúpula ni el depósito  · estanque desde z 190 · radio cúpula 100 · radio pozo 72
+OK   El camino conecta la entrada (sur de la cúpula) con el estanque  · camino z 100–190
+OK   El canal llega al estanque desde el oeste  · canal x -700→-300
+OK   Sol de invierno al sur ⇒ sombras hacia el norte (−z)  · sombra del borde del muro en z = 144
+OK   A mediodía de invierno (≈ 34,6° a 32° N) la sombra del muro cubre el estanque  · la sombra llega a z = 144 ≤ 190
+OK   Sombra de verano también hacia el norte  · sombra del remate en z = -87
+OK   Una persona (17 dm) cabe por la entrada  · entrada 24 dm
+OK   El depósito queda bajo el nivel del terreno  · profundidad 60 dm
+OK   Pared más gruesa en la base que arriba  · 20 → 7 dm
+OK   Perfil continuo: radio exterior no crece con la altura e interior < exterior
+OK   Audio con duración válida  · 95.007 s
+OK   Subtítulos en zona segura (capY 1540 < 1920 − 320)
+OK   Fotografía A cargada (versión con foto)  · sí
+
+Todas las comprobaciones (15) superadas

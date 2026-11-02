@@ -119,6 +119,10 @@
   ['HDD 3,5″ · chip y celdas flash (v1.19)', (c, t) => { c.fillStyle = '#0B1424'; c.fillRect(0, 0, 400, 300); P.hdd35(c, 90, 150, 1.6, t, {}); P.flashChip(c, 250, 80, 4, t, { die: 1 }); P.flashCells(c, 190, 170, 200, 120, t, { cols: 4, rows: 2 }); }],
   ['Pista magnética: escribir / leer (v1.19.1)', (c, t) => { c.fillStyle = '#111A21'; c.fillRect(0, 0, 400, 300); P.magTrack(c, 0, 0, 400, 150, t, { mode: 'write' }); P.magTrack(c, 0, 150, 400, 150, t, { mode: 'read' }); }],
   ['Celda flash de puerta flotante (v1.19.1)', (c, t) => { c.fillStyle = '#0B1424'; c.fillRect(0, 0, 400, 300); P.flashCell(c, 20, 20, 360, 260, t, { charge: 0.8 }); }],
+  ['Yakhchal: complejo 3D con sombras (v1.20)', (c, t) => { c.save(); c.beginPath(); c.rect(0, 0, 400, 300); c.clip(); c.scale(400 / 1080, 400 / 1080); c.translate(0, -560); const cam = P.cam3([560, 60, -330], [0, 85, 0], 900); P.ykWorld(c, cam, t, { sun: P.ykSun(40, 215), water: 1 }); c.restore(); }],
+  ['Yakhchal: sección con pozo y calor (v1.20)', (c, t) => { c.fillStyle = '#8ec0e6'; c.fillRect(0, 0, 400, 300); P.ykSection(c, 200, 170, 1.0, t, { flip: true, ice: 0.8, heat: 1, melt: 0.5 }); }],
+  ['Estanque que se congela por capas (v1.20)', (c, t) => { c.fillStyle = '#0d1b2e'; c.fillRect(0, 0, 400, 300); P.pondSection(c, 40, 120, 320, 110, t, { water: 1, freeze: 0.5, layers: 2, loss: 1 }); }],
+  ['Trabajadores persas · bloque de hielo (v1.20)', (c, t) => { c.fillStyle = '#d9c29c'; c.fillRect(0, 0, 400, 300); c.fillStyle = '#b89468'; c.fillRect(0, 262, 400, 4); P.persianWorker(c, 70, 262, 150, t, { pose: 'pick', lift: 0.6 }); P.persianWorker(c, 200, 262, 150, t, { pose: 'carry', ph: 0.3, var: 1 }); P.persianWorker(c, 320, 262, 150, t, { pose: 'lower', var: 2, dir: -1 }); }],
  ];
  window.drawCatalog = function () {
   document.querySelectorAll('canvas[data-i]').forEach((cv) => {

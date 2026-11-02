@@ -157,6 +157,24 @@ La piel se elige con `skin: 'plana' | 'oscura'` en `PLANTILLA.make`. Los bloques
 | `laborer`, `porter`, `oxcart`, `packAnimal` | Trabajador con ropa y sombrero variados; porteador con pértiga y dos cestas; carro de dos ruedas con buey y ruedas que giran; mula con alforjas. Cargas: `tierra`, `piedra` o `ladrillos` |
 | `dust(ctx, x, y, t, t0, {s})` | Nube de polvo determinista |
 
+**v1.20 · módulo yakhchal (arquitectura pasiva del desierto, episodio «Yakhchal: hielo en el desierto»):**
+
+| Bloque | Uso |
+|---|---|
+| `YK` · `ykR(y)` · `ykWall(y)` · `ykRin(y)` | MODELO MAESTRO en dm (x = este, z = sur): cúpula escalonada (R0, H, n bandas, pared que se adelgaza), pozo (`pitR`, `pitD`), entrada al sur, camino, estanque al norte del muro de sombra este–oeste y canal desde el oeste. Todas las vistas leen YK |
+| `ykSun(elev, az)` · `ykShadow(p, sun)` | Vector solar (acimut desde el norte; 180 = sur) y sombra de un punto sobre el suelo. Las caras se iluminan y las sombras se proyectan con el MISMO vector |
+| `ykWorld(ctx, cam, t, {sun, night, water, ice, blocks, town, dome:{cut}})` | Complejo 3D (P.cam3, dm): cielo diurno o nocturno con estrellas, desierto, canal, estanque (agua → hielo, cuadrícula de corte), camino, sombras calculadas, muro, cúpula y casas lejanas (nunca junto a la cámara). Devuelve `pr()` para rótulos |
+| `ykDome(ctx, cam, t, {sun, night, col, ledge})` | Cúpula escalonada con cornisas, entrada en arco al sur y huecos de servicio |
+| `ykSection(ctx, ox, gy, s, t, {flip, ice, melt, heat, site, sun, night, pondIce})` | SECCIÓN norte–sur derivada de YK: estratos, pozo con bloques, escalera, sumidero de drenaje, envolvente con su espesor, cámara, entrada, flechas de calor que se frenan en la pared y (`site`) camino, estanque y muro con su sombra. `flip` = norte a la derecha (vista desde el este, para alinear con `cam3`) |
+| `ykCompass(ctx, cam, x, y, r)` | Brújula: el norte del modelo proyectado con la cámara |
+| `pondSection(ctx, x, y, w, h, t, {water, freeze, layers, loss})` | Estanque en corte: lámina de agua (grosor exagerado), hielo que crece desde la superficie, capas de noches anteriores y flechas de energía hacia el cielo y el aire |
+| `iceBlock(ctx, x, y, w, h, {melt, rot})` | Bloque de hielo translúcido con aristas claras; `melt` lo redondea y encoge |
+| `persianWorker(ctx, x, y, h, t, {pose, ph, lift, dir, var})` | Trabajador persa de vestimenta plausible genérica (túnica con faja, pantalón amplio, gorro de tela), con brazos y piernas por cinemática inversa. Poses: `walk`, `stand`, `pick` (pico a dos manos), `carry` (bloque a la espalda con las dos manos, inclinado por el peso), `lower` (agachado, bloque en las manos), `rake`. El pie toca `y`. Devuelve las manos |
+| `seasonDial(ctx, cx, cy, r, u, {label})` | Indicador de estaciones (invierno → primavera → verano → otoño) |
+| `ykDesert(ctx, t, {heat, horizon, sunX, sunY})` | Desierto 2D: cielo de calor, sol, dunas y reverberación |
+
+FX v1.20: `hieloCrujir`, `pico`, `bloque` y `escarcha`. Música: `MUS.persa(k, t0, t1, {bpm, root, santur, daf, drone, mode})` (original, de inspiración persa: santur pulsado sobre un modo de tipo Homayun, bordón y daf).
+
 **v1.19.2 · manos coherentes:**
 
 | Bloque | Uso |
