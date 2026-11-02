@@ -1,0 +1,33 @@
+ASOMBROTECA STUDIO - VIDEO 04
+RECURSOS VISUALES AUTENTICOS PARA INSERTAR COMO FOTOS FLOTANTES
+
+Este paquete NO contiene los JPG: incluye un script para descargarlos
+automaticamente de las fuentes originales, y una lista de procedencia.
+
+Uso: extrae este ZIP dentro del proyecto de Claude Code en VS Code.
+Abre una terminal en esta carpeta y ejecuta:
+
+    python descargar_imagenes.py
+
+Obtendras 5 archivos JPG dentro de referencias_originales/.
+Da a Claude Code el superprompt del chat, junto con esta carpeta.
+
+USO RECOMENDADO EN VIDEO:
+01 - Foto flotante 'Julio Verne, retrato historico' al nombrarlo.
+02 - Grabado original flotante del proyectil ficticio cuando lo describe.
+03 - Foto de los 3 astronautas al nombrar Armstrong, Aldrin y Collins.
+04 - Foto documental Saturno V en la comparacion con el lanzamiento real.
+05 - Foto lunar de Aldrin al hablar de la diferencia del alunizaje.
+
+No convertir estas imagenes en fondos de pantalla completa ni sustituir
+animaciones. Insertarlas 1.5-3 s con perspectiva, paralaje y rotulos breves.
+Si una foto no encaja con el encuadre o distrae, omitirla.
+
+LICENCIA:
+- Foto Julio Verne: Paris Musees/Atelier Nadar, CC0, fecha estimada 1860-1890.
+- Grabado 1868 Henri de Montaut: dominio publico historico.
+- Fotos NASA: dominio publico Estados Unidos. No implicar patrocinio NASA.
+- El grabado ilustra ficcion; las fotos NASA documentan eventos reales.
+
+Si la red bloquea Wikimedia, abrir las paginas fuentes que aparecen en el
+archivo FUENTES_ORIGINALES.txt y seleccionar 'Original file'.

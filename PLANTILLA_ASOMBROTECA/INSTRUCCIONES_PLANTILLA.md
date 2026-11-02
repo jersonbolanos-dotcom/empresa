@@ -190,6 +190,27 @@ La piel se elige con `skin: 'plana' | 'oscura'` en `PLANTILLA.make`. Los bloques
 | `iceMacro(ctx, t, {zoom, drip, warm})` | Macro del hielo para ganchos: burbujas, fracturas, escarcha, gotas de condensación y una gota que resbala |
 | `ykLabel(ctx, s, anchor, x, y, t, t0, t1, {sub, al, col, px})` · `ykKicker(ctx, num, s, t, t0, t1, {sub})` · `ykRecon(ctx, t, t0, t1)` | Rótulos editoriales discretos: etiqueta con guía fina, rótulo de capítulo en la esquina y sello pequeño «RECONSTRUCCIÓN» |
 
+**v1.22 · Verne / Apolo (1865 → 1969), unidades 3D en metros:**
+
+| Bloque | Uso |
+|---|---|
+| `floatPhoto(ctx, img, cx, cy, w, t, t0, t1, {rotY, from, tag, label, sub, drift, frame, shadow})` | DOCUMENTO AUTÉNTICO FLOTANTE: plano con perspectiva (giro en Y por tiras), entrada lateral suave, paralaje, sombra tenue, marco fino, etiqueta superior y pie ≥ 32 px. No deforma ni anima la imagen. Usar 1,5–3 s, entre el 25 % y el 50 % del ancho y por encima de y = 1420 |
+| `engraveGrade(ctx, amt, t)` | Convierte lo dibujado en grabado de época (desatura, papel/tinta, tramado, grano y viñeta). `amt` 0..1 para transiciones |
+| `moon3(ctx, cx, cy, r, t, {rot, light, glow, res})` · `earth3(ctx, cx, cy, r, t, {rot, light})` | Luna 3D (mares aproximados, cráteres, Tycho, terminador) y Tierra estilizada; resolución adaptativa |
+| `vFrustum(ctx, cam, x, z, y0, y1, r0, r1, colFn, {N, L, amb})` | Tronco de cono 3D con color por ángulo/altura y luz direccional (base de cohetes y cápsulas) |
+| `vCapsule3(ctx, cam, base, t, {col, L})` | Proyectil de Verne (ficción): aluminio, remate ojival y portillas, sin motores |
+| `saturnV3(ctx, cam, base, t, {stage, les, engines, L})` · `SV` | Saturno V del Apolo 11 (110,6 m): S-IC con patrón negro y blanco y aletas, S-II, S-IVB, IU, SLA, módulos de servicio y de mando, torre de escape y 5 F-1 |
+| `pad39A(ctx, cam, t, {arms, sky, sea, skyTop, skyMid})` | Plataforma 39A: devuelve `{ tower, towerDepth }` para ordenar la torre umbilical (brazos que se retiran) con el cohete |
+| `plume3(ctx, cam, nozzles, t, {tg, power, len})` | Chorro de los motores y nube de vapor y humo que crece desde el encendido |
+| `columbiad3(ctx, cam, t, {cap, sky, palms})` · `columbiadSection(ctx, ox, gy, s, t, {p, v, acc, flash, people})` | Columbiad de la NOVELA (ficticio): exterior con brocal, profundidad, andamio y proyectil; corte de 274 m con el proyectil en p (0 fondo, 1 boca), flechas de velocidad y aceleración, destello y personas como escala |
+| `study1865(ctx, t, cam, {write, lamp})` · `writer1865` · `book1865` · `traveler1865` · `steamEngine` | Estudio de 1865 (capas con paralaje: estantería, ventana, globo, escritorio, lámpara), escritor genérico escribiendo, libro con título real, viajeros con levita y chistera, máquina de vapor de balancín |
+| `usMap(ctx, cx, cy, w, t, {tilt, hl, pins, era})` | Mapa de EE. UU. inclinado con canto, Florida resaltada y marcas lon/lat; paleta de sepia (era 0) a azul (era 1) |
+| `lunarPath(ctx, mode, earth, moon, u, t, {col, lw})` | Esquema Tierra–Luna (no a escala): `apollo` (órbita, inyección translunar, órbita lunar) o `verne` (rodeo de la Luna y regreso) |
+| `eagleLM(ctx, x, y, s, t, {legs, thrust})` · `csm(ctx, x, y, s, ang)` | Módulo lunar Eagle y módulo de mando y servicio |
+| `accelCompare(ctx, x, y, w, h, u, t, {labels})` | Velocidad–tiempo cualitativo: cañón «de golpe» frente a cohete «varios minutos», con aceleración no constante. Sin cifras |
+
+FX v1.22: `canonazo(k, t, g)` (en la atmósfera) y `saturno(k, t, d, g)` (despegue en tierra). En el vacío no se usan explosiones.
+
 FX v1.20: `hieloCrujir`, `pico`, `bloque` y `escarcha`. Música: `MUS.persa(k, t0, t1, {bpm, root, santur, daf, drone, mode})` (original, de inspiración persa: santur pulsado sobre un modo de tipo Homayun, bordón y daf).
 
 **v1.19.2 · manos coherentes:**
