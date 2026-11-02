@@ -117,6 +117,8 @@
   ['microSD en la yema · disquete (v1.19)', (c, t) => { c.fillStyle = '#0B1424'; c.fillRect(0, 0, 400, 300); P.fingertip(c, 110, 60, 110, t, {}); P.floppy35(c, 290, 150, 1.6, { shutter: 0.4 }); }],
   ['Superficie y cabezal magnético (v1.19)', (c, t) => { c.fillStyle = '#111A21'; c.fillRect(0, 0, 400, 300); P.magSection(c, 10, 10, 380, 120, t, { n: 6 }); P.headTrack(c, 10, 140, 380, 160, t, { mode: 'read' }); }],
   ['HDD 3,5″ · chip y celdas flash (v1.19)', (c, t) => { c.fillStyle = '#0B1424'; c.fillRect(0, 0, 400, 300); P.hdd35(c, 90, 150, 1.6, t, {}); P.flashChip(c, 250, 80, 4, t, { die: 1 }); P.flashCells(c, 190, 170, 200, 120, t, { cols: 4, rows: 2 }); }],
+  ['Pista magnética: escribir / leer (v1.19.1)', (c, t) => { c.fillStyle = '#111A21'; c.fillRect(0, 0, 400, 300); P.magTrack(c, 0, 0, 400, 150, t, { mode: 'write' }); P.magTrack(c, 0, 150, 400, 150, t, { mode: 'read' }); }],
+  ['Celda flash de puerta flotante (v1.19.1)', (c, t) => { c.fillStyle = '#0B1424'; c.fillRect(0, 0, 400, 300); P.flashCell(c, 20, 20, 360, 260, t, { charge: 0.8 }); }],
  ];
  window.drawCatalog = function () {
   document.querySelectorAll('canvas[data-i]').forEach((cv) => {

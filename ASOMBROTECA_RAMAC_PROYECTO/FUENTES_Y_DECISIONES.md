@@ -60,3 +60,32 @@ Todo es original y generado con la plantilla:
 - **Efectos:**
   - nuevos: `sala1956`, `motorDiscos` (suave, sin «turbina»), `carro`, `panel`, `interruptor`, `escribir`, `leer`, `chipFlash`, `disquete`, `miniaturizar`;
   - existentes: `saltoTiempo`, `contador`, `sello`, `encender`, `flujoDatos`.
+
+## Fotografías reales incorporadas (V2)
+
+Se usaron las cuatro imágenes que adjuntó el usuario. Se guardan sin alterar en `01_ENTRADA/referencias/` y se incrustan reescaladas en `04_CODIGO/js/fotos.js`. Aparecen como tarjetas documentales con el rótulo «FOTOGRAFÍA REAL» o «PIEZA REAL», con su pie y su crédito en pantalla.
+
+| # | Imagen | Momento | Crédito y licencia (según el encargo) | Observaciones |
+|---|---|---|---|---|
+| 1 | IBM 305 RAMAC (BRL61-IBM_305_RAMAC.jpeg, Wikimedia Commons) | 19,1–22,5 s | Dominio público | Muestra el sistema; se acompaña de «IBM 305 RAMAC: SISTEMA INFORMÁTICO COMPLETO · IBM 350: SU UNIDAD DE DISCOS» |
+| 2 | Disco del RAMAC (RAMAC_305_disk.JPG) | 27,7–31,0 s | Foto: Mikaël Restoux (Deep silence) · CC BY 2.5 | Va junto al gráfico «≈ 61 cm · 24″». Atribución en pantalla y aquí |
+| 3 | Disco duro abierto (Harddrive_platters.jpg) | 60,0–62,3 s | Dominio público | Rotulada «UNIDAD AVERIADA: NO MUESTRA SU FUNCIONAMIENTO». No se presenta como pieza de 1956 |
+| 4 | microSD con adaptador (Adaptador_MicroSD.png) | 83,6–86,1 s | CC0 | Ilustra tamaño y formato, no capacidad. **Discrepancia:** la imagen adjunta muestra una tarjeta de 32 GB con la marca Kingston, no una de 4 GB como indica el encargo. No se menciona su capacidad y la de 1 TB se rotula como «EJEMPLO» |
+
+**Verificación pendiente.** Desde la sesión no se puede abrir commons.wikimedia.org (dominio no permitido). Las licencias y autorías vienen del encargo del usuario y no se pudieron comprobar en las páginas originales. Antes de publicar, confirma que cada imagen adjunta es el archivo de Commons citado. Esto vale sobre todo para la foto 4, porque la marca y la capacidad no coinciden con la descripción. Repite la atribución de la foto 2 en la descripción del video: «Foto del disco RAMAC: Mikaël Restoux, CC BY 2.5».
+
+## Cambios de la V2 (corrección final)
+- **IBM 350 rediseñado a partir de la foto 1:**
+  - gran ventana de inspección, banda superior oscura, panel derecho con rejillas y pilotos;
+  - pila de 50 discos anulares con el gran agujero central de la pieza real (foto 2) y paso de 1,5 cm; los huecos entre discos se ven oscuros;
+  - mecanismo de acceso con dos guías, carro, cable con polea y brazo radial con dos cabezas.
+- **Proporción de la pila.** No se dispone de planos: el paso se eligió para que la pila (≈ 74 cm de alto) sea coherente con la foto. Es una aproximación.
+- **Extracción del disco eliminada.** Antes un disco salía del armario; ahora se compara con la foto real y con el gráfico de 61 cm.
+- **Capacidad:** contador de caracteres de 0 a 5.000.000 (rotulado «CONTANDO…»), luego «× 6 BITS = 30.000.000 BITS = 3.750.000 BYTES» y por último «≈ 3,75 MB». Ya no aparecen megabytes intermedios.
+- **Escritura y lectura.** La codificación «cambio = 1 · sin cambio = 0» es una simplificación divulgativa: la lectura detecta las transiciones de flujo. Se rotula como «SIMPLIFICADO».
+- **Flash:** celda de puerta flotante con carga o sin ella. Se rotula como no volátil y se distingue de la RAM. Hay una escena «MISMO PROPÓSITO, OTRA TECNOLOGÍA».
+- **Comparaciones separadas:**
+  - tamaño físico a escala real: el técnico con la tarjeta y una lupa;
+  - capacidad como ejemplo: 1 TB = 1.000.000 MB, ≈ 266.667 veces 3,75 MB;
+  - la secuencia de evolución lleva «ESCALA AJUSTADA EN CADA PASO» y el tamaño real escrito de cada aparato.
+- **Narración.** No se detectó ninguna inexactitud que obligue a cambiarla.

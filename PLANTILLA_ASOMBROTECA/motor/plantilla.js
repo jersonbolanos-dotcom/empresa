@@ -2945,7 +2945,7 @@
  // 50 discos de 24 pulgadas (61 cm) sobre un eje vertical, 1.200 rpm, un carro de acceso que sube/baja para elegir disco y un brazo
  // que entra en radial para elegir pista (100 pistas por cara), cabezas que flotan sobre un colchón de aire (sin tocar el disco).
  P.RM = { fondo: '#111A21', gris: '#7B8585', metal: '#A5ABA5', metalD: '#4A5559', madera: '#81674B', calida: '#D8AD72', disco: '#A7B3B9', capa: '#8a7766', brazo: '#D1C6B4', azul: '#176CB4', cian: '#4BD4F1', datos: '#7CE6E2', moderno: '#0B1424', oro: '#FFD447', blanco: '#F5F7F8' };
- const R350 = { W: 152, H: 172, D: 74, xs: -38, zs: 0, R: 30.5, y0: 52, pitch: 1.27, n: 50, th: 0.35, colX: 6.5 + 11, top: 0 };
+ const R350 = { W: 152, H: 172, D: 74, xs: -30, zs: 0, R: 30.5, y0: 60, pitch: 1.5, n: 50, th: 0.4, colX: 12, top: 0 };
  R350.top = R350.y0 + R350.pitch * (R350.n - 1); P.R350 = R350;
  // altura del disco k (0 = el de abajo) y del hueco entre k y k+1
  P.r350y = (k) => R350.y0 + R350.pitch * k;
@@ -2955,15 +2955,15 @@
  // caja con caras sombreadas; o.only: 'back' | 'front' (caras ocultas/visibles), o.alpha, o.k (luz por cara)
  P.box3 = (ctx, cam, x0, x1, y0, y1, z0, z1, col, o = {}) => { const F = [[[0, 1, 0], [[x0, y1, z0], [x1, y1, z0], [x1, y1, z1], [x0, y1, z1]], 1.12], [[0, -1, 0], [[x0, y0, z0], [x0, y0, z1], [x1, y0, z1], [x1, y0, z0]], 0.55], [[0, 0, 1], [[x0, y0, z1], [x0, y1, z1], [x1, y1, z1], [x1, y0, z1]], 1.0], [[0, 0, -1], [[x1, y0, z0], [x1, y1, z0], [x0, y1, z0], [x0, y0, z0]], 0.7], [[1, 0, 0], [[x1, y0, z1], [x1, y1, z1], [x1, y1, z0], [x1, y0, z0]], 0.82], [[-1, 0, 0], [[x0, y0, z0], [x0, y1, z0], [x0, y1, z1], [x0, y0, z1]], 0.88]];
   ctx.save(); if (o.alpha != null) ctx.globalAlpha *= o.alpha; for (const [n, pts, k] of F) { const c = pts.reduce((s, p) => [s[0] + p[0] / 4, s[1] + p[1] / 4, s[2] + p[2] / 4], [0, 0, 0]), v = faceVis(cam, n, c); if (o.only === 'back' ? v : o.only === 'front' ? !v : !v) continue; poly3(ctx, cam, pts, rmShade(col, (o.k ?? 1) * k), { stroke: o.edge, lw: o.lw }); } ctx.restore(); };
- // disco horizontal (anillo) a la altura y: cara superior/inferior según la cámara, canto, marcas que giran (ang)
+ // disco del IBM 350 (v1.19.1): anillo de óxido marrón con canto metálico claro y GRAN agujero central (≈ 0,49 R, como la pieza real)
+ // ocupado por el cubo; brillo fijo y marcas que giran.
  const disk3 = (ctx, cam, cx, cz, y, R, th, ang, o = {}) => { const N = o.N || 44, ring = (rr, yy) => { const a = []; for (let i = 0; i < N; i++) { const q = (i / N) * TAU; a.push([cx + rr * Math.cos(q), yy, cz + rr * Math.sin(q)]); } return a; }, above = cam.pos[1] > y;
-  const fy = above ? y + th / 2 : y - th / 2, by = above ? y - th / 2 : y + th / 2; poly3(ctx, cam, ring(R, by), o.edge || '#9aa6ac');
-  const face = poly3(ctx, cam, ring(R, fy), o.col || P.RM.capa); if (!face) return;
+  const fy = above ? y + th / 2 : y - th / 2, by = above ? y - th / 2 : y + th / 2; poly3(ctx, cam, ring(R, by), o.edge || '#b9c2c6');
+  const face = poly3(ctx, cam, ring(R, fy), o.col || '#8a6a4a', { stroke: 'rgba(225,232,235,0.55)', lw: 1.1 }); if (!face) return;
   if (o.hl) { ctx.save(); ctx.globalAlpha *= o.hl; poly3(ctx, cam, ring(R, fy), 'rgba(255,212,71,0.55)'); ctx.restore(); }
-  // brillo especular fijo (la luz no gira) y marcas de pistas que sí giran con el disco
-  ctx.save(); ctx.globalAlpha *= o.detail ?? 1; const g0 = [cx + R * 0.15, fy, cz - R * 0.2]; const ptsA = [], ptsB = []; for (let i = -6; i <= 6; i++) { const q = -0.9 + i * 0.07; ptsA.push([cx + R * 0.98 * Math.cos(q), fy, cz + R * 0.98 * Math.sin(q)]); ptsB.unshift([cx + R * 0.35 * Math.cos(q), fy, cz + R * 0.35 * Math.sin(q)]); } poly3(ctx, cam, [...ptsA, ...ptsB], 'rgba(255,240,220,0.13)');
-  for (let m = 0; m < 3; m++) { const q0 = ang + m * TAU / 3, arc = []; for (let i = 0; i <= 6; i++) { const q = q0 + i * 0.05; arc.push(cam.clip([[cx + R * 0.72 * Math.cos(q), fy, cz + R * 0.72 * Math.sin(q)]], 1)[0]); } if (arc.some((p) => !p)) continue; ctx.strokeStyle = 'rgba(30,22,16,0.35)'; ctx.lineWidth = 1.2; ctx.beginPath(); arc.forEach((p, i) => (i ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1]))); ctx.stroke(); }
-  ctx.restore(); poly3(ctx, cam, ring(R * 0.14, fy + (above ? 0.05 : -0.05)), '#3d4549'); };
+  ctx.save(); ctx.globalAlpha *= o.detail ?? 1; const ptsA = [], ptsB = []; for (let i = -6; i <= 6; i++) { const q = -0.9 + i * 0.07; ptsA.push([cx + R * 0.98 * Math.cos(q), fy, cz + R * 0.98 * Math.sin(q)]); ptsB.unshift([cx + R * 0.52 * Math.cos(q), fy, cz + R * 0.52 * Math.sin(q)]); } poly3(ctx, cam, [...ptsA, ...ptsB], 'rgba(255,236,210,0.14)');
+  for (let m = 0; m < 3; m++) { const q0 = ang + m * TAU / 3, arc = []; for (let i = 0; i <= 6; i++) { const q = q0 + i * 0.05; arc.push(cam.clip([[cx + R * 0.76 * Math.cos(q), fy, cz + R * 0.76 * Math.sin(q)]], 1)[0]); } if (arc.some((p) => !p)) continue; ctx.strokeStyle = 'rgba(40,24,12,0.35)'; ctx.lineWidth = 1.2; ctx.beginPath(); arc.forEach((p, i) => (i ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1]))); ctx.stroke(); }
+  ctx.restore(); poly3(ctx, cam, ring(R * 0.49, fy + (above ? 0.05 : -0.05)), '#c4c8c3'); };
  const cyl3 = (ctx, cam, cx, cz, y0, y1, r, col, N = 16) => { const pts = []; for (let i = 0; i < N; i++) { const q = (i / N) * TAU, q2 = ((i + 1) / N) * TAU, n = [Math.cos(q + Math.PI / N), 0, Math.sin(q + Math.PI / N)], c = [cx + n[0] * r, (y0 + y1) / 2, cz + n[2] * r]; if (!faceVis(cam, n, c)) continue; const k = 0.7 + 0.35 * Math.max(0, n[0] * 0.6 + n[2] * 0.8); poly3(ctx, cam, [[cx + r * Math.cos(q), y0, cz + r * Math.sin(q)], [cx + r * Math.cos(q2), y0, cz + r * Math.sin(q2)], [cx + r * Math.cos(q2), y1, cz + r * Math.sin(q2)], [cx + r * Math.cos(q), y1, cz + r * Math.sin(q)]], rmShade(col, k)); } };
  // Sala informática de 1956 (recreación): suelo de baldosas, paredes con zócalo, puerta de referencia (≈ 2,1 m), ventana alta, luz cálida.
  // o: { warm 0..1, door (x de la puerta en la pared del fondo), back (z de la pared del fondo) }
@@ -2976,57 +2976,75 @@
   const ts = 60; for (let x = lx; x < rx; x += ts) for (let z = bz; z < fz; z += ts) { const k = ((Math.round(x / ts) + Math.round(z / ts)) & 1) ? '#5d574d' : '#686155'; poly3(ctx, cam, [[x, 0, z], [x + ts, 0, z], [x + ts, 0, z + ts], [x, 0, z + ts]], k); }
   const L = cam.clip([[0, 290, -40]], 1)[0]; if (L) { const gl = ctx.createRadialGradient(L[0], L[1], 10, L[0], L[1], 1100); gl.addColorStop(0, `rgba(216,173,114,${0.22 * (o.warm ?? 1)})`); gl.addColorStop(1, 'rgba(216,173,114,0)'); ctx.fillStyle = gl; ctx.fillRect(0, 0, W, HH); }
   ctx.restore(); };
- // Técnico de los años 50 (camisa blanca, corbata, pantalón oscuro), de pie con los zapatos en el punto 3D foot (cm) y 175 cm de alto.
- // Se dibuja como figura plana orientada a cámara a la escala de la proyección (referencia de tamaño). o: { pose 'stand'|'point', var }
- P.worker1956 = (ctx, cam, foot, t, o = {}) => { const A = cam.clip([foot], 1)[0], B = cam.clip([[foot[0], foot[1] + (o.h || 175), foot[2]]], 1)[0]; if (!A || !B) return null; const h = A[1] - B[1]; if (h < 4) return null; const x = A[0], y = A[1], u = h / 175, v = o.var ?? 0;
-  const skin = ['#c99a74', '#a8764f', '#e0b48e'][v % 3], trou = ['#2f3338', '#3b3328', '#2a2f3a'][v % 3], tie = ['#5a2a2a', '#2a3a5a', '#3a3a2a'][v % 3], hair = ['#2a1e16', '#14100c', '#5a4632'][v % 3], br = Math.sin(t * 1.4 + v) * 0.6;
-  ctx.save(); ctx.translate(x, y); ctx.scale(u, u); ctx.fillStyle = 'rgba(0,0,0,0.3)'; ctx.beginPath(); ctx.ellipse(0, 0, 26, 5, 0, 0, TAU); ctx.fill();
-  ctx.fillStyle = '#151311'; ctx.beginPath(); ctx.ellipse(-9, -3, 12, 4, 0, 0, TAU); ctx.ellipse(10, -3, 12, 4, 0, 0, TAU); ctx.fill(); ctx.fillStyle = trou; ctx.beginPath(); ctx.moveTo(-17, -4); ctx.lineTo(-15, -86); ctx.lineTo(15, -86); ctx.lineTo(17, -4); ctx.lineTo(4, -4); ctx.lineTo(1, -70); ctx.lineTo(-3, -4); ctx.closePath(); ctx.fill(); ctx.fillStyle = '#1d1a17'; ctx.fillRect(-16, -90, 32, 5);
-  ctx.fillStyle = '#ecebe4'; ctx.beginPath(); ctx.moveTo(-17, -88); ctx.lineTo(-21, -136); ctx.quadraticCurveTo(-18, -146, -8, -147); ctx.lineTo(8, -147); ctx.quadraticCurveTo(18, -146, 21, -136); ctx.lineTo(17, -88); ctx.closePath(); ctx.fill(); ctx.fillStyle = tie; ctx.beginPath(); ctx.moveTo(-2.5, -145); ctx.lineTo(2.5, -145); ctx.lineTo(3, -104); ctx.lineTo(0, -99); ctx.lineTo(-3, -104); ctx.closePath(); ctx.fill();
-  ctx.strokeStyle = '#dcdad2'; ctx.lineWidth = 8; ctx.lineCap = 'round'; ctx.beginPath(); ctx.moveTo(-19, -140); ctx.lineTo(-23, -112); ctx.lineTo(-22, -88); ctx.stroke(); ctx.beginPath(); ctx.moveTo(19, -140); if (o.pose === 'point') { ctx.lineTo(34, -128); ctx.lineTo(50, -134 + br); } else { ctx.lineTo(23, -112); ctx.lineTo(22, -88); } ctx.stroke(); ctx.fillStyle = skin; ctx.beginPath(); if (o.pose === 'point') ctx.arc(52, -134 + br, 4, 0, TAU); else ctx.arc(22, -85, 4, 0, TAU); ctx.arc(-22, -85, 4, 0, TAU); ctx.fill();
-  ctx.fillRect(-3.5, -153, 7, 8); ctx.beginPath(); ctx.ellipse(0, -162, 9.5, 11.5, 0, 0, TAU); ctx.fill(); ctx.fillStyle = hair; ctx.beginPath(); ctx.ellipse(0, -168, 10, 7, 0, Math.PI, TAU); ctx.fill(); ctx.fillRect(-10, -169, 3, 6);
-  ctx.fillStyle = '#1b1410'; ctx.fillRect(-4.5, -163, 2, 2); ctx.fillRect(2.5, -163, 2, 2);
-  ctx.restore(); return { foot: [x, y], head: [x, y - h], px: h };
+ // Técnico de los años 50 (v1.19.1): proporciones reales (cabeza ≈ 1/7,6 de la altura), hombros, codos, manos con pulgar, cinturón,
+ // camisa remetida con sombreado lateral, corbata, zapatos con tacón, balanceo de peso sutil y gesto opcional de señalar (o.point 0..1).
+ // Devuelve { foot, head, hand (mano derecha en pantalla), px }.
+ P.worker1956 = (ctx, cam, foot, t, o = {}) => { const A = cam.clip([foot], 1)[0], B = cam.clip([[foot[0], foot[1] + (o.h || 175), foot[2]]], 1)[0]; if (!A || !B) return null; const h = A[1] - B[1]; if (h < 4) return null; const x = A[0], y = A[1], u = h / 175, v = o.var ?? 0, dir = o.dir ?? 1;
+  const skin = ['#c99a74', '#a8764f', '#e0b48e'][v % 3], skD = H.rgba(H.mix(skin, '#3a1e10', 0.25)), trou = ['#30353a', '#3b3328', '#2a2f3a'][v % 3], trouD = H.rgba(H.mix(trou, '#000000', 0.35)), tie = ['#6a2c2c', '#2a3a5a', '#3a4a2a'][v % 3], hair = ['#2a1e16', '#14100c', '#5a4632'][v % 3], shirt = '#eeede6', shirtD = '#c9c8bf';
+  const sw = Math.sin(t * 0.9 + v) * 1.1, g = E.inOut(cl(o.point ?? (o.pose === 'point' ? 1 : 0)));
+  ctx.save(); ctx.translate(x, y); ctx.scale(u * dir, u); const S = (pts, c) => { ctx.fillStyle = c; ctx.beginPath(); pts.forEach((p, i) => (i ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1]))); ctx.closePath(); ctx.fill(); };
+  const sh = ctx.createRadialGradient(0, 0, 2, 0, 0, 34); sh.addColorStop(0, 'rgba(0,0,0,0.45)'); sh.addColorStop(1, 'rgba(0,0,0,0)'); ctx.fillStyle = sh; ctx.beginPath(); ctx.ellipse(0, 0, 34, 7, 0, 0, TAU); ctx.fill();
+  // zapatos y piernas (pantalón con raya y caída hacia el zapato)
+  ctx.fillStyle = '#141210'; ctx.beginPath(); ctx.moveTo(-15, 0); ctx.lineTo(-15, -6); ctx.quadraticCurveTo(-9, -9, -3, -6); ctx.lineTo(-1, 0); ctx.closePath(); ctx.fill(); ctx.beginPath(); ctx.moveTo(2, 0); ctx.lineTo(3, -6); ctx.quadraticCurveTo(10, -9, 16, -6); ctx.lineTo(17, 0); ctx.closePath(); ctx.fill();
+  S([[-16, -6], [-17.5 + sw * 0.3, -50], [-16 + sw * 0.5, -90], [-1, -90], [-1.5, -50], [-3, -6]], trou); S([[3, -6], [1.5, -50], [1, -90], [16 + sw * 0.5, -90], [17 + sw * 0.3, -50], [16, -6]], trou); S([[-16, -6], [-17.5 + sw * 0.3, -50], [-16 + sw * 0.5, -90], [-12, -90], [-13, -50], [-12, -6]], trouD);
+  ctx.strokeStyle = 'rgba(0,0,0,0.25)'; ctx.lineWidth = 0.8; ctx.beginPath(); ctx.moveTo(-9, -8); ctx.lineTo(-9.5, -86); ctx.moveTo(9.5, -8); ctx.lineTo(9, -86); ctx.stroke();
+  // camisa (hombros caídos, cintura remetida) con sombreado lateral, cinturón, corbata, cuello, bolsillo
+  S([[-16 + sw * 0.5, -91], [-18.5, -122], [-21, -139], [-15, -145], [-5, -148], [5, -148], [15, -145], [21, -139], [18.5, -122], [16 + sw * 0.5, -91]], shirt); S([[-16 + sw * 0.5, -91], [-18.5, -122], [-21, -139], [-15, -145], [-11, -146], [-12, -122], [-10, -91]], shirtD);
+  ctx.fillStyle = '#1d1a17'; ctx.fillRect(-16.5 + sw * 0.5, -94, 33, 4.5); ctx.fillStyle = '#b8a15a'; ctx.fillRect(-2, -93.5, 4, 3.5);
+  S([[-2.2, -145], [2.2, -145], [3.2, -104], [0, -99], [-3.2, -104]], tie); S([[-5, -148], [0, -142], [-2, -138], [-7, -145]], '#f8f7f2'); S([[5, -148], [0, -142], [2, -138], [7, -145]], '#f8f7f2'); ctx.strokeStyle = 'rgba(0,0,0,0.18)'; ctx.lineWidth = 0.8; ctx.strokeRect(6, -133, 7, 7);
+  // brazos: izquierdo relajado; derecho con gesto de señalar (hombro → codo → muñeca → mano)
+  const arm = (sx, sy, ex, ey, wx, wy, side) => { ctx.lineCap = 'round'; ctx.lineJoin = 'round'; ctx.strokeStyle = side < 0 ? shirtD : shirt; ctx.lineWidth = 8.5; ctx.beginPath(); ctx.moveTo(sx, sy); ctx.lineTo(ex, ey); ctx.lineTo(lerp(ex, wx, 0.55), lerp(ey, wy, 0.55)); ctx.stroke(); ctx.strokeStyle = side < 0 ? skD : skin; ctx.lineWidth = 6; ctx.beginPath(); ctx.moveTo(lerp(ex, wx, 0.5), lerp(ey, wy, 0.5)); ctx.lineTo(wx, wy); ctx.stroke(); const an = Math.atan2(wy - ey, wx - ex); ctx.save(); ctx.translate(wx, wy); ctx.rotate(an - Math.PI / 2); ctx.fillStyle = side < 0 ? skD : skin; ctx.beginPath(); ctx.ellipse(0, 4, 3.6, 5, 0, 0, TAU); ctx.fill(); ctx.beginPath(); ctx.ellipse(side * -2.6, 1.5, 1.4, 3.2, side * 0.5, 0, TAU); ctx.fill(); ctx.restore(); return [wx + Math.cos(an) * 8, wy + Math.sin(an) * 8]; };
+  arm(-19, -141, -23, -114 + sw * 0.3, -21.5, -88, -1); const hand = arm(19, -141, lerp(23, 34, g), lerp(-114, -127, g), lerp(21.5, 52, g), lerp(-88, -138, g), 1);
+  // cuello y cabeza (orejas, pelo con raya, cejas, ojos, nariz, boca)
+  ctx.fillStyle = skD; ctx.fillRect(-3.6, -154, 7.2, 8); const hx = g * 1.5; ctx.save(); ctx.translate(hx, 0); ctx.fillStyle = skin; ctx.beginPath(); ctx.moveTo(-9, -163); ctx.quadraticCurveTo(-9.5, -153, -4, -151); ctx.quadraticCurveTo(0, -149.5, 4, -151); ctx.quadraticCurveTo(9.5, -153, 9, -163); ctx.quadraticCurveTo(9, -175, 0, -175); ctx.quadraticCurveTo(-9, -175, -9, -163); ctx.fill(); ctx.beginPath(); ctx.ellipse(-9.4, -162, 1.8, 3, 0, 0, TAU); ctx.ellipse(9.4, -162, 1.8, 3, 0, 0, TAU); ctx.fill();
+  ctx.fillStyle = hair; ctx.beginPath(); ctx.moveTo(-9.6, -162); ctx.quadraticCurveTo(-11, -177, 0, -177.5); ctx.quadraticCurveTo(10.5, -177, 9.6, -163); ctx.quadraticCurveTo(7, -170, -3, -171); ctx.quadraticCurveTo(-7, -168, -9.6, -162); ctx.fill();
+  ctx.fillStyle = '#1b1410'; ctx.beginPath(); ctx.ellipse(-3.4 + g, -163, 1, 1.1, 0, 0, TAU); ctx.ellipse(3.4 + g, -163, 1, 1.1, 0, 0, TAU); ctx.fill(); ctx.strokeStyle = hair; ctx.lineWidth = 0.9; ctx.beginPath(); ctx.moveTo(-5.2, -166); ctx.lineTo(-1.8, -166.4); ctx.moveTo(1.8, -166.4); ctx.lineTo(5.2, -166); ctx.stroke(); ctx.strokeStyle = 'rgba(90,50,30,0.5)'; ctx.beginPath(); ctx.moveTo(0.5, -162); ctx.lineTo(-0.3, -158.5); ctx.lineTo(1, -158.3); ctx.moveTo(-2.2, -155.2); ctx.quadraticCurveTo(0, -154.3, 2.2, -155.2); ctx.stroke(); ctx.restore();
+  ctx.restore(); return { foot: [x, y], head: [x, y - h], hand: [x + hand[0] * u * dir, y + hand[1] * u], px: h };
  };
- // IBM 350 en 3D con cámara P.cam3 (cm). o: {
- //   rot (ángulo de los discos, rad), open 0..1 (retira el panel frontal), xray 0..1 (cubiertas transparentes),
- //   arm: { k (hueco entre el disco k y k+1, 0..48), ext 0..1 (0 = retirado fuera de los discos, 1 = pista más interior) },
- //   hl: { k, a } (resalta un disco), count 0..50 (resalta discos de abajo arriba al contar), extract: { k, u } (saca un disco hacia el frente),
- //   lights (pilotos), x, z (posición del armario en la sala) }
+ // IBM 350 en 3D con cámara P.cam3 (cm) — v1.19.1, rediseñado con la fotografía histórica (IBM 305 RAMAC, BRL 1961): armario gris
+ // con zócalo oscuro, panel inferior macizo, GRAN VENTANA DE INSPECCIÓN con marco fino, panel derecho con rejillas y pilotos y banda
+ // superior oscura. Dentro: pila de 50 discos (anillos de óxido marrón con canto metálico y gran agujero central ocupado por el cubo),
+ // motor bajo la pila, mecanismo de acceso con dos guías verticales, carro, cable con polea y brazo radial con dos cabezas.
+ // o: { rot, open 0..1 (retira el cristal frontal), xray 0..1, arm: { k (hueco 0..48), ext 0..1 }, hl: { k, a }, count 0..50,
+ //      lights, x, z } — misma firma que v1.19 (extract se mantiene por compatibilidad).
  P.ibm350 = (ctx, cam, t, o = {}) => { const ox = o.x || 0, oz = o.z || 0, Wd = R350.W / 2, Dd = R350.D / 2, xs = R350.xs + ox, zs = R350.zs + oz, R = R350.R, rot = o.rot ?? 0, xr = cl(o.xray || 0), op = cl(o.open || 0), armK = o.arm?.k ?? 24, ext = cl(o.arm?.ext ?? 0), ya = P.r350y(armK) + R350.pitch / 2;
-  const col = P.RM.metal, colD = P.RM.metalD, x0 = ox - Wd, x1 = ox + Wd, z0 = oz - Dd, z1 = oz + Dd;
+  const colP = '#7B8585', colF = '#A5ABA5', colD = '#4A5559', x0 = ox - Wd, x1 = ox + Wd, z0 = oz - Dd, z1 = oz + Dd, wx0 = x0 + 6, wx1 = x0 + 108, wy0 = 52, wy1 = 150, HB = 152;
   ctx.save();
-  // sombra en el suelo
-  poly3(ctx, cam, [[x0 - 6, 0.2, z0 - 6], [x1 + 6, 0.2, z0 - 6], [x1 + 6, 0.2, z1 + 6], [x0 - 6, 0.2, z1 + 6]], 'rgba(0,0,0,0.35)');
-  // zócalo y caras traseras del armario (interior visible a través de la ventana / rayos X)
-  P.box3(ctx, cam, x0 + 2, x1 - 2, 0, 12, z0 + 2, z1 - 2, colD);
-  P.box3(ctx, cam, x0, x1, 12, R350.H, z0, z1, '#3a4348', { only: 'back', k: 0.8 });
-  // interior: motor, eje, discos, brazo y carro
-  P.box3(ctx, cam, xs - 16, xs + 16, 14, R350.y0 - 3, zs - 16, zs + 16, '#4f5a60'); cyl3(ctx, cam, xs, zs, R350.y0 - 4, R350.top + 6, 3.2, '#8f989d'); cyl3(ctx, cam, xs, zs, R350.y0, R350.top, R * 0.96, '#1c2124', 28);
-  const colPos = [xs + R + 11, zs - 8]; const colDepth = cam.depth([colPos[0], ya, colPos[1]]), stackDepth = cam.depth([xs, ya, zs]);
-  const drawColumn = () => { P.box3(ctx, cam, colPos[0] - 3, colPos[0] + 3, R350.y0 - 8, R350.top + 14, colPos[1] - 3, colPos[1] + 3, '#6d777c'); cyl3(ctx, cam, colPos[0], colPos[1] + 4, R350.top + 10, R350.top + 13, 5, '#8f989d', 12); P.box3(ctx, cam, colPos[0] - 6, colPos[0] + 8, ya - 4, ya + 4, colPos[1] - 6, colPos[1] + 6, '#b7ad9b'); };
-  if (colDepth > stackDepth) drawColumn();
+  poly3(ctx, cam, [[x0 - 8, 0.2, z0 - 8], [x1 + 8, 0.2, z0 - 8], [x1 + 8, 0.2, z1 + 10], [x0 - 8, 0.2, z1 + 10]], 'rgba(0,0,0,0.38)');
+  P.box3(ctx, cam, x0 + 3, x1 - 3, 0, 12, z0 + 3, z1 - 3, '#2f3638');
+  P.box3(ctx, cam, x0, x1, 12, R350.H, z0, z1, '#2b3236', { only: 'back', k: 0.85 });
+  // interior: suelo interno, motor, cubo, núcleo oscuro (huecos), discos, mecanismo de acceso
+  poly3(ctx, cam, [[wx0, 13, z0 + 2], [wx1, 13, z0 + 2], [wx1, 13, z1 - 2], [wx0, 13, z1 - 2]], '#3a4246');
+  P.box3(ctx, cam, xs - 18, xs + 18, 13, R350.y0 - 4, zs - 18, zs + 18, '#56626a'); cyl3(ctx, cam, xs, zs, R350.y0 - 4, R350.y0 - 1, 16, '#7d878c', 20);
+  cyl3(ctx, cam, xs, zs, R350.y0, R350.top, R * 0.95, '#15191b', 32);
+  const colX = xs + R + 11.5, colZ = zs; const colDepth = cam.depth([colX, ya, colZ]), stackDepth = cam.depth([xs, ya, zs]);
+  const drawMech = () => { for (const dz of [-4.5, 4.5]) P.box3(ctx, cam, colX - 1.1, colX + 1.1, R350.y0 - 10, R350.top + 14, colZ + dz - 1.1, colZ + dz + 1.1, '#9aa3a6'); P.box3(ctx, cam, colX - 2.5, colX + 2.5, R350.top + 14, R350.top + 17, colZ - 7, colZ + 7, '#6d777c'); cyl3(ctx, cam, colX + 3, colZ, R350.top + 17, R350.top + 19, 4.5, '#b6bdc0', 12);
+   P.box3(ctx, cam, colX - 4.5, colX + 6.5, ya - 3.2, ya + 3.2, colZ - 6.5, colZ + 6.5, '#c9bfae'); P.box3(ctx, cam, colX + 6.5, colX + 9, ya - 1.5, ya + 1.5, colZ - 3, colZ + 3, '#6d777c');
+   const cab = []; for (let i = 0; i <= 12; i++) { const u = i / 12, p0 = [colX + 2, ya + 3.2, colZ + 2], p1 = [colX + 16, R350.top + 30, colZ + 2], p2 = [colX + 30, R350.top + 8, colZ - 4], a = (1 - u) ** 2, b = 2 * u * (1 - u), c = u * u; cab.push([a * p0[0] + b * p1[0] + c * p2[0], a * p0[1] + b * p1[1] + c * p2[1], a * p0[2] + b * p1[2] + c * p2[2]]); } const C2 = cab.map((p) => cam.clip([p], 1)[0]); if (C2.every(Boolean)) { ctx.strokeStyle = '#1b1f22'; ctx.lineWidth = Math.max(1.5, 1100 / C2[0][2]); ctx.beginPath(); C2.forEach((p, i) => (i ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1]))); ctx.stroke(); } };
+  if (colDepth > stackDepth) drawMech();
   const camY = cam.pos[1], order = []; for (let k = 0; k < R350.n; k++) order.push({ y: P.r350y(k), k }); order.push({ y: ya, arm: true }); order.sort((a, b) => Math.abs(b.y - camY) - Math.abs(a.y - camY));
-  const tipX = lerp(xs + R + 4, xs + R * 0.32, E.inOut(ext)), cnt = o.count ?? 0;
-  for (const it of order) { if (it.arm) { const zA = colPos[1]; P.box3(ctx, cam, tipX, colPos[0] - 5, ya - 0.28, ya + 0.28, zA - 2.2, zA + 2.2, P.RM.brazo); P.box3(ctx, cam, tipX - 1.5, tipX + 2.5, ya - 0.5, ya + 0.5, zA - 1.6, zA + 1.6, '#2e2a26'); continue; }
-   const k = it.k, ex = o.extract && o.extract.k === k ? E.inOut(cl(o.extract.u)) * 95 : 0; const hl = (o.hl && o.hl.k === k ? o.hl.a : 0) + (cnt > k ? 0.55 * (1 - cl(cnt - k - 1)) + 0.12 : 0);
+  const tipX = lerp(xs + R + 5, xs + R * 0.56, E.inOut(ext)), cnt = o.count ?? 0;
+  for (const it of order) { if (it.arm) { P.box3(ctx, cam, tipX, colX - 4.5, ya - 0.3, ya + 0.3, colZ - 2, colZ + 2, P.RM.brazo); P.box3(ctx, cam, tipX - 1.2, tipX + 2.2, ya - 0.62, ya - 0.3, colZ - 1.4, colZ + 1.4, '#2e2a26'); P.box3(ctx, cam, tipX - 1.2, tipX + 2.2, ya + 0.3, ya + 0.62, colZ - 1.4, colZ + 1.4, '#2e2a26'); continue; }
+   const k = it.k, ex = o.extract && o.extract.k === k ? E.inOut(cl(o.extract.u)) * 95 : 0, hl = (o.hl && o.hl.k === k ? o.hl.a : 0) + (cnt > k ? 0.55 * (1 - cl(cnt - k - 1)) + 0.12 : 0);
    disk3(ctx, cam, xs, zs + ex, it.y, R, R350.th, rot + k * 0.37, { hl: Math.min(1, hl), N: o.N || 44, detail: o.detail }); }
-  if (colDepth <= stackDepth) drawColumn();
-  // caras visibles del armario: panel frontal con ventana (retirable), laterales y techo; se vuelven transparentes con xray
+  if (colDepth <= stackDepth) drawMech();
+  // cubo superior (blanco en la fotografía) sobre el último disco
+  if (cam.pos[1] > R350.top + 1) cyl3(ctx, cam, xs, zs, R350.top, R350.top + 5, R * 0.47, '#d4d7d2', 24);
+  // armario: techo, laterales, frente con ventana (el cristal se retira con open) y panel derecho
   const ca = 1 - xr * 0.88; if (ca > 0.01) { ctx.save(); ctx.globalAlpha *= ca;
-   const wx0 = xs - R - 6, wx1 = xs + R + 22, wy0 = R350.y0 - 10, wy1 = R350.top + 18, fz = z1 + op * 120, fa = 1 - op;
-   for (const [n, pts, k] of [[[0, 1, 0], [[x0, R350.H, z0], [x1, R350.H, z0], [x1, R350.H, z1], [x0, R350.H, z1]], 1.1], [[1, 0, 0], [[x1, 12, z1], [x1, R350.H, z1], [x1, R350.H, z0], [x1, 12, z0]], 0.8], [[-1, 0, 0], [[x0, 12, z0], [x0, R350.H, z0], [x0, R350.H, z1], [x0, 12, z1]], 0.88]]) { const c = pts.reduce((s, p) => [s[0] + p[0] / 4, s[1] + p[1] / 4, s[2] + p[2] / 4], [0, 0, 0]); if (faceVis(cam, n, c)) poly3(ctx, cam, pts, rmShade(col, k)); }
-   if (faceVis(cam, [0, 0, 1], [ox, 90, fz]) && fa > 0.01) { ctx.save(); ctx.globalAlpha *= fa; const F = (a, b, c, d) => poly3(ctx, cam, [[a, c, fz], [a, d, fz], [b, d, fz], [b, c, fz]], rmShade(col, 1.0));
-    F(x0, wx0, 12, R350.H); F(wx1, x1, 12, R350.H); F(wx0, wx1, 12, wy0); F(wx0, wx1, wy1, R350.H);
-    poly3(ctx, cam, [[wx0, wy0, fz + 0.3], [wx0, wy1, fz + 0.3], [wx1, wy1, fz + 0.3], [wx1, wy0, fz + 0.3]], 'rgba(170,200,210,0.10)', { stroke: rmShade(colD, 1), lw: 3 });
-    for (let k = 0; k < 9; k++) { const yy = 40 + k * 9; poly3(ctx, cam, [[wx1 + 12, yy, fz + 0.4], [x1 - 10, yy, fz + 0.4], [x1 - 10, yy + 3, fz + 0.4], [wx1 + 12, yy + 3, fz + 0.4]], rmShade(colD, 1.1)); }
-    poly3(ctx, cam, [[wx1 + 12, 150, fz + 0.4], [x1 - 10, 150, fz + 0.4], [x1 - 10, 162, fz + 0.4], [wx1 + 12, 162, fz + 0.4]], '#2c3236');
-    for (let k = 0; k < 4; k++) { const L = cam.clip([[wx1 + 18 + k * 7, 156, fz + 0.6]], 1)[0]; if (!L) continue; const on = (o.lights ?? 1) && Math.sin(t * (1.3 + k * 0.7) + k) > 0; ctx.fillStyle = on ? (k % 2 ? '#ffcf6a' : '#e86a4a') : '#5a4a3a'; ctx.beginPath(); ctx.arc(L[0], L[1], Math.max(1.5, 900 / L[2]), 0, TAU); ctx.fill(); }
-    ctx.restore(); }
+   for (const [n, pts, k] of [[[0, 1, 0], [[x0, R350.H, z0], [x1, R350.H, z0], [x1, R350.H, z1], [x0, R350.H, z1]], 1.12], [[1, 0, 0], [[x1, 12, z1], [x1, R350.H, z1], [x1, R350.H, z0], [x1, 12, z0]], 0.78], [[-1, 0, 0], [[x0, 12, z0], [x0, R350.H, z0], [x0, R350.H, z1], [x0, 12, z1]], 0.86]]) { const c = pts.reduce((s, p) => [s[0] + p[0] / 4, s[1] + p[1] / 4, s[2] + p[2] / 4], [0, 0, 0]); if (faceVis(cam, n, c)) { poly3(ctx, cam, pts, rmShade(colP, k)); if (n[1] === 0) { const xx = pts[0][0]; poly3(ctx, cam, [[xx, HB, z1], [xx, R350.H, z1], [xx, R350.H, z0], [xx, HB, z0]], rmShade(colD, k * 1.1)); } } }
+   if (faceVis(cam, [0, 0, 1], [ox, 90, z1])) { const F = (a, b, c, d, col) => poly3(ctx, cam, [[a, c, z1], [a, d, z1], [b, d, z1], [b, c, z1]], col);
+    F(x0, x1, 12, wy0, rmShade(colP, 1)); F(x0, wx0, wy0, HB, rmShade(colP, 1)); F(wx1, x1, wy0, HB, rmShade(colP, 0.96)); F(x0, x1, HB, R350.H, rmShade(colD, 1.15)); F(wx0, wx1, wy1, HB, rmShade(colP, 1));
+    const fa = 1 - op, gz = z1 + op * 120; if (fa > 0.01) { ctx.save(); ctx.globalAlpha *= fa; poly3(ctx, cam, [[wx0, wy0, gz + 0.2], [wx0, wy1, gz + 0.2], [wx1, wy1, gz + 0.2], [wx1, wy0, gz + 0.2]], 'rgba(185,210,220,0.10)', { stroke: rmShade(colF, 1.15), lw: 2.5 }); const gl = cam.clip([[wx0 + 14, wy1 - 6, gz + 0.3], [wx0 + 34, wy1 - 6, gz + 0.3], [wx0 + 8, wy0 + 20, gz + 0.3], [wx0 - 4, wy0 + 20, gz + 0.3]], 1); if (gl.length > 2) { ctx.fillStyle = 'rgba(255,255,255,0.06)'; ctx.beginPath(); gl.forEach((p, i) => (i ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1]))); ctx.closePath(); ctx.fill(); } ctx.restore(); }
+    poly3(ctx, cam, [[wx0, wy0, z1 + 0.4], [wx0, wy1, z1 + 0.4], [wx1, wy1, z1 + 0.4], [wx1, wy0, z1 + 0.4]], null, { stroke: rmShade(colF, 1.1), lw: 3 });
+    for (let k = 0; k < 10; k++) { const yy = 60 + k * 7.5; poly3(ctx, cam, [[wx1 + 8, yy, z1 + 0.4], [x1 - 8, yy, z1 + 0.4], [x1 - 8, yy + 2.6, z1 + 0.4], [wx1 + 8, yy + 2.6, z1 + 0.4]], rmShade(colD, 1.05)); }
+    poly3(ctx, cam, [[wx1 + 8, 130, z1 + 0.4], [x1 - 8, 130, z1 + 0.4], [x1 - 8, 144, z1 + 0.4], [wx1 + 8, 144, z1 + 0.4]], '#262c30');
+    for (let k = 0; k < 4; k++) { const L = cam.clip([[wx1 + 13 + k * 7, 137, z1 + 0.6]], 1)[0]; if (!L) continue; const on = (o.lights ?? 1) && Math.sin(t * (1.3 + k * 0.7) + k) > 0; ctx.fillStyle = on ? (k % 2 ? '#ffcf6a' : '#e86a4a') : '#5a4a3a'; ctx.beginPath(); ctx.arc(L[0], L[1], Math.max(1.5, 900 / L[2]), 0, TAU); ctx.fill(); }
+    const hd = cam.clip([[x0 + 4, 158, z1 + 0.5], [x1 - 4, 158, z1 + 0.5]], 1); if (hd.length === 2) { ctx.strokeStyle = 'rgba(255,255,255,0.12)'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(hd[0][0], hd[0][1]); ctx.lineTo(hd[1][0], hd[1][1]); ctx.stroke(); } }
    ctx.restore(); }
   if (xr > 0) { ctx.save(); ctx.globalAlpha *= xr * 0.9; ctx.strokeStyle = 'rgba(75,212,241,0.55)'; ctx.lineWidth = 1.5; const E2 = [[x0, 12, z0], [x1, 12, z0], [x1, 12, z1], [x0, 12, z1], [x0, R350.H, z0], [x1, R350.H, z0], [x1, R350.H, z1], [x0, R350.H, z1]]; for (const [a, b] of [[0, 1], [1, 2], [2, 3], [3, 0], [4, 5], [5, 6], [6, 7], [7, 4], [0, 4], [1, 5], [2, 6], [3, 7]]) { const A2 = cam.clip([E2[a]], 1)[0], B2 = cam.clip([E2[b]], 1)[0]; if (!A2 || !B2) continue; ctx.beginPath(); ctx.moveTo(A2[0], A2[1]); ctx.lineTo(B2[0], B2[1]); ctx.stroke(); } ctx.restore(); }
   ctx.restore();
-  const pj = (p) => cam.clip([p], 1)[0]; return { stackTop: pj([xs, R350.top, zs]), stackBot: pj([xs, R350.y0, zs]), stackCenter: pj([xs, (R350.y0 + R350.top) / 2, zs + R]), rim: pj([xs + R, (R350.y0 + R350.top) / 2, zs]), armTip: pj([tipX, ya, colPos[1]]), column: pj([colPos[0], R350.top + 14, colPos[1]]), top: pj([ox, R350.H, z1]), front: pj([ox, R350.H * 0.5, z1]), disk: (k) => pj([xs, P.r350y(k), zs + R]) };
+  const pj = (p) => cam.clip([p], 1)[0]; return { stackTop: pj([xs, R350.top, zs]), stackBot: pj([xs, R350.y0, zs]), stackCenter: pj([xs, (R350.y0 + R350.top) / 2, zs + R]), rim: pj([xs + R, (R350.y0 + R350.top) / 2, zs]), armTip: pj([tipX, ya, colZ]), column: pj([colX, R350.top + 14, colZ]), top: pj([ox, R350.H, z1]), front: pj([ox, R350.H * 0.5, z1]), window: pj([(wx0 + wx1) / 2, wy1, z1]), disk: (k) => pj([xs, P.r350y(k), zs + R]) };
  };
  // Otras unidades del sistema IBM 305 RAMAC (recreación genérica): armario de proceso, consola con máquina de escribir e impresora.
  P.ramac305 = (ctx, cam, t, o = {}) => { const ox = o.x ?? 0, oz = o.z ?? 0; P.box3(ctx, cam, ox - 60, ox + 60, 0, 180, oz - 38, oz + 38, P.RM.metal, { k: 0.95 }); for (let k = 0; k < 3; k++) { const L = cam.clip([[ox - 30 + k * 30, 140, oz + 38.5]], 1)[0]; if (L) { ctx.fillStyle = Math.sin(t * 2 + k * 1.7) > 0 ? '#ffcf6a' : '#5a4a3a'; ctx.beginPath(); ctx.arc(L[0], L[1], Math.max(1.5, 900 / L[2]), 0, TAU); ctx.fill(); } }
@@ -3044,14 +3062,28 @@
   if (o.glow) { ctx.globalAlpha = o.glow; ctx.shadowColor = '#4BD4F1'; ctx.shadowBlur = mm * 4; ctx.strokeStyle = '#4BD4F1'; ctx.lineWidth = Math.max(2, mm * 0.2); path(); ctx.stroke(); }
   ctx.restore(); return { w, h };
  };
- // Yema de un dedo índice vista desde la palma (sale del borde inferior del cuadro), con la tarjeta apoyada encima (sombra de contacto).
- // fw = ancho del dedo en px (≈ 17 mm reales). o: { skin, card (dibuja la microSD encima), cardRot, glow }
- P.fingertip = (ctx, cx, tipY, fw, t, o = {}) => { const sk = o.skin || '#d29a76', dk = H.rgba(H.mix(sk, '#3a1e10', 0.3)), lt = H.rgba(H.mix(sk, '#fff1e6', 0.25)), mm = fw / 17; ctx.save();
-  const g = ctx.createLinearGradient(cx - fw / 2, 0, cx + fw / 2, 0); g.addColorStop(0, dk); g.addColorStop(0.35, sk); g.addColorStop(0.65, lt); g.addColorStop(1, dk); ctx.fillStyle = g; ctx.beginPath(); ctx.moveTo(cx - fw * 0.5, HH + 40); ctx.lineTo(cx - fw * 0.5, tipY + fw * 0.5); ctx.bezierCurveTo(cx - fw * 0.5, tipY - fw * 0.12, cx + fw * 0.5, tipY - fw * 0.12, cx + fw * 0.5, tipY + fw * 0.5); ctx.lineTo(cx + fw * 0.56, HH + 40); ctx.closePath(); ctx.fill();
-  ctx.strokeStyle = 'rgba(120,70,45,0.18)'; ctx.lineWidth = Math.max(1, fw * 0.006); for (let k = 1; k < 9; k++) { ctx.beginPath(); ctx.ellipse(cx, tipY + fw * 0.62, fw * 0.045 * k, fw * 0.055 * k, 0, Math.PI * 1.05, Math.PI * 1.95); ctx.stroke(); }
-  ctx.strokeStyle = dk; ctx.lineWidth = Math.max(1.5, fw * 0.012); for (const yy of [1.55, 2.6]) { ctx.beginPath(); ctx.moveTo(cx - fw * 0.42, tipY + fw * yy); ctx.quadraticCurveTo(cx, tipY + fw * (yy + 0.06), cx + fw * 0.44, tipY + fw * yy); ctx.stroke(); }
-  if (o.card !== false) { const cy = tipY + fw * 0.55; ctx.save(); ctx.fillStyle = 'rgba(60,25,10,0.35)'; ctx.filter = `blur(${Math.max(1, mm * 0.8)}px)`; ctx.beginPath(); ctx.ellipse(cx + mm * 0.5, cy + mm * 1, mm * 6, mm * 8, o.cardRot || 0, 0, TAU); ctx.fill(); ctx.restore(); P.microSD(ctx, cx, cy, mm, { rot: o.cardRot ?? -0.12, glow: o.glow }); }
-  ctx.restore(); return { card: [cx, tipY + fw * 0.55], mm };
+ // Mano (palma hacia arriba, en perspectiva) con el índice extendido en diagonal y la microSD apoyada en la yema (v1.19.1): dedo con
+ // volumen (sombreado transversal), pliegues de las falanges, borde libre de la uña asomando en la punta, dedos medio/anular/meñique
+ // flexionados, pulgar a un lado y la palma que sale del cuadro (nada flota). (cx, tipY) = centro de la yema; fw = ancho del dedo en px
+ // (≈ 17 mm reales; la tarjeta mide 11 × 15 mm a la misma escala). o: { skin, card, cardRot, glow, ang }
+ P.fingertip = (ctx, cx, tipY, fw, t, o = {}) => { const sk = o.skin || '#d29a76', dk = H.rgba(H.mix(sk, '#3a1e10', 0.32)), dk2 = H.rgba(H.mix(sk, '#3a1e10', 0.5)), lt = H.rgba(H.mix(sk, '#fff1e6', 0.3)), mm = fw / 17, an = o.ang ?? 0.42, L = fw * 4.4;
+  ctx.save(); ctx.translate(cx, tipY); ctx.rotate(an); ctx.lineJoin = 'round';
+  // palma y muñeca (hacia abajo, fuera del cuadro)
+  const gp = ctx.createLinearGradient(-fw * 1.4, 0, fw * 3.6, 0); gp.addColorStop(0, dk); gp.addColorStop(0.4, sk); gp.addColorStop(1, dk); ctx.fillStyle = gp; ctx.beginPath(); ctx.moveTo(-fw * 0.62, L * 0.9); ctx.quadraticCurveTo(-fw * 1.5, L * 1.2, -fw * 1.6, L * 1.6); ctx.lineTo(-fw * 1.2, L * 6); ctx.lineTo(fw * 4.2, L * 6); ctx.lineTo(fw * 3.9, L * 1.25); ctx.quadraticCurveTo(fw * 3.4, L * 0.92, fw * 0.6, L * 0.92); ctx.closePath(); ctx.fill();
+  ctx.strokeStyle = 'rgba(110,60,35,0.35)'; ctx.lineWidth = Math.max(1, fw * 0.02); ctx.beginPath(); ctx.moveTo(-fw * 0.9, L * 1.35); ctx.quadraticCurveTo(fw * 1.2, L * 1.12, fw * 3.4, L * 1.32); ctx.moveTo(-fw * 0.6, L * 1.55); ctx.quadraticCurveTo(fw * 0.8, L * 1.4, fw * 2.2, L * 1.7); ctx.stroke();
+  // dedos flexionados (medio, anular, meñique): nudillos y falanges dobladas sobre la palma
+  for (let k = 0; k < 3; k++) { const bx = fw * (1.05 + k * 0.95), by = L * (1.0 + k * 0.05), w2 = fw * (0.98 - k * 0.08); const gf = ctx.createLinearGradient(bx - w2 / 2, 0, bx + w2 / 2, 0); gf.addColorStop(0, dk); gf.addColorStop(0.5, lt); gf.addColorStop(1, dk); ctx.fillStyle = gf; ctx.beginPath(); ctx.roundRect(bx - w2 / 2, by - fw * 0.55, w2, fw * 1.45, w2 * 0.48); ctx.fill(); ctx.strokeStyle = dk2; ctx.lineWidth = Math.max(1, fw * 0.025); ctx.beginPath(); ctx.moveTo(bx - w2 * 0.35, by + fw * 0.25); ctx.quadraticCurveTo(bx, by + fw * 0.33, bx + w2 * 0.35, by + fw * 0.25); ctx.stroke(); }
+  // pulgar (de lado, con su uña) apoyado junto a la base del índice
+  ctx.save(); ctx.translate(-fw * 0.95, L * 1.2); ctx.rotate(0.35); const gt = ctx.createLinearGradient(-fw * 0.55, 0, fw * 0.55, 0); gt.addColorStop(0, dk); gt.addColorStop(0.55, sk); gt.addColorStop(1, dk); ctx.fillStyle = gt; ctx.beginPath(); ctx.roundRect(-fw * 0.55, -fw * 1.5, fw * 1.1, fw * 2.2, fw * 0.52); ctx.fill(); ctx.fillStyle = H.rgba(H.mix(sk, '#f6d3c6', 0.45)); ctx.beginPath(); ctx.ellipse(-fw * 0.2, -fw * 1.05, fw * 0.26, fw * 0.36, 0.2, 0, TAU); ctx.fill(); ctx.restore();
+  // índice: falanges con volumen, pliegues y borde libre de la uña en la punta
+  const gi = ctx.createLinearGradient(-fw * 0.56, 0, fw * 0.56, 0); gi.addColorStop(0, dk2); gi.addColorStop(0.22, sk); gi.addColorStop(0.55, lt); gi.addColorStop(0.85, sk); gi.addColorStop(1, dk2); ctx.fillStyle = gi; ctx.beginPath(); ctx.moveTo(-fw * 0.5, fw * 0.45); ctx.bezierCurveTo(-fw * 0.52, -fw * 0.2, fw * 0.52, -fw * 0.2, fw * 0.5, fw * 0.45); ctx.lineTo(fw * 0.6, L); ctx.lineTo(-fw * 0.62, L); ctx.closePath(); ctx.fill();
+  ctx.fillStyle = H.rgba(H.mix(sk, '#f6d3c6', 0.55)); ctx.beginPath(); ctx.ellipse(0, -fw * 0.02, fw * 0.32, fw * 0.07, 0, Math.PI, TAU); ctx.fill();
+  ctx.fillStyle = 'rgba(255,190,170,0.18)'; ctx.beginPath(); ctx.ellipse(0, fw * 0.55, fw * 0.36, fw * 0.5, 0, 0, TAU); ctx.fill();
+  ctx.strokeStyle = dk2; ctx.lineWidth = Math.max(1, fw * 0.022); for (const yy of [1.45, 1.6, 2.85, 3.0]) { ctx.beginPath(); ctx.moveTo(-fw * 0.42, fw * yy); ctx.quadraticCurveTo(0, fw * (yy + 0.08), fw * 0.42, fw * yy); ctx.stroke(); }
+  ctx.restore();
+  // tarjeta apoyada en la yema (sin girar con la mano) con sombra de contacto
+  let card = null; if (o.card !== false) { const c0 = [cx - Math.sin(an) * fw * 0.62, tipY + Math.cos(an) * fw * 0.62]; ctx.save(); ctx.fillStyle = 'rgba(60,25,10,0.4)'; ctx.filter = `blur(${Math.max(1, mm * 0.7)}px)`; ctx.beginPath(); ctx.ellipse(c0[0] + mm * 0.6, c0[1] + mm * 0.8, mm * 5.8, mm * 7.8, an + (o.cardRot ?? -0.1), 0, TAU); ctx.fill(); ctx.restore(); P.microSD(ctx, c0[0], c0[1], mm, { rot: an + (o.cardRot ?? -0.1), glow: o.glow }); card = c0; }
+  return { card, mm };
  };
  // Miniatura de fotografía (paisaje estilizado, determinista por seed) — visualización conceptual del contenido.
  P.photoTile = (ctx, x, y, s, seed, o = {}) => { const R = H.rng(seed * 13 + 1), skies = [['#5fa8d8', '#bfe3f2'], ['#e7905a', '#f6d79a'], ['#2b3f6b', '#7d8fc0'], ['#7cc4c0', '#e6f4ee']], sk = skies[seed % 4]; ctx.save(); ctx.translate(x, y); if (o.rot) ctx.rotate(o.rot); ctx.fillStyle = '#F5F7F8'; ctx.beginPath(); ctx.roundRect(-s / 2 - s * 0.05, -s / 2 - s * 0.05, s * 1.1, s * 1.1, s * 0.08); ctx.fill(); ctx.beginPath(); ctx.rect(-s / 2, -s / 2, s, s); ctx.clip(); const g = ctx.createLinearGradient(0, -s / 2, 0, s / 2); g.addColorStop(0, sk[0]); g.addColorStop(1, sk[1]); ctx.fillStyle = g; ctx.fillRect(-s / 2, -s / 2, s, s);
@@ -3132,6 +3164,54 @@
  };
  // Regla graduada (cm) para comparar tamaños: L = largo en cm, s = px por cm.
  P.rulerCm = (ctx, x, y, L, s, o = {}) => { ctx.save(); ctx.fillStyle = o.col || '#D8AD72'; ctx.beginPath(); ctx.roundRect(x, y, L * s, Math.max(36, 4 * s), 6); ctx.fill(); ctx.strokeStyle = '#3a2c1c'; ctx.fillStyle = '#3a2c1c'; ctx.lineWidth = 2; ctx.font = '700 32px Nunito'; ctx.textAlign = 'center'; ctx.textBaseline = 'top'; for (let c = 0; c <= L; c++) { const xx = x + c * s, big = c % 10 === 0; ctx.beginPath(); ctx.moveTo(xx, y); ctx.lineTo(xx, y + (big ? 22 : c % 5 === 0 ? 15 : 9)); ctx.stroke(); if (big && c > 0 && c < L) ctx.fillText(String(c), xx, y + 2 + Math.max(36, 4 * s) * 0.45); } ctx.restore(); };
+ // ---------------- v1.19.1 · fotografías documentales, escritura/lectura y celda flash ----------------
+ // Tarjeta documental para una FOTOGRAFÍA REAL (v1.19.1): esquinas redondeadas, marco fino, sombra moderada, entrada 96 % → 100 % con
+ // desplazamiento sutil, acercamiento lento dentro del marco (o.zoom), rótulo superior (o.tag), pie (o.label) y crédito (o.credit, ≥ 32 px).
+ // Proporción original conservada y sin alterar el contenido. Devuelve el rectángulo de la imagen.
+ P.photoCard = (ctx, img, cx, cy, maxW, maxH, t, t0, t1, o = {}) => { if (!img || !img.width || t < t0 - 0.01 || t > t1 + 0.01) return null; const ia = img.width / img.height; let w = maxW, h = w / ia; if (h > maxH) { h = maxH; w = h * ia; }
+  const a = sm(t0, t0 + 0.55, t) * (1 - sm(t1 - 0.5, t1, t)), e = E.out(sm(t0, t0 + 0.8, t)), s = 0.96 + 0.04 * e, dy = (1 - e) * 22; if (a <= 0) return null; const r = o.radius ?? 22;
+  ctx.save(); ctx.globalAlpha *= a; ctx.translate(cx, cy + dy); ctx.scale(s, s);
+  ctx.shadowColor = 'rgba(0,0,0,0.5)'; ctx.shadowBlur = 36; ctx.shadowOffsetY = 16; ctx.fillStyle = 'rgba(245,247,248,0.92)'; ctx.beginPath(); ctx.roundRect(-w / 2 - 5, -h / 2 - 5, w + 10, h + 10, r + 4); ctx.fill(); ctx.shadowColor = 'transparent';
+  ctx.save(); ctx.beginPath(); ctx.roundRect(-w / 2, -h / 2, w, h, r); ctx.clip(); const zm = o.zoom || [0.5, 0.5, 1, 0.5, 0.5, 1.05], u = E.inOut(win(t, t0, t1)), zx = lerp(zm[0], zm[3], u), zy = lerp(zm[1], zm[4], u), zz = lerp(zm[2], zm[5], u), dw = w * zz, dh = h * zz; ctx.drawImage(img, -w / 2 - (dw - w) * zx, -h / 2 - (dh - h) * zy, dw, dh); ctx.restore();
+  ctx.font = '700 32px "IBM Plex Mono"'; const tg = o.tag || 'FOTOGRAFÍA REAL', tw = ctx.measureText(tg).width; ctx.fillStyle = 'rgba(11,20,36,0.92)'; ctx.beginPath(); ctx.roundRect(-w / 2 + 18, -h / 2 - 26, tw + 32, 50, 12); ctx.fill(); ctx.fillStyle = '#FFD447'; ctx.textAlign = 'left'; ctx.textBaseline = 'middle'; ctx.fillText(tg, -w / 2 + 34, -h / 2 - 1);
+  let yy = h / 2 + 22; if (o.label) { ctx.font = '800 38px Nunito'; const lw = ctx.measureText(o.label).width; ctx.fillStyle = 'rgba(11,20,36,0.92)'; ctx.beginPath(); ctx.roundRect(-lw / 2 - 22, yy, lw + 44, 60, 30); ctx.fill(); ctx.fillStyle = '#F5F7F8'; ctx.textAlign = 'center'; ctx.fillText(o.label, 0, yy + 31); yy += 68; }
+  if (o.credit) { ctx.font = '600 32px Nunito'; ctx.fillStyle = 'rgba(217,233,240,0.85)'; ctx.textAlign = 'center'; ctx.fillText(o.credit, 0, yy + 22); }
+  ctx.restore(); return { x: cx - w / 2, y: cy - h / 2, w, h };
+ };
+ // Pista magnética GRANDE para explicar escribir y leer (v1.19.1). Regiones del recubrimiento como bloques imantados (azul → / naranja ←)
+ // que pasan bajo la cabeza (el disco gira hacia la derecha). La cabeza flota sobre un hueco de aire visible.
+ //  · mode 'write': la cabeza de escritura (núcleo en C con bobina) cambia la magnetización de cada región al pasar; lo no escrito se ve tenue.
+ //  · mode 'read': la cabeza de lectura detecta los CAMBIOS entre regiones → pulsos de señal eléctrica → bits (cambio = 1, sin cambio = 0;
+ //    codificación simplificada para divulgación).
+ // o: { mode, speed (px/s), bw (ancho de región) }. Devuelve { head, track, signalY, bitsY }.
+ P.magTrack = (ctx, x, y, w, h, t, o = {}) => { const mode = o.mode || 'write', sp = o.speed ?? 110, bw = o.bw || h * 0.2, hx = x + w * 0.42, ty = y + h * 0.56, th = h * 0.2, gap = h * 0.045, sigY = y + h * 0.13, bitY = y + h * 0.93;
+  const nb = (m) => H.rng(m * 13 + 9)() > 0.5, ob = (m) => H.rng(m * 7 + 1)() > 0.5, X = (m) => x + m * bw + t * sp, m0 = Math.floor(-t * sp / bw) - 1, m1 = m0 + Math.ceil(w / bw) + 3;
+  ctx.save(); ctx.beginPath(); ctx.rect(x, y, w, h); ctx.clip();
+  ctx.fillStyle = '#c3c9cc'; ctx.fillRect(x, ty + th, w, h * 0.09); ctx.fillStyle = '#5a4434'; ctx.fillRect(x, ty, w, th);
+  for (let m = m0; m <= m1; m++) { const xx = X(m), c = xx + bw / 2, written = mode === 'read' || c > hx, bit = written ? nb(m) : ob(m), al = written ? 1 : 0.32;
+   ctx.globalAlpha = al; ctx.fillStyle = bit ? '#1f6f8f' : '#a0582c'; ctx.fillRect(xx + 3, ty + 4, bw - 6, th - 8); ctx.fillStyle = bit ? '#4BD4F1' : '#ff9f5a'; const d = bit ? 1 : -1, ay = ty + th / 2, a0 = c - d * bw * 0.32, a1 = c + d * bw * 0.32, aw = th * 0.16; ctx.beginPath(); ctx.moveTo(a0, ay - aw / 2); ctx.lineTo(a1 - d * aw * 1.6, ay - aw / 2); ctx.lineTo(a1 - d * aw * 1.6, ay - aw * 1.25); ctx.lineTo(a1, ay); ctx.lineTo(a1 - d * aw * 1.6, ay + aw * 1.25); ctx.lineTo(a1 - d * aw * 1.6, ay + aw / 2); ctx.lineTo(a0, ay + aw / 2); ctx.closePath(); ctx.fill();
+   ctx.globalAlpha = 1; }
+  // cabeza: núcleo en C con bobina; el hueco queda a «gap» sobre la pista (no la toca)
+  const hb = ty - gap, hw = bw * 0.9, hh2 = h * 0.26; ctx.fillStyle = '#D1C6B4'; ctx.fillRect(x - 10, hb - hh2 - h * 0.05, hx - x - hw * 0.4, h * 0.04); ctx.fillStyle = '#3a3f44'; ctx.beginPath(); ctx.moveTo(hx - hw / 2, hb); ctx.lineTo(hx - hw / 2, hb - hh2); ctx.lineTo(hx + hw / 2, hb - hh2); ctx.lineTo(hx + hw / 2, hb); ctx.lineTo(hx + hw * 0.08, hb); ctx.lineTo(hx + hw * 0.08, hb - hh2 * 0.62); ctx.lineTo(hx - hw * 0.08, hb - hh2 * 0.62); ctx.lineTo(hx - hw * 0.08, hb); ctx.closePath(); ctx.fill();
+  ctx.strokeStyle = '#d8a85a'; ctx.lineWidth = Math.max(3, h * 0.008); for (let k = 0; k < 6; k++) { const yy = hb - hh2 * 0.92 + k * hh2 * 0.07; ctx.beginPath(); ctx.ellipse(hx - hw * 0.5, yy, hw * 0.14, hh2 * 0.025, 0, 0, TAU); ctx.stroke(); }
+  ctx.strokeStyle = 'rgba(245,247,248,0.7)'; ctx.setLineDash([8, 8]); ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(hx - hw, ty - gap / 2); ctx.lineTo(hx + hw, ty - gap / 2); ctx.stroke(); ctx.setLineDash([]);
+  const mU = Math.floor((hx - x - t * sp) / bw), cur = nb(mU);
+  if (mode === 'write') { ctx.strokeStyle = 'rgba(255,212,71,0.85)'; ctx.lineWidth = 3; for (let k = 0; k < 3; k++) { const q = (t * 1.6 + k / 3) % 1; ctx.globalAlpha = 1 - q; ctx.beginPath(); ctx.ellipse(hx, ty + th * 0.15, hw * 0.12 + q * hw * 0.45, th * (0.15 + q * 0.4), 0, Math.PI, TAU); ctx.stroke(); } ctx.globalAlpha = 1; ctx.fillStyle = cur ? '#4BD4F1' : '#ff9f5a'; ctx.font = `900 ${Math.round(h * 0.06)}px Nunito`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(cur ? '→' : '←', hx - hw * 0.5, hb - hh2 - h * 0.075); }
+  else { const base = sigY; ctx.strokeStyle = 'rgba(245,247,248,0.25)'; ctx.lineWidth = 2; ctx.setLineDash([6, 8]); ctx.beginPath(); ctx.moveTo(x, base); ctx.lineTo(hx, base); ctx.stroke(); ctx.setLineDash([]); ctx.strokeStyle = '#4BD4F1'; ctx.lineWidth = Math.max(4, h * 0.008); ctx.beginPath(); for (let px = hx; px <= x + w; px += 3) { let v = 0; for (let m = m0; m <= m1; m++) { const bx = X(m); if (nb(m) !== nb(m - 1)) v += (nb(m) ? 1 : -1) * Math.exp(-Math.pow((px - bx) / (bw * 0.09), 2)); } const yy = base - v * h * 0.075; px === hx ? ctx.moveTo(px, yy) : ctx.lineTo(px, yy); } ctx.stroke();
+   ctx.strokeStyle = 'rgba(75,212,241,0.4)'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(hx, hb - hh2); ctx.lineTo(hx, base + h * 0.09); ctx.stroke();
+   ctx.font = `800 ${Math.max(32, Math.round(h * 0.07))}px "IBM Plex Mono"`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; for (let m = m0; m <= m1; m++) { const bx = X(m); if (bx < hx || bx > x + w) continue; const one = nb(m) !== nb(m - 1); ctx.fillStyle = one ? '#FFD447' : '#7CE6E2'; ctx.fillText(one ? '1' : '0', bx, bitY); } }
+  ctx.restore(); return { head: [hx, hb - hh2], track: [hx, ty + th / 2], signalY: sigY, bitsY: bitY };
+ };
+ // Celda de memoria flash en corte (v1.19.1): transistor de puerta flotante. Sustrato, fuente y drenador, óxido túnel, PUERTA FLOTANTE
+ // (con electrones atrapados según o.charge 0..1), óxido y PUERTA DE CONTROL. Sin carga → el canal conduce; con carga → no conduce.
+ // Devuelve puntos para rótulos { cg, fg, ch, src, drn }.
+ P.flashCell = (ctx, x, y, w, h, t, o = {}) => { const q = cl(o.charge ?? 0), cx = x + w / 2; ctx.save(); ctx.fillStyle = '#2b3a4a'; ctx.fillRect(x, y + h * 0.55, w, h * 0.45); ctx.fillStyle = '#3f6e8f'; ctx.beginPath(); ctx.roundRect(x + w * 0.04, y + h * 0.55, w * 0.24, h * 0.18, 10); ctx.fill(); ctx.beginPath(); ctx.roundRect(x + w * 0.72, y + h * 0.55, w * 0.24, h * 0.18, 10); ctx.fill();
+  const on = 1 - q; if (on > 0.05) { ctx.fillStyle = `rgba(75,212,241,${0.55 * on})`; ctx.fillRect(x + w * 0.26, y + h * 0.555, w * 0.48, h * 0.035); for (let k = 0; k < 6; k++) { const ex = x + w * 0.27 + ((t * 0.5 + k / 6) % 1) * w * 0.46; ctx.fillStyle = `rgba(124,230,226,${on})`; ctx.beginPath(); ctx.arc(ex, y + h * 0.572, Math.max(3, h * 0.012), 0, TAU); ctx.fill(); } }
+  ctx.fillStyle = '#8fa0aa'; ctx.fillRect(x + w * 0.26, y + h * 0.52, w * 0.48, h * 0.03); ctx.fillStyle = '#1d2a36'; ctx.beginPath(); ctx.roundRect(x + w * 0.27, y + h * 0.36, w * 0.46, h * 0.16, 8); ctx.fill(); ctx.strokeStyle = '#4BD4F1'; ctx.lineWidth = 3; ctx.stroke();
+  const ne = Math.round(q * 10); for (let k = 0; k < ne; k++) { const ex = x + w * 0.31 + (k % 5) * w * 0.095, ey = y + h * (0.405 + Math.floor(k / 5) * 0.065) + Math.sin(t * 3 + k) * 2; ctx.fillStyle = '#FFD447'; ctx.beginPath(); ctx.arc(ex, ey, Math.max(5, h * 0.018), 0, TAU); ctx.fill(); ctx.fillStyle = '#0B1424'; ctx.fillRect(ex - Math.max(3, h * 0.01), ey - 1, Math.max(6, h * 0.02), 2); }
+  ctx.fillStyle = '#8fa0aa'; ctx.fillRect(x + w * 0.27, y + h * 0.33, w * 0.46, h * 0.03); ctx.fillStyle = '#9aa6ad'; ctx.beginPath(); ctx.roundRect(x + w * 0.25, y + h * 0.16, w * 0.5, h * 0.17, 8); ctx.fill(); ctx.fillStyle = '#c8cdd0'; ctx.fillRect(cx - w * 0.02, y, w * 0.04, h * 0.16); ctx.fillRect(x + w * 0.15, y + h * 0.38, w * 0.03, h * 0.17); ctx.fillRect(x + w * 0.82, y + h * 0.38, w * 0.03, h * 0.17);
+  ctx.restore(); return { cg: [x + w * 0.75, y + h * 0.245], fg: [x + w * 0.73, y + h * 0.44], ch: [cx, y + h * 0.6], src: [x + w * 0.16, y + h * 0.64], drn: [x + w * 0.84, y + h * 0.64] };
+ };
  // ---------------- SUBTÍTULOS (arriba, palabra a palabra, palabra clave seleccionada) ----------------
  // Trozos de ≤3 palabras (≤4 si son cortas); las palabras aparecen al decirse: la actual en blanco y negrita,
  // las ya dichas en gris; la palabra clave lleva recuadro de selección con asas en el color de acento.

@@ -157,6 +157,17 @@ La piel se elige con `skin: 'plana' | 'oscura'` en `PLANTILLA.make`. Los bloques
 | `laborer`, `porter`, `oxcart`, `packAnimal` | Trabajador con ropa y sombrero variados; porteador con pértiga y dos cestas; carro de dos ruedas con buey y ruedas que giran; mula con alforjas. Cargas: `tierra`, `piedra` o `ladrillos` |
 | `dust(ctx, x, y, t, t0, {s})` | Nube de polvo determinista |
 
+**v1.19.1 · corrección final del episodio del primer disco duro (fotos documentales, IBM 350 rediseñado):**
+
+| Bloque | Uso |
+|---|---|
+| `ibm350` (rediseñado, misma firma) | Basado en la foto histórica: zócalo, panel inferior, GRAN ventana de inspección con marco fino, panel derecho con rejillas y pilotos, banda superior oscura. Pila de 50 discos anulares (óxido marrón, canto metálico, agujero central ≈ 0,49 R con cubo) con paso de 1,5 cm. Mecanismo de acceso con dos guías, carro, cable con polea y brazo radial con dos cabezas. Para cambiar de disco: retirar el brazo (`ext` 0), mover `k` y volver a extender |
+| `worker1956` (rediseñado) | Proporciones reales, codos y manos, sombreado, balanceo y `point` 0..1 animable. Devuelve `hand` (mano derecha en pantalla) para sostener objetos |
+| `fingertip` (rediseñado) | Mano con la palma hacia arriba en perspectiva: índice con volumen, pliegues y borde de la uña, dedos flexionados, pulgar a lo largo de la palma y palma que sale del cuadro. La tarjeta se apoya con sombra de contacto, a escala real |
+| `photoCard(ctx, img, cx, cy, maxW, maxH, t, t0, t1, {tag, label, credit, zoom, radius})` | Tarjeta documental para FOTOGRAFÍAS REALES: esquinas redondeadas, marco fino, sombra moderada, entrada 96 → 100 %, acercamiento lento, rótulo «FOTOGRAFÍA REAL», pie y crédito (≥ 32 px). Proporción original y contenido intactos |
+| `magTrack(ctx, x, y, w, h, t, {mode: 'write'\|'read', speed, bw})` | Pista magnética GRANDE: regiones como bloques imantados (→/←) que pasan bajo la cabeza, con hueco de aire. En `write` la bobina cambia la magnetización (lo no escrito, tenue). En `read` los cambios dan pulsos de señal y bits (cambio = 1, simplificado) |
+| `flashCell(ctx, x, y, w, h, t, {charge})` | Celda flash en corte (transistor de puerta flotante): electrones atrapados según la carga y canal que conduce o no. Devuelve puntos `cg`, `fg`, `ch`, `src` y `drn` |
+
 **v1.19 · almacenamiento: del IBM 350 (1956) al HDD, la flash y la microSD (episodio «El primer disco duro era una máquina gigantesca»):**
 
 | Bloque | Uso |
