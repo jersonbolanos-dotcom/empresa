@@ -1,67 +1,44 @@
-# QC · Yakhchal V2 · `07_OUTPUT/ASOMBROTECA_03_YAKHCHAL_FINAL.mp4` (versión oficial con fotografía)
+# QC · Yakhchal V3 (retoques finales) · `07_OUTPUT/ASOMBROTECA_03_YAKHCHAL_PUBLICABLE.mp4`
 
-Solo se marca como superado lo que se ha probado. Fecha: 2026-11-02.
+Versión oficial CON la fotografía real del yakhchal de Meybod. Se trabajó sobre la V2, respaldada en `07_OUTPUT/V2/`, `04_CODIGO/V2/`, `05_AUDIO/V2/` y `07_QC/V2/`. Voz, guion y duración sin cambios. Solo se marca como superado lo que se ha probado (2026-11-02).
 
 ## 1 · Pruebas técnicas — `qc_tecnico.txt`
 | Prueba | Resultado |
 |---|---|
-| ffprobe | H.264 High 1080×1920, 30/1, 2880 fotogramas · AAC LC 48 kHz estéreo · 96,0 s · 73,2 MB (< 100 MB) |
-| Decodificación completa (`ffmpeg -v error -f null`) | 0 errores |
-| blackdetect (d 0,3 s, umbral 0,08) | 0 intervalos |
-| freezedetect (n 0,002, d 1,5 s) | ninguno |
-| silencedetect (−50 dB, 1 s) | ninguno |
-| ebur128 | −14,0 LUFS integrados · LRA 2,8 LU · pico −1,6 dB (≤ −1) |
-| md5 de la voz | `a7d4b23ebe34d850c0fcafe2d915dab8`, idéntico al original. Voz sin cambios de duración, velocidad ni recorte |
-| Determinismo | 2 cargas de la página, orden distinto (5,3 · 17,9 · 41 s): mismos md5 de fotograma |
-| Retrocompatibilidad | `plantilla.js` solo AÑADE bloques: diff de +301 / −0 líneas en la inserción; los ajustes posteriores afectan solo a bloques nuevos. Ningún episodio anterior usa los bloques v1.21 y se comprobó que no hay nombres repetidos. No se tocó ningún bloque existente, así que no hacía falta reconstruir los demás episodios |
-| Audio | Pistas regeneradas dos veces. Diferencia máxima entre ejecuciones ≈ 4·10⁻⁸, equivalente a −135 dB (redondeo flotante del render de audio), inaudible |
+| ffprobe | H.264 High 1080×1920 · 30/1 constante (r = avg = 30) · 2880 fotogramas · AAC LC 48 kHz estéreo · 96,0 s · 71,8 MB |
+| Decodificación completa | 0 errores |
+| blackdetect / freezedetect / silencedetect | 0 intervalos · ninguno · ninguno |
+| ebur128 | −14,0 LUFS · LRA 2,8 LU · pico −1,6 dB |
+| md5 de la voz | `a7d4b23ebe34d850c0fcafe2d915dab8`, idéntico al original |
+| Determinismo | 2 cargas en orden distinto: mismos md5 de fotograma |
+| Comprobaciones del modelo | 20/20 superadas (`comprobaciones.txt`) |
 
-**Mezcla:**
-```
-[voz 48 kHz, apad 96,007][música +1 dB → sidechaincompress(voz) thr 0,03 ratio 6][efectos −3 dB]
-→ amix normalize=0 → +7,8 dB → alimiter 0,8 → afade out 95,207 s (0,8 s)
-```
+Mezcla: igual que en V2. Las pistas se regeneraron porque cambió el momento de un efecto en la transición de la foto. La música es la misma.
 
-## 2 · Comprobaciones automáticas del modelo — `comprobaciones.txt` (20/20)
-- **Estanque, muro y canal:** el estanque queda al norte del muro de sombra, el muro va de este a oeste y el canal llega desde el oeste.
-- **Sombras:** el sol de invierno (≈ 34,6°) da sombra que cubre el estanque, y las sombras de verano van hacia el norte.
-- **Vestíbulo:** une la entrada con el camino; la puerta mide 17 dm.
-- **Perfil curvo continuo, sin escalones:** espesor horizontal mínimo de 14 dm; la pared es más gruesa en la base.
-- **Silueta del modelo frente a silueta medida en la foto:** desviación máxima del 3,8 % del radio de la base.
-- **Escalera:** no atraviesa el hielo (246 bloques comprobados) y baja desde el lado de la entrada.
-- **Bloques:** todos quedan dentro del muro de contención, y cada uno apoya ≥ 40 % de su base sobre un bloque de la capa inferior.
-- **Foto:** está cargada.
-- **Esta prueba falló la primera vez y se corrigió:** había bloques sin apoyo en el borde del pozo ataluzado.
-
-## 3 · Pruebas visuales realizadas (hojas de prueba antes del render y hoja del MP4)
-Tres rondas de fotogramas de prueba (46 + 20 + 6 fotogramas) antes del render final, y 2 renders completos corregidos. Hoja de contacto del MP4: `hoja_contacto_mp4.jpg` (26 fotogramas). Tiras de movimiento del MP4 (5 fps):
-- `movimiento_V2_t25.4_foto_a_modelo.jpg`
-- `movimiento_V2_t43.3_congelacion.jpg`
-- `movimiento_V2_t48.2_cortar_levantar.jpg`
-- `movimiento_V2_t52.3_bajar_colocar.jpg`
-- `movimiento_V2_t75.4_invierno_verano.jpg`
-
-| Área | Prueba | Resultado |
+## 2 · Correcciones pedidas y cómo se comprobaron
+| # | Corrección | Comprobación |
 |---|---|---|
-| Arquitectura · exterior | Cúpula curva, lisa, con textura y sombra de contacto (28,6 s) | OK |
-| Arquitectura · comparación con la foto | `comparacion_foto_modelo.jpg`: foto, mezcla al 50 % y modelo con la misma cámara; las siluetas coinciden | OK |
-| Arquitectura · sección | Perfil curvo, revoque, adobe, pared más gruesa abajo, vestíbulo, pozo ataluzado, escalera con murete y drenaje (20,8 · 62,9 · 64,8 s) | OK |
-| Arquitectura · depósito y entrada | Corte 3D con bóveda interior, rellano, revestimiento, escalera y paso de entrada (30,8 · 53 · 59,9 s) | OK |
-| Arquitectura · estanque y muro | Taludes, caballón, canal; muro al sur con rayos y sombra sobre el estanque (68,6 s) | OK |
-| Animación · congelación | Ondas → pérdida de energía → cristales desde las orillas → vista lateral → noches → grosor para cortar (43,3–48 s) | OK. Al principio los cristales se veían como un tablero de cuadros; se usó una cuadrícula más fina y una transición suave |
-| Animación · corte y traslado | Barra en la ranura → palanca → el bloque se separa → se levanta → porteadores por el camino hasta el vestíbulo | OK |
-| Animación · colocación | Baja la escalera tallada (lejos del hielo) con el bloque y lo coloca | OK, aunque la figura se ve pequeña en el plano (ver limitaciones) |
-| Animación · calor | Flechas cualitativas que se atenúan en la pared; una pequeña parte llega al interior | OK |
-| Animación · invierno → verano | Estanque helado → transporte → depósito lleno → meses (luz, estanque sin hielo, seco) → verano → queda parte del hielo | OK |
-| Audiovisual | Subtítulos blancos con resaltado amarillo, capY 1540; rótulos a y < 1420; foto con crédito; sin logos; «ASOMBROTECA» discreto al final | OK |
-| Cámara | Ningún plano con la cámara bajo tierra ni con el muro tapando el sujeto | OK. Se corrigió en la ronda 1, donde había varios planos al sur del muro y uno bajo tierra |
-| Sincronía | Planos y rótulos anclados a palabras de la voz (`wt`). Duración 96,0 s | OK |
+| 1 | **Gancho:** las burbujas abstractas se sustituyen por la esquina de un bloque de hielo natural (`P.iceMacro2`), con superficie irregular, núcleo lechoso, columnas de burbujas, canto translúcido, reflejos discretos, escarcha y una gota que resbala. Se conserva el retroceso al depósito y la subida al desierto | Tiras `t0.0`, `t2.4` y `t4.2` |
+| 2 | **Foto → modelo:** se midió la silueta real de la foto (214 bordes) y se ajustó por mínimos cuadrados el perfil del modelo maestro: (1−h)^0,70·(1+0,22·sen πh) con remate redondeado. El error baja de ≈ 57 px a ≈ 10 px de media cuadrática. El fundido con dos cúpulas dura 0,45 s. Créditos intactos | `comparacion_foto_modelo.jpg`, tira `t25.2`, comprobación automática nueva con la silueta medida |
+| 3 | **Etiqueta:** «CAPAS DE AGUA DE 5–10 CM» + «En instalaciones documentadas», sin «por noche». Cada noche se añade una lámina de agua que se enfría y se congela desde arriba; no aparece hielo de golpe | Tiras `t43.4` y `t46.0` |
+| 4 | **Extracción:** la barra entra en la ranura y no atraviesa el bloque; al separarse hay una grieta y saltan esquirlas; ya no hay un bloque duplicado; el bloque mantiene su tamaño (44 × 32 cm) en el corte, el levantamiento, el transporte, la escalera y la colocación; las manos quedan sobre la carga | Tira `t48.2` |
+| 5 | **Escalera:** peldaños macizos de adobe hasta el fondo, apoyados en el muro, con 13 dm de ancho, sombra bajo cada nariz y continuidad desde el rellano de la entrada. El trabajador apoya un pie en cada peldaño (posición ajustada al escalón) | Tira `t52.4` y comprobación «la escalera no atraviesa el hielo» |
+| 6 | **Hielo almacenado:** blanco azulado menos saturado, núcleo lechoso, canto translúcido, burbujas sutiles, aristas irregulares y base plana con línea de contacto | Hoja de contacto (6,8 · 53 · 85 s) |
+| 7 | **Aislamiento:** corte más grande, banda de revoque distinta del adobe, flechas perpendiculares a la superficie, puntos que avanzan despacio dentro del muro y una flecha pequeña que llega al interior; fondo cálido fuera y tono frío dentro. Rótulos: «EL CALOR ENTRA LENTAMENTE · la pared no lo bloquea del todo», «EXTERIOR · SOL» e «INTERIOR · MÁS FRESCO». Sin cifras | Tira `t62.2` |
+| 8 | **Comparación:** al sol, rayos que llegan al bloque, charco que crece y sombra en el suelo; protegido, un bloque de la pila dentro del depósito (bóveda, paja, muro). Etiquetas más grandes con subtítulo cualitativo («se funde rápido» / «se funde despacio») | Tira `t70.8` |
+| 9 | **Invierno → verano:** estanque helado → depósito lleno → meses (luz y estanque que se deshiela) → estanque seco a ras de suelo → vuelta al depósito con parte del hielo → interior del depósito, en lugar de otra órbita repetida. Sin indicador redundante | Tiras `t76.6` y `t79.4` |
+| 10 | **Cierre:** alejamiento menor y más alto, con estanque seco, muro, sombra y cúpula reconocibles; luz cálida; «ASOMBROTECA» discreto | Tiras `t88.6` y `t93.4` |
+| 11 | **Etiquetas:** fondo de las píldoras más opaco (contraste) y sin solapes. Se quitó el indicador de estaciones donde repetía el mes | Hoja de contacto |
+| Extra | **Fundidos:** durante los fundidos de 0,3 s la cúpula se veía como una malla (juntas entre caras). Ahora la escena se compone en una capa opaca y se funde entera | Fotogramas 4,25 · 52,2 · 33,8 |
+| Extra | **Cámaras:** el plano de entrada (4–5 s) empezaba al sur del muro y quedaba tapado; ahora empieza al norte, sobre el estanque | Tira `t4.2` |
 
-## 4 · Limitaciones sin resolver (honestas)
-- **Superficie del modelo:** el modelo no copia la textura de la foto. La silueta coincide, pero la envolvente 3D es más uniforme: las bandas horizontales, las manchas y las muescas de la escalera de la foto aparecen solo como detalle tenue.
-- **Colocación del bloque (53–55 s):** el trabajador mide unos 110 px de alto. Se lee bien la acción (baja con el bloque y lo deposita), pero no los detalles de las manos.
-- **Cristales del estanque:** en el primer plano todavía se intuye la cuadrícula de celdas mientras avanza el hielo. Cuando termina de congelarse, la superficie queda continua.
-- **Zanja del corte 3D:** el corte del terreno se muestra como una zanja recta, un recurso didáctico y no una excavación real.
-- **Interior:** no hay fotografía del interior. La foto B nunca se recibió, así que el interior es solo reconstrucción y así se rotula.
-- **Datos no consultados desde aquí:** la Encyclopaedia Iranica (capas de 5–10 cm) y la ficha de Commons de la foto (autor y licencia) no se pudieron abrir por la red restringida.
-- **Dimensiones y meses:** las dimensiones son una reconstrucción didáctica, no los planos de un yakhchal concreto. Los meses (ENERO → JULIO) son orientativos.
+## 3 · Revisión de movimiento (tiras del MP4, 5 fps)
+Franjas revisadas: 0–6 s, 22–28 s, 40–49 s, 48–55 s, 56–65 s, 70–73 s, 76–87 s y 88–96 s, en 15 tiras (`movimiento_V3_*`). Las anomalías encontradas se corrigieron y se volvió a exportar: dos renders completos más.
+
+## 4 · Limitaciones sin resolver
+- El modelo reproduce la silueta de la foto, no su textura: las bandas y las manchas apenas se insinúan.
+- Mientras el hielo avanza, en primer plano todavía se intuye la cuadrícula de celdas del estanque.
+- En la escalera el trabajador mide unos 110–120 px: el gesto se lee, pero no el detalle de las manos.
+- La zanja del corte 3D es un recurso didáctico.
+- No hay foto del interior, porque no se recibió ninguna verificada.
+- No pude consultar la Encyclopaedia Iranica ni la ficha de Commons desde la sesión por las restricciones de red. La licencia CC BY-SA 3.0 exige atribución y un enlace a la licencia al publicar.

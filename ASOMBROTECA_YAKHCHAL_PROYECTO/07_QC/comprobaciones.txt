@@ -8,8 +8,8 @@ OK   A mediodía de invierno (≈ 34,6° a 32° N) la sombra del muro cubre el e
 OK   Sombra de verano también hacia el norte  · sombra del remate en z = -87
 OK   Una persona (17 dm) cabe por la puerta del vestíbulo  · puerta 17 dm
 OK   El depósito queda bajo el nivel del terreno  · profundidad 60 dm
-OK   Perfil curvo continuo (sin escalones): el radio baja con la altura e interior < exterior  · espesor horizontal mínimo 14.0 dm
-OK   Silueta del modelo ≈ silueta de la fotografía de Meybod (radio relativo medido en la foto)  · desviación máxima 3.8 % del radio de la base
+OK   Perfil curvo continuo (sin escalones): el radio baja con la altura e interior < exterior  · espesor horizontal mínimo 11.2 dm
+OK   Silueta del modelo = silueta MEDIDA en la fotografía de Meybod (misma cámara de la transición)  · error cuadrático medio 10.6 px sobre 214 bordes medidos (1080 px de ancho)
 OK   Pared más gruesa en la base que en lo alto (perfil curvo)  · 20 dm en la base · 14 dm a 14 m
 OK   La escalera no atraviesa el hielo (ningún bloque en el sector de la escalera)  · 246 bloques comprobados
 OK   Todos los bloques quedan dentro del muro de contención del pozo

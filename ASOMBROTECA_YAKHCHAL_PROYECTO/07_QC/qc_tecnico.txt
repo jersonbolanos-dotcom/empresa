@@ -1,7 +1,7 @@
 == ffprobe
-stream|codec_name=h264|profile=High|width=1080|height=1920|r_frame_rate=30/1|nb_frames=2880
-stream|codec_name=aac|profile=LC|sample_rate=48000|channels=2|r_frame_rate=0/0|nb_frames=4501
-format|duration=96.000000|size=73248376|bit_rate=6104031
+stream|codec_name=h264|profile=High|width=1080|height=1920|r_frame_rate=30/1|avg_frame_rate=30/1|nb_frames=2880
+stream|codec_name=aac|profile=LC|sample_rate=48000|channels=2|r_frame_rate=0/0|avg_frame_rate=0/0|nb_frames=4501
+format|duration=96.000000|size=71764154|bit_rate=5980346
 == errores de decodificación completa
 0
 == blackdetect (d=0.3, pix_th=0.08) · intervalos
@@ -15,9 +15,9 @@ format|duration=96.000000|size=73248376|bit_rate=6104031
 == md5 voz
 a7d4b23ebe34d850c0fcafe2d915dab8  01_ENTRADA/audio/voz_original_yakhchal.mp3
 == determinismo (2 cargas, orden distinto)
-0 5.3 462a203b225d0585892f059bfa4da6c9
-1 5.3 462a203b225d0585892f059bfa4da6c9
-0 17.9 f8c575ed0532cf1922c587b217be3b1f
-1 17.9 f8c575ed0532cf1922c587b217be3b1f
-0 41 04030e3c955ef1e9edc82eada4cd07f4
-1 41 04030e3c955ef1e9edc82eada4cd07f4
+0 5.3 88f5f006eec5fb5e58e7f1c49ef2a43a
+1 5.3 88f5f006eec5fb5e58e7f1c49ef2a43a
+0 17.9 f7951d0522d75d0663d909b136135ae0
+1 17.9 f7951d0522d75d0663d909b136135ae0
+0 41 13b3589dd68956dac69a7cc0e39a4e6e
+1 41 13b3589dd68956dac69a7cc0e39a4e6e

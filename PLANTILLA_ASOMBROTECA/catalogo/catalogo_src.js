@@ -128,7 +128,7 @@
   ['Yakhchal v1.21: sección técnica (ykSection2)', (c, t) => { c.fillStyle = '#8ec0e6'; c.fillRect(0, 0, 400, 300); P.ykSection2(c, 200, 190, 0.95, t, { flip: true, ice: 0.85, heat: 1, grad: 1, melt: 0.3 }); }],
   ['Estanque lateral por capas (ykPondSide v1.21)', (c, t) => { c.fillStyle = '#0d1b2e'; c.fillRect(0, 0, 400, 300); P.ykPondSide(c, 60, 140, 280, 18, t, { n: 2, water: 1, freeze: 0.5, loss: 1, night: 0.9, maxN: 5 }); }],
   ['Trabajador v1.21: palanca, levantar, cargar (persianWorker2)', (c, t) => { c.fillStyle = '#d9c29c'; c.fillRect(0, 0, 400, 300); c.fillStyle = '#b89468'; c.fillRect(0, 262, 400, 38); P.persianWorker2(c, 60, 262, 150, t, { pose: 'pry', lift: 0.6 }); P.persianWorker2(c, 200, 262, 150, t, { pose: 'lift', lift: 0.5, var: 1 }); P.persianWorker2(c, 330, 262, 150, t, { pose: 'carry', ph: 0.3, var: 2 }); }],
-  ['Hielo en macro y rótulos editoriales (v1.21)', (c, t) => { c.save(); c.scale(400 / 1080, 300 / 1920 * 2.4); P.iceMacro(c, t, { drip: 0.4 }); c.restore(); c.save(); c.scale(0.5, 0.5); P.ykLabel(c, 'CRISTALES DE HIELO', [300, 420], 400, 260, 9, 0, 0, { sub: 'crecen desde la orilla' }); c.restore(); }],
+  ['Hielo en macro y rótulos editoriales (v1.21)', (c, t) => { c.save(); c.scale(400 / 1080, 300 / 1920 * 2.4); P.iceMacro2(c, t, { drip: 0.4 }); c.restore(); c.save(); c.scale(0.5, 0.5); P.ykLabel(c, 'CRISTALES DE HIELO', [300, 420], 400, 260, 9, 0, 0, { sub: 'crecen desde la orilla' }); c.restore(); }],
  ];
  window.drawCatalog = function () {
   document.querySelectorAll('canvas[data-i]').forEach((cv) => {

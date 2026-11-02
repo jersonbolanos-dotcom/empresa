@@ -53,7 +53,7 @@ Asombroteca · Plantilla v1.21 (yakhchal fiel a la fotografía) · V2
 
 ## V2 · Corrección cinematográfica profunda (2026-11-02)
 - **Versión oficial elegida por el usuario: la que contiene la fotografía real del yakhchal.**
-  - `07_OUTPUT/ASOMBROTECA_03_YAKHCHAL_FINAL.mp4` contiene la foto A con «FOTOGRAFÍA ACTUAL», el pie «YAKHCHAL DE MEYBOD · IRÁN» y el crédito «Foto: Ggia · CC BY-SA 3.0», de 21,5 a 27,5 s.
+  - La versión V2 (`07_OUTPUT/V2/`) y la V3 publicable contienen la foto A con «FOTOGRAFÍA ACTUAL», el pie «YAKHCHAL DE MEYBOD · IRÁN» y el crédito «Foto: Ggia · CC BY-SA 3.0», de 21,5 a 27,5 s.
   - La versión sin foto queda solo como respaldo en `07_OUTPUT/V1/`.
   - Recordatorio de licencia (CC BY-SA 3.0): atribución y enlace a la licencia en la descripción. La autoría y la licencia no se pudieron verificar en Commons desde la sesión.
 - **Tratamiento de la foto (pedido por el usuario):**
@@ -75,3 +75,13 @@ Asombroteca · Plantilla v1.21 (yakhchal fiel a la fotografía) · V2
   - el calor avanza más despacio por la pared, que no es una barrera perfecta;
   - no hay temperaturas;
   - la Luna no aparece como fuente de frío.
+
+## V3 · Retoques finales (2026-11-02) — `07_OUTPUT/ASOMBROTECA_03_YAKHCHAL_PUBLICABLE.mp4`
+- **Perfil de la cúpula medido en la foto:**
+  - se midieron los bordes de la silueta fila a fila (214 bordes) y se ajustó por mínimos cuadrados, vista desde la misma cámara de la transición, el perfil r = R0·(1−h)^0,70·(1+0,22·sen πh), con remate redondeado (parabólico desde h ≈ 0,8);
+  - error ≈ 10 px de media cuadrática, frente a ≈ 57 px de V2: mis medidas a ojo de V2 subestimaban la anchura de la mitad inferior;
+  - script en `04_CODIGO/ajuste_silueta_foto.py`;
+  - sigue siendo una reconstrucción didáctica, no un levantamiento del edificio.
+- **Capas de agua:** el rótulo dice «CAPAS DE AGUA DE 5–10 CM · En instalaciones documentadas». Ya no afirma que esa cantidad se congelara necesariamente cada noche.
+- **Bloque de hielo:** mide 44 × 32 cm en todas las escenas. Es un tamaño didáctico, sin cifra en pantalla.
+- **Aislamiento:** «EL CALOR ENTRA LENTAMENTE · la pared no lo bloquea del todo», sin valores numéricos.
