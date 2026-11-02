@@ -2957,6 +2957,15 @@ body{margin:0;background:#14132b;color:#fff;font-family:Nunito,sans-serif} h1{fo
    const cu = (k) => [lerp(wl[0], fl[0], k), lerp(wl[1], fl[1], k)], cv = (k) => [lerp(wr[0], fr[0], k), lerp(wr[1], fr[1], k)], k0 = cl((cy + b + 0.75 * w - wl[1]) / Math.max(1, fl[1] - wl[1]), 0.05, 0.9);
    ctx.fillStyle = sl; ctx.beginPath(); ctx.moveTo(...cu(k0)); ctx.quadraticCurveTo((cu(k0)[0] + cv(k0)[0]) / 2, (cu(k0)[1] + cv(k0)[1]) / 2 + w * 0.06, ...cv(k0)); ctx.lineTo(fr[0] + w * 0.1, fr[1]); ctx.lineTo(fl[0] - w * 0.1, fl[1]); ctx.closePath(); ctx.fill();
    ctx.strokeStyle = 'rgba(255,255,255,0.12)'; ctx.lineWidth = Math.max(2, w * 0.025); ctx.beginPath(); ctx.moveTo(...cu(k0 + 0.03)); ctx.quadraticCurveTo((cu(k0)[0] + cv(k0)[0]) / 2, (cu(k0)[1] + cv(k0)[1]) / 2 + w * 0.09, ...cv(k0 + 0.03)); ctx.stroke();
+   if (o.v2) { // v1.19.2: una sola silueta (masa de la mano + falanges solapadas), rellena de una vez y con sombreado interior
+    const hp = new Path2D(), yTop = Y(F[0][0] - F[0][1] * 0.45), yBot = Y(F[3][0] + F[3][1] * 0.4), xL = X(-0.5) - w * 0.07;
+    hp.moveTo(X(0.3), Y(0)); hp.lineTo(X(0.7), Y(0.2 * h)); hp.bezierCurveTo(X(0.9), Y(0.3 * h), X(0.86), Y(b - 0.02 * w), wr[0], wr[1]); hp.lineTo(wl[0], wl[1]); hp.quadraticCurveTo(X(-0.05), Y(b + 0.31 * w), X(-0.3), Y(b + 0.22 * w)); hp.quadraticCurveTo(X(-0.55), Y(b + 0.1 * w), xL + w * 0.01, yBot); hp.quadraticCurveTo(xL - w * 0.05, (yTop + yBot) / 2, xL, yTop + F[0][1] * 0.12); hp.lineTo(X(-0.2), yTop); hp.closePath();
+    F.forEach(([v, fw, L]) => { const y = Y(v), x0 = X(-0.5) - L; hp.roundRect(x0, y - fw * 0.54, X(-0.2) - x0, fw * 1.08, [fw * 0.5, 0, 0, fw * 0.5]); });
+    const g2 = ctx.createLinearGradient(X(-0.75), 0, X(0.8), 0); g2.addColorStop(0, dk); g2.addColorStop(0.18, sk); g2.addColorStop(0.3, lt); g2.addColorStop(0.6, sk); g2.addColorStop(1, dk); ctx.fillStyle = g2; ctx.fill(hp);
+    ctx.save(); ctx.clip(hp); ctx.strokeStyle = dk2; ctx.globalAlpha = 0.3; ctx.lineWidth = w * 0.06; ctx.stroke(hp); ctx.restore();
+    ctx.strokeStyle = 'rgba(60,30,15,0.4)'; ctx.lineWidth = Math.max(1.2, w * 0.01); for (let i = 0; i < 3; i++) { const y = Y((F[i][0] + F[i][1] * 0.5 + F[i + 1][0] - F[i + 1][1] * 0.5) / 2), x0 = X(-0.5) - Math.min(F[i][2], F[i + 1][2]) + w * 0.03; ctx.beginPath(); ctx.moveTo(x0, y); ctx.lineTo(X(-0.5), y); ctx.stroke(); }
+    F.forEach(([v, fw, L]) => { const kx = X(-0.5) - L * 0.42, y = Y(v); ctx.beginPath(); ctx.moveTo(kx - fw * 0.05, y - fw * 0.24); ctx.quadraticCurveTo(kx + fw * 0.04, y, kx - fw * 0.05, y + fw * 0.24); ctx.stroke(); });
+   } else {
    // palma detrás del teléfono: talón bajo el borde inferior y eminencia del pulgar fuera del borde derecho
    const g = ctx.createLinearGradient(X(-0.3), 0, X(0.7), 0); g.addColorStop(0, dk); g.addColorStop(0.55, sk); g.addColorStop(1, sk); ctx.fillStyle = g;
    ctx.beginPath(); ctx.moveTo(X(-0.4), Y(0.0)); ctx.lineTo(X(-0.42), Y(b - 0.02 * w)); ctx.quadraticCurveTo(X(-0.38), Y(b + 0.16 * w), X(-0.05), Y(b + 0.2 * w)); ctx.quadraticCurveTo(X(0.0), Y(b + 0.28 * w), wl[0], wl[1]); ctx.lineTo(wr[0], wr[1]); ctx.bezierCurveTo(X(0.86), Y(b - 0.02 * w), X(0.9), Y(0.3 * h), X(0.7), Y(0.2 * h)); ctx.lineTo(X(0.3), Y(0.0)); ctx.closePath(); ctx.fill();
@@ -2964,6 +2973,7 @@ body{margin:0;background:#14132b;color:#fff;font-family:Nunito,sans-serif} h1{fo
    F.forEach(([v, fw, L], i) => { const y = Y(v), x0 = X(-0.5) - L, x1 = X(-0.25); const gg = ctx.createLinearGradient(0, y - fw / 2, 0, y + fw / 2); gg.addColorStop(0, lt); gg.addColorStop(0.45, sk); gg.addColorStop(1, dk); ctx.fillStyle = gg; ctx.beginPath(); ctx.roundRect(x0, y - fw / 2, x1 - x0, fw, [fw * 0.42, 0, 0, fw * 0.42]); ctx.fill();
     ctx.strokeStyle = dk2; ctx.lineWidth = Math.max(1.2, w * 0.01); ctx.beginPath(); ctx.moveTo(x1, y + fw / 2); ctx.lineTo(x0 + fw * 0.35, y + fw / 2); ctx.stroke();
     ctx.strokeStyle = dk; ctx.globalAlpha = 0.6; ctx.lineWidth = Math.max(1, w * 0.007); const kx = X(-0.5) - L * 0.45; ctx.beginPath(); ctx.moveTo(kx - fw * 0.04, y - fw * 0.22); ctx.quadraticCurveTo(kx + fw * 0.03, y, kx - fw * 0.04, y + fw * 0.22); ctx.stroke(); ctx.globalAlpha = 1; });
+   }
   } else {
    // yemas de los dedos apoyadas en el frente del borde izquierdo, con uña y sombra de contacto
    F.forEach(([v, fw], i) => { const y = Y(v) + fw * 0.02, x = X(-0.5) + w * 0.02, rx = w * 0.06, ry = fw * 0.43; ctx.save(); ctx.fillStyle = 'rgba(0,0,0,0.3)'; ctx.filter = `blur(${Math.max(1, w * 0.02)}px)`; ctx.beginPath(); ctx.ellipse(x + w * 0.03, y + fw * 0.06, rx, ry, 0, 0, TAU); ctx.fill(); ctx.restore();
@@ -3188,26 +3198,34 @@ body{margin:0;background:#14132b;color:#fff;font-family:Nunito,sans-serif} h1{fo
   if (o.glow) { ctx.globalAlpha = o.glow; ctx.shadowColor = '#4BD4F1'; ctx.shadowBlur = mm * 4; ctx.strokeStyle = '#4BD4F1'; ctx.lineWidth = Math.max(2, mm * 0.2); path(); ctx.stroke(); }
   ctx.restore(); return { w, h };
  };
- // Mano (palma hacia arriba, en perspectiva) con el índice extendido en diagonal y la microSD apoyada en la yema (v1.19.1): dedo con
- // volumen (sombreado transversal), pliegues de las falanges, borde libre de la uña asomando en la punta, dedos medio/anular/meñique
- // flexionados, pulgar a un lado y la palma que sale del cuadro (nada flota). (cx, tipY) = centro de la yema; fw = ancho del dedo en px
- // (≈ 17 mm reales; la tarjeta mide 11 × 15 mm a la misma escala). o: { skin, card, cardRot, glow, ang }
- P.fingertip = (ctx, cx, tipY, fw, t, o = {}) => { const sk = o.skin || '#d29a76', dk = H.rgba(H.mix(sk, '#3a1e10', 0.32)), dk2 = H.rgba(H.mix(sk, '#3a1e10', 0.5)), lt = H.rgba(H.mix(sk, '#fff1e6', 0.3)), mm = fw / 17, an = o.ang ?? 0.42, L = fw * 4.4;
-  ctx.save(); ctx.translate(cx, tipY); ctx.rotate(an); ctx.lineJoin = 'round';
-  // palma y muñeca (hacia abajo, fuera del cuadro)
-  const gp = ctx.createLinearGradient(-fw * 1.4, 0, fw * 3.6, 0); gp.addColorStop(0, dk); gp.addColorStop(0.4, sk); gp.addColorStop(1, dk); ctx.fillStyle = gp; ctx.beginPath(); ctx.moveTo(-fw * 0.62, L * 0.9); ctx.quadraticCurveTo(-fw * 1.5, L * 1.2, -fw * 1.6, L * 1.6); ctx.lineTo(-fw * 1.2, L * 6); ctx.lineTo(fw * 4.2, L * 6); ctx.lineTo(fw * 3.9, L * 1.25); ctx.quadraticCurveTo(fw * 3.4, L * 0.92, fw * 0.6, L * 0.92); ctx.closePath(); ctx.fill();
-  ctx.strokeStyle = 'rgba(110,60,35,0.35)'; ctx.lineWidth = Math.max(1, fw * 0.02); ctx.beginPath(); ctx.moveTo(-fw * 0.9, L * 1.35); ctx.quadraticCurveTo(fw * 1.2, L * 1.12, fw * 3.4, L * 1.32); ctx.moveTo(-fw * 0.6, L * 1.55); ctx.quadraticCurveTo(fw * 0.8, L * 1.4, fw * 2.2, L * 1.7); ctx.stroke();
-  // dedos flexionados (medio, anular, meñique): nudillos y falanges dobladas sobre la palma
-  for (let k = 0; k < 3; k++) { const bx = fw * (1.05 + k * 0.95), by = L * (1.0 + k * 0.05), w2 = fw * (0.98 - k * 0.08); const gf = ctx.createLinearGradient(bx - w2 / 2, 0, bx + w2 / 2, 0); gf.addColorStop(0, dk); gf.addColorStop(0.5, lt); gf.addColorStop(1, dk); ctx.fillStyle = gf; ctx.beginPath(); ctx.roundRect(bx - w2 / 2, by - fw * 0.55, w2, fw * 1.45, w2 * 0.48); ctx.fill(); ctx.strokeStyle = dk2; ctx.lineWidth = Math.max(1, fw * 0.025); ctx.beginPath(); ctx.moveTo(bx - w2 * 0.35, by + fw * 0.25); ctx.quadraticCurveTo(bx, by + fw * 0.33, bx + w2 * 0.35, by + fw * 0.25); ctx.stroke(); }
-  // pulgar (de lado, con su uña) apoyado junto a la base del índice
-  ctx.save(); ctx.translate(-fw * 0.95, L * 1.2); ctx.rotate(0.35); const gt = ctx.createLinearGradient(-fw * 0.55, 0, fw * 0.55, 0); gt.addColorStop(0, dk); gt.addColorStop(0.55, sk); gt.addColorStop(1, dk); ctx.fillStyle = gt; ctx.beginPath(); ctx.roundRect(-fw * 0.55, -fw * 1.5, fw * 1.1, fw * 2.2, fw * 0.52); ctx.fill(); ctx.fillStyle = H.rgba(H.mix(sk, '#f6d3c6', 0.45)); ctx.beginPath(); ctx.ellipse(-fw * 0.2, -fw * 1.05, fw * 0.26, fw * 0.36, 0.2, 0, TAU); ctx.fill(); ctx.restore();
-  // índice: falanges con volumen, pliegues y borde libre de la uña en la punta
-  const gi = ctx.createLinearGradient(-fw * 0.56, 0, fw * 0.56, 0); gi.addColorStop(0, dk2); gi.addColorStop(0.22, sk); gi.addColorStop(0.55, lt); gi.addColorStop(0.85, sk); gi.addColorStop(1, dk2); ctx.fillStyle = gi; ctx.beginPath(); ctx.moveTo(-fw * 0.5, fw * 0.45); ctx.bezierCurveTo(-fw * 0.52, -fw * 0.2, fw * 0.52, -fw * 0.2, fw * 0.5, fw * 0.45); ctx.lineTo(fw * 0.6, L); ctx.lineTo(-fw * 0.62, L); ctx.closePath(); ctx.fill();
-  ctx.fillStyle = H.rgba(H.mix(sk, '#f6d3c6', 0.55)); ctx.beginPath(); ctx.ellipse(0, -fw * 0.02, fw * 0.32, fw * 0.07, 0, Math.PI, TAU); ctx.fill();
-  ctx.fillStyle = 'rgba(255,190,170,0.18)'; ctx.beginPath(); ctx.ellipse(0, fw * 0.55, fw * 0.36, fw * 0.5, 0, 0, TAU); ctx.fill();
-  ctx.strokeStyle = dk2; ctx.lineWidth = Math.max(1, fw * 0.022); for (const yy of [1.45, 1.6, 2.85, 3.0]) { ctx.beginPath(); ctx.moveTo(-fw * 0.42, fw * yy); ctx.quadraticCurveTo(0, fw * (yy + 0.08), fw * 0.42, fw * yy); ctx.stroke(); }
+ // Mano con la palma hacia arriba en perspectiva, índice extendido y la microSD apoyada en la yema (v1.19.2): UNA SOLA SILUETA continua
+ // (índice + palma + nudillos de los dedos flexionados + pulgar) rellenada de una vez —sin costuras entre piezas—, con volumen por
+ // sombreado interior, pliegues de las falanges, uña visible solo como un filo dentro de la punta y la palma que sale del cuadro.
+ // (cx, tipY) = centro de la yema; fw = ancho del dedo en px (≈ 17 mm; la tarjeta mide 11 × 15 mm a la misma escala). o: { skin, card, cardRot, glow, ang }
+ let HAND_RIM = null;
+ P.fingertip = (ctx, cx, tipY, fw, t, o = {}) => { const sk = o.skin || '#d29a76', dk = H.rgba(H.mix(sk, '#3a1e10', 0.3)), dk2 = H.rgba(H.mix(sk, '#3a1e10', 0.5)), lt = H.rgba(H.mix(sk, '#fff1e6', 0.3)), mm = fw / 17, an = o.ang ?? 0.42, L = fw * 4.4;
+  const hp = new Path2D();
+  // índice (punta redondeada → base dentro de la palma)
+  hp.moveTo(-fw * 0.5, fw * 0.5); hp.bezierCurveTo(-fw * 0.52, -fw * 0.16, fw * 0.52, -fw * 0.16, fw * 0.5, fw * 0.5); hp.lineTo(fw * 0.6, L * 1.02); hp.lineTo(-fw * 0.62, L * 1.02); hp.closePath();
+  // palma y muñeca (salen del cuadro), con el borde superior a la altura de los nudillos
+  hp.moveTo(-fw * 0.6, L * 0.95); hp.lineTo(fw * 2.9, L * 0.95); hp.quadraticCurveTo(fw * 3.7, L * 0.98, fw * 4.0, L * 1.3); hp.lineTo(fw * 4.3, L * 6); hp.lineTo(-fw * 1.3, L * 6); hp.lineTo(-fw * 1.55, L * 1.5); hp.quadraticCurveTo(-fw * 1.35, L * 1.12, -fw * 0.6, L * 0.95); hp.closePath();
+  // dedos flexionados: nudillos y falanges dobladas, solapados entre sí y con la palma
+  for (let k = 0; k < 3; k++) { const bx = fw * (1.08 + k * 0.92), by = L * (0.93 + k * 0.035), w2 = fw * (1.02 - k * 0.07); hp.roundRect(bx - w2 / 2, by - fw * 0.52, w2, fw * 1.7, w2 * 0.5); }
+  // pulgar: nace de la palma (su base queda dentro) y descansa a lo largo, hacia el índice
+  const th = new Path2D(); th.roundRect(-fw * 0.55, -fw * 1.55, fw * 1.1, fw * 2.6, fw * 0.54); const mT = new DOMMatrix().translate(-fw * 0.98, L * 1.22).rotate(20); hp.addPath(th, mT);
+  ctx.save(); ctx.translate(cx, tipY); ctx.rotate(an);
+  const g = ctx.createLinearGradient(-fw * 1.6, 0, fw * 3.8, 0); g.addColorStop(0, dk); g.addColorStop(0.24, sk); g.addColorStop(0.32, lt); g.addColorStop(0.5, sk); g.addColorStop(1, dk); ctx.fillStyle = g; ctx.fill(hp);
+  { const Lr = HAND_RIM || (HAND_RIM = H.layer(W, HH)), c2 = Lr.getContext('2d'), M = ctx.getTransform(); c2.setTransform(1, 0, 0, 1, 0, 0); c2.globalCompositeOperation = 'source-over'; c2.clearRect(0, 0, W, HH); c2.fillStyle = dk2; c2.fillRect(0, 0, W, HH); c2.globalCompositeOperation = 'destination-out'; c2.setTransform(M); c2.fill(hp); c2.globalCompositeOperation = 'source-over'; c2.setTransform(1, 0, 0, 1, 0, 0); const sc = Math.hypot(M.a, M.b); ctx.save(); ctx.clip(hp); ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.globalAlpha *= 0.55; ctx.filter = `blur(${Math.max(1, fw * 0.1 * sc)}px)`; ctx.drawImage(Lr, 0, 0); ctx.restore(); }
+  ctx.save(); ctx.clip(hp); ctx.globalAlpha = 0.1; ctx.filter = `blur(${Math.max(1, fw * 0.15)}px)`; ctx.fillStyle = '#3a1e10'; ctx.beginPath(); ctx.ellipse(fw * 1.9, L * 1.12, fw * 2.0, fw * 0.3, 0, 0, TAU); ctx.fill(); ctx.restore();
+  ctx.strokeStyle = 'rgba(60,30,15,0.35)'; ctx.lineWidth = Math.max(1, fw * 0.02); ctx.lineCap = 'round';
+  for (let k = 0; k < 3; k++) { const bx = fw * (1.08 + k * 0.92), by = L * (0.93 + k * 0.035), w2 = fw * (1.02 - k * 0.07); ctx.beginPath(); ctx.moveTo(bx - w2 * 0.32, by + fw * 0.5); ctx.quadraticCurveTo(bx, by + fw * 0.58, bx + w2 * 0.32, by + fw * 0.5); ctx.stroke(); if (k < 2) { ctx.beginPath(); ctx.moveTo(bx + w2 * 0.5, by - fw * 0.3); ctx.lineTo(bx + w2 * 0.5, by + fw * 0.35); ctx.stroke(); } }
+  ctx.beginPath(); ctx.moveTo(fw * 0.62, L * 0.98); ctx.lineTo(fw * 0.62, L * 1.2); ctx.stroke();
+  for (const yy of [1.45, 1.58, 2.85, 2.98]) { ctx.beginPath(); ctx.moveTo(-fw * 0.4, fw * yy); ctx.quadraticCurveTo(0, fw * (yy + 0.07), fw * 0.4, fw * yy); ctx.stroke(); }
+  ctx.beginPath(); ctx.moveTo(-fw * 0.9, L * 1.42); ctx.quadraticCurveTo(fw * 1.2, L * 1.18, fw * 3.5, L * 1.36); ctx.stroke();
+  ctx.save(); ctx.translate(-fw * 0.98, L * 1.22); ctx.rotate(20 * Math.PI / 180); ctx.beginPath(); ctx.moveTo(-fw * 0.42, fw * 0.1); ctx.quadraticCurveTo(0, fw * 0.18, fw * 0.42, fw * 0.1); ctx.stroke(); ctx.globalAlpha = 0.55; ctx.fillStyle = H.rgba(H.mix(sk, '#f6d3c6', 0.4)); ctx.beginPath(); ctx.ellipse(-fw * 0.12, -fw * 1.18, fw * 0.17, fw * 0.24, 0.1, 0, TAU); ctx.fill(); ctx.globalAlpha = 1; ctx.restore();
+  // uña: solo un filo claro dentro de la punta (vista desde la palma) + brillo de la yema
+  ctx.save(); ctx.clip(hp); ctx.strokeStyle = H.rgba(H.mix(sk, '#f8ddd2', 0.6)); ctx.lineWidth = fw * 0.07; ctx.beginPath(); ctx.ellipse(0, fw * 0.36, fw * 0.43, fw * 0.43, 0, Math.PI * 1.15, Math.PI * 1.85); ctx.stroke(); ctx.fillStyle = 'rgba(255,200,180,0.18)'; ctx.beginPath(); ctx.ellipse(0, fw * 0.62, fw * 0.34, fw * 0.48, 0, 0, TAU); ctx.fill(); ctx.restore();
   ctx.restore();
-  // tarjeta apoyada en la yema (sin girar con la mano) con sombra de contacto
   let card = null; if (o.card !== false) { const c0 = [cx - Math.sin(an) * fw * 0.62, tipY + Math.cos(an) * fw * 0.62]; ctx.save(); ctx.fillStyle = 'rgba(60,25,10,0.4)'; ctx.filter = `blur(${Math.max(1, mm * 0.7)}px)`; ctx.beginPath(); ctx.ellipse(c0[0] + mm * 0.6, c0[1] + mm * 0.8, mm * 5.8, mm * 7.8, an + (o.cardRot ?? -0.1), 0, TAU); ctx.fill(); ctx.restore(); P.microSD(ctx, c0[0], c0[1], mm, { rot: an + (o.cardRot ?? -0.1), glow: o.glow }); card = c0; }
   return { card, mm };
  };

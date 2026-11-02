@@ -36,3 +36,16 @@ Ruta: `ASOMBROTECA_RAMAC_PROYECTO/07_OUTPUT/ASOMBROTECA_PRIMER_DISCO_DURO_FINAL.
 ## Pendiente (no verificable aquí)
 - Licencias y autorías de las fotos según el encargo (Commons no está accesible desde la sesión).
 - La foto 4 adjunta muestra una microSD de 32 GB con marca, no la de 4 GB descrita. Ver `FUENTES_Y_DECISIONES.md`.
+
+## V3 (2026-11-02): manos corregidas
+Pedido: «las manos y dedos están como separados de la mano o cortados». Solo se cambió eso.
+- **Mano de la microSD** (0–5 s, 80–81 s, lupa de 82–83 s): ahora es una sola silueta continua (índice, palma, nudillos de los dedos doblados y pulgar) sin costuras ni piezas sueltas. La uña es un filo dentro de la punta.
+- **Mano del teléfono** (38–44 s): los dedos salen de la masa de la mano (`handHold` con `v2`).
+- **Sin cambios:** audio (mismas pistas y misma mezcla), resto de escenas y episodio de Tesla (mismos hashes en sus escenas con mano).
+- **QC V3:**
+  - 94,884 s, 2846 fotogramas, 73,1 MB, H.264 + AAC;
+  - 0 errores de decodificación, 0 negros, 0 congelados, 0 silencios;
+  - −14,0 LUFS, pico −1,4 dBTP;
+  - md5 de la voz sin cambios.
+- **Revisión visual:** `manos_escenas.jpg` (todas las escenas con manos) y `movimiento_manos_t0.2.jpg`.
+- **Respaldo:** la V2 está en `07_OUTPUT/V2/`, `07_QC/V2/` y `04_CODIGO/V2/`.

@@ -157,6 +157,13 @@ La piel se elige con `skin: 'plana' | 'oscura'` en `PLANTILLA.make`. Los bloques
 | `laborer`, `porter`, `oxcart`, `packAnimal` | Trabajador con ropa y sombrero variados; porteador con pértiga y dos cestas; carro de dos ruedas con buey y ruedas que giran; mula con alforjas. Cargas: `tierra`, `piedra` o `ladrillos` |
 | `dust(ctx, x, y, t, t0, {s})` | Nube de polvo determinista |
 
+**v1.19.2 · manos coherentes:**
+
+| Bloque | Uso |
+|---|---|
+| `fingertip` (rehecho) | Una sola silueta continua (índice + palma + nudillos + pulgar) rellena de una vez, con sombreado solo en el borde exterior. Pliegues, nudillos y uña siempre DENTRO de la silueta |
+| `handHold(..., { v2: true })` | Mano que sostiene el teléfono con la masa de la mano y las falanges en una sola silueta (los dedos salen del dorso). Recomendado para episodios nuevos; sin `v2`, el dibujo es el de v1.18.1 |
+
 **v1.19.1 · corrección final del episodio del primer disco duro (fotos documentales, IBM 350 rediseñado):**
 
 | Bloque | Uso |
