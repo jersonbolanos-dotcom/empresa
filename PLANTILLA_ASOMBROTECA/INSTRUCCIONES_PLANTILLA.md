@@ -209,6 +209,21 @@ La piel se elige con `skin: 'plana' | 'oscura'` en `PLANTILLA.make`. Los bloques
 | `eagleLM(ctx, x, y, s, t, {legs, thrust})` · `csm(ctx, x, y, s, ang)` | Módulo lunar Eagle y módulo de mando y servicio |
 | `accelCompare(ctx, x, y, w, h, u, t, {labels})` | Velocidad–tiempo cualitativo: cañón «de golpe» frente a cohete «varios minutos», con aceleración no constante. Sin cifras |
 
+**v1.22.1 · bloques añadidos / versiones 2:**
+
+| Bloque | Uso |
+|---|---|
+| `vCapsule3(ctx, cam, pos, t, {rot, L})` · `vCapsuleAt(ctx, x, y, hpx, ang, t, {az, el, rot})` · `P.VC` | Proyectil maestro de Verne (ficción). Usar SIEMPRE el mismo modelo en todas las escenas (`vCapsuleAt` para iconos 2D, trayectorias y planos lejanos) |
+| `earth3(ctx, cx, cy, r, t, {rot, light, tilt})` · `moon3(ctx, cx, cy, r, t, {rot, light, glow, res})` | Tierra con continentes reales, nubes y atmósfera; Luna con mares y cráteres sombreados. Etiquetar «ESQUEMA · NO A ESCALA» cuando se exagere el tamaño |
+| `florida1865(ctx, cam, t, {sky, seed, palms})` · `capsuleCradle(ctx, cam, t)` → top | Entorno de Florida en 1865 con profundidad y cuna de madera con sombra de contacto (apoyar el proyectil en `[0, top, 0]`) |
+| `traveler1865(ctx, x, y, h, t, {var, pose, dir, ph})` v2 | 3 viajeros distintos (`var` 0–2) y poses `stand, walk, point, wave, hat, talk` |
+| `columbiadSection(…, {p, v, acc, flash, gas})` v2 | Corte del cañón con mampostería, tubo con bridas, cámara de carga y gases; devuelve `{cap, mouth, bottom, vArrow, aArrow, charge}` |
+| `accelLanes(ctx, x, y, w, h, u, t)` | Carriles cañón (tramo corto) vs Saturno V (S-IC/S-II/S-IVB) y filas VELOCIDAD / ACELERACIÓN separadas; cualitativo, sin cifras |
+| `floridaMap(ctx, cx, cy, w, t, {era, pins:[{id, lon, lat, col, glow, a}]})` → `{pr, pins}` | Mapa de Florida con escala y norte; distinguir lugares ficticios (Stone's Hill) de reales (Cabo Kennedy 39A) |
+| `saturnV3` v2 · `pad39A(…, {arms})` v2 · `eagleLM` v2 · `astronaut(ctx, x, y, h, t, {dir, walk, step})` | Tecnología real del s. XX: marcas, etapas, LES, brazos de servicio, módulo lunar con etapas de descenso/ascenso |
+| `lunarPath(ctx, mode, earth, moon, u, t, {lm, col, lw})` v2 → `{pos, ang, landing}` | Trayectorias suaves; `lm: true` añade la rama de alunizaje del Apolo |
+| `floatPhoto(…, {credit})` | Línea de crédito discreta bajo la etiqueta |
+
 FX v1.22: `canonazo(k, t, g)` (en la atmósfera) y `saturno(k, t, d, g)` (despegue en tierra). En el vacío no se usan explosiones.
 
 FX v1.20: `hieloCrujir`, `pico`, `bloque` y `escarcha`. Música: `MUS.persa(k, t0, t1, {bpm, root, santur, daf, drone, mode})` (original, de inspiración persa: santur pulsado sobre un modo de tipo Homayun, bordón y daf).

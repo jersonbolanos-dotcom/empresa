@@ -26,3 +26,7 @@
    ```
    libx264 -crf 20 -maxrate 8.5M -bufsize 17M · AAC 192k
    ```
+
+## Versión final (corrección cinematográfica)
+- Final: `07_OUTPUT/ASOMBROTECA_JULIO_VERNE_LUNA_FINAL.mp4` (90,73 s, −14,1 LUFS). V1 en `07_OUTPUT/V1/`, código V1 en `04_CODIGO/V1/`, audio V1 en `05_AUDIO/V1/`, QC V1 en `07_QC/V1/`.
+- Plantilla v1.22.1 (ver `PLANTILLA_ASOMBROTECA/CAMBIOS_PLANTILLA.md`).

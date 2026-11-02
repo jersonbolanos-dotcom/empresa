@@ -58,3 +58,13 @@ Transcripción local (Whisper) corregida en `03_GUION/tramos.txt`:
 ## Música y efectos (originales)
 - **Música:** `MUS.piano` (1865, misterio), `MUS.pulso` (cañón y tensión), `MUS.epica` (asombro y 1969, con tambores en el despegue), piano emotivo en la Luna y resolución épica suave. Sin obras protegidas.
 - **Efectos nuevos de la plantilla:** `FX.canonazo` (en la atmósfera) y `FX.saturno` (en tierra). En el espacio no hay explosiones; solo música y texturas no diegéticas.
+
+## Corrección cinematográfica (V2 · `ASOMBROTECA_JULIO_VERNE_LUNA_FINAL.mp4`)
+- Proyectil: modelo único `P.vCapsule3`/`P.vCapsuleAt` en todas las escenas; metal remachado con portillas de bronce, sin motores, alas ni antenas (la novela describe un proyectil de aluminio disparado por cañón).
+- Stone's Hill: lugar FICTICIO de la novela, cerca de Tampa (Florida). Se marca sin coordenadas en pantalla y rotulado «ficción».
+- Cabo Kennedy · Complejo 39A: lugar REAL del lanzamiento del Apolo 11 (16 jul 1969; en 1963–1973 el cabo se llamó Cabo Kennedy). Marca aproximada, sin coordenadas en pantalla.
+- Aceleración: comparación cualitativa (cañón: recorrido corto ⇒ aceleración extrema; Saturno V: varios minutos por etapas, aceleración no constante). Sin cifras de g ni velocidades.
+- Eagle (módulo lunar) distinto de Columbia (módulo de mando): Armstrong y Aldrin en la superficie, Collins en órbita lunar.
+- Trayectorias: esquemas no a escala; la novela «De la Tierra a la Luna» (1865) continúa en «Alrededor de la Luna» (1870), donde los viajeros rodean la Luna sin alunizar.
+- Créditos en pantalla: Atelier Nadar · Paris Musées (CC0); Henri de Montaut · dominio público; NASA; NASA · KSC-69PC-442; NASA · AS11-40-5869.
+- Revisión del audio: no se detectaron errores históricos en la narración.

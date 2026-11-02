@@ -1,53 +1,28 @@
-# QC · Episodio 04 · `07_OUTPUT/ASOMBROTECA_04_JULIO_VERNE_FINAL.mp4` (2026-11-02)
+# QC · ASOMBROTECA_JULIO_VERNE_LUNA_FINAL.mp4 (corrección cinematográfica, V2)
 
-Solo se marca como superado lo que se ha probado.
+Archivo: `07_OUTPUT/ASOMBROTECA_JULIO_VERNE_LUNA_FINAL.mp4` · versión anterior en `07_OUTPUT/V1/`.
 
-## Pruebas técnicas — `qc_tecnico.txt`
-| Prueba | Resultado |
+## Técnico (`qc_tecnico.txt`)
+| Comprobación | Resultado |
 |---|---|
-| ffprobe | H.264 High 1080×1920 · 30/1 constante · 2722 fotogramas · AAC LC 48 kHz estéreo · 90,73 s · 59,7 MB |
+| Vídeo | H.264, 1080×1920, 30 fps, 2722 fotogramas |
+| Audio | AAC 48 kHz estéreo, 192 kb/s |
+| Duración / tamaño | 90,73 s · 60,1 MB (< 100 MB) |
 | Decodificación completa | 0 errores |
-| blackdetect / freezedetect / silencedetect | 0 / 0 / 0 |
-| ebur128 | −14,1 LUFS · LRA 2,4 LU · pico −1,6 dB |
-| md5 de la voz | `db27223bfaa6acbed5f489dc889453b7`, idéntico al original. Voz completa: duración del vídeo = voz + 1 s de cierre |
-| Determinismo | 2 cargas en orden distinto: mismos md5 de fotograma |
-| Retrocompatibilidad | La plantilla solo AÑADE bloques v1.22 y 2 efectos. Ningún bloque existente cambia y se comprobó antes que los nombres no existían |
+| blackdetect (0,3 s) / freezedetect (1,5 s) / silencedetect (−50 dB, 1 s) | sin incidencias |
+| Sonoridad | −14,1 LUFS integrados · pico verdadero −1,8 dBTP · LRA 2,4 LU |
+| Voz | md5 `db27223bfaa6acbed5f489dc889453b7` (sin cambios; reloj maestro) |
+| Determinismo | `hash.js`: fotogramas idénticos entre ejecuciones |
 
-## Revisión visual
-- **Antes del render:** 3 rondas de fotogramas de prueba (33 + 12 + 2 + 6).
-- **Hoja del MP4:** `hoja_contacto_mp4.jpg`, 26 fotogramas.
-- **Tiras de movimiento del MP4** (5 fps, `movimiento_t*.jpg`): gancho, grabado, foto de Verne, grabado de Montaut, cañón, aceleración, foto de la tripulación, despegue, foto del Saturno V, comparación, trayectorias, foto de Aldrin, ficción/realidad y cierre.
+## Revisión visual (hoja `hoja_contacto_final.jpg` + tiras de movimiento en `movimiento/`)
+| Tramo | Revisión |
+|---|---|
+| 0–6 s gancho | Tierra con continentes, nubes y terminador; proyectil metálico (ojiva, remaches, portillas con vidrio) entra, gira y la cámara se acerca; Luna como destino; «FICCIÓN DE JULIO VERNE · 1865»; transición a grabado |
+| 6–21 s 1865 | Florida con profundidad, cuna de madera con sombra de contacto, 3 viajeros distintos con gestos; Verne con foto legible + crédito; grabado como tarjeta «GRABADO HISTÓRICO» con crédito, sin tapar el proyectil |
+| 21–41 s cañón | Excavación, tubo, carga, proyectil (mismo modelo), gases sin explosión fantástica; panel velocidad ≠ aceleración sin cifras |
+| 42–52 s mapa | Florida con escala de 100 km y norte; Stone's Hill rotulado como ficción (novela); 3 viajeros y trayecto |
+| 52–68 s Saturno V | Mapa 1969: Cabo Kennedy · Complejo 39A (real) frente a Stone's Hill (ficticio); torre con brazos, Saturno V apoyado; foto NASA con crédito; despegue con penacho que no tapa el cohete; carriles cañón/cohete |
+| 69–80 s trayectorias y Eagle | Curvas suaves Tierra–Luna, Apolo (órbita + alunizaje) vs novela (rodear, «Alrededor de la Luna», 1870), «ESQUEMA · NO A ESCALA»; Eagle con etapas, patas, antenas; Armstrong y Aldrin en superficie; Collins en órbita (Columbia) |
+| 80–91 s cierre | Luna con relieve, Tierra lejana, trayecto tenue, ASOMBROTECA discreto al final |
 
-**Corregido tras la revisión:**
-- La Tierra salía pixelada; ahora se renderiza a mayor resolución.
-- Varias cámaras quedaban demasiado lejos: viajeros, cañón y Saturno V.
-- Había un libro duplicado.
-- Una etiqueta se cortaba en el borde.
-- Los textos de «FLORIDA · 3 VIAJEROS · LUNA» estaban mal espaciados.
-- El grabado tapaba la cápsula; ahora va a la derecha.
-- La foto de la tripulación cubría el cohete; el cohete se desplazó a la izquierda.
-- El gancho era casi estático; ahora hay órbita y una Tierra que se aleja.
-- La comparación final de ficción frente a realidad salía pobre.
-- El rugido del despegue tapaba la voz; se bajó.
-
-## Fotografías (comprobado en los fotogramas)
-| # | Archivo | Momento | Etiqueta | Verificado |
-|---|---|---|---|---|
-| 1 | Julio Verne | Al nombrarlo | «JULIO VERNE · escritor francés (1828–1905)» | No se data en 1865 |
-| 2 | Grabado de Montaut | «cápsula metálica» | «ILUSTRACIÓN HISTÓRICA · 1868 · Henri de Montaut · ficción» | Junto al modelo, sin taparlo |
-| 3 | Tripulación | «Armstrong, Aldrin y Collins» | «ARMSTRONG · COLLINS · ALDRIN» | Coincide con el orden de la foto |
-| 4 | Saturno V | «Saturno V» | «LANZAMIENTO REAL · 16 de julio de 1969» | — |
-| 5 | Aldrin en la Luna | Alunizaje del Eagle | «BUZZ ALDRIN EN LA LUNA · junto al Eagle» | No se etiqueta como Armstrong |
-
-En todas:
-- tamaño entre el 35 % y el 54 % del ancho;
-- entre 1,9 y 2,7 s en pantalla;
-- entrada lateral con perspectiva y salida suave;
-- por encima de la franja de subtítulos.
-
-## Limitaciones
-- **Figuras simplificadas:** el escritor del estudio y los viajeros son figuras genéricas e ilustrativas, no retratos.
-- **Tierra estilizada:** los continentes no reproducen la geografía real.
-- **Saturno V y torre:** son modelos simplificados; la torre es de celosía esquemática.
-- **Separación de etapas:** no se representa; la narración no la menciona.
-- **Fuentes en línea:** no se pudieron consultar desde la sesión.
+Subtítulos `barra`, `capY 1540`; ninguna nota ni foto invade la franja de subtítulos.
