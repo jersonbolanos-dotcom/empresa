@@ -1,0 +1,24 @@
+== ffprobe
+codec_name=h264
+width=1080
+height=1920
+r_frame_rate=30/1
+nb_frames=2662
+codec_name=aac
+sample_rate=48000
+channels=2
+r_frame_rate=0/0
+nb_frames=4160
+duration=88.733333
+size=64489045
+== decode errors
+0
+== blackdetect
+== freezedetect
+== silencedetect
+== ebur128
+    I:         -14.1 LUFS
+    LRA:         2.5 LU
+    Peak:       -1.8 dBFS
+== md5 voz (original subido: 54a6b7b9684b8dee63da881aaf9de058)
+54a6b7b9684b8dee63da881aaf9de058  01_ENTRADA/audio/voz_original_tarjetas_perforadas.mp3

@@ -1,0 +1,25 @@
+ASOMBROTECA STUDIO — VIDEO 05 — TARJETAS PERFORADAS
+
+ESTE PAQUETE ES UN DESCARGADOR, NO CONTIENE FOTOGRAFIAS INCRUSTADAS.
+Fue imposible recuperar los archivos originales desde este entorno.
+
+PASOS EN WINDOWS
+1. Descomprime el ZIP.
+2. Haz clic derecho sobre DESCARGAR_IMAGENES.ps1 y ejecútalo con PowerShell.
+   Alternativa desde terminal VS Code: powershell -ExecutionPolicy Bypass -File .\DESCARGAR_IMAGENES.ps1
+   Alternativa Python: python descargar_imagenes.py
+3. Comprueba que la carpeta 'referencias_originales' tenga tres JPG reales.
+4. Entrega la carpeta a Claude Code con el superprompt.
+5. Si falla la descarga, abre los enlaces de MANIFIESTO_IMAGENES.json y descarga cada archivo manualmente.
+
+MOMENTOS DE USO
+01: Durante explicacion de tarjeta y agujeros; tarjeta real con texto y agujeros FORTRAN.
+02: Cuando se habla de preparar e introducir tarjetas; perforadora IBM 026 es de mediados del siglo XX, NO del censo de 1890.
+03: Cuando aparece 1890 y Hollerith; grabado de Scientific American de agosto 1890 (no una fotografia).
+
+DERECHOS Y CREDITOS
+01 Harke — CC BY-SA 3.0. Atribucion, enlace licencia e indicar cambios.
+02 Ben Franske — CC BY-SA 4.0. Atribucion, enlace licencia e indicar cambios.
+03 Scientific American 1890; autor del grabado no identificado. Dominio publico en EEUU; revisa otras jurisdicciones.
+Incluye atribuciones pertinentes en la descripcion del video; evalua requisitos de ShareAlike en caso de adaptar fotografias.
+No se afirma que las imagenes ya esten descargadas.

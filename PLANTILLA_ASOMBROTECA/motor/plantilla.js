@@ -4080,6 +4080,220 @@
   if (mode === 'apollo' && o.lm && u >= 1) { const a = dir + Math.PI * 1.1, p1 = [mx + Math.cos(a) * mr * 1.45, my + Math.sin(a) * mr * 1.45], p2 = [mx + Math.cos(a) * mr * 1.0, my + Math.sin(a) * mr * 1.0]; ctx.strokeStyle = '#FFD447'; ctx.lineWidth = 4; ctx.setLineDash([6, 6]); ctx.beginPath(); ctx.moveTo(p1[0], p1[1]); ctx.lineTo(p2[0], p2[1]); ctx.stroke(); ctx.setLineDash([]); ctx.fillStyle = '#FFD447'; ctx.beginPath(); ctx.arc(p2[0], p2[1], 7, 0, TAU); ctx.fill(); }
   const cur = pts[n], prv = pts[Math.max(0, n - 2)]; ctx.restore(); return { pos: cur, ang: Math.atan2(cur[1] - prv[1], cur[0] - prv[0]), landing: mode === 'apollo' ? [mx + Math.cos(dir + Math.PI * 1.1) * mr, my + Math.sin(dir + Math.PI * 1.1) * mr] : null };
  };
+ // ---------------- v1.23 · TARJETAS PERFORADAS (IBM de 80 columnas, 1928 → · Hollerith, censo de 1890) ----------------
+ // Unidades 3D en MILÍMETROS. Tarjeta IBM (IBM Heritage: «7⅜ × 3¼ in, 80 columnas, 12 filas, agujeros rectangulares»): 187,3 × 82,6 mm,
+ // grosor ≈ 0,18 mm, paso de columna 0,087 in, paso de fila 0,25 in; filas de arriba abajo 12, 11, 0, 1 … 9; agujero 1,40 × 3,18 mm.
+ // Los agujeros son HUECOS REALES (relleno evenodd): se ve lo que hay detrás y la pared del agujero (grosor) en planos macro.
+ // Formato 'h1890' (tarjeta de Hollerith, censo de 1890): más corta, agujeros REDONDOS y sin impresión; otro formato, otra época.
+ const CARDF = {
+  ibm: { w: 187.325, h: 82.55, th: 0.178, cols: 80, rows: 12, c0: 6.375, dc: 2.2098, r0: 6.35, dr: 6.35, hw: 1.397, hh: 3.175, round: false, col: '#E4D7BA', ink: '#8c5a4e', cut: [6.4, 3.6] },
+  h1890: { w: 168.3, h: 82.55, th: 0.25, cols: 24, rows: 12, c0: 8.2, dc: 6.62, r0: 6.35, dr: 6.35, hw: 3.4, hh: 3.4, round: true, col: '#D8C5A3', ink: '#7a6448', cut: [7, 5] },
+ };
+ P.CARDF = CARDF;
+ const CROWS = [12, 11, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
+ P.CROWS = CROWS;
+ // Código de tarjeta (caracteres comunes a las perforadoras IBM 026 y 029): dígito = UNA perforación en su fila;
+ // A–I = 12 + 1…9 · J–R = 11 + 1…9 · S–Z = 0 + 2…9 (combinación «zona + dígito» en la MISMA columna). Devuelve filas perforadas.
+ P.cardCode = (ch) => { ch = (ch || ' ').toUpperCase(); const c = ch.charCodeAt(0); if (ch >= '0' && ch <= '9') return [+ch]; if (ch >= 'A' && ch <= 'I') return [12, c - 64]; if (ch >= 'J' && ch <= 'R') return [11, c - 73]; if (ch >= 'S' && ch <= 'Z') return [0, c - 81]; return ({ ' ': [], ',': [0, 3, 8], '.': [12, 3, 8], '-': [11], '/': [0, 1], '*': [11, 4, 8], '$': [11, 3, 8] })[ch] || []; };
+ // línea de 80 caracteres → lista de perforaciones [[columna (1–80), fila], …]; o.n = columnas ya perforadas (animación)
+ P.cardHoles = (s, o = {}) => { const out = [], n = o.n ?? 80; for (let i = 0; i < Math.min(80, n); i++) for (const r of P.cardCode(s[i] || ' ')) out.push([i + 1, r]); return out; };
+ const cv3 = { crs: (a, b) => [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]], dot: (a, b) => a[0] * b[0] + a[1] * b[1] + a[2] * b[2], nrm: (a) => { const l = Math.hypot(a[0], a[1], a[2]) || 1; return [a[0] / l, a[1] / l, a[2] / l]; } };
+ const crX = (v, a) => { const c = Math.cos(a), s = Math.sin(a); return [v[0], v[1] * c - v[2] * s, v[1] * s + v[2] * c]; };
+ const crY = (v, a) => { const c = Math.cos(a), s = Math.sin(a); return [v[0] * c + v[2] * s, v[1], -v[0] * s + v[2] * c]; };
+ const crZ = (v, a) => { const c = Math.cos(a), s = Math.sin(a); return [v[0] * c - v[1] * s, v[0] * s + v[1] * c, v[2]]; };
+ P.cardRot = (v, o = {}) => crY(crX(crZ(v, o.roll || 0), o.pitch || 0), o.yaw || 0);
+ // Marco de una tarjeta centrada en c. Sin giros: vertical, cara hacia +z. pitch = -π/2 → tumbada boca arriba (cara hacia +y).
+ P.cardFrame = (c, o = {}) => { const fmt = o.fmt || 'ibm', F = CARDF[fmt], ex = P.cardRot([1, 0, 0], o), ey = P.cardRot([0, -1, 0], o); return { fmt, ex, ey, o: [0, 1, 2].map((i) => c[i] - ex[i] * F.w / 2 - ey[i] * F.h / 2) }; };
+ P.cardNormal = (cd) => cv3.nrm(cv3.crs(cd.ey, cd.ex));
+ P.cardPt = (cd, u, v, d = 0) => { const n = P.cardNormal(cd); return [0, 1, 2].map((i) => cd.o[i] + cd.ex[i] * u + cd.ey[i] * v + n[i] * d); };
+ // centro (u, v) en mm de una posición: IBM → (columna 1–80, fila 12/11/0–9); 1890 → (columna 1–24, índice de fila 0–11)
+ P.holeUV = (fmt, c, r) => { const F = CARDF[fmt || 'ibm'], i = fmt === 'h1890' ? r : CROWS.indexOf(r); return [F.c0 + (c - 1) * F.dc, F.r0 + i * F.dr]; };
+ // Dibuja la tarjeta. cd = cardFrame(...) + { holes: [[c, r], …], text (impresión superior, como la perforadora impresora), seq }.
+ // o: { print (dígitos y campos FORTRAN), textN (caracteres impresos visibles), hl: [{c, r, col, a, fill}], band: {c, a, col},
+ //      L (luz), thk (exageración del grosor en macro), col, alpha }. Devuelve { front, F, proj, s (px por mm) } o null.
+ P.punchCard3 = (ctx, cam, cd, t, o = {}) => {
+  const fmt = cd.fmt || 'ibm', F = CARDF[fmt], n = P.cardNormal(cd), holes = o.holes || cd.holes || [], thk = F.th * (o.thk ?? 1);
+  const proj = (u, v, d = 0) => cam.pr(P.cardPt(cd, u, v, d)), cen = P.cardPt(cd, F.w / 2, F.h / 2), front = faceVis(cam, n, cen);
+  const out = [[F.cut[0], 0], [F.w, 0], [F.w, F.h], [0, F.h], [0, F.cut[1]]];
+  for (const [u, v] of out) if (proj(u, v)[2] < 2) return null;
+  const c0 = proj(F.w / 2, F.h / 2), c1 = proj(F.w / 2 + 1, F.h / 2), s = Math.hypot(c1[0] - c0[0], c1[1] - c0[1]);
+  if (c0[0] < -2 * s * F.w - 400 || c0[0] > W + 2 * s * F.w + 400 || c0[1] < -2 * s * F.w - 400 || c0[1] > HH + 2 * s * F.w + 400) return null;
+  const path = (d) => { ctx.beginPath(); out.forEach(([u, v], i) => { const p = proj(u, v, d); i ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1]); }); ctx.closePath();
+   if (s * F.hw < 0.35) return; for (const [c, r] of holes) { const [hu, hv] = P.holeUV(fmt, c, r);
+    if (F.round) { for (let k = 0; k <= 10; k++) { const q = (k / 10) * TAU, p = proj(hu + Math.cos(q) * F.hw / 2, hv - Math.sin(q) * F.hh / 2, d); k ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1]); } ctx.closePath(); }
+    else { const a = proj(hu - F.hw / 2, hv - F.hh / 2, d), b = proj(hu + F.hw / 2, hv - F.hh / 2, d), c2 = proj(hu + F.hw / 2, hv + F.hh / 2, d), e = proj(hu - F.hw / 2, hv + F.hh / 2, d); ctx.moveTo(a[0], a[1]); ctx.lineTo(b[0], b[1]); ctx.lineTo(c2[0], c2[1]); ctx.lineTo(e[0], e[1]); ctx.closePath(); } } };
+  const L = cv3.nrm(o.L || [-0.45, 0.55, 0.7]), lam = Math.abs(cv3.dot(n, L)), base = o.col || F.col, k = 0.7 + 0.34 * lam;
+  const near = front ? 0 : -thk, far = front ? -thk : 0; ctx.save(); if (o.alpha != null) ctx.globalAlpha *= o.alpha;
+  path(far); ctx.fillStyle = rmShade(base, 0.52); ctx.fill('evenodd');
+  path(near); ctx.fillStyle = rmShade(base, front ? k : k * 0.96); ctx.fill('evenodd'); ctx.strokeStyle = rmShade(base, 0.62); ctx.lineWidth = Math.max(0.6, Math.min(2, s * 0.25)); ctx.stroke();
+  ctx.save(); path(near); ctx.clip('evenodd');
+  { const p0 = proj(0, 0), p1 = proj(F.w, F.h), g = ctx.createLinearGradient(p0[0], p0[1], p1[0], p1[1]); g.addColorStop(0, `rgba(255,250,235,${0.14 * lam})`); g.addColorStop(0.55, 'rgba(255,255,255,0)'); g.addColorStop(1, `rgba(60,40,20,${0.12})`); ctx.fillStyle = g; ctx.fillRect(-50, -50, W + 100, HH + 100); }
+  if (front && o.print !== false && fmt === 'ibm' && s * F.dc > 3.2) {
+   const M0 = ctx.getTransform(), glyph = (str, u, v, size, col2, font) => { const p = proj(u, v), a = proj(u + 1, v), b = proj(u, v + 1), kk = size / 10; ctx.setTransform(M0); ctx.transform((a[0] - p[0]) * kk, (a[1] - p[1]) * kk, (b[0] - p[0]) * kk, (b[1] - p[1]) * kk, p[0], p[1]); ctx.fillStyle = col2; ctx.font = font || '600 10px "IBM Plex Mono"'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(str, 0, 0); };
+   const ink = o.ink || F.ink, inkA = H.rgba(H.mix(base, ink, 0.75));
+   for (let c = 1; c <= 80; c++) { const u = F.c0 + (c - 1) * F.dc; for (let i = 2; i < 12; i++) glyph(String(CROWS[i]), u, F.r0 + i * F.dr, 1.75, inkA); if (s * F.dc > 7) { glyph(String(c), u, F.r0 + 2.5 * F.dr, 0.95, inkA); glyph(String(c), u, F.h - 1.5, 0.95, inkA); } }
+   ctx.setTransform(M0); ctx.strokeStyle = inkA; ctx.lineWidth = Math.max(0.6, s * 0.18); for (const cc of [5, 6, 72]) { const u = F.c0 + (cc - 0.5) * F.dc, p = proj(u, F.r0 + 1.5 * F.dr), q = proj(u, F.h - 3); ctx.beginPath(); ctx.moveTo(p[0], p[1]); ctx.lineTo(q[0], q[1]); ctx.stroke(); }
+   if (o.fields !== false) { glyph('STATEMENT', F.c0 + 2 * F.dc, F.r0 + 1.5 * F.dr, 1.2, inkA, '700 10px Nunito'); glyph('FORTRAN   STATEMENT', F.c0 + 39 * F.dc, F.r0 + 1.5 * F.dr, 1.6, inkA, '800 10px Nunito'); glyph('IDENTIFICATION', F.c0 + 75.5 * F.dc, F.r0 + 1.5 * F.dr, 1.2, inkA, '700 10px Nunito'); }
+   const tx = o.text ?? cd.text; if (tx) { const tn = o.textN ?? 80; for (let i = 0; i < Math.min(tn, tx.length, 80); i++) if (tx[i] !== ' ') glyph(tx[i], F.c0 + i * F.dc, 2.35, 2.6, o.textCol || '#2a2522', '700 10px "IBM Plex Mono"'); }
+   ctx.setTransform(M0);
+  }
+  ctx.restore();
+  if (o.band) { const b = o.band, u = F.c0 + (b.c - 1) * F.dc, pts = [proj(u - F.dc / 2, 1), proj(u + F.dc / 2, 1), proj(u + F.dc / 2, F.h - 1), proj(u - F.dc / 2, F.h - 1)]; ctx.save(); ctx.globalAlpha *= b.a ?? 1; ctx.fillStyle = b.fill || 'rgba(76,211,232,0.16)'; ctx.strokeStyle = b.col || '#4CD3E8'; ctx.lineWidth = Math.max(2, s * 0.35); ctx.beginPath(); pts.forEach((p, i) => (i ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1]))); ctx.closePath(); ctx.fill(); ctx.stroke(); ctx.restore(); }
+  for (const h of o.hl || []) { const a = h.a ?? 1; if (a <= 0) continue; const [hu, hv] = P.holeUV(fmt, h.c, h.r), m = 0.9, pts = [proj(hu - F.hw / 2 - m, hv - F.hh / 2 - m), proj(hu + F.hw / 2 + m, hv - F.hh / 2 - m), proj(hu + F.hw / 2 + m, hv + F.hh / 2 + m), proj(hu - F.hw / 2 - m, hv + F.hh / 2 + m)], cc = proj(hu, hv); ctx.save(); ctx.globalAlpha *= a; P.glow(ctx, cc[0], cc[1], Math.max(14, s * 6), h.rgb || '255,212,71', 0.5); ctx.strokeStyle = h.col || '#FFD447'; ctx.lineWidth = Math.max(2.5, s * 0.4); ctx.beginPath(); pts.forEach((p, i) => (i ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1]))); ctx.closePath(); if (h.fill) { ctx.fillStyle = h.fill; ctx.fill(); } ctx.stroke(); ctx.restore(); }
+  ctx.restore(); return { front, F, proj, s, c: c0 };
+ };
+ // Pila de tarjetas tumbadas (boca arriba), centrada en (x, z) sobre y; n = número de tarjetas (grosor real 0,178 mm cada una).
+ // Caras laterales con estrías (los cantos de las tarjetas) y la tarjeta superior completa con sus agujeros. o: { yaw, top (cd extra), exag, col, mark (línea diagonal de orden) }
+ P.cardDeck3 = (ctx, cam, x, y, z, n, t, o = {}) => { const F = CARDF.ibm, hgt = Math.max(0.2, n * F.th * (o.exag ?? 1)), yaw = o.yaw || 0, col = o.col || F.col;
+  const loc = [[-F.w / 2 + F.cut[0], -F.h / 2], [F.w / 2, -F.h / 2], [F.w / 2, F.h / 2], [-F.w / 2, F.h / 2], [-F.w / 2, -F.h / 2 + F.cut[1]]].map(([a, b]) => { const r = crY([a, 0, b], yaw); return [x + r[0], z + r[2]]; });
+  const sides = []; for (let i = 0; i < loc.length; i++) { const a = loc[i], b = loc[(i + 1) % loc.length], nn = cv3.nrm([b[1] - a[1], 0, -(b[0] - a[0])]), c = [(a[0] + b[0]) / 2, y + hgt / 2, (a[1] + b[1]) / 2]; if (!faceVis(cam, nn, c)) continue; sides.push({ a, b, nn, d: cam.depth(c) }); }
+  sides.sort((p, q) => q.d - p.d); for (const sd of sides) { const lit = 0.62 + 0.3 * Math.abs(cv3.dot(sd.nn, cv3.nrm([-0.45, 0.55, 0.7]))); const P2 = poly3(ctx, cam, [[sd.a[0], y, sd.a[1]], [sd.b[0], y, sd.b[1]], [sd.b[0], y + hgt, sd.b[1]], [sd.a[0], y + hgt, sd.a[1]]], rmShade(col, lit * 0.9));
+   if (P2) { const steps = Math.min(140, Math.floor(hgt / 0.9)); ctx.lineWidth = 1; for (let k = 1; k < steps; k++) { const yy = y + (k / steps) * hgt, p = cam.pr([sd.a[0], yy, sd.a[1]]), q = cam.pr([sd.b[0], yy, sd.b[1]]); if (p[2] < 1 || q[2] < 1) continue; ctx.strokeStyle = `rgba(90,70,45,${0.1 + 0.12 * ((k * 7) % 3 === 0)})`; ctx.beginPath(); ctx.moveTo(p[0], p[1]); ctx.lineTo(q[0], q[1]); ctx.stroke(); }
+    if (o.mark) { const p = cam.pr([sd.a[0], y + hgt * 0.05, sd.a[1]]), q = cam.pr([sd.b[0], y + hgt * 0.95, sd.b[1]]); ctx.strokeStyle = o.mark; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(p[0], p[1]); ctx.lineTo(q[0], q[1]); ctx.stroke(); } } }
+  const cd = Object.assign(P.cardFrame([x, y + hgt + 0.01, z], { pitch: -Math.PI / 2, yaw }), o.topCard || {}); return P.punchCard3(ctx, cam, cd, t, Object.assign({ print: true }, o.topOpts || {}));
+ };
+ // ---------------- LECTOR DE ESCOBILLAS (reconstrucción) ----------------
+ // Mecanismo elegido para TODO el episodio (mediados del s. XX): la tarjeta avanza boca abajo, borde de la fila 9 primero; una escobilla
+ // metálica por columna (80) roza la tarjeta sobre un rodillo de contacto. Donde hay AGUJERO la escobilla toca el rodillo: se cierra el
+ // circuito y sale un impulso; el INSTANTE del impulso indica qué fila estaba bajo la escobilla. (No se presenta como el único sistema.)
+ const CH = (ctx, cam, x0, x1, cy, cz, r, col, N = 18) => { const pts = []; for (let i = 0; i < N; i++) { const a = (i / N) * TAU, b = ((i + 1) / N) * TAU, nn = [0, Math.cos((a + b) / 2), Math.sin((a + b) / 2)], c = [(x0 + x1) / 2, cy + nn[1] * r, cz + nn[2] * r]; if (!faceVis(cam, nn, c)) continue; pts.push({ d: cam.depth(c), f: () => poly3(ctx, cam, [[x0, cy + Math.cos(a) * r, cz + Math.sin(a) * r], [x1, cy + Math.cos(a) * r, cz + Math.sin(a) * r], [x1, cy + Math.cos(b) * r, cz + Math.sin(b) * r], [x0, cy + Math.cos(b) * r, cz + Math.sin(b) * r]], rmShade(col, 0.55 + 0.55 * Math.max(0, nn[1] * 0.8 + nn[2] * 0.4))) }); } pts.sort((p, q) => q.d - p.d).forEach((p) => p.f()); };
+ P.cylX3 = CH;
+ // Lector de tarjetas en 3D (mm). Bancada (mesa de alimentación) a y = bedY, tarjeta avanzando hacia −z. Estación de lectura en z = 0:
+ // barra porta-escobillas con 80 escobillas alineadas con las columnas y rodillo de contacto bajo una ranura; rodillos de arrastre en
+ // z = ±120; cajón de entrada (alimentador) en +z y apilador de salida en −z. o: { card (cd a dibujar en la bancada), cardOpts,
+ // contacts: [x…] (escobillas en contacto), cover 0..1 (tapa; 0 = en corte), hopper (n tarjetas en el alimentador), stacker (n) }
+ P.cardReader3 = (ctx, cam, t, o = {}) => { const bedY = o.bedY ?? 900, F = CARDF.ibm, metal = '#5d6a72', dark = '#2b3439', steel = '#aab4ba';
+  const list = [];
+  list.push({ d: cam.depth([0, bedY / 2, 0]) + 1e5, f: () => { P.box3(ctx, cam, -190, 190, 0, bedY - 4, -330, 330, metal, {}); P.box3(ctx, cam, -192, 192, bedY - 4, bedY, -332, 332, '#3c464c', {});
+   for (const yy of [bedY * 0.35, bedY * 0.7]) poly3(ctx, cam, [[-170, yy, 331], [170, yy, 331], [170, yy + 3, 331], [-170, yy + 3, 331]], '#4a565d'); poly3(ctx, cam, [[-120, 0, 333], [120, 0, 333], [120, 60, 333], [-120, 60, 333]], '#2c3438');
+   for (const [bx, c] of [[-60, '#1fae6a'], [-20, '#d13b2f'], [20, '#e8e2cf']]) { const p = cam.pr([bx, bedY - 40, 333]), q = cam.pr([bx + 14, bedY - 40, 333]); if (p[2] > 40 && q[2] > 40) { ctx.fillStyle = c; ctx.beginPath(); ctx.arc(p[0], p[1], Math.max(2, Math.abs(q[0] - p[0]) * 0.5), 0, TAU); ctx.fill(); } }
+   poly3(ctx, cam, [[-125, bedY + 0.2, -300], [125, bedY + 0.2, -300], [125, bedY + 0.2, 300], [-125, bedY + 0.2, 300]], '#46525a'); poly3(ctx, cam, [[-110, bedY + 0.4, -6], [110, bedY + 0.4, -6], [110, bedY + 0.4, 6], [-110, bedY + 0.4, 6]], '#0e1214');
+   for (const sx of [-1, 1]) P.box3(ctx, cam, sx * 100 - (sx > 0 ? 0 : 6), sx * 100 + (sx > 0 ? 6 : 0), bedY, bedY + 7, -300, 300, steel, {});
+   CH(ctx, cam, -108, 108, bedY - 9.6, 0, 10, '#c9d2d6', 20); } });
+  // alimentador (entrada) y apilador (salida)
+  if (o.hopper !== 0) list.push({ d: cam.depth([0, bedY + 40, 250]), f: () => { P.box3(ctx, cam, -112, 112, bedY, bedY + 6, 205, 300, dark, {}); for (const sx of [-1, 1]) P.box3(ctx, cam, sx * 108 - 4, sx * 108 + 4, bedY, bedY + 110, 205, 300, '#56636b', {}); P.box3(ctx, cam, -112, 112, bedY, bedY + 110, 296, 302, '#56636b', {}); if (o.hopper) P.cardDeck3(ctx, cam, 0, bedY + 6, 250, o.hopper, t, { exag: 1, print: false, topOpts: { print: false } }); } });
+  list.push({ d: cam.depth([0, bedY + 40, -250]), f: () => { P.box3(ctx, cam, -112, 112, bedY - 30, bedY - 24, -320, -215, dark, {}); for (const sx of [-1, 1]) P.box3(ctx, cam, sx * 108 - 4, sx * 108 + 4, bedY - 30, bedY + 40, -320, -215, '#56636b', {}); if (o.stacker) P.cardDeck3(ctx, cam, 0, bedY - 24, -268, o.stacker, t, { exag: 1, topOpts: { print: false } }); } });
+  // rodillos de arrastre (arriba de la bancada)
+  for (const rz of [120, -120]) list.push({ d: cam.depth([0, bedY + 12, rz]), f: () => { CH(ctx, cam, -104, 104, bedY + 11, rz, 10.5, '#2d2f31', 18); for (const sx of [-1, 1]) P.box3(ctx, cam, sx * 112 - 5, sx * 112 + 5, bedY, bedY + 26, rz - 9, rz + 9, '#6c7a82', {}); } });
+  // tarjeta sobre la bancada
+  if (o.card) list.push({ d: cam.depth(P.cardPt(o.card, F.w / 2, F.h / 2)) + 30, f: () => P.punchCard3(ctx, cam, o.card, t, o.cardOpts || {}) });
+  // estación de lectura: barra porta-escobillas + escobillas (una por columna) + cable de señal
+  list.push({ d: cam.depth([0, bedY + 25, 0]) - 5, f: () => { const hy = bedY + 22; P.box3(ctx, cam, -112, 112, hy, hy + 18, -9, 9, '#3a4248', {}); P.box3(ctx, cam, -112, 112, hy + 18, hy + 22, -11, 11, '#b07a2c', {});
+   const xs = o.brushX || ((c) => -F.w / 2 + F.c0 + (c - 1) * F.dc), act = new Set(o.contacts || []);
+   for (let c = 1; c <= 80; c++) { const bx = xs(c), on = act.has(c), tipY = on ? bedY - 0.5 : bedY + 0.6, a = cam.pr([bx, hy, 4]), b = cam.pr([bx, tipY, 7]); if (a[2] < 1 || b[2] < 1) continue; ctx.strokeStyle = on ? '#ffe9a0' : '#c6923f'; ctx.lineWidth = Math.max(1, Math.min(4, 900 / a[2] * 0.9)); ctx.beginPath(); ctx.moveTo(a[0], a[1]); ctx.quadraticCurveTo(a[0], (a[1] + b[1]) / 2, b[0], b[1]); ctx.stroke(); if (on) { P.glow(ctx, b[0], b[1], Math.max(12, 9000 / b[2]), '255,212,71', 0.8); } }
+   if (o.cover > 0) { ctx.save(); ctx.globalAlpha *= cl(o.cover); P.box3(ctx, cam, -150, 150, bedY + 8, bedY + 70, -205, 60, '#6b7880', {}); ctx.restore(); } } });
+  ykDrawList(ctx, cam, list); return { bedY, brushX: (c) => -F.w / 2 + F.c0 + (c - 1) * F.dc };
+ };
+ // Corte técnico 2D del lector (vista lateral): tarjeta (de perfil) avanzando de derecha a izquierda, borde de la fila 9 primero;
+ // escobilla arriba, rodillo de contacto abajo. Con AGUJERO bajo la escobilla → contacto → impulso por el cable hacia el circuito.
+ // o: { u 0..1 (avance), rows (filas perforadas de ESTA columna), label }. Devuelve { contact, row, rowUnder, pulses:[filas ya leídas] }.
+ P.readerSection = (ctx, x, y, w, h, t, o = {}) => { const F = CARDF.ibm, rows = o.rows || [], u = cl(o.u ?? 0), k = (w * 1.05) / F.h, bx = x + w * 0.46, ry = y + h * 0.6, rr = h * 0.13, cy = ry - rr - 9;
+  ctx.save(); ctx.fillStyle = 'rgba(10,22,33,0.92)'; ctx.beginPath(); ctx.roundRect(x, y, w, h, 26); ctx.fill(); ctx.strokeStyle = 'rgba(76,211,232,0.35)'; ctx.lineWidth = 2; ctx.stroke(); ctx.beginPath(); ctx.roundRect(x, y, w, h, 26); ctx.clip();
+  // rodillo de contacto (gira con el avance)
+  { const g = ctx.createRadialGradient(bx - rr * 0.3, ry - rr * 0.4, rr * 0.1, bx, ry, rr); g.addColorStop(0, '#e8eef0'); g.addColorStop(0.6, '#9aa6ac'); g.addColorStop(1, '#4b565c'); ctx.fillStyle = g; ctx.beginPath(); ctx.arc(bx, ry, rr, 0, TAU); ctx.fill(); ctx.strokeStyle = 'rgba(40,50,55,0.6)'; ctx.lineWidth = 3; for (let i = 0; i < 6; i++) { const a = -u * 14 + (i / 6) * TAU; ctx.beginPath(); ctx.moveTo(bx + Math.cos(a) * rr * 0.25, ry + Math.sin(a) * rr * 0.25); ctx.lineTo(bx + Math.cos(a) * rr * 0.85, ry + Math.sin(a) * rr * 0.85); ctx.stroke(); } }
+  // tarjeta de perfil: lead = borde delantero (fila 9) a la izquierda
+  const lead = lerp(x + w + 40, x - F.h * k - 60, u), vAt = (px) => (px - lead) / k, gapAt = (vl) => rows.some((r) => Math.abs(vl - (F.h - P.holeUV('ibm', 1, r)[1])) < F.hh / 2);
+  ctx.fillStyle = '#E4D7BA'; const th = 20; for (let px = Math.max(x, lead); px < Math.min(x + w, lead + F.h * k); px += 2) { if (!gapAt(vAt(px))) ctx.fillRect(px, cy - th / 2, 2.2, th); }
+  ctx.font = '700 32px "IBM Plex Mono"'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  let rowUnder = null; for (const r of CROWS) { const vl = F.h - P.holeUV('ibm', 1, r)[1], px = lead + vl * k; if (px < x + 20 || px > x + w - 20) continue; const isH = rows.includes(r), under = Math.abs(px - bx) < (F.dr * k) / 2; if (under) rowUnder = r; ctx.fillStyle = under ? '#FFD447' : isH ? 'rgba(245,247,247,0.95)' : 'rgba(245,247,247,0.45)'; ctx.fillText(String(r), px, cy - 52); if (isH) { ctx.strokeStyle = 'rgba(255,212,71,0.6)'; ctx.lineWidth = 2; ctx.strokeRect(px - (F.hh * k) / 2, cy - th / 2 - 3, F.hh * k, th + 6); } }
+  const vB = vAt(bx), onCard = vB >= 0 && vB <= F.h, contact = onCard && gapAt(vB);
+  // escobilla (manojo de alambres) que se arrastra contra el sentido de avance
+  const hy = y + h * 0.16; ctx.fillStyle = '#3a4248'; ctx.fillRect(bx - 70, hy - 26, 140, 40); ctx.fillStyle = '#b07a2c'; ctx.fillRect(bx - 74, hy + 12, 148, 12);
+  const tipY = contact ? ry - rr + 2 : cy - th / 2; for (let i = -6; i <= 6; i++) { ctx.strokeStyle = contact ? '#ffe9a0' : '#c6923f'; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(bx + i * 3, hy + 24); ctx.quadraticCurveTo(bx + i * 2 + 10, (hy + tipY) / 2, bx + i * 1.2 + (contact ? 0 : 16), tipY); ctx.stroke(); }
+  if (contact) { P.glow(ctx, bx, tipY, 90, '255,212,71', 0.9); }
+  // circuito: escobilla → cable → CIRCUITO DE LECTURA ← rodillo
+  ctx.strokeStyle = contact ? '#51D7BE' : 'rgba(81,215,190,0.35)'; ctx.lineWidth = 6; ctx.beginPath(); ctx.moveTo(bx, hy - 26); ctx.lineTo(bx, y + 46); ctx.lineTo(x + w - 60, y + 46); ctx.lineTo(x + w - 60, y + h - 70); ctx.lineTo(bx + rr + 40, y + h - 70); ctx.lineTo(bx, ry + rr); ctx.stroke();
+  if (contact) { const ph = (t * 1.6) % 1; for (let i = 0; i < 3; i++) { const q = (ph + i / 3) % 1, L1 = (y + 46 - (hy - 26)) * -1, segs = [[bx, hy - 26, bx, y + 46], [bx, y + 46, x + w - 60, y + 46], [x + w - 60, y + 46, x + w - 60, y + h - 70]]; const tot = segs.reduce((a2, s2) => a2 + Math.hypot(s2[2] - s2[0], s2[3] - s2[1]), 0); let d = q * tot; for (const s2 of segs) { const l2 = Math.hypot(s2[2] - s2[0], s2[3] - s2[1]); if (d <= l2) { const px = lerp(s2[0], s2[2], d / l2), py = lerp(s2[1], s2[3], d / l2); P.glow(ctx, px, py, 34, '81,215,190', 0.9); ctx.fillStyle = '#F5F7F7'; ctx.beginPath(); ctx.arc(px, py, 7, 0, TAU); ctx.fill(); break; } d -= l2; } void L1; } }
+  ctx.fillStyle = 'rgba(245,247,247,0.9)'; ctx.font = '800 32px Nunito'; ctx.textAlign = 'left'; ctx.fillText('ESCOBILLA', bx + 84, hy - 4); ctx.fillText('RODILLO DE CONTACTO', x + 30, y + h - 30); ctx.textAlign = 'right'; ctx.fillStyle = contact ? '#51D7BE' : 'rgba(245,247,247,0.7)'; ctx.fillText(contact ? 'CIRCUITO CERRADO' : 'SIN CONTACTO', x + w - 80, y + h - 110);
+  ctx.textAlign = 'center'; ctx.fillStyle = 'rgba(245,247,247,0.75)'; ctx.font = '600 32px Nunito'; ctx.fillText('← avance de la tarjeta', x + w * 0.74, cy - 104);
+  const passed = rows.filter((r) => lead + (F.h - P.holeUV('ibm', 1, r)[1]) * k < bx); ctx.restore(); return { contact, rowUnder, onCard, passed };
+ };
+ // valor de u (avance de readerSection) en el que la fila r pasa bajo la escobilla (para sincronizar sonidos)
+ P.readerSectionU = (x, w, r) => { const F = CARDF.ibm, k = (w * 1.05) / F.h, bx = x + w * 0.46, a = x + w + 40, b = x - F.h * k - 60, vl = F.h - P.holeUV('ibm', 1, r)[1]; return (a + vl * k - bx) / (a - b); };
+ // Panel de decodificación: una columna con sus 12 posiciones (12, 11, 0–9), las detectadas encendidas, y el símbolo resultante.
+ // o: { rows (detectadas), a (aparición del símbolo), sym, note }
+ P.decodePanel = (ctx, x, y, w, h, t, o = {}) => { const rows = o.rows || [], cw = Math.min(110, w * 0.3), sh = (h - 60) / 12; ctx.save(); ctx.fillStyle = 'rgba(10,22,33,0.92)'; ctx.beginPath(); ctx.roundRect(x, y, w, h, 24); ctx.fill(); ctx.strokeStyle = 'rgba(76,211,232,0.35)'; ctx.lineWidth = 2; ctx.stroke();
+  ctx.font = '700 32px "IBM Plex Mono"'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; const cx = x + 40 + cw / 2;
+  CROWS.forEach((r, i) => { const yy = y + 30 + sh * (i + 0.5), on = rows.includes(r); ctx.fillStyle = on ? '#FFD447' : 'rgba(245,247,247,0.55)'; ctx.fillText(String(r), x + 30 + 10, yy); ctx.fillStyle = on ? 'rgba(255,212,71,0.95)' : 'rgba(228,215,186,0.18)'; ctx.fillRect(cx - 12, yy - sh * 0.32, 34, sh * 0.64); if (on) P.glow(ctx, cx + 5, yy, 40, '255,212,71', 0.5); });
+  const a = cl(o.a ?? 1); if (a > 0 && o.sym) { ctx.globalAlpha *= a; ctx.fillStyle = '#4CD3E8'; ctx.font = '900 64px Nunito'; ctx.fillText('→', x + cw + 110, y + h / 2); ctx.fillStyle = '#F5F7F7'; ctx.font = `900 ${Math.min(200, h * 0.42)}px "IBM Plex Mono"`; ctx.fillText(o.sym, x + w - (w - cw - 160) / 2 - 10, y + h / 2 - 10); if (o.note) { ctx.font = '700 32px Nunito'; ctx.fillStyle = 'rgba(245,247,247,0.85)'; ctx.fillText(o.note, x + w - (w - cw - 160) / 2 - 10, y + h - 50); } }
+  ctx.restore(); };
+ // ---------------- PERFORADORA DE TECLADO (tipo IBM 026, reconstrucción genérica sin marcas, mm) ----------------
+ // Mesa con teclado al frente; cuerpo superior con alimentador (arriba a la derecha), estación de perforación, estación de lectura y
+ // apilador (arriba a la izquierda); la tarjeta recorre la bancada de derecha a izquierda, columna a columna. o: { card (cd en la
+ // bancada), cardOpts, press 0..1 (golpe del punzón), key (índice de tecla pulsada), hopper, stacker }. Devuelve { punchX, bedY, bedZ, keyAt }.
+ P.keypunch3 = (ctx, cam, t, o = {}) => { const gray = '#8b959a', gray2 = '#6f7a80', dark = '#2f373c', cream = '#d9d3c4', bedY = 1040, bedZ = -66, punchX = 70;
+  const list = [];
+  list.push({ d: cam.depth([0, 380, 0]) + 2e4, f: () => { P.box3(ctx, cam, -480, 480, 720, 760, -340, 330, '#9aa3a6', {}); P.box3(ctx, cam, 200, 470, 0, 720, -320, 300, gray2, {}); P.box3(ctx, cam, -470, -430, 0, 720, -320, 300, gray2, {}); P.box3(ctx, cam, -430, 200, 260, 720, -320, -290, '#5f6a70', {});
+   for (const yy of [180, 380, 560]) poly3(ctx, cam, [[215, yy, 301], [455, yy, 301], [455, yy + 6, 301], [215, yy + 6, 301]], '#535d63');
+   P.box3(ctx, cam, -230, 70, 760, 790, 120, 300, cream, {}); for (let r = 0; r < 4; r++) for (let c = 0; c < 11; c++) { const kx = -215 + c * 25 + r * 6, kz = 140 + r * 38, on = o.key === r * 11 + c, kd = on ? 4 * cl(o.press ?? 0) : 0; P.box3(ctx, cam, kx, kx + 19, 790, 802 - kd, kz, kz + 26, on ? '#e8c35a' : (r === 3 && c > 8 ? '#3c6f8f' : '#3a3f44'), {}); } } });
+  list.push({ d: cam.depth([0, 900, -200]) + 1e4, f: () => { P.box3(ctx, cam, -440, 440, 760, 1030, -330, -80, gray, {}); poly3(ctx, cam, [[-440, 1030, -80], [440, 1030, -80], [440, 1090, -150], [-440, 1090, -150]], rmShade(gray, 1.05));
+   P.box3(ctx, cam, -440, 440, 1030, 1090, -330, -150, gray, {}); const w0 = cam.pr([-60, 900, -79]), w1 = cam.pr([40, 900, -79]); const r = Math.abs(w1[0] - w0[0]) / 2; if (w0[2] > 1 && r < 60) { ctx.fillStyle = '#20282c'; ctx.beginPath(); ctx.arc((w0[0] + w1[0]) / 2, w0[1], r, 0, TAU); ctx.fill(); ctx.strokeStyle = '#c9d0d3'; ctx.lineWidth = Math.max(1, r * 0.08); ctx.stroke(); }
+   poly3(ctx, cam, [[-400, bedY - 20, bedZ + 0.5], [400, bedY - 20, bedZ + 0.5], [400, bedY + 70, bedZ - 40], [-400, bedY + 70, bedZ - 40]], '#3e474c'); } });
+  // alimentador y apilador (cajas abiertas con tarjetas de canto)
+  for (const [x0, x1, n] of [[220, 430, o.hopper ?? 300], [-430, -220, o.stacker ?? 120]]) list.push({ d: cam.depth([(x0 + x1) / 2, 1150, -240]), f: () => { P.box3(ctx, cam, x0, x1, 1090, 1100, -320, -160, dark, {}); P.box3(ctx, cam, x0, x0 + 8, 1100, 1230, -320, -160, '#59646a', {}); P.box3(ctx, cam, x1 - 8, x1, 1100, 1230, -320, -160, '#59646a', {}); P.box3(ctx, cam, x0, x1, 1100, 1230, -326, -318, '#59646a', {}); const dep = Math.min(150, n * 0.178 * 2.2); P.box3(ctx, cam, x0 + 10, x1 - 10, 1100, 1185, -318 + 2, -318 + 2 + dep, '#E4D7BA', {}); } });
+  if (o.card) list.push({ d: cam.depth([0, bedY, bedZ]) - 40, f: () => P.punchCard3(ctx, cam, o.card, t, o.cardOpts || {}) });
+  // estación de perforación: bloque de punzones (delante) y matriz (detrás); punzones que bajan al pulsar
+  list.push({ d: cam.depth([punchX, bedY, bedZ + 20]) - 60, f: () => { const pr = cl(o.press ?? 0); P.box3(ctx, cam, punchX - 22, punchX + 22, bedY + 46, bedY + 92, bedZ - 30, bedZ + 26, '#4b555b', {}); P.box3(ctx, cam, punchX - 14, punchX + 14, bedY - 30, bedY + 46, bedZ + 14 + (1 - pr) * 16, bedZ + 30 + (1 - pr) * 16, '#7d878c', {}); for (let i = 0; i < 12; i++) { const yy = bedY + 20 + 41 - 6.35 - i * 6.35; P.box3(ctx, cam, punchX - 0.7, punchX + 0.7, yy - 1.6, yy + 1.6, bedZ + 1 + (1 - pr) * 16, bedZ + 14 + (1 - pr) * 16, '#d4dbde', {}); } P.box3(ctx, cam, punchX - 14, punchX + 14, bedY - 30, bedY + 46, bedZ - 22, bedZ - 2, '#5a646a', {}); P.box3(ctx, cam, -150, -90, bedY + 46, bedY + 84, bedZ - 30, bedZ + 22, '#4b555b', {}); } });
+  ykDrawList(ctx, cam, list); return { punchX, bedY, bedZ };
+ };
+ // Operador/a sentado de espaldas (2D, en pantalla) tecleando: silla, espalda, brazos hacia el teclado; o.press 0..1 baja la mano derecha.
+ P.operatorSeated = (ctx, x, y, h, t, o = {}) => { const u = h / 100, pr = cl(o.press ?? 0), hair = o.hair || '#3a2a20', top = o.top || '#5d7f9e'; ctx.save(); ctx.translate(x, y);
+  ctx.fillStyle = '#2b2622'; ctx.fillRect(-26 * u, -34 * u, 52 * u, 8 * u); ctx.fillRect(-4 * u, -26 * u, 8 * u, 26 * u); ctx.fillRect(-22 * u, -3 * u, 44 * u, 3 * u);
+  ctx.fillStyle = '#3b3a40'; ctx.beginPath(); ctx.ellipse(0, -38 * u, 24 * u, 10 * u, 0, 0, TAU); ctx.fill();
+  const g = ctx.createLinearGradient(-22 * u, 0, 22 * u, 0); g.addColorStop(0, H.rgba(H.mix(top, '#000', 0.25))); g.addColorStop(0.5, top); g.addColorStop(1, H.rgba(H.mix(top, '#000', 0.35))); ctx.fillStyle = g; ctx.beginPath(); ctx.moveTo(-20 * u, -40 * u); ctx.quadraticCurveTo(-24 * u, -62 * u, -18 * u, -78 * u); ctx.quadraticCurveTo(0, -86 * u, 18 * u, -78 * u); ctx.quadraticCurveTo(24 * u, -62 * u, 20 * u, -40 * u); ctx.closePath(); ctx.fill();
+  ctx.strokeStyle = H.rgba(H.mix(top, '#000', 0.2)); ctx.lineCap = 'round'; ctx.lineWidth = 9 * u; for (const sx of [-1, 1]) { const dy = sx > 0 ? pr * 5 : 0; ctx.beginPath(); ctx.moveTo(sx * 17 * u, -76 * u); ctx.quadraticCurveTo(sx * 30 * u, -60 * u, sx * 14 * u, (-54 + dy) * u); ctx.stroke(); ctx.fillStyle = '#d6a483'; ctx.beginPath(); ctx.arc(sx * 12 * u, (-54 + dy) * u, 4.5 * u, 0, TAU); ctx.fill(); }
+  ctx.fillStyle = '#c89676'; ctx.fillRect(-5 * u, -88 * u, 10 * u, 6 * u); ctx.fillStyle = hair; ctx.beginPath(); ctx.ellipse(0, -96 * u, 11 * u, 12.5 * u, 0, 0, TAU); ctx.fill(); ctx.beginPath(); ctx.ellipse(0, -86 * u, 9 * u, 5 * u, 0, 0, Math.PI); ctx.fill(); ctx.restore(); };
+ // ---------------- HOLLERITH · CENSO DE 1890 (reconstrucción) ----------------
+ // Según la Oficina del Censo de EE. UU.: lector manual de dos placas con bisagra; al cerrar, agujas con resorte atraviesan los agujeros
+ // y llegan a pocillos de MERCURIO: el circuito cerrado mueve las agujas de los DIALES (40 en 1890) y suena un timbre; la mesa de
+ // clasificación indica en qué cajón va la tarjeta. Sistema ELECTROMECÁNICO de tabulación, no una computadora electrónica.
+ // Corte 2D de la prensa. o: { press 0..1, holes [bool por aguja], counts [valor por dial], bell 0..1 }
+ P.hollerithPress = (ctx, x, y, w, h, t, o = {}) => { const holes = o.holes || [true, false, true, false, false, true], N = holes.length, pr = E.inOut(cl(o.press ?? 0)), sp = w / (N + 1), cardY = y + h * 0.46, plateB = cardY + 16, cupY = plateB + 70, travel = 60;
+  ctx.save(); ctx.fillStyle = 'rgba(28,22,16,0.93)'; ctx.beginPath(); ctx.roundRect(x, y, w, h, 26); ctx.fill(); ctx.strokeStyle = 'rgba(223,183,127,0.5)'; ctx.lineWidth = 2; ctx.stroke();
+  const topY = y + 110 + pr * travel; ctx.fillStyle = '#6B4D35'; ctx.fillRect(x + 30, topY - 40, w - 60, 40); ctx.fillStyle = '#899397'; ctx.fillRect(x + 30, topY, w - 60, 10);
+  ctx.fillStyle = '#D8C5A3'; ctx.fillRect(x + 40, cardY - 4, w - 80, 8); ctx.fillStyle = 'rgb(28,22,16)'; for (let i = 0; i < N; i++) if (holes[i]) ctx.fillRect(x + sp * (i + 1) - 9, cardY - 5, 18, 10);
+  ctx.fillStyle = '#465258'; ctx.fillRect(x + 30, plateB, w - 60, 22); ctx.fillStyle = '#1b1f22'; for (let i = 0; i < N; i++) ctx.fillRect(x + sp * (i + 1) - 7, plateB, 14, 22);
+  let closed = 0; for (let i = 0; i < N; i++) { const px = x + sp * (i + 1), stopY = holes[i] ? cupY + 6 : cardY - 6, tipY = Math.min(stopY, topY + 10 + 30 + pr * (cupY - cardY + 40)), springTop = topY - 40;
+   ctx.strokeStyle = '#bdc7cc'; ctx.lineWidth = 3; ctx.beginPath(); for (let k = 0; k <= 14; k++) { const yy = lerp(springTop - 50, springTop, k / 14); ctx.lineTo(px + (k % 2 ? 9 : -9), yy); } ctx.stroke();
+   ctx.fillStyle = '#d4dbde'; ctx.fillRect(px - 4, topY + 10, 8, tipY - topY - 10); ctx.beginPath(); ctx.moveTo(px - 4, tipY); ctx.lineTo(px + 4, tipY); ctx.lineTo(px, tipY + 8); ctx.closePath(); ctx.fill();
+   const g = ctx.createLinearGradient(0, cupY - 4, 0, cupY + 30); g.addColorStop(0, '#f2f5f6'); g.addColorStop(1, '#7c878c'); ctx.fillStyle = '#3a2c20'; ctx.fillRect(px - 20, cupY - 10, 40, 48); ctx.fillStyle = g; ctx.beginPath(); ctx.ellipse(px, cupY + 4, 15, 6, 0, 0, TAU); ctx.fill(); ctx.fillRect(px - 15, cupY + 4, 30, 26);
+   const on = holes[i] && tipY >= cupY; if (on) { closed++; P.glow(ctx, px, cupY + 4, 60, '81,215,190', 0.9); }
+   ctx.strokeStyle = on ? '#51D7BE' : 'rgba(81,215,190,0.25)'; ctx.lineWidth = 4; ctx.beginPath(); ctx.moveTo(px, cupY + 38); ctx.lineTo(px, y + h - 150); ctx.stroke();
+   if (holes[i]) { const dy = y + h - 95, r = 46, cnt = (o.counts || [])[i] ?? 0; ctx.fillStyle = '#efe6d2'; ctx.beginPath(); ctx.arc(px, dy, r, 0, TAU); ctx.fill(); ctx.strokeStyle = '#3a2c20'; ctx.lineWidth = 3; ctx.stroke(); for (let m = 0; m < 20; m++) { const a = (m / 20) * TAU; ctx.beginPath(); ctx.moveTo(px + Math.sin(a) * r * 0.82, dy - Math.cos(a) * r * 0.82); ctx.lineTo(px + Math.sin(a) * r * 0.95, dy - Math.cos(a) * r * 0.95); ctx.stroke(); } const ha = (cnt / 20) * TAU; ctx.strokeStyle = '#b23a2a'; ctx.lineWidth = 5; ctx.beginPath(); ctx.moveTo(px, dy); ctx.lineTo(px + Math.sin(ha) * r * 0.75, dy - Math.cos(ha) * r * 0.75); ctx.stroke(); } }
+  ctx.fillStyle = 'rgba(245,247,247,0.92)'; ctx.font = '800 32px Nunito'; ctx.textAlign = 'left'; ctx.textBaseline = 'middle'; ctx.fillText('AGUJAS CON RESORTE', x + 40, y + 40); ctx.fillText('TARJETA', x + w - 200, cardY - 40); ctx.fillText('MERCURIO', x + 40, cupY + 64);
+  if (o.bell > 0) { ctx.globalAlpha *= cl(o.bell); ctx.fillStyle = '#DFB77F'; ctx.font = '900 32px Nunito'; ctx.textAlign = 'right'; ctx.fillText('¡TIMBRE!', x + w - 40, y + 40); }
+  ctx.restore(); return { closed }; };
+ // Oficina de 1890 (mm): suelo de tablas, pared con zócalo de madera y papel pintado, ventanales con luz cálida y lámparas.
+ P.office1890 = (ctx, cam, t, o = {}) => { const bz = o.back ?? -1400; ctx.save(); ctx.fillStyle = '#2a2018'; ctx.fillRect(0, 0, W, HH);
+  poly3(ctx, cam, [[-4000, 0, bz], [4000, 0, bz], [4000, 3800, bz], [-4000, 3800, bz]], '#7d6a4f'); poly3(ctx, cam, [[-4000, 0, bz + 1], [4000, 0, bz + 1], [4000, 1000, bz + 1], [-4000, 1000, bz + 1]], '#5a3d27');
+  for (let x = -3800; x <= 3800; x += 250) { const p = cam.pr([x, 1000, bz + 2]), q = cam.pr([x, 3800, bz + 2]); if (p[2] > 1) { ctx.strokeStyle = 'rgba(60,45,30,0.25)'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(p[0], p[1]); ctx.lineTo(q[0], q[1]); ctx.stroke(); } }
+  for (const wx of [-2600, -900, 800, 2500]) { poly3(ctx, cam, [[wx - 450, 1100, bz + 3], [wx + 450, 1100, bz + 3], [wx + 450, 3300, bz + 3], [wx - 450, 3300, bz + 3]], '#e9d3a3'); poly3(ctx, cam, [[wx - 30, 1100, bz + 4], [wx + 30, 1100, bz + 4], [wx + 30, 3300, bz + 4], [wx - 30, 3300, bz + 4]], '#5a3d27'); poly3(ctx, cam, [[wx - 450, 2150, bz + 4], [wx + 450, 2150, bz + 4], [wx + 450, 2200, bz + 4], [wx - 450, 2200, bz + 4]], '#5a3d27'); }
+  for (let z = bz; z < 4000; z += 180) poly3(ctx, cam, [[-4000, 0, z], [4000, 0, z], [4000, 0, z + 180], [-4000, 0, z + 180]], ((z / 180) | 0) % 2 ? '#6e4f33' : '#76563a');
+  const L = cam.pr([0, 3000, bz + 200]); if (L[2] > 1) { const g = ctx.createRadialGradient(L[0], L[1], 20, L[0], L[1], 1300); g.addColorStop(0, `rgba(223,183,127,${0.28 * (o.warm ?? 1)})`); g.addColorStop(1, 'rgba(223,183,127,0)'); ctx.fillStyle = g; ctx.fillRect(0, 0, W, HH); }
+  ctx.restore(); };
+ // Tabuladora de Hollerith (1890, mm): mesa de madera con la prensa lectora al frente, armario vertical con 40 diales (4 × 10) y,
+ // a la derecha, la mesa de clasificación con cajones de tapa. o: { press 0..1, counts (40 valores), lid (cajón abierto), lidA 0..1 }
+ P.tabulator1890 = (ctx, cam, t, o = {}) => { const wood = '#6B4D35', wood2 = '#7c5a3a', list = [];
+  list.push({ d: cam.depth([0, 1200, -240]), f: () => { P.box3(ctx, cam, -700, 700, 0, 760, -300, 260, wood, {}); P.box3(ctx, cam, -720, 720, 760, 790, -320, 280, wood2, {}); P.box3(ctx, cam, -680, 680, 790, 1750, -300, -200, wood, {}); P.box3(ctx, cam, -700, 700, 1750, 1800, -320, -190, wood2, {});
+   for (let r = 0; r < 4; r++) for (let c = 0; c < 10; c++) { const dx = -560 + c * 124, dy = 1640 - r * 220, p = cam.pr([dx, dy, -199]), q = cam.pr([dx + 48, dy, -199]); if (p[2] < 1) continue; const rr = Math.abs(q[0] - p[0]); ctx.fillStyle = '#efe6d2'; ctx.beginPath(); ctx.arc(p[0], p[1], rr, 0, TAU); ctx.fill(); ctx.strokeStyle = '#2b2018'; ctx.lineWidth = Math.max(1, rr * 0.08); ctx.stroke(); const a = (((o.counts || [])[r * 10 + c] ?? (r * 3 + c * 7) % 20) / 20) * TAU; ctx.strokeStyle = '#b23a2a'; ctx.lineWidth = Math.max(1, rr * 0.1); ctx.beginPath(); ctx.moveTo(p[0], p[1]); ctx.lineTo(p[0] + Math.sin(a) * rr * 0.75, p[1] - Math.cos(a) * rr * 0.75); ctx.stroke(); } } });
+  list.push({ d: cam.depth([200, 820, 150]) - 50, f: () => { P.box3(ctx, cam, 120, 460, 790, 830, 40, 250, '#2f2a26', {}); const a = (1 - cl(o.press ?? 0)) * 0.7, hy = 830, pts = [[120, hy, 40], [460, hy, 40], [460, hy + Math.sin(a) * 210, 40 + Math.cos(a) * 210], [120, hy + Math.sin(a) * 210, 40 + Math.cos(a) * 210]]; poly3(ctx, cam, pts, '#4a423b'); const tip = [460, hy + Math.sin(a) * 210 + 40, 40 + Math.cos(a) * 210 + 30], A2 = cam.pr([460, hy + Math.sin(a) * 210, 40 + Math.cos(a) * 210]), B2 = cam.pr(tip); ctx.strokeStyle = '#899397'; ctx.lineWidth = Math.max(2, 9000 / Math.max(1, A2[2])); ctx.beginPath(); ctx.moveTo(A2[0], A2[1]); ctx.lineTo(B2[0], B2[1]); ctx.stroke(); } });
+  list.push({ d: cam.depth([1050, 600, 0]), f: () => { P.box3(ctx, cam, 820, 1360, 0, 980, -260, 220, wood2, {}); for (let r = 0; r < 4; r++) for (let c = 0; c < 4; c++) { const x0 = 840 + c * 128, y0 = 80 + r * 215; poly3(ctx, cam, [[x0, y0, 221], [x0 + 118, y0, 221], [x0 + 118, y0 + 200, 221], [x0, y0 + 200, 221]], '#5f4430'); }
+   for (let c = 0; c < 4; c++) for (let r = 0; r < 3; r++) { const lx = 840 + c * 128, lz = -240 + r * 150, open = o.lid === c * 3 + r ? cl(o.lidA ?? 0) : 0, an = open * 1.1, pts = [[lx, 980, lz], [lx + 118, 980, lz], [lx + 118, 980 + Math.sin(an) * 140, lz + Math.cos(an) * 140], [lx, 980 + Math.sin(an) * 140, lz + Math.cos(an) * 140]]; poly3(ctx, cam, pts, open > 0 ? '#c79a52' : '#8a6544', { stroke: '#3b281a', lw: 1.5 }); } } });
+  ykDrawList(ctx, cam, list); };
+ // ---------------- SALA DE COMPUTACIÓN ELECTRÓNICA (mediados del s. XX, reconstrucción genérica, mm) ----------------
+ // Lector de tarjetas a la izquierda conectado por un canal de cables a los armarios del computador y a una consola de operación.
+ // o: { pulse 0..1 (impulsos de datos por el cable), lights (actividad de la consola), reader (opciones de cardReader3) }
+ P.computerRoom60 = (ctx, cam, t, o = {}) => { const bz = -1800; ctx.save(); ctx.fillStyle = '#151C21'; ctx.fillRect(0, 0, W, HH);
+  poly3(ctx, cam, [[-5000, 0, bz], [5000, 0, bz], [5000, 3000, bz], [-5000, 3000, bz]], '#5f6a6e'); poly3(ctx, cam, [[-5000, 0, bz + 1], [5000, 0, bz + 1], [5000, 140, bz + 1], [-5000, 140, bz + 1]], '#3b4448');
+  for (let x = -5000; x < 5000; x += 600) for (let z = bz; z < 4000; z += 600) poly3(ctx, cam, [[x, 0, z], [x + 600, 0, z], [x + 600, 0, z + 600], [x, 0, z + 600]], ((x / 600 + z / 600) & 1) ? '#c9c6bc' : '#bdb9ae');
+  const list = [];
+  for (let i = 0; i < 4; i++) { const x0 = -200 + i * 760; list.push({ d: cam.depth([x0 + 350, 900, -1500]), f: () => { P.box3(ctx, cam, x0, x0 + 700, 0, 1800, -1700, -1300, '#8e9aa0', {}); P.box3(ctx, cam, x0 + 40, x0 + 660, 120, 1680, -1301, -1298, '#7d898f', {}); for (let r = 0; r < 6; r++) poly3(ctx, cam, [[x0 + 60, 300 + r * 220, -1297], [x0 + 640, 300 + r * 220, -1297], [x0 + 640, 304 + r * 220, -1297], [x0 + 60, 304 + r * 220, -1297]], '#5a656b'); } }); }
+  list.push({ d: cam.depth([1200, 600, -400]), f: () => { P.box3(ctx, cam, 700, 1700, 0, 760, -600, -200, '#9aa3a6', {}); poly3(ctx, cam, [[700, 760, -200], [1700, 760, -200], [1700, 1150, -450], [700, 1150, -450]], '#6d797f'); const R = H.rng(7); for (let r = 0; r < 4; r++) for (let c = 0; c < 16; c++) { const u = (c + 0.5) / 16, v = (r + 0.5) / 4, p = cam.pr([lerp(740, 1660, u), lerp(800, 1110, v), lerp(-225, -425, v)]); if (p[2] < 1) continue; const on = R() < 0.3 + 0.4 * Math.sin(t * 3 + r * 1.7 + c) * (o.lights ?? 0); ctx.fillStyle = on ? '#FFD447' : '#3a3324'; ctx.beginPath(); ctx.arc(p[0], p[1], Math.max(1.5, 9000 / p[2]), 0, TAU); ctx.fill(); } } });
+  list.push({ d: cam.depth([-1400, 600, 0]), f: () => { ctx.save(); P.cardReader3(ctx, { ...cam, pr: (p) => cam.pr([p[0] * 1 - 1400, p[1], p[2] * 1 - 100]), clip: (pts, n) => cam.clip(pts.map((q) => [q[0] - 1400, q[1], q[2] - 100]), n), depth: (p) => cam.depth([p[0] - 1400, p[1], p[2] - 100]), pos: [cam.pos[0] + 1400, cam.pos[1], cam.pos[2] + 100] }, t, Object.assign({ hopper: 400, stacker: 150, cover: 1 }, o.reader || {})); ctx.restore(); } });
+  ykDrawList(ctx, cam, list);
+  const pts = [[-1400, 30, -440], [-1400, 30, -1000], [100, 30, -1000], [100, 30, -1300]].map((q) => cam.pr(q)); if (pts.every((p) => p[2] > 1)) { ctx.strokeStyle = '#263238'; ctx.lineWidth = Math.max(4, 120000 / pts[1][2]); ctx.beginPath(); pts.forEach((p, i) => (i ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1]))); ctx.stroke();
+   if (o.pulse != null) { const seg = [], tot = []; let L = 0; for (let i = 1; i < pts.length; i++) { const l = Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]); seg.push(l); L += l; } for (let j = 0; j < 4; j++) { let d = (((o.pulse + j / 4) % 1) + 1) % 1 * L; for (let i = 1; i < pts.length; i++) { if (d <= seg[i - 1]) { const px = lerp(pts[i - 1][0], pts[i][0], d / seg[i - 1]), py = lerp(pts[i - 1][1], pts[i][1], d / seg[i - 1]); P.glow(ctx, px, py, 40, '81,215,190', 0.9); ctx.fillStyle = '#F5F7F7'; ctx.beginPath(); ctx.arc(px, py, 6, 0, TAU); ctx.fill(); break; } d -= seg[i - 1]; } } void tot; } }
+  ctx.restore(); };
  // ---------------- SUBTÍTULOS (arriba, palabra a palabra, palabra clave seleccionada) ----------------
  // Trozos de ≤3 palabras (≤4 si son cortas); las palabras aparecen al decirse: la actual en blanco y negrita,
  // las ya dichas en gris; la palabra clave lleva recuadro de selección con asas en el color de acento.
@@ -4410,6 +4624,13 @@
   canonazo: (k, t, g = 1) => { k.tone(t, { f: [[0, 70], [0.6, 28]], dur: 2.2, gain: 0.5 * g, a: 0.002, verb: 0.6 }); k.noise(t, { dur: 0.5, color: 'white', filter: 'lowpass', f: [[0, 3000], [0.5, 300]], gain: 0.4 * g, a: 0.001 }); k.noise(t + 0.05, { dur: 3, color: 'brown', filter: 'lowpass', f: 180, gain: 0.25 * g, a: 0.05, hold: 0.6 }); },
   // rugido de despegue del Saturno V (en tierra): crepitar de baja frecuencia que crece, sube de tono y se aleja; d = duración
   saturno: (k, t, d = 6, g = 1) => { k.noise(t, { dur: d, color: 'brown', filter: 'lowpass', f: [[0, 90], [d * 0.3, 260], [d, 160]], gain: 0.34 * g, a: 0.6, hold: d * 0.6 }); k.noise(t + 0.3, { dur: d, color: 'pink', filter: 'bandpass', f: [[0, 300], [d, 700]], q: 0.7, gain: 0.08 * g, a: 1, hold: d * 0.5 }); for (let x = 0.4; x < d; x += 0.07) k.noise(t + x, { dur: 0.05, color: 'white', filter: 'bandpass', f: 900 + (x * 997 % 600), q: 2, gain: 0.025 * g * Math.min(1, x / 2), a: 0.004, minor: true }); },
+  // v1.23 · tarjetas perforadas (sonidos mecánicos, sin ciencia ficción)
+  perforar: (k, t, g = 1) => { k.play('thud', t, { f: 150, gain: 0.32 * g }); k.play('click', t + 0.012, { gain: 0.45 * g, minor: true }); },
+  tecleo: (k, t, n = 6, dt = 0.22, g = 1) => { for (let i = 0; i < n; i++) { k.play('click', t + i * dt, { gain: 0.45 * g, minor: i > 0 }); k.play('thud', t + i * dt + 0.03, { f: 140, gain: 0.22 * g, minor: true }); } },
+  tarjetaRoce: (k, t, d = 0.8, g = 1) => { k.noise(t, { dur: d, color: 'pink', filter: 'bandpass', f: 2600, q: 1.1, gain: 0.035 * g, a: 0.06, hold: d * 0.6 }); },
+  escobilla: (k, t, g = 1) => k.play('blip', t, { f: 1450, dur: 0.045, gain: 0.2 * g, minor: true }),
+  cascadaTarjetas: (k, t, d = 1.2, g = 1) => { const R = H.rng(Math.round(t * 10) + 5); for (let x = 0; x < d; x += 0.05 + R() * 0.06) k.play('paper', t + x, { dur: 0.12 + R() * 0.12, gain: (0.25 + R() * 0.25) * g, minor: true }); k.play('thud', t + d, { f: 90, gain: 0.25 * g, minor: true }); },
+  dialHollerith: (k, t, g = 1) => { k.play('tock', t, { f: 760, gain: 0.4 * g }); k.play('bell', t + 0.08, { gain: 0.18 * g, minor: true }); },
  };
  // ---------------- MÚSICA ORQUESTAL SINTÉTICA (v1.13) ----------------
  // MUS.epica(k, t0, t1, { bpm, chords, gain, drums (0..1), strings (0..1), drone, ostinato (0..1) }): cuerdas con ataque lento,

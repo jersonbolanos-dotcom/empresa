@@ -1,0 +1,244 @@
+1
+00:00:00,050 --> 00:00:01,606
+¡Antes de los
+discos duros
+
+2
+00:00:01,606 --> 00:00:03,026
+y las memorias USB,
+
+3
+00:00:03,026 --> 00:00:05,487
+las computadoras podían
+recibir instrucciones
+
+4
+00:00:05,487 --> 00:00:07,529
+de algo que
+parece imposible:
+
+5
+00:00:07,574 --> 00:00:08,634
+tarjetas de cartón
+
+6
+00:00:08,634 --> 00:00:10,221
+llenas de agujeros!
+
+7
+00:00:10,280 --> 00:00:10,912
+Pero…
+
+8
+00:00:10,912 --> 00:00:12,693
+¿cómo podía una
+máquina entender
+
+9
+00:00:12,693 --> 00:00:14,001
+un pedazo de papel?
+
+10
+00:00:14,109 --> 00:00:15,542
+El secreto estaba en la
+
+11
+00:00:15,542 --> 00:00:17,485
+posición de cada
+perforación.
+
+12
+00:00:17,522 --> 00:00:18,845
+Imagínate una tarjeta
+
+13
+00:00:18,845 --> 00:00:20,234
+dividida en columnas.
+
+14
+00:00:20,234 --> 00:00:21,544
+Dependiendo de dónde
+
+15
+00:00:21,544 --> 00:00:23,269
+aparecieran
+los agujeros,
+
+16
+00:00:23,269 --> 00:00:25,098
+el lector
+identificaba números,
+
+17
+00:00:25,098 --> 00:00:26,550
+letras o instrucciones.
+
+18
+00:00:26,572 --> 00:00:28,111
+La máquina no
+leía palabras
+
+19
+00:00:28,111 --> 00:00:30,286
+impresas como lo
+hacemos nosotros:
+
+20
+00:00:30,286 --> 00:00:32,016
+detectaba un
+patrón físico y
+
+21
+00:00:32,016 --> 00:00:33,992
+lo convertía
+en información.
+
+22
+00:00:34,066 --> 00:00:35,298
+No era magia:
+
+23
+00:00:35,311 --> 00:00:36,860
+todo dependía
+de colocar las
+
+24
+00:00:36,860 --> 00:00:38,477
+perforaciones
+en su lugar.
+
+25
+00:00:38,517 --> 00:00:40,511
+¡Y aquí viene
+lo sorprendente!
+
+26
+00:00:40,511 --> 00:00:41,797
+En muchos computadores,
+
+27
+00:00:41,797 --> 00:00:44,152
+una sola tarjeta
+podía contener apenas
+
+28
+00:00:44,152 --> 00:00:45,932
+una línea de
+un programa.
+
+29
+00:00:45,949 --> 00:00:47,222
+Si un programa tenía
+
+30
+00:00:47,222 --> 00:00:48,177
+miles de líneas,
+
+31
+00:00:48,177 --> 00:00:49,503
+había que preparar y
+
+32
+00:00:49,503 --> 00:00:51,500
+ordenar montones
+de tarjetas.
+
+33
+00:00:51,500 --> 00:00:52,727
+¡Y si se desordenaban,
+
+34
+00:00:52,727 --> 00:00:54,989
+podía ser un
+verdadero problema!
+
+35
+00:00:55,004 --> 00:00:56,441
+Pero esta idea venía
+
+36
+00:00:56,441 --> 00:00:57,509
+de mucho antes.
+
+37
+00:00:57,514 --> 00:00:58,968
+En 1890,
+
+38
+00:00:58,968 --> 00:01:00,854
+un sistema
+diseñado por Herman
+
+39
+00:01:00,854 --> 00:01:03,391
+Hollerith utilizó
+tarjetas perforadas para
+
+40
+00:01:03,391 --> 00:01:04,480
+procesar los datos del
+
+41
+00:01:04,480 --> 00:01:06,230
+censo de Estados Unidos.
+
+42
+00:01:06,240 --> 00:01:06,839
+Con el tiempo,
+
+43
+00:01:06,839 --> 00:01:08,488
+las tarjetas
+también permitieron
+
+44
+00:01:08,488 --> 00:01:10,155
+introducir
+programas y datos
+
+45
+00:01:10,155 --> 00:01:12,338
+en computadoras
+electrónicas.
+
+46
+00:01:12,383 --> 00:01:14,492
+Hoy guardamos miles
+de fotografías
+
+47
+00:01:14,492 --> 00:01:15,646
+en una memoria más
+
+48
+00:01:15,646 --> 00:01:17,150
+pequeña que un dedo.
+
+49
+00:01:17,162 --> 00:01:17,579
+¡Y antes,
+
+50
+00:01:17,579 --> 00:01:19,248
+una enorme
+pila de cartón
+
+51
+00:01:19,248 --> 00:01:21,511
+podía representar
+un programa!
+
+52
+00:01:21,570 --> 00:01:23,692
+¿Habías visto una
+tarjeta perforada?
+
+53
+00:01:23,707 --> 00:01:25,744
+¡Síguenos en
+Asombroteca y descubre
+
+54
+00:01:25,744 --> 00:01:27,719
+cómo evolucionó
+la tecnología!

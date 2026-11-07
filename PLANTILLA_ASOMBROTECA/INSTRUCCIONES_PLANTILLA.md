@@ -641,3 +641,20 @@ Pasos:
    - Añadirlo a la tabla de bloques (sección 6).
    - Anotar en `CAMBIOS_PLANTILLA.md` la versión, qué se añadió y para qué video.
 6. **Entregar.** Regenerar `PLANTILLA_ASOMBROTECA_KIT.zip`, hacer commit y push.
+
+
+**v1.23 · Tarjetas perforadas (unidades 3D en mm):**
+
+| Bloque | Uso |
+|---|---|
+| `cardFrame(c, {yaw, pitch, roll, fmt})` → cd · `cardPt(cd, u, v, d)` · `holeUV(fmt, col, row)` · `CARDF` · `CROWS` | Marco de una tarjeta (sin giros: vertical mirando a +z; `pitch: -π/2` boca arriba; `pitch: +π/2` boca abajo) |
+| `cardCode(ch)` · `cardHoles(línea80, {n})` | Código real de tarjeta (dígitos, letras, espacio y `, . - / * $`); `n` = columnas ya perforadas |
+| `punchCard3(ctx, cam, cd, t, {holes, text, textN, print, fields, hl, band, thk, alpha})` → `{front, proj, s}` | Tarjeta con agujeros que se ven por detrás; `hl` resalta posiciones y `band` una columna; `thk` exagera el grosor en planos macro |
+| `cardDeck3(ctx, cam, x, y, z, n, t, {yaw, topCard, topOpts, exag})` | Mazo apoyado (n tarjetas de 0,178 mm cada una) |
+| `cardReader3(ctx, cam, t, {card, contacts, hopper, stacker, cover})` · `readerSection(ctx, x, y, w, h, t, {u, rows})` → `{contact, passed}` · `readerSectionU` | Lector de escobillas en 3D y en corte; `contacts` = columnas cuya escobilla toca el rodillo |
+| `decodePanel(ctx, x, y, w, h, t, {rows, sym, note})` | Las 12 posiciones de una columna → símbolo |
+| `keypunch3(ctx, cam, t, {card, press, key, hopper, stacker})` · `operatorSeated(ctx, x, y, h, t, {press})` | Perforadora de teclado (crea los agujeros; no confundir con el lector) |
+| `hollerithPress(ctx, x, y, w, h, t, {press, holes, counts, bell})` · `tabulator1890(ctx, cam, t, {press, counts, lid, lidA})` · `office1890(ctx, cam, t)` | Censo de 1890: agujas con resorte, mercurio, 40 diales, mesa de clasificación (electromecánico) |
+| `computerRoom60(ctx, cam, t, {pulse, lights, reader})` | Sala genérica de mediados del s. XX con lector, cable de datos y consola |
+
+FX v1.23: `perforar(k, t, g)`, `tecleo(k, t, n, dt, g)`, `tarjetaRoce(k, t, d, g)`, `escobilla(k, t, g)`, `cascadaTarjetas(k, t, d, g)`, `dialHollerith(k, t, g)`.

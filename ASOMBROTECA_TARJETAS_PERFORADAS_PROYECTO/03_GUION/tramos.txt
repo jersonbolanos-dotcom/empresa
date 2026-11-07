@@ -1,0 +1,23 @@
+¡Antes de los discos duros y las memorias USB,
+las computadoras podían recibir instrucciones de algo que parece imposible:
+tarjetas de cartón llenas de agujeros!
+Pero…
+¿cómo podía una máquina entender un pedazo de papel?
+El secreto estaba en la posición de cada perforación.
+Imagínate una tarjeta dividida en columnas.
+Dependiendo de dónde aparecieran los agujeros, el lector identificaba números, letras o instrucciones.
+La máquina no leía palabras impresas como lo hacemos nosotros:
+detectaba un patrón físico y lo convertía en información.
+No era magia:
+todo dependía de colocar las perforaciones en su lugar.
+¡Y aquí viene lo sorprendente!
+En muchos computadores, una sola tarjeta podía contener apenas una línea de un programa.
+Si un programa tenía miles de líneas, había que preparar y ordenar montones de tarjetas.
+¡Y si se desordenaban, podía ser un verdadero problema!
+Pero esta idea venía de mucho antes.
+En 1890,|milochocientosnoventa un sistema diseñado por Herman Hollerith utilizó tarjetas perforadas para procesar los datos del censo de Estados Unidos.
+Con el tiempo, las tarjetas también permitieron introducir programas y datos en computadoras electrónicas.
+Hoy guardamos miles de fotografías en una memoria más pequeña que un dedo.
+¡Y antes, una enorme pila de cartón podía representar un programa!
+¿Habías visto una tarjeta perforada?
+¡Síguenos en Asombroteca y descubre cómo evolucionó la tecnología!
