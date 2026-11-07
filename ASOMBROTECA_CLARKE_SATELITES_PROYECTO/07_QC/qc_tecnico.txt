@@ -1,0 +1,44 @@
+== ffprobe
+codec_name=h264
+width=1080
+height=1920
+r_frame_rate=30/1
+nb_frames=2645
+codec_name=aac
+sample_rate=48000
+channels=2
+r_frame_rate=0/0
+nb_frames=4133
+duration=88.166667
+size=59133660
+bit_rate=5365625
+== errores de decodificación
+0
+== blackdetect (d=0.3, pix_th=0.08) tramos
+0
+== freezedetect (n=0.002, d=1.5)
+== silencedetect (-50 dB, 1 s)
+== ebur128
+    I:         -13.9 LUFS
+    Peak:       -1.8 dBFS
+== md5 voz (esperado de700aaa44dbd0ab47115934891da6bc)
+de700aaa44dbd0ab47115934891da6bc  01_ENTRADA/audio/voz_original_clarke_satelites.mp3
+== determinismo (dos pasadas: cada hash debe aparecer 2 veces por render)
+      4 17.9 6ba683748666832403b0efc0f42034ea
+      4 41 3e7fa8888224c42445bd3768a3c96f3e
+      4 5.3 37ec41c1addacbcfbc3a03f656fefa87
+== comprobaciones físicas
+OK    radio GEO ≈ 42 164 km → 42164.2
+OK    altitud GEO ≈ 35 786 km (desde la superficie) → 35786.0
+OK    velocidad GEO ≈ 3,07 km/s → 3.075
+OK    velocidad del ecuador ≈ 0,46 km/s → 0.465
+OK    k = 6,61 radios → 6.611
+OK    Londres ve el GEO de 30° O → 24.8°
+OK    Nueva York ve el GEO de 30° O → 25.2°
+OK    Londres y Ciudad del Cabo ven la estación de 12° E
+OK    horizonte geométrico ≈ 81,3° → 81.30
+OK    cobertura útil (5°) ≈ 76,3° → polos fuera → 76.33° (shrink 0.939)
+OK    3 satélites separados 120°
+OK    ecuador cubierto entero por los 3 (elev ≥ 5°)
+OK    polo norte sin cobertura
+OK    rot decreciente ⇒ giro oeste→este

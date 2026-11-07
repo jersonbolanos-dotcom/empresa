@@ -1,0 +1,37 @@
+ASOMBROTECA STUDIO | VIDEO 07 - ARTHUR C. CLARKE (1945)
+
+IMPORTANTE: Este ZIP contiene el descargador y las fuentes, NO contiene las dos fotos originales. No fue posible descargarlas desde el entorno de creacion. Ejecutar descargar_imagenes.py en un equipo con Internet y verificar los archivos.
+
+01_Arthur_C_Clarke_foto_1965.jpg
+TITULO: Arthur C. Clarke 1965
+AUTOR: ITU Pictures
+FECHA: febrero de 1965 (NO es una foto de 1945)
+LICENCIA: Creative Commons Attribution 2.0 (CC BY 2.0)
+https://creativecommons.org/licenses/by/2.0/
+FUENTE: https://commons.wikimedia.org/wiki/File:Arthur_C._Clarke_1965.jpg
+ARCHIVO: https://upload.wikimedia.org/wikipedia/commons/6/62/Arthur_C._Clarke_1965.jpg
+CREDITO RECOMENDADO: Arthur C. Clarke (1965). Foto: ITU Pictures / Wikimedia Commons, CC BY 2.0. Recorte/animacion para Asombroteca si se modifica.
+
+02_Sputnik_1_replica_NASA.jpg
+TITULO: Sputnik asm.jpg
+AUTOR/FUENTE: NASA / NSSDC
+FECHA IMAGEN: 2004; fotografia de una REPLICA de Sputnik 1, no fotografia del satelite en orbita en 1957.
+LICENCIA: Dominio publico en Estados Unidos (obra NASA)
+FUENTE: https://commons.wikimedia.org/wiki/File:Sputnik_asm.jpg
+ARCHIVO: https://upload.wikimedia.org/wikipedia/commons/b/be/Sputnik_asm.jpg
+CREDITO RECOMENDADO: Replica de Sputnik 1, imagen NASA / NSSDC, dominio publico en EE. UU.
+
+REGLAS DE INSERCION:
+- Imagen 01: cuando el guion dice 'Era Arthur C. Clarke'. Rotulo 'ARTHUR C. CLARKE | FOTOGRAFIA DE 1965'.
+- Imagen 02: cuando menciona que Sputnik fue lanzado en 1957. Rotulo 'SPUTNIK 1 (1957) | REPLICA'.
+- Fotografias flotantes, 1.5-2.5 s, parallax y perspectiva suaves, no reemplazar animacion 3D.
+- No etiquetar Sputnik 1 como satelite de comunicaciones o geoestacionario.
+- No usar la foto de Clarke 1965 como si se hubiera tomado al publicar el articulo de 1945.
+- No animar la fotografia original como video historico.
+- Si la importacion falla no sustituir por imagen IA haciendola pasar por archivo autentico.
+
+INVESTIGACION CIENTIFICA PRINCIPAL:
+IEEE ComSoc: https://www.comsoc.org/node/19071
+IEEE GEO: https://technav.ieee.org/topic/geostationary-satellites/
+NASA Historia Satcom: https://www.nasa.gov/history/communications-satellites/
+Articulo original de 1945 (texto e imagen; derechos no revisados para reutilizacion): https://lakdiva.org.lk/clarke/1945ww/

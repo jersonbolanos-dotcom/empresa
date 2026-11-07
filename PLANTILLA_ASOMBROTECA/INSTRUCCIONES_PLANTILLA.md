@@ -691,3 +691,27 @@ FX v1.24: `galope(k, t, d, g)`, `polea(k, t, d, g)`, `telescopio(k, t, g)`, `cli
 | `relayPanorama(ctx, x, y, w, h, t, cfgAt, {n, done, los, scale})` | Estaciones en cimas con copia secuencial; `done(i)` resalta el progreso |
 | `telegraphScene(ctx, x, y, w, h, t, {press, pulse, recv})` | Telégrafo eléctrico: manipulador, pila, hilo con impulso y receptor |
 | `chappeTower(…, {colL, colR, night})` · `chappeSky(…, {seed})` | Resaltar un indicador; silueta nocturna; nubes distintas por escena |
+
+**v1.25 · Órbitas y satélites (geometría compartida con `earth3`):**
+
+| Bloque | Uso |
+|---|---|
+| `P.ORB` | Constantes: `Re` 6378 km, `geoAlt` 35 786 km, `geoR` 42 164 km, `k` 6,61 radios, `vGeo` 3,07 km/s |
+| `orbView(cx, cy, r, rot, tilt)` → `{pt(lat, lon, k), vec, fromVec, hidden(p)}` | Proyecta puntos de la Tierra (k = 1) o del espacio (k radios) con el mismo convenio que `earth3({rot, tilt})`. Para el giro real, `rot` DISMINUYE con el tiempo. Un GEO es `pt(0, lonFija, k)` |
+| `orbRing(ctx, V, k, {part, col, lw, dash, glow})` | Órbita ecuatorial: `part:'back'` antes de `earth3`, `'front'` después |
+| `orbLat(ctx, V, lat, {col, lw, dash})` | Ecuador u otro paralelo (cara visible) |
+| `orbFootprint(ctx, V, lon, {k, col:'r,g,b', a, shrink})` | Cobertura por horizonte geométrico (`shrink` 0,94 ≈ elevación mínima 5°) |
+| `orbBeam(ctx, A, B, t, {u, col, w, n, speed})` | Enlace de radio esquemático con frentes de onda (u = avance) |
+| `satGEO / station1945 / sputnik1 / satLEO (ctx, x, y, s, t, {face \| ang})` | Satélite GEO moderno, estación conceptual de 1945, Sputnik 1, satélite pequeño |
+| `dishAntenna(ctx, x, y, s, el, t, {tx})` → `{feed, dir}` | Antena parabólica sobre pedestal; `el` = elevación en pantalla |
+| `groundStation(ctx, x, y, w, h, t, {day, sun, el, tx, dishX, dishS})` → `{dish, gy}` | Estación terrena con cielo día/noche y estrellas |
+| `repeaterDiagram(ctx, x, y, w, h, t, {u})` | Repetidor recibe→amplifica→cambia→amplifica→envía (h ≥ 300; dos filas si w < 1180) |
+| `paperSketch(ctx, cx, cy, s, t, {u, bg})` · `magazine1945(ctx, x, y, w, t, {rot})` | Boceto a tinta (3 estaciones a 120°) que se dibuja · recreación editorial de revista (rotular «RECREACIÓN») |
+| `figure1945(ctx, x, y, h, t, {dir, reach, reachL, glasses})` · `office1945(ctx, cam, t)` → `{paper}` | Figura de los años 40 · despacho con máquina de escribir (metros; teclado ≈ [-0.38, 0.92, -0.08]) |
+| `timelineBar(ctx, x, y, w, y0, y1, marks, u, t)` | Línea de tiempo con años `[[año, etiqueta]]` |
+| `tv1950(ctx, x, y, s, t, {on})` · `roofDish(ctx, x, y, w, t, {el, day})` → `{feed, dir}` | Televisor doméstico (apóyalo en un mueble) · tejado con antena parabólica |
+
+FX v1.25: `enlaceSube(k, t, g)`, `enlaceBaja(k, t, g)`, `orbitaPulso(k, t, d, g)`.
+
+Patrón de escena orbital (ver ep. 07, `orbScene`): anillo trasero → satélites con z < 0 → `earth3` → ecuador/coberturas/estaciones → anillo delantero → satélites con z ≥ 0 → enlaces. Dibuja un enlace solo si la estación ve el satélite (elevación > 0 con k real y con el k esquemático). Con k esquemático, limita r·k ≤ 520 px para que el satélite no salga del encuadre.
+

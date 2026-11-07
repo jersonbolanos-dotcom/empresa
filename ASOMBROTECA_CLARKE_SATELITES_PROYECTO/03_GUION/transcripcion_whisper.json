@@ -1,0 +1,152 @@
+[
+ {
+  "i": 0,
+  "s": 0.0,
+  "e": 5.516,
+  "text": "En 1945, 12 años antes del lanzamiento del primer satélite artificial,"
+ },
+ {
+  "i": 1,
+  "s": 5.842,
+  "e": 9.569,
+  "text": "Un escritor imaginó enviar señales de televisión desde el espacio."
+ },
+ {
+  "i": 2,
+  "s": 10.034,
+  "e": 11.836,
+  "text": "Se llamaba Arthur C. Clark."
+ },
+ {
+  "i": 3,
+  "s": 12.256,
+  "e": 14.312,
+  "text": "Su propuesta parecía ciencia ficción."
+ },
+ {
+  "i": 4,
+  "s": 14.719,
+  "e": 19.599,
+  "text": "Colocar estaciones repetidoras en órbita para conectar lugares muy alejados de la Tierra."
+ },
+ {
+  "i": 5,
+  "s": 19.958,
+  "e": 20.267,
+  "text": "Pero..."
+ },
+ {
+  "i": 6,
+  "s": 20.579,
+  "e": 24.372,
+  "text": "¿Cómo lograr que una antena pudiera apuntar siempre hacia el mismo satélite?"
+ },
+ {
+  "i": 7,
+  "s": 24.779,
+  "e": 26.083,
+  "text": "Aquí estaba el secreto."
+ },
+ {
+  "i": 8,
+  "s": 26.432,
+  "e": 31.212,
+  "text": "Clark describió una órbita situada a unos 36.000 kilómetros sobre el Ecuador."
+ },
+ {
+  "i": 9,
+  "s": 31.586,
+  "e": 37.432,
+  "text": "A esa altura, si el satélite gira en el mismo sentido que la Tierra y tarda lo mismo en completar una vuelta,"
+ },
+ {
+  "i": 10,
+  "s": 37.685,
+  "e": 39.437,
+  "text": "parece quedarse quieto en el cielo."
+ },
+ {
+  "i": 11,
+  "s": 39.804,
+  "e": 42.196,
+  "text": "Por eso se llama órbita geoestacionaria."
+ },
+ {
+  "i": 12,
+  "s": 42.566,
+  "e": 44.988,
+  "text": "La clave no era que el satélite estuviera inmóvil"
+ },
+ {
+  "i": 13,
+  "s": 45.316,
+  "e": 46.725,
+  "text": "viajaba a gran velocidad."
+ },
+ {
+  "i": 14,
+  "s": 47.007,
+  "e": 49.011,
+  "text": "pero acompañaba la rotación terrestre."
+ },
+ {
+  "i": 15,
+  "s": 49.367,
+  "e": 52.553,
+  "text": "Una estación en tierra puede enviar una señal hasta el satélite."
+ },
+ {
+  "i": 16,
+  "s": 52.846,
+  "e": 55.47,
+  "text": "y este puede retransmitirla hacia otra región."
+ },
+ {
+  "i": 17,
+  "s": 55.856,
+  "e": 61.498,
+  "text": "Clark propuso tres estaciones repartidas alrededor del planeta para lograr una cobertura enorme."
+ },
+ {
+  "i": 18,
+  "s": 61.832,
+  "e": 64.516,
+  "text": "y lo escribió en 1945."
+ },
+ {
+  "i": 19,
+  "s": 64.889,
+  "e": 69.803,
+  "text": "El primer satélite artificial, Sputnik, no llegó hasta 1957."
+ },
+ {
+  "i": 20,
+  "s": 70.192,
+  "e": 74.198,
+  "text": "Clark no inventó los satélites ni fue el primero en imaginar esa órbita."
+ },
+ {
+  "i": 21,
+  "s": 74.477,
+  "e": 78.813,
+  "text": "pero describió de forma influyente cómo utilizarla para comunicaciones globales."
+ },
+ {
+  "i": 22,
+  "s": 79.187,
+  "e": 83.0,
+  "text": "La próxima vez que veas una antena parabólica, recuerda esta historia."
+ },
+ {
+  "i": 23,
+  "s": 83.392,
+  "e": 84.438,
+  "text": "¿Conocías esta idea?"
+ },
+ {
+  "i": 24,
+  "s": 84.839,
+  "e": 87.171,
+  "text": "Cuéntanos en los comentarios de Asombroteca."
+ }
+]
