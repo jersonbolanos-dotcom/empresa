@@ -1,0 +1,21 @@
+Imagina enviar un mensaje a cientos de kilómetros sin teléfono, sin internet y sin electricidad.
+En Francia, hace más de dos siglos, existía una red que podía hacerlo utilizando solamente torres y señales visibles.
+Su creador fue Claude Chape.
+Pero ¿cómo funcionaba?
+En lo alto de cada torre, había un mecanismo con brazos móviles.
+Al colocarlos en diferentes posiciones,
+Los operadores formaban señales de un código.
+Desde una torre, una persona observaba la siguiente con un telescopio.
+Cuando veía una señal, la copiaba con los brazos de su propia torre.
+Entonces, el operador de la torre siguiente repetía el proceso.
+Cada torre debía ver a la siguiente.
+Por eso, muchas se instalaban en puntos elevados.
+Los operadores tenían que copiar cada señal con precisión.
+El mensaje viajaba de una torre a otra sin que nadie tuviera que recorrer todo el camino.
+Y lo más sorprendente es que podía avanzar mucho más rápido que un mensajero a caballo.
+En 1794 ya funcionaba una línea entre París y Lille.
+pero había una desventaja enorme.
+Si aparecía niebla, lluvia intensa o llegaba la noche, la transmisión podía detenerse.
+Por eso, con la llegada del telégrafo eléctrico, estas redes fueron perdiendo importancia.
+Mucho antes de las antenas y el wifi, ya existía una auténtica red de comunicación a larga distancia.
+Compártela este vídeo a alguien que piense que las redes comenzaron con Internet.

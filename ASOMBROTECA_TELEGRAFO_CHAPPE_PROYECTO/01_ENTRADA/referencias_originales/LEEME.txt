@@ -1,0 +1,19 @@
+ASOMBROTECA STUDIO - VIDEO 06 - TELEGRAFO OPTICO DE CLAUDE CHAPPE
+
+CONTENIDO: fuentes originales verificadas, manifiesto con licencias y un script de descarga.
+IMPORTANTE: las imagenes NO estan incluidas en este ZIP, porque el entorno de entrega no pudo descargar los archivos de Wikimedia Commons. El descargador las obtiene desde el computador del usuario.
+
+PASOS:
+1) Descomprime el ZIP.
+2) En VS Code abre terminal en esta carpeta.
+3) Ejecuta: python descargar_imagenes.py
+4) Comprueba los archivos en referencias_originales/.
+5) Importa esa carpeta y el audio del episodio en el proyecto de Claude Code.
+6) Si falla la descarga, abre las URLs de MANIFIESTO_IMAGENES.json y descarga manualmente los originales con el nombre de destino.
+
+ARCHIVOS PREVISTOS:
+01_Claude_Chappe_retrato_grabado.png - retrato historico, no foto
+02_Mecanismo_Chappe_grabado_1868.jpg - ilustracion historica, no foto
+03_Telegrafo_Chappe_museo_foto_real.jpg - foto actual en museo, no fotografia de 1794
+
+Las dos ilustraciones historicas figuran como dominio publico en Wikimedia Commons; la fotografia de museo esta publicada como CC0. Conserva las fuentes en los creditos internos del proyecto.

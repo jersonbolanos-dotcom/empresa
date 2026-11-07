@@ -1,0 +1,128 @@
+[
+ {
+  "i": 0,
+  "s": 0.0,
+  "e": 5.77,
+  "text": "Imagina enviar un mensaje a cientos de kilómetros sin teléfono, sin internet y sin electricidad."
+ },
+ {
+  "i": 1,
+  "s": 6.34,
+  "e": 13.823,
+  "text": "En Francia, hace más de dos siglos, existía una red que podía hacerlo utilizando solamente torres y señales visibles."
+ },
+ {
+  "i": 2,
+  "s": 14.33,
+  "e": 16.003,
+  "text": "Su creador fue Claude Chape."
+ },
+ {
+  "i": 3,
+  "s": 16.579,
+  "e": 18.023,
+  "text": "Pero ¿cómo funcionaba?"
+ },
+ {
+  "i": 4,
+  "s": 18.607,
+  "e": 22.049,
+  "text": "En lo alto de cada torre, había un mecanismo con brazos móviles."
+ },
+ {
+  "i": 5,
+  "s": 22.475,
+  "e": 24.516,
+  "text": "Al colocarlos en diferentes posiciones,"
+ },
+ {
+  "i": 6,
+  "s": 24.788,
+  "e": 27.265,
+  "text": "Los operadores formaban señales de un código."
+ },
+ {
+  "i": 7,
+  "s": 27.787,
+  "e": 31.624,
+  "text": "Desde una torre, una persona observaba la siguiente con un telescopio."
+ },
+ {
+  "i": 8,
+  "s": 32.049,
+  "e": 35.764,
+  "text": "Cuando veía una señal, la copiaba con los brazos de su propia torre."
+ },
+ {
+  "i": 9,
+  "s": 36.243,
+  "e": 39.723,
+  "text": "Entonces, el operador de la torre siguiente repetía el proceso."
+ },
+ {
+  "i": 10,
+  "s": 40.19,
+  "e": 41.982,
+  "text": "Cada torre debía ver a la siguiente."
+ },
+ {
+  "i": 11,
+  "s": 42.321,
+  "e": 44.972,
+  "text": "Por eso, muchas se instalaban en puntos elevados."
+ },
+ {
+  "i": 12,
+  "s": 45.417,
+  "e": 48.615,
+  "text": "Los operadores tenían que copiar cada señal con precisión."
+ },
+ {
+  "i": 13,
+  "s": 49.104,
+  "e": 54.148,
+  "text": "El mensaje viajaba de una torre a otra sin que nadie tuviera que recorrer todo el camino."
+ },
+ {
+  "i": 14,
+  "s": 54.591,
+  "e": 59.348,
+  "text": "Y lo más sorprendente es que podía avanzar mucho más rápido que un mensajero a caballo."
+ },
+ {
+  "i": 15,
+  "s": 59.743,
+  "e": 64.119,
+  "text": "En 1794 ya funcionaba una línea entre París y Lille."
+ },
+ {
+  "i": 16,
+  "s": 64.601,
+  "e": 66.463,
+  "text": "pero había una desventaja enorme."
+ },
+ {
+  "i": 17,
+  "s": 66.831,
+  "e": 72.139,
+  "text": "Si aparecía niebla, lluvia intensa o llegaba la noche, la transmisión podía detenerse."
+ },
+ {
+  "i": 18,
+  "s": 72.627,
+  "e": 77.334,
+  "text": "Por eso, con la llegada del telégrafo eléctrico, estas redes fueron perdiendo importancia."
+ },
+ {
+  "i": 19,
+  "s": 77.809,
+  "e": 83.692,
+  "text": "Mucho antes de las antenas y el wifi, ya existía una auténtica red de comunicación a larga distancia."
+ },
+ {
+  "i": 20,
+  "s": 84.159,
+  "e": 88.451,
+  "text": "Compártela este vídeo a alguien que piense que las redes comenzaron con Internet."
+ }
+]

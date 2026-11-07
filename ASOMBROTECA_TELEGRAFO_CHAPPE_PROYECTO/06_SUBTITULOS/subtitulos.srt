@@ -1,0 +1,247 @@
+1
+00:00:00,050 --> 00:00:01,907
+¡Imagina enviar
+un mensaje a
+
+2
+00:00:01,907 --> 00:00:03,934
+cientos de kilómetros
+sin teléfono,
+
+3
+00:00:03,934 --> 00:00:06,120
+sin internet y
+sin electricidad!
+
+4
+00:00:06,340 --> 00:00:06,778
+En Francia,
+
+5
+00:00:06,778 --> 00:00:07,954
+hace más de dos siglos,
+
+6
+00:00:07,954 --> 00:00:09,410
+existía una red que
+
+7
+00:00:09,410 --> 00:00:12,220
+podía hacerlo
+utilizando solamente
+
+8
+00:00:12,220 --> 00:00:14,173
+torres y señales
+visibles.
+
+9
+00:00:14,330 --> 00:00:16,353
+Su creador fue
+Claude Chappe.
+
+10
+00:00:16,579 --> 00:00:18,373
+Pero ¿cómo funcionaba?
+
+11
+00:00:18,607 --> 00:00:19,954
+En lo alto de cada torre
+
+12
+00:00:19,954 --> 00:00:22,399
+había un mecanismo
+con brazos móviles.
+
+13
+00:00:22,475 --> 00:00:23,350
+Al colocarlos en
+
+14
+00:00:23,350 --> 00:00:24,788
+diferentes posiciones,
+
+15
+00:00:24,788 --> 00:00:26,536
+los operadores
+formaban señales
+
+16
+00:00:26,536 --> 00:00:27,615
+de un código.
+
+17
+00:00:27,787 --> 00:00:28,772
+Desde una torre,
+
+18
+00:00:28,772 --> 00:00:30,273
+una persona observaba la
+
+19
+00:00:30,273 --> 00:00:31,974
+siguiente con
+un telescopio.
+
+20
+00:00:32,049 --> 00:00:33,332
+Cuando veía una señal,
+
+21
+00:00:33,332 --> 00:00:34,722
+la copiaba
+con los brazos
+
+22
+00:00:34,722 --> 00:00:36,114
+de su propia torre.
+
+23
+00:00:36,243 --> 00:00:37,799
+Entonces el
+operador de la
+
+24
+00:00:37,799 --> 00:00:40,073
+torre siguiente
+repetía el proceso.
+
+25
+00:00:40,190 --> 00:00:41,293
+Cada torre debía ver
+
+26
+00:00:41,293 --> 00:00:42,321
+a la siguiente,
+
+27
+00:00:42,321 --> 00:00:43,256
+por eso muchas se
+
+28
+00:00:43,256 --> 00:00:45,322
+instalaban en
+puntos elevados.
+
+29
+00:00:45,417 --> 00:00:47,387
+Los operadores
+tenían que copiar
+
+30
+00:00:47,387 --> 00:00:48,965
+cada señal
+con precisión.
+
+31
+00:00:49,104 --> 00:00:50,365
+¡El mensaje viajaba de
+
+32
+00:00:50,365 --> 00:00:51,468
+una torre a otra,
+
+33
+00:00:51,468 --> 00:00:52,729
+sin que nadie
+tuviera que
+
+34
+00:00:52,729 --> 00:00:54,498
+recorrer todo el camino!
+
+35
+00:00:54,591 --> 00:00:56,028
+Y lo más
+sorprendente es que
+
+36
+00:00:56,028 --> 00:00:57,839
+podía avanzar
+mucho más rápido
+
+37
+00:00:57,839 --> 00:00:59,698
+que un mensajero
+a caballo.
+
+38
+00:00:59,743 --> 00:01:02,556
+En 1794 ya
+funcionaba una
+
+39
+00:01:02,556 --> 00:01:04,469
+línea entre
+París y Lille.
+
+40
+00:01:04,601 --> 00:01:06,813
+Pero había una
+desventaja enorme.
+
+41
+00:01:06,831 --> 00:01:08,044
+¡Si aparecía niebla,
+
+42
+00:01:08,044 --> 00:01:10,224
+lluvia intensa o
+llegaba la noche,
+
+43
+00:01:10,224 --> 00:01:12,489
+la transmisión
+podía detenerse!
+
+44
+00:01:12,627 --> 00:01:13,077
+Por eso,
+
+45
+00:01:13,077 --> 00:01:13,828
+con la llegada
+
+46
+00:01:13,828 --> 00:01:15,179
+del telégrafo eléctrico,
+
+47
+00:01:15,179 --> 00:01:16,174
+estas redes fueron
+
+48
+00:01:16,174 --> 00:01:17,684
+perdiendo importancia.
+
+49
+00:01:17,809 --> 00:01:18,747
+Mucho antes de las
+
+50
+00:01:18,747 --> 00:01:19,842
+antenas y el wifi,
+
+51
+00:01:19,842 --> 00:01:21,765
+ya existía una
+auténtica red
+
+52
+00:01:21,765 --> 00:01:24,042
+de comunicación a
+larga distancia.
+
+53
+00:01:24,159 --> 00:01:25,972
+¡Compártele este
+video a alguien
+
+54
+00:01:25,972 --> 00:01:26,727
+que piense que las
+
+55
+00:01:26,727 --> 00:01:28,451
+redes comenzaron
+con internet!

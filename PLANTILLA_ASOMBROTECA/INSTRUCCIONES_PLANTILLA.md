@@ -667,3 +667,17 @@ FX v1.23: `perforar(k, t, g)`, `tecleo(k, t, n, dt, g)`, `tarjetaRoce(k, t, d, g
 | `sdFrame(c, {yaw, pitch})` · `microSD3(ctx, cam, sd, t)` | microSD 3D de 11 × 15 × 1 mm con contactos; apoyarla siempre sobre una base o una mesa |
 | `cardReader3(…, {roll, signal, sigAge})` · `readerSection(…, {sigAge})` | Giro de rodillos, cable y lámpara de señal; dos estados de contacto separados en el tiempo |
 | `P.poly3(ctx, cam, pts, fill)` | Polígono 3D recortado contra la cámara, para escenarios sencillos en los episodios |
+
+**v1.24 · Telégrafo óptico Chappe (unidades 3D en metros):**
+
+| Bloque | Uso |
+|---|---|
+| `chappeTower(ctx, cam, pos, t, {cfg, yaw, scope, glow, ropeHi})` · `chappeMech(ctx, cam, base, cfg, {yaw, sc, ropes})` · `CHP` · `chappeGeom(cfg, sc)` | Modelo maestro ÚNICO de estación. `cfg = {reg, li, ri}` en grados (regulador 0/90; indicadores respecto a la prolongación del regulador, pasos de 45°) |
+| `chappeAt(keys, t, ch)` · `chappeLerp` | Secuencias `[[t, cfg]…]`: cada cambio dura `ch` s y la posición se mantiene hasta el siguiente cambio |
+| `chappeSky(ctx, {dusk, storm, night, fog, drift})` · `chappeLand(ctx, cam, t, {towers, near, fog, storm, night, dusk, road})` → `{hz, shade}` · `chappeHeight(x, z, towers)` | Paisaje del norte de Francia con estaciones en las cimas. Mantener la cámara por encima del terreno (en el episodio, `C3`). `near` añade detalle cercano |
+| `rainFX(ctx, t, a)` · `fogFX(ctx, a, night)` | Lluvia y niebla de pantalla |
+| `chappeSection(ctx, x, y, w, h, t, {cfg, man, look, moving, hi})` | Corte de estación: operador, telescopio, manipulador, cuerdas y mecanismo con la misma forma |
+| `chappeMap(ctx, cx, cy, w, t, {u, n})` | Mapa esquemático París–Lille con la señal avanzando |
+| `horseRider(ctx, x, y, h, t, {dir, rate})` · `telegraphKey(ctx, x, y, s, t, {press})` · `telegraphPoles(ctx, cam, hz, t, {a, pulse})` · `workshop1790(ctx, cam, t, {cfg})` | Mensajero a caballo, telégrafo eléctrico del s. XIX y taller con un modelo a escala del mecanismo maestro |
+
+FX v1.24: `galope(k, t, d, g)`, `polea(k, t, d, g)`, `telescopio(k, t, g)`, `clicMorse(k, t, n, g)`.
