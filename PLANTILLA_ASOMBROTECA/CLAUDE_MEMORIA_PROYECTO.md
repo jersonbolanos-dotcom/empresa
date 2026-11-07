@@ -4,8 +4,9 @@ Canal de videos verticales explicativos. El usuario manda audio de narración + 
 con resumen en español. Responder siempre en español.
 
 ## Leer primero (en este orden)
-1. `PLANTILLA_ASOMBROTECA/SUPERPROMPT_PLANTILLA_ASOMBROTECA.md` — reglas y «REGLAS APRENDIDAS» (1–92).
+1. `PLANTILLA_ASOMBROTECA/SUPERPROMPT_PLANTILLA_ASOMBROTECA.md` — reglas y «REGLAS APRENDIDAS» (1–98).
 2. `PLANTILLA_ASOMBROTECA/INSTRUCCIONES_PLANTILLA.md` — todos los bloques `P.*` y FX disponibles por versión.
+   `PLANTILLA_ASOMBROTECA/GUIA_ESTILOS.md` — fórmula de guion viral, 8 estilos y bloques v1.26 (personajes, móvil, HUD, mapas, 3D).
 3. `PLANTILLA_ASOMBROTECA/CAMBIOS_PLANTILLA.md` — versión actual de la plantilla.
 4. El episodio más parecido como ejemplo (p. ej. `ASOMBROTECA_MACHU_PICCHU_PROYECTO/04_CODIGO/js/episodio.js`).
 
@@ -21,7 +22,11 @@ con resumen en español. Responder siempre en español.
 - Al corregir: respaldar la versión anterior en carpetas `V1/` y cambiar solo lo pedido.
 - Git: commit + push a la rama de trabajo; no subir `index.html` generados; no crear PR salvo que se pida.
 
-## Flujo (desde `<PROYECTO>/04_CODIGO`; T = `../../PLANTILLA_ASOMBROTECA/tools`)
+## Flujo rápido (v1.26, desde la raíz del repositorio)
+- `python3 PLANTILLA_ASOMBROTECA/tools/nuevo_proyecto.py NOMBRE --estilo E --marca M --voz V` → `NOMBRE_PROYECTO/`
+- `python3 PLANTILLA_ASOMBROTECA/tools/producir.py NOMBRE_PROYECTO voz` → revisar `03_GUION/tramos.txt` → `… alinear` → escribir `js/episodio.js` (usar `PL.kit(A)`) → `… prueba t1 t2 …` → `… todo` (render + mezcla + QC con ✔/✘).
+
+## Flujo manual (desde `<PROYECTO>/04_CODIGO`; T = `../../PLANTILLA_ASOMBROTECA/tools`)
 1. Voz: `bash $T/preparar_voz.sh <voz> <proyecto>` → corregir `03_GUION/tramos.txt` (números: `500|quinientos`) → `alinear.py` → `subtitulos.py`.
 2. Escribir `js/episodio.js` (beats `{t0,t1,in,draw,sfx}`; tiempos con `wt(seg,'palabra')`).
 3. `python3 -I $T/build.py` → `index.html`.

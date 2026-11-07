@@ -725,3 +725,80 @@ Patrón de escena orbital (ver ep. 07, `orbScene`): anillo trasero → satélite
 | `satCutaway(ctx, x, y, w, h, t, {u})` → `{rx, tx}` | Repetidor transparente en corte; `u` = avance de la señal; devuelve las antenas para enlazar haces |
 | `modernHouse(ctx, x, y, w, t, {day})` → `{roof(fx, fy), gy}` · `homeDish(ctx, x, y, s, el, t)` → `{feed, lnb, dir}` | Casa contemporánea en perspectiva · antena offset doméstica para colocar sobre `roof()` |
 
+---
+
+## v1.26 · Plantilla universal (estilos, interfaz, datos, personajes, historia, tecnología, 3D)
+
+Extraído de 7 vídeos virales de referencia. Guía de uso, fórmula de guion y cuándo usar cada estilo: `GUIA_ESTILOS.md`.
+Captura de todo: `catalogo/catalogo_v126.jpg`. Ejemplo completo: `ejemplo_demo_v126/04_CODIGO/js/episodio.js`.
+
+**Montaje y estilo**
+
+| Bloque | Uso |
+|---|---|
+| `PL.make({ estilo, marca: { nombre }, capIcons, capAhead, capSel, … })` | `estilo`: `asombroteca`, `viral`, `cartoon`, `noche`, `blueprint`, `dossier`, `producto` o `tecno` (fija piel, subtítulos y posición; lo explícito manda). `capStyle: 'ios'` o `'mono'` también se pueden pedir sueltos |
+| `PL.kit(A, { lead, tail })` → `{ wt, T, B0, DURATION, txt, title, lab, recon, vign, bill, shot, fotos, IMG }` | Quita el código repetido de cada episodio. `wt(tramo, 'palabra', n)`, `T.s3`, `T.end`, `B0.b3 = T.s3 − lead`, `await K.fotos()` en `init` |
+| `P.fondo(ctx, t, estilo?, { c0, c1, glow, seed, pan, lx, ly })` | Fondo completo del estilo (por defecto el de la piel activa) |
+| `P.bokeh(ctx, t, o)` · `P.motes(ctx, t, o)` · `P.gridBP(ctx, o)` | Bokeh que deriva · motas que suben · cuadrícula de plano técnico |
+| `P.marca(ctx, t, t0, { y, nombre })` | Nombre del canal discreto al final (`P.MARCA.nombre`, configurable) |
+| `P.mini(ctx, x, y, w, h, fn)` | Dibuja una escena de 1080×1920 reducida dentro de un rectángulo (vista previa en el móvil, fotograma) |
+
+**Interfaz y cierre**
+
+| Bloque | Uso |
+|---|---|
+| `P.icon(ctx, nombre, x, y, s, { mode: 'line' \| 'flat', col, col2, lw })` | 49 iconos (`P.ICONOS`): persona, grupo, botella, copa, reloj, corazon, cerebro, pulmones, gota, rayo, llave, candado, movil, casa, coche, avion, barco, moneda, calendario, lupa, alerta, check, cruz, estrella, fuego, hoja, sol, luna, nube, nota, cafe, pastilla, adn, atomo, globo, pin, camara, micro, chat, enviar, ojo, bombilla, engranaje, escudo, trofeo, grafico, dinero, musculo, virus |
+| `P.avatar(ctx, x, y, r, seed, { bg, ring, check })` | Persona ilustrada determinista (piel, pelo, ropa, gafas) |
+| `P.scrShare / scrChat / scrLock / scrAlert / scrCamera (ctx, x, y, w, h, t, o)` | Pantallas para `P.smartphone(…, { screen })`: hoja de compartir, chat, bloqueo con notificación, aviso del sistema, cámara grabando |
+| `P.keyboardUI(ctx, x, y, w, t, { hi: { e: 0.86 }, press, glow })` → posiciones | Teclado QWERTY español con probabilidades y teclas resaltadas |
+| `P.ctaShare(ctx, t, t0, t1, { preview, names, seeds, sel, y, h })` + `FX.compartir(k, t0)` | Cierre «Envíaselo a ese amigo…»: el móvil sube, se abre la hoja de compartir, el dedo toca un contacto, luego «Enviar» y queda «✓ Enviado» |
+| `P.tag(ctx, texto, x, y, t, t0, t1, { to: [[x, y]…], mono, px, col, bg })` | Etiqueta en píldora oscura con 1 o 2 líneas guía discontinuas |
+
+**Datos**
+
+| Bloque | Uso |
+|---|---|
+| `P.hud(ctx, t, [{ label, value \| from, to, t0, t1, x: 'left' \| 'right', y, hi, suffix }])` | Contadores tipo HUD (versalitas y número monoespaciado; miles con punto) |
+| `P.iconGrid(ctx, x, y, w, h, n, icono, { cols, hi(i), reveal, labels(i) })` | Cuadrícula de pictogramas |
+| `P.dotMatrix(ctx, x, y, filas, cols, f(r, c), { rowLabels, colLabels })` | Tabla de círculos llenos o vacíos (combinaciones) |
+| `P.barsGrow(ctx, x, y, w, h, valores, u, { labels, hi(i), line: { v, label }, fmt })` | Barras que crecen una a una |
+| `P.statBig(ctx, texto, x, y, t, t0, t1, { px, sub, col, badge })` | Cifra grande con rótulo |
+| `P.clockBP(ctx, x, y, r, horas, { hi: [h0, h1], label })` | Reloj de trazo con arco de intervalo y hora digital |
+
+**Personajes y metáforas**
+
+| Bloque | Uso |
+|---|---|
+| `P.face(ctx, x, y, s, t, { mood, look, seed, blink })` | Cara para cualquier objeto. Ánimos: feliz, contento, triste, enfadado, asustado, sorpresa, dormido, mareado, serio |
+| `P.character(ctx, tipo, x, y, s, t, { col, mood, bounce, face, glow })` | Personajes: bola, pinchos, gota, pastilla, celula, corazon, cerebro, pulmones, estomago, diente, virus, nube, sol, molecula |
+| `P.keyLock(ctx, x, y, s, t, { u, turn, ok, fake, keyCol, lockCol, from })` | Cerradura y llave (receptores, contraseñas, compatibilidad). `fake` = llave falsa que entra pero no gira |
+| `P.filmStrip(ctx, x, y, w, h, t, { scroll, frame(i, x, y, w, h), empty(i) })` · `P.recBadge(ctx, x, y, t)` | Tira de película con fotogramas (memoria, recuerdos) · indicador REC |
+
+**Historia (dossier)**
+
+| Bloque | Uso |
+|---|---|
+| `P.mapTop(ctx, x, y, w, h, t, { seed, density, view: { cx, cy, z }, roads, places, units, routes })` → `map(u, v)` | Mapa cenital: bosque de copas, caminos, castillo/pueblo/casa, tropas (enjambres de puntos que avanzan por un camino) y rutas punteadas |
+| `P.dossier(ctx, img \| null, x, y, w, t, { name, role, rot, unknown, stamp: { text, t0 } })` | Ficha tipo polaroid (foto en grises o silueta; «?» si es desconocido) |
+| `P.stamp(ctx, texto, x, y, w, t, t0, { col, rot })` + `FX.sello(k, t0)` | Sello de goma que golpea, con textura gastada |
+| `P.emblem(ctx, 'estrella' \| 'cruz' \| 'letras' \| 'franjas', x, y, r, { text, cols, label, hi })` | Emblemas circulares de bando o equipo |
+| `P.scope(ctx, x, y, r, t, inner(ctx), { ring, ticks })` | Mira o telescopio con retícula; `inner` dibuja lo que se ve |
+
+**Tecnología y 3D**
+
+| Bloque | Uso |
+|---|---|
+| `P.layerStack(ctx, x, y, w, t, { layers: [{ name, h, kind: 'vidrio' \| 'rejilla' \| 'pantalla' \| 'pcb' \| 'color' }], electrodes, field: { touch: { x, y, u, r } }, values: { base } })` | Corte por capas con arcos de campo eléctrico que se curvan hacia el dedo y lecturas que bajan donde se toca |
+| `P.mesh.box(w, h, d, { bevel })` · `extrude(poli2d, d, { bevel })` · `cyl(r, h, { r2, seg })` · `sphere(r)` · `lathe([[r, y]…])` | Mallas sencillas. Torneado de abajo arriba, empezando y terminando en el eje |
+| `P.render3(ctx, cam, [{ mesh, pos, rot, scale, col, cols: { lado, frente, atras, bisel }, spec, shin, alpha, shadow, suelo, paint }], { light, amb })` | Render con luz suave, brillo especular, sombras de contacto difuminadas, superficies de apoyo (`suelo`) y pintura sobre caras (`paint`: vetas, marcas, texto) |
+
+FX v1.26: `toque(k, t)`, `compartir(k, t0)`, `llave(k, t)`, `latido(k, t, n, gap)`, `chispa(k, t, d)`, `disparos(k, t, n)`, `tanque(k, t, d)`, `rec(k, t)`, `alertaMovil(k, t)`, `personaje(k, t)`, `pasarPagina(k, t)`.
+
+**Herramientas v1.26**
+
+| Herramienta | Uso |
+|---|---|
+| `tools/nuevo_proyecto.py NOMBRE --estilo E --marca M --voz V [--titulo T] [--destino D]` | Crea el proyecto con su esqueleto. Las rutas a la plantilla se calculan solas |
+| `tools/producir.py PROYECTO voz \| alinear \| build \| prueba t… \| render \| qc \| todo \| limpiar` | Producción completa. `render` incluye la mezcla con sidechain y corrige la sonoridad a −14 LUFS con pico ≤ −1 dBTP. `qc` escribe `07_QC/QC.md` con ✔/✘ |
+| `tools/determinismo.js index.html [t…]` | Comprueba que cada fotograma depende solo de t |
+
