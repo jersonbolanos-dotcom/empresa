@@ -10,15 +10,15 @@ channels=2
 r_frame_rate=0/0
 nb_frames=4195
 duration=89.466667
-size=57995252
+size=59097931
 == decode errors
 0
 == blackdetect
 == freezedetect
 == silencedetect
 == ebur128
-    I:         -14.2 LUFS
+    I:         -14.1 LUFS
     LRA:         2.7 LU
     Peak:       -1.7 dBFS
-== md5 voz (original subido: 4504573385e0ff81822934b43bfa64d2)
+== md5 voz (original: 4504573385e0ff81822934b43bfa64d2)
 4504573385e0ff81822934b43bfa64d2  01_ENTRADA/audio/voz_original_telegrafo_chappe.mp3

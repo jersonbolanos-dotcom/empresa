@@ -681,3 +681,13 @@ FX v1.23: `perforar(k, t, g)`, `tecleo(k, t, n, dt, g)`, `tarjetaRoce(k, t, d, g
 | `horseRider(ctx, x, y, h, t, {dir, rate})` · `telegraphKey(ctx, x, y, s, t, {press})` · `telegraphPoles(ctx, cam, hz, t, {a, pulse})` · `workshop1790(ctx, cam, t, {cfg})` | Mensajero a caballo, telégrafo eléctrico del s. XIX y taller con un modelo a escala del mecanismo maestro |
 
 FX v1.24: `galope(k, t, d, g)`, `polea(k, t, d, g)`, `telescopio(k, t, g)`, `clicMorse(k, t, n, g)`.
+
+**v1.24.1 · añadidos:**
+
+| Bloque | Uso |
+|---|---|
+| `figure18c(ctx, x, y, h, t, {dir, coat, hair, reach, reachL})` → `{hand, head}` | Figura masculina de finales del s. XVIII; `reach` = punto en pantalla que toca la mano derecha (palanca, ocular) |
+| `chappeMini(ctx, x, yb, s, cfg, {lit, colL, colR})` → `{top, G, toS}` | Estación 2D con la misma geometría que la 3D (para esquemas y comparaciones) |
+| `relayPanorama(ctx, x, y, w, h, t, cfgAt, {n, done, los, scale})` | Estaciones en cimas con copia secuencial; `done(i)` resalta el progreso |
+| `telegraphScene(ctx, x, y, w, h, t, {press, pulse, recv})` | Telégrafo eléctrico: manipulador, pila, hilo con impulso y receptor |
+| `chappeTower(…, {colL, colR, night})` · `chappeSky(…, {seed})` | Resaltar un indicador; silueta nocturna; nubes distintas por escena |

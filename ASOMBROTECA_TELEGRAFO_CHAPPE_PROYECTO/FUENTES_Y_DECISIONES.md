@@ -26,3 +26,12 @@ Archivo original `01_ENTRADA/audio/voz_original_telegrafo_chappe.mp3` (88,45 s; 
 
 ## Música y efectos
 Originales: MUS.piano, MUS.pulso y MUS.epica. Efectos FX nuevos: galope, polea, telescopio y clicMorse, más viento y lluvia. Mezcla con sidechain a −14 LUFS.
+
+## Mejora definitiva (V2 · `ASOMBROTECA_TELEGRAFO_OPTICO_FINAL.mp4`)
+- **196 combinaciones**: el Musée des Arts et Métiers indica 8 posiciones por indicador, de las que se usaron 7, y 196 señales ligadas a un vocabulario. No precisa la etapa del código, así que en pantalla se atribuye la cifra al museo y las señales A, B y C se rotulan como «ilustrativas». La documentación aclara que el sistema y su código cambiaron con el tiempo.
+- **Estación v2**: reconstrucción genérica de una arquitectura coherente. No es una estación concreta.
+- **Cadena causa → efecto**: la torre A mantiene la señal, el telescopio de B muestra la misma configuración, el operador de B mueve el manipulador, las cuerdas accionan los brazos y B la reproduce. Después C observa a B y la copia. La señal transmitida conserva siempre la misma configuración, salvo el error de la escena de precisión, que se corrige.
+- **Línea de visión**: es un esquema discontinuo. Se muestra primero una colina que tapa la vista y después la estación colocada en la cima.
+- **Telégrafo eléctrico**: en esta escena sí se representa una corriente por el hilo, porque es otra tecnología y otra época.
+- **Red antes de internet**: la analogía se limita a la existencia de una red de estaciones que retransmitía información. No se compara con protocolos ni con transmisión automática.
+- **Narración**: no se detectaron datos discutibles.
