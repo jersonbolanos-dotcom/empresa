@@ -10,8 +10,8 @@ channels=2
 r_frame_rate=0/0
 nb_frames=4133
 duration=88.166667
-size=59133660
-bit_rate=5365625
+size=61381526
+bit_rate=5569590
 == errores de decodificación
 0
 == blackdetect (d=0.3, pix_th=0.08) tramos
@@ -23,18 +23,21 @@ bit_rate=5365625
     Peak:       -1.8 dBFS
 == md5 voz (esperado de700aaa44dbd0ab47115934891da6bc)
 de700aaa44dbd0ab47115934891da6bc  01_ENTRADA/audio/voz_original_clarke_satelites.mp3
-== determinismo (dos pasadas: cada hash debe aparecer 2 veces por render)
-      4 17.9 6ba683748666832403b0efc0f42034ea
-      4 41 3e7fa8888224c42445bd3768a3c96f3e
-      4 5.3 37ec41c1addacbcfbc3a03f656fefa87
+== determinismo (dos pasadas: cada hash 4 veces)
+      4 17.9 774c1d171a5aa0966d65eadd6c0d1dc5
+      4 41 e107663cdc8e600c78279230cb20e181
+      4 5.3 cf99b987973602fd8c2dd217ef660f7a
 == comprobaciones físicas
 OK    radio GEO ≈ 42 164 km → 42164.2
 OK    altitud GEO ≈ 35 786 km (desde la superficie) → 35786.0
 OK    velocidad GEO ≈ 3,07 km/s → 3.075
 OK    velocidad del ecuador ≈ 0,46 km/s → 0.465
+OK    período = día sidéreo 23 h 56 min 4 s → 23.9345 h
+OK    órbita ideal circular y ecuatorial (inclinación 0°): orbRing dibuja el ecuador, sats con lat 0
 OK    k = 6,61 radios → 6.611
 OK    Londres ve el GEO de 30° O → 24.8°
 OK    Nueva York ve el GEO de 30° O → 25.2°
+OK    Lisboa y Río ven el GEO de 30° O (gancho) → 40.2° / 59.3°
 OK    Londres y Ciudad del Cabo ven la estación de 12° E
 OK    horizonte geométrico ≈ 81,3° → 81.30
 OK    cobertura útil (5°) ≈ 76,3° → polos fuera → 76.33° (shrink 0.939)

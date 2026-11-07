@@ -1,39 +1,34 @@
-# QC · Ep. 07 · Arthur C. Clarke y los satélites de comunicación
+# QC · Ep. 07 · Arthur C. Clarke · VERSIÓN CINEMATOGRÁFICA DEFINITIVA
 
-Archivo: `07_OUTPUT/ASOMBROTECA_07_CLARKE_SATELITES_FINAL.mp4` (detalle en `qc_tecnico.txt`)
+Archivo: `07_OUTPUT/ASOMBROTECA_CLARKE_SATELITES_FINAL.mp4` (detalle en `qc_tecnico.txt`). Versión anterior: `07_OUTPUT/V1/` (QC anterior en `07_QC/V1/`).
 
 | Control | Resultado |
 |---|---|
-| Formato | H.264 1080×1920, 30 fps, 2645 fotogramas · AAC 48 kHz estéreo · 88,17 s · 59,1 MB (< 100 MB) ✔ |
+| Formato | H.264 1080×1920, 30 fps, 2645 fotogramas · AAC 48 kHz estéreo · 88,17 s · 61,4 MB ✔ |
 | Decodificación completa | 0 errores ✔ |
-| Negros (d 0,3 s) / congelados (1,5 s) / silencios (−50 dB, 1 s) | 0 / 0 / 0 ✔ |
-| Sonoridad | −13,9 LUFS integrados, pico real −1,8 dBTP ✔ |
-| Voz | md5 `de700aaa44dbd0ab47115934891da6bc` idéntico al original; sin alterar ✔ |
-| Determinismo | dos renders de prueba con hashes idénticos ✔ |
-| Física (`04_CODIGO/comprobaciones.js`) | 14/14 OK: altitud 35 786 km, v 3,07 km/s, visibilidad de enlaces, 120°, cobertura 76,3° (polos fuera), giro oeste→este ✔ |
-| Subtítulos | `capStyle 'barra'`, `capY 1540`; rótulos ≥ 32 px y por encima de y = 1420 ✔ |
-| Marca | solo «ASOMBROTECA» discreto al final ✔ |
+| Negros / congelados / silencios | 0 / 0 / 0 ✔ |
+| Sonoridad | −13,9 LUFS, pico real −1,8 dBTP ✔ |
+| Voz | md5 `de700aaa44dbd0ab47115934891da6bc` = original ✔ |
+| Determinismo | dos pasadas, hashes idénticos ✔ |
+| Física (`04_CODIGO/comprobaciones.js`) | 17/17 OK (altitud, radio, período sidéreo, v, enlaces visibles, 120°, cobertura y polos, giro) ✔ |
 
-## Lista de verificación del SUPERPROMPT
-| # | Punto | Dónde (fotograma en `frames/`) |
-|---|---|---|
-| 1 | Gancho en el espacio, «¡LO IMAGINÓ EN 1945!», 12 años antes | 01 |
-| 2 | Señales de TV desde el espacio (televisor apoyado en su mueble) | 02 |
-| 3 | Despacho de 1945 + figura de Clarke; foto rotulada «FOTOGRAFÍA DE 1965» con crédito | 03 |
-| 4 | Boceto 120° que se dibuja («¿CIENCIA FICCIÓN?», recreación) | 04 |
-| 5 | Estación repetidora conceptual enlazando Londres y Ciudad del Cabo, rotulada como ilustrativa | 05 |
-| 6 | Problema de seguimiento LEO: la antena sigue al satélite y se pierde la señal | 06 |
-| 7 | Altitud a escala real medida desde la superficie (≈ 36 000 km / 35 786 km) | 08 |
-| 8 | GEO: la Tierra gira y el satélite RECORRE su órbita con su punto del ecuador debajo (tiempo acelerado) | 09, `tira_corrotacion.jpg` |
-| 9 | Vista desde la superficie: día/noche, satélite fijo, antena inmóvil | 10 |
-| 10 | Misma velocidad angular, no lineal (3,07 vs 0,46 km/s) | 12, 13 |
-| 11 | Enlace ascendente / repetidor / descendente; ambas estaciones dentro de la cobertura; ningún haz atraviesa la Tierra | 14, 15, `tira_enlace.jpg` |
-| 12 | 3 satélites a 120°, coberturas curvas, polos fuera (círculo de 75°) | 16 |
-| 13 | Revista recreada, rotulada «RECREACIÓN EDITORIAL · NO ES LA PÁGINA ORIGINAL» | 17 |
-| 14 | Sputnik 1957: órbita baja inclinada, no GEO ni repetidor de TV; foto «RÉPLICA · FOTO NASA» con crédito | 18 |
-| 15 | Matiz: no inventó los satélites ni fue el primero (Noordung, 1929) | 19 |
-| 16 | Legado: red global + Intelsat I «Early Bird» (1965) | 20 |
-| 17 | Antena parabólica en un tejado apuntando fija al satélite; cierre con 3 satélites y ASOMBROTECA | 21, 22 |
-
-Hoja de contacto del MP4: `hoja_contacto.jpg`. Los fundidos entre escenas aparecen a veces en la hoja (fotograma tomado en plena transición), no son negros prolongados (blackdetect = 0).
-Retrocompatibilidad: la v1.25 solo añade bloques y FX (comprobado: ningún nombre repetido en `plantilla.js`, sintaxis correcta); no cambia ningún bloque existente.
+## Lista del SUPERPROMPT (sección 24)
+| Punto | Estado y dónde verlo (`frames/`) |
+|---|---|
+| Tierra sin deformación polar | ✔ nuevo `P.earthHQ` (ruido 3D sobre la esfera, casquetes polares); vista desde el norte en 15, 21, 23 |
+| Continentes coherentes, rotación continua | ✔ misma proyección que `orbView`; rot decreciente (oeste→este) |
+| Trayectorias orbitales coherentes / GEO explicado | ✔ 11 + `tira_corrotacion.jpg`; dos perspectivas simultáneas en 12 + `tira_dos_perspectivas.jpg` |
+| Escala real solo cuando lo es | ✔ «A ESCALA REAL» aparece cuando la órbita mide 6,61 radios (10); el resto «DISTANCIAS ESQUEMÁTICAS» |
+| Satélites con mejor diseño y presencia | ✔ `P.satGEO3` (bus 3D, alas con yugo, reflectores); primer plano en 13, plano medio en 17 |
+| Variedad de planos | ✔ ecuatorial (1, 9), escala lateral (10), cenital (15, 23), primer plano (13), suelo (8, 12, 16), lateral (14), corte (18), cobertura (21) |
+| Clarke refinado | ✔ trabaja sobre el documento; la cámara entra al papel (5) y las líneas del boceto se convierten en la Tierra 3D (6) |
+| Revista = recreación editorial | ✔ rotulada; acercamiento al diagrama, posiciones iluminadas → 3 satélites 3D (22, 23) |
+| Sputnik correcto | ✔ esfera con 4 antenas, órbita baja inclinada, «12 AÑOS», foto «RÉPLICA» con crédito (24) |
+| Enlace ascendente comprensible | ✔ estación de Londres en primer plano → la cámara sube con el haz → antena receptora resaltada (16, 17) |
+| Repetidor demuestra su función | ✔ corte esquemático: receptora → filtrado → conversión (6 → 4 GHz, onda más larga) → amplificación (onda mayor) → transmisora (18) |
+| Enlace descendente llega a una estación | ✔ Nueva York recibe (vídeo) dentro de la cobertura (19) |
+| 3 satélites a 120° y polos limitados | ✔ «120° — 120° — 120°», coberturas a 5° de elevación, círculo de 75° (20, 21) |
+| Contribución de Clarke matizada | ✔ esquema anterior (Potočnik, 1929), «no inventó / ni fue el primero», documento → red global, Early Bird 1965 con su modelo cilíndrico y «antes: Syncom» (25, 26) |
+| Escena doméstica convincente | ✔ casa contemporánea, antena offset con LNB; la cámara parte de la antena y sube hasta SU satélite (27, 28) |
+| Cierre con ASOMBROTECA | ✔ satélite en primer plano → Tierra con 3 satélites, desaceleración suave (29, 30) |
+| Textos legibles, sin choques con subtítulos | ✔ rótulos ≥ 32 px (principales 38 px) y por encima de y = 1340 |

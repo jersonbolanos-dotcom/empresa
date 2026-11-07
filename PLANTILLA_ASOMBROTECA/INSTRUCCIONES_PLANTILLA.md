@@ -715,3 +715,13 @@ FX v1.25: `enlaceSube(k, t, g)`, `enlaceBaja(k, t, g)`, `orbitaPulso(k, t, d, g)
 
 Patrón de escena orbital (ver ep. 07, `orbScene`): anillo trasero → satélites con z < 0 → `earth3` → ecuador/coberturas/estaciones → anillo delantero → satélites con z ≥ 0 → enlaces. Dibuja un enlace solo si la estación ve el satélite (elevación > 0 con k real y con el k esquemático). Con k esquemático, limita r·k ≤ 520 px para que el satélite no salga del encuadre.
 
+**v1.25.1 · añadidos (retoque cinematográfico del ep. 07):**
+
+| Bloque | Uso |
+|---|---|
+| `earthHQ(ctx, cx, cy, r, t, {rot, tilt, light, clip})` | Igual convenio que `earth3`, sin «flor» polar (ruido 3D sobre la esfera). Úsalo siempre que se vean los polos o la Tierra sea grande; `clip:[0,0,W,H]` evita calcular píxeles fuera de cuadro |
+| `satGEO3(ctx, x, y, s, t, {face, yaw, sun, rx, tx})` | Satélite moderno ilustrativo con volumen (envergadura ±285 px a s = 1); `rx`/`tx` 0..1 iluminan el reflector receptor/transmisor |
+| `earlyBird(ctx, x, y, s, t, {ang})` | Intelsat I «Early Bird» (1965), cilindro con células solares |
+| `satCutaway(ctx, x, y, w, h, t, {u})` → `{rx, tx}` | Repetidor transparente en corte; `u` = avance de la señal; devuelve las antenas para enlazar haces |
+| `modernHouse(ctx, x, y, w, t, {day})` → `{roof(fx, fy), gy}` · `homeDish(ctx, x, y, s, el, t)` → `{feed, lnb, dir}` | Casa contemporánea en perspectiva · antena offset doméstica para colocar sobre `roof()` |
+

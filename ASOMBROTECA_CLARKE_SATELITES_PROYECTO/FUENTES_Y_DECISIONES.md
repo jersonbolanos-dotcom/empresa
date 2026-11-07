@@ -11,6 +11,11 @@
 | Altitud 35 786 km, radio 42 164 km, v ≈ 3,07 km/s, ecuador ≈ 0,46 km/s, día sidéreo 23 h 56 min, horizonte 81,3°, cobertura útil (5°) 76,3° | Cálculo propio con GM = 398 600,44 km³/s² y T = 86 164 s → `04_CODIGO/comprobaciones.js` (todas OK) |
 | Sputnik 1: órbita baja (~96 min por vuelta, inclinación ~65°), solo emitía señales de radio | NASA (histórico Sputnik); se dibuja esquemática |
 
+| Período orbital = día sidéreo (23 h 56 min 4 s); órbita circular, ecuatorial (0°), oeste→este; geosíncrona inclinada ≠ geoestacionaria | ESA, https://www.esa.int/Applications/Telecommunications_Integrated_Applications/Orbits · https://www.esa.int/media/geostationary-orbit |
+| Intelsat I (Early Bird): cilindro cubierto de células solares, servicio comercial 1965 | Smithsonian, https://www.si.edu/object/model-communications-satellite-intelsat-i%3Anasm_A19750767000 |
+| Syncom (1963-64) operó antes que Early Bird | NASA, historia de los satélites de comunicaciones |
+| Repetidor transparente en banda C (subida ≈ 6 GHz, bajada ≈ 4 GHz, como Early Bird) | Valores típicos de banda C; se rotulan como «≈» y el corte como «ESQUEMÁTICO» |
+
 ## Decisiones
 - **GEO nunca quieto en el espacio:** el satélite tiene longitud fija y la Tierra gira de oeste a este (`rot` decreciente); en vista externa recorre su órbita a la vez que gira la Tierra, con la marca de su punto del ecuador debajo (escena 8). En vista desde el suelo aparece fijo (escena 9).
 - **Escala:** escena 7 a escala real (r = 74 px, órbita 6,61 radios, cota medida desde la superficie). El resto usa k = 2,15 y se rotula «DISTANCIAS ESQUEMÁTICAS». Las coberturas usan la altura REAL (horizonte con elevación mínima de 5°).
@@ -18,3 +23,9 @@
 - **Estación de 1945:** ilustración conceptual (no es un diseño de Clarke), distinta del satélite moderno. El ejemplo LEO de la escena 5 se rotula «EJEMPLO».
 - **Fotos:** Clarke rotulada «FOTOGRAFÍA DE 1965»; Sputnik rotulado «RÉPLICA · FOTO NASA». La revista es una **recreación editorial**, rotulada así; no se usa la página original (derechos no revisados).
 - No se menciona la fecha de Syncom 3 (no se encontró explícita en las fuentes consultadas).
+
+## Versión cinematográfica definitiva (retoque)
+- **Tierra:** la «flor» polar venía de generar nubes y vegetación con ruido 2D sobre (lon, lat); en la textura equirrectangular todas las longitudes convergen en el polo. Nuevo bloque `P.earthHQ` con ruido 3D evaluado sobre la esfera, costas suavizadas, plataformas someras, hielo polar, brillo especular, sombra de nubes, terminador cálido y atmósfera fina. `P.earth3` no cambia (otros episodios intactos).
+- **«A ESCALA REAL»** solo aparece cuando la órbita mide realmente 6,61 radios terrestres; el satélite se rotula como ampliado.
+- **Satélites:** estación conceptual de 1945 (ilustrativa), Sputnik 1 (esfera y antenas), satélite moderno ilustrativo (`satGEO3`, rotulado «MODELO ILUSTRATIVO» en primer plano) y Early Bird (cilindro) cuando se menciona Intelsat I.
+- **Antena doméstica:** se dice «apunta fija a SU satélite»; no todas las antenas apuntan al mismo.
