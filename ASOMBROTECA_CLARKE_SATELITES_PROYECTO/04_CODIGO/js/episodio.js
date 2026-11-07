@@ -141,9 +141,10 @@
   space(ctx); const m = E.inOut(win(t, B0.b8, B0.b8 + 1.6)), r = lerp(235, 74, m), k = lerp(KS, ORB.k, m), rot = 0.9 - (t - B0.b7) * 0.05, tilt = lerp(0.33, 0.2, m), lonR = (rot - 1.6) / RAD + 90;
   const { V } = orbScene(ctx, t, { cy: 860, r, rot, tilt, k, equator: sm(T.ecuador - 0.4, T.ecuador, t), sats: [{ lon: lonR, s: lerp(0.4, 0.2, m), a: sm(B0.b8 + 1.2, B0.b8 + 1.6, t) }] });
   const d = sm(T.treinta - 0.6, T.treinta, t); if (d > 0) { const a = V.pt(0, lonR, 1), b = V.pt(0, lonR, ORB.k), y = a.y - 70, xe = lerp(a.x, b.x, E.out(d)); ctx.save(); ctx.strokeStyle = C.oro; ctx.fillStyle = C.oro; ctx.lineWidth = 4; ctx.beginPath(); ctx.moveTo(a.x, a.y - 14); ctx.lineTo(a.x, y - 22); ctx.moveTo(a.x, y); ctx.lineTo(xe, y); ctx.stroke(); arrowHead(ctx, a.x + 4, y, Math.PI, 16, C.oro); if (d > 0.95) { ctx.beginPath(); ctx.moveTo(b.x, b.y - 30); ctx.lineTo(b.x, y - 22); ctx.stroke(); arrowHead(ctx, b.x - 4, y, 0, 16, C.oro); } ctx.restore(); txt(ctx, '≈ 36.000 KM', (a.x + b.x) / 2, y - 64, 60, C.blanco, { w: 900, sh: 1 }); txt(ctx, '35.786 km de altitud', (a.x + b.x) / 2, y + 36, 34, C.oro, { w: 800, sh: 1 }); }
-  lab(ctx, 'A ESCALA REAL', null, 540, 430, t, B0.b8 + 1.6, B0.b9, { px: 40, sub: 'Tierra 6.378 km de radio · satélite ampliado' }); title(ctx, 'UNA ÓRBITA MUY ALTA', t, B0.b8 + 0.2, T.treinta - 0.4, { px: 54 });
+  const ha = sm(B0.b8 + 1.6, B0.b8 + 1.9, t); if (ha > 0) P.hud(ctx, t, [{ label: 'Altitud', from: 0, to: 35786, t0: T.treinta - 0.6, t1: T.km + 0.4, suffix: 'km', y: 520, a: ha, hi: true, labelPx: 32, valuePx: 72 }, { label: 'Radio terrestre', value: 6378, suffix: 'km', x: 'right', y: 520, a: ha, labelPx: 32, valuePx: 72 }]);
+  P.tag(ctx, 'A ESCALA REAL · SATÉLITE AMPLIADO', 540, 640, t, B0.b8 + 1.6, B0.b9, { mono: true }); title(ctx, 'UNA ÓRBITA MUY ALTA', t, B0.b8 + 0.2, T.treinta - 0.4, { px: 54 });
   lab(ctx, 'SOBRE EL ECUADOR', null, 540, 1150, t, T.ecuador - 0.3, B0.b9, { col: C.oro, px: 40 });
- }, sfx(k) { FX.contraer(k, B0.b8, 1.4, 0.7); FX.escala(k, T.treinta - 0.6, 1.0); FX.etiqueta(k, T.ecuador - 0.3); } });
+ }, sfx(k) { FX.contraer(k, B0.b8, 1.4, 0.7); FX.escala(k, T.treinta - 0.6, 1.0); FX.contador(k, T.treinta - 0.6, T.km + 0.4, 0, 35786); FX.etiqueta(k, T.ecuador - 0.3); } });
 
  // 8 · co-rotación (vista externa, tiempo acelerado): la Tierra gira y el satélite RECORRE su órbita sin despegarse de su punto del ecuador
  const R8 = (t) => 1.0 - 0.62 * Math.max(0, t - (B0.b9 + 0.9)), L8 = -8;
@@ -188,7 +189,7 @@
   space(ctx); const rot = 0.9 - (t - B0.b12) * 0.32, LS = -20, sat = { lon: LS, s: 0.5, trail: 55 };
   orbScene(ctx, t, { cy: 880, r: 205, rot, tilt: 0.14, k: KS, equator: 0.5, sats: [sat], over(ctx, V, S) { const p = S[0].p, q = V.pt(0, LS + 6, KS), ang = Math.atan2(q.y - p.y, q.x - p.x), va = sm(T.velocidad - 0.5, T.velocidad, t); if (va > 0 && p.z > 0) { const L = 230 * E.out(va), x2 = p.x + Math.cos(ang) * L, y2 = p.y + Math.sin(ang) * L; ctx.save(); ctx.strokeStyle = C.oro; ctx.lineWidth = 9; ctx.lineCap = 'round'; ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(x2, y2); ctx.stroke(); arrowHead(ctx, x2, y2, ang, 26, C.oro); ctx.restore(); } } });
   title(ctx, '¡NO ESTABA INMÓVIL!', t, B0.b12 + 0.1, T.velocidad - 0.4, { px: 62 }); title(ctx, 'VIAJA MUY RÁPIDO', t, T.velocidad - 0.4, B0.b14, { px: 62 });
-  lab(ctx, '≈ 3,07 KM/S', null, 540, 1290, t, T.velocidad - 0.2, B0.b14, { col: C.oro, px: 52, sub: '≈ 11.000 km/h, sin parar' }); schem(ctx, t, B0.b12, B0.b14);
+  P.statBig(ctx, '≈ 3,07 km/s', 540, 1230, t, T.velocidad - 0.2, B0.b14, { px: 104, sub: '≈ 11.000 km/h, sin parar', subPx: 34, col: C.oro }); schem(ctx, t, B0.b12, B0.b14);
  }, sfx(k) { FX.espacio(k, B0.b12, B0.b14 - B0.b12, 0.6); FX.pasada(k, T.velocidad - 0.6, 1.6, 0.8); FX.flecha(k, T.velocidad - 0.4); } });
 
  // 12 · «pero acompañaba la rotación terrestre»: vista desde el norte; el ecuador y el satélite barren el MISMO ángulo
@@ -199,7 +200,8 @@
    const wa = sm(B0.b14 + 0.3, B0.b14 + 0.6, t); if (wa > 0) { ctx.save(); ctx.globalAlpha *= wa; wedge(KS, 'rgba(84,216,240,0.9)', 7); wedge(1, 'rgba(255,212,71,0.95)', 7); ctx.restore(); }
    const p = V.pt(0, LS, 1); P.glow(ctx, p.x, p.y, 26, '255,212,71', 0.9); ctx.fillStyle = C.oro; ctx.beginPath(); ctx.arc(p.x, p.y, 9, 0, TAU); ctx.fill(); } });
   title(ctx, 'ACOMPAÑA LA ROTACIÓN', t, B0.b14 + 0.1, B0.b15, { px: 58 });
-  lab(ctx, 'MISMO ÁNGULO EN EL MISMO TIEMPO', null, 540, 1250, t, T.rotacion - 0.6, B0.b15, { col: C.cian, px: 38, sub: 'ecuador ≈ 0,46 km/s · satélite ≈ 3,07 km/s' }); schem(ctx, t, B0.b14, B0.b15);
+  const h12 = sm(T.rotacion - 0.6, T.rotacion - 0.2, t); if (h12 > 0) P.hud(ctx, t, [{ label: 'Ecuador', value: '0,46', suffix: 'km/s', y: 1250, a: h12, labelPx: 32, valuePx: 70 }, { label: 'Satélite', value: '3,07', suffix: 'km/s', x: 'right', y: 1250, a: h12, hi: true, labelPx: 32, valuePx: 70 }]);
+  P.tag(ctx, 'MISMO ÁNGULO, MISMO TIEMPO', 540, 1340, t, T.rotacion - 0.4, B0.b15, { mono: true, col: C.cian }); schem(ctx, t, B0.b14, B0.b15);
  }, sfx(k) { FX.tiempo(k, B0.b14, 1.8, 0.5); FX.etiqueta(k, T.rotacion - 0.6); } });
 
  // 13 · ENLACE ASCENDENTE en continuidad: estación de Londres en primer plano → la cámara sube con el haz → el satélite lo capta con
@@ -215,7 +217,7 @@
    P.glow(ctx, SKY13[0], SKY13[1], 40, '255,230,170', 0.7); P.satGEO3(ctx, SKY13[0], SKY13[1], 0.2, t, { face: Math.atan2(dyp - SKY13[1], dxp - SKY13[0]) }); P.orbBeam(ctx, G.dish.feed, SKY13, t, { u: sm(B0.b15 + 0.6, T.senal + 0.2, t), w: 24 }); ctx.restore();
    lab(ctx, 'ESTACIÓN TERRENA · LONDRES', null, 540, 1320, t, B0.b15 + 0.3, T.senal - 0.2, { col: C.cian, sub: 'su antena envía la señal' }); }
   if (sw > 0) { ctx.save(); ctx.globalAlpha *= sw; space(ctx); P.earthHQ(ctx, 380, 2360, 1150, t, { rot: ROT13 - 0.25, tilt: 0.45, clip: [0, 0, W, HH] }); const sx = 640, sy = 640, face = Math.atan2(2360 - sy, 380 - sx), rxp = satPt(sx, sy, 1.3, face, -54, 62), rxOn = sm(T.satelite15 - 0.35, T.satelite15, t);
-   P.orbBeam(ctx, [250, 1218], rxp, t, { u: sm(T.senal + 0.3, T.satelite15, t), w: 24 }); P.satGEO3(ctx, sx, sy, 1.3, t, { face, yaw: 0.3, rx: rxOn }); lab(ctx, 'ANTENA RECEPTORA', null, 330, 760, t, T.satelite15 - 0.1, B0.b16 + 0.2, { col: C.cian }); ctx.restore(); }
+   P.orbBeam(ctx, [250, 1218], rxp, t, { u: sm(T.senal + 0.3, T.satelite15, t), w: 24 }); P.satGEO3(ctx, sx, sy, 1.3, t, { face, yaw: 0.3, rx: rxOn }); P.tag(ctx, 'ANTENA RECEPTORA', 300, 900, t, T.satelite15 - 0.1, B0.b16 + 0.2, { mono: true, col: C.cian, to: [rxp] }); ctx.restore(); }
   title(ctx, 'ENLACE ASCENDENTE', t, B0.b15 + 0.2, B0.b16 + 0.3, { px: 58 });
  }, sfx(k) { FX.motor(k, B0.b15 + 0.2, 0.8, 0.25); FX.enlaceSube(k, B0.b15 + 0.6, 1); FX.pasada(k, T.senal - 0.4, 1.0, 0.4); FX.revelar(k, T.satelite15 - 0.3); } });
  const DN14 = T.retrans + 0.75;
@@ -244,11 +246,11 @@
   const MW = 520, MH = MW * 1.36, mx = 540, e = E.out(win(t, B0.b18, B0.b18 + 0.8)), my = lerp(1000, 800, e), ix = 0, iy = MH * 0.24, zp = E.inOut(win(t, B0.b18 + 0.9, T.y1945 + 1.3)), Z = lerp(1, 2.3, zp), F = [mx + ix * zp, my + iy * zp], Ps = [540, lerp(800, 820, zp)], tr = sm(B0.b19 - 0.75, B0.b19 - 0.15, t);
   const g = ctx.createLinearGradient(0, 0, 0, HH); g.addColorStop(0, '#3a2a20'); g.addColorStop(1, '#22181a'); ctx.fillStyle = g; ctx.fillRect(0, 0, W, HH);
   ctx.save(); ctx.globalAlpha *= 1 - tr; ctx.translate(Ps[0], Ps[1]); ctx.scale(Z, Z); ctx.translate(-F[0], -F[1]); ctx.strokeStyle = 'rgba(0,0,0,0.25)'; ctx.lineWidth = 2; for (let i = -6; i < 30; i++) { ctx.beginPath(); ctx.moveTo(-600, i * 85); ctx.bezierCurveTo(400, i * 85 + 30, 700, i * 85 - 20, 1700, i * 85 + 10); ctx.stroke(); }
-   P.magazine1945(ctx, mx, my, MW, t, { rot: lerp(-0.12, 0, e) }); const la = sm(T.y1945 + 0.6, T.y1945 + 1.1, t); if (la > 0) for (const a of [-90, 30, 150]) { const R0 = MW * 0.2 * 1.15; P.glow(ctx, mx + Math.cos(a * RAD) * R0, my + iy + Math.sin(a * RAD) * R0, 26, '255,212,71', la); } ctx.restore();
+   P.magazine1945(ctx, mx, my, MW, t, { rot: lerp(-0.12, 0, e) }); P.stamp(ctx, 'RECREACIÓN', mx + 120, my - 250, 280, t, T.y1945 + 0.25, { rot: -0.18 }); const la = sm(T.y1945 + 0.6, T.y1945 + 1.1, t); if (la > 0) for (const a of [-90, 30, 150]) { const R0 = MW * 0.2 * 1.15; P.glow(ctx, mx + Math.cos(a * RAD) * R0, my + iy + Math.sin(a * RAD) * R0, 26, '255,212,71', la); } ctx.restore();
   sepiaWarm(ctx, 0.15 * (1 - tr)); vign(ctx, 0.5);
   if (tr > 0) { ctx.save(); ctx.globalAlpha *= tr; space(ctx); orbScene(ctx, t, { cy: 820, r: 100, rot: -2.065, tilt: 1.5, k: 1.15 / 0.42, sats: L3.map((lon) => ({ lon, s: 0.32 })) }); ctx.restore(); }
   title(ctx, '¡Y LO ESCRIBIÓ EN 1945!', t, B0.b18 + 0.1, B0.b18 + 1.2, { px: 58 }); lab(ctx, 'WIRELESS WORLD · OCTUBRE DE 1945', null, 540, 1190, t, T.y1945 - 0.2, T.y1945 + 1.2, { sub: '«Extra-Terrestrial Relays»' }); recon(ctx, 'RECREACIÓN EDITORIAL · NO ES LA PÁGINA ORIGINAL', t, B0.b18 + 0.3, B0.b19 - 0.6);
- }, sfx(k) { FX.paginas(k, B0.b18 + 0.1, 2, 0.8); FX.sello(k, T.y1945); FX.aparece(k, T.y1945 + 0.7); FX.expansion(k, B0.b19 - 0.75, 0.8); } });
+ }, sfx(k) { FX.paginas(k, B0.b18 + 0.1, 2, 0.8); FX.sello(k, T.y1945 + 0.25); FX.aparece(k, T.y1945 + 0.7); FX.expansion(k, B0.b19 - 0.75, 0.8); } });
 
  // 17 · Sputnik 1 (1957): órbita BAJA e inclinada, da la vuelta muy rápido; no era geoestacionario ni retransmitía TV + FOTO (réplica)
  B.push({ t0: B0.b19, t1: B0.b20, in: { type: 'fade', d: 0.35 }, draw(ctx, t) {
@@ -258,9 +260,9 @@
   if (sp.z >= 0 && sa > 0) { ctx.save(); ctx.globalAlpha *= sa; P.glow(ctx, sp.x, sp.y, 30, '255,255,255', 0.5); P.sputnik1(ctx, sp.x, sp.y, 0.95, t, { ang: th }); ctx.restore(); }
   const ya = sm(T.y1957 - 0.2, T.y1957 + 0.3, t); if (ya > 0) { ctx.save(); ctx.globalAlpha *= ya; txt(ctx, '12 AÑOS', 540, 276, 44, C.oro, { w: 900, sh: 1 }); ctx.restore(); }
   P.timelineBar(ctx, 140, 330, 800, 1945, 1957, [[1945, 'ARTÍCULO'], [1957, 'SPUTNIK 1']], E.inOut(win(t, B0.b19 + 0.3, T.y1957)), t);
-  P.floatPhoto(ctx, IMG.sputnik, 760, 700, 440, t, T.sputnik - 0.2, B0.b20 + 0.2, { tag: 'RÉPLICA · FOTO NASA', label: 'SPUTNIK 1 · 1957', sub: 'primer satélite artificial', credit: 'NASA / NSSDC · dominio público', from: 1, rotY: -0.1 });
+  const da = sm(T.sputnik - 0.2, T.sputnik + 0.2, t); if (da > 0) { ctx.save(); ctx.globalAlpha *= da; const e = E.out(da); P.dossier(ctx, IMG.sputnik, 770, 690 + (1 - e) * 60, 430, t, { name: 'Sputnik 1 · 1957', rot: 0.04, gray: false, stamp: { text: 'Réplica', t0: T.sputnik + 0.5, col: '#d62839' } }); txt(ctx, 'Foto: NASA / NSSDC · dominio público', 770, 990, 32, 'rgba(245,247,250,0.85)', { w: 700, sh: 1 }); ctx.restore(); }
   lab(ctx, 'ÓRBITA BAJA (ESQUEMA) · ≈ 96 MIN', null, 60, 1290, t, T.y1957 + 0.3, B0.b20, { al: 'left', px: 34, sub: 'no era geoestacionario ni retransmitía TV' }); 
- }, sfx(k) { FX.saltoTiempo(k, B0.b19 + 0.2, 1.2, 0.8); FX.revelar(k, T.sputnik - 0.2); for (let i = 0; i < 6; i++) FX.pitido(k, T.sputnik + 0.2 + i * 0.6, 'C6', 1); FX.etiqueta(k, T.y1957 + 0.3); } });
+ }, sfx(k) { FX.saltoTiempo(k, B0.b19 + 0.2, 1.2, 0.8); FX.revelar(k, T.sputnik - 0.2); FX.sello(k, T.sputnik + 0.5); for (let i = 0; i < 6; i++) FX.pitido(k, T.sputnik + 0.2 + i * 0.6, 'C6', 1); FX.etiqueta(k, T.y1957 + 0.3); } });
 
  // 18 · matiz histórico sobre un plano técnico: un esquema orbital anterior (Potočnik «Noordung», 1929) y dos aclaraciones sin cajas
  const note = (ctx, x, y, s, sub, ok, a) => { if (a <= 0) return; ctx.save(); ctx.globalAlpha *= a; ctx.translate((1 - E.out(a)) * 60, 0); ctx.strokeStyle = ok ? '#78DC8C' : C.coral; ctx.lineWidth = 9; ctx.lineCap = 'round'; ctx.beginPath(); if (ok) { ctx.moveTo(x - 20, y); ctx.lineTo(x - 5, y + 16); ctx.lineTo(x + 22, y - 18); } else { ctx.moveTo(x - 18, y - 18); ctx.lineTo(x + 18, y + 18); ctx.moveTo(x + 18, y - 18); ctx.lineTo(x - 18, y + 18); } ctx.stroke(); txt(ctx, s, x + 50, y, 46, C.blanco, { w: 900, al: 'left', sh: 1 }); ctx.font = '900 46px Nunito'; const tw = ctx.measureText(s).width; ctx.fillStyle = ok ? 'rgba(120,220,140,0.8)' : 'rgba(255,122,107,0.8)'; ctx.fillRect(x + 50, y + 34, tw * E.out(a), 4); if (sub) txt(ctx, sub, x + 50, y + 76, 34, 'rgba(245,247,250,0.85)', { w: 700, al: 'left', sh: 1 }); ctx.restore(); };
@@ -297,12 +299,15 @@
 
  // 20 · cierre: subimos desde el tejado hasta ver la Tierra con los tres satélites; ASOMBROTECA discreto
  B.push({ t0: B0.b23, t1: DURATION, in: { type: 'fade', d: 0.5 }, draw(ctx, t) {
-  space(ctx); const z = E.inOut(win(t, B0.b23, B0.b23 + 2.2)), r = lerp(120, 235, z), rot = 1.0 - (t - B0.b23) * 0.08 * (1 - 0.6 * sm(T.end - 1.5, T.end, t)), sats = L3.map((lon, i) => ({ lon, s: 0.4, a: i === 0 ? sm(B0.b23 + 1.4, B0.b23 + 1.6, t) : sm(B0.b23 + 1.2, B0.b23 + 2.0, t) }));
-  const { S } = orbScene(ctx, t, { cy: 860, r, rot, tilt: 0.45, k: KS, ring: sm(B0.b23 + 0.6, B0.b23 + 1.8, t), sats, fp: L3.map((lon, i) => ({ lon, col: COL3[i], a: 0.12 * sm(B0.b23 + 1.6, B0.b23 + 2.4, t) })) });
+  space(ctx); const up = E.inOut(win(t, T.s24 - 0.35, T.s24 + 0.45)), z = E.inOut(win(t, B0.b23, B0.b23 + 2.2)), r = lerp(120, 235, z) * lerp(1, 0.6, up), cyE = lerp(860, 520, up), rot = 1.0 - (t - B0.b23) * 0.08 * (1 - 0.6 * sm(T.end - 1.5, T.end, t)), sats = L3.map((lon, i) => ({ lon, s: 0.4, a: i === 0 ? sm(B0.b23 + 1.4, B0.b23 + 1.6, t) : sm(B0.b23 + 1.2, B0.b23 + 2.0, t) }));
+  const { S } = orbScene(ctx, t, { cy: cyE, r, rot, tilt: 0.45, k: KS, ring: sm(B0.b23 + 0.6, B0.b23 + 1.8, t), sats, fp: L3.map((lon, i) => ({ lon, col: COL3[i], a: 0.12 * sm(B0.b23 + 1.6, B0.b23 + 2.4, t) })) });
   const ca = 1 - sm(B0.b23 + 1.3, B0.b23 + 1.6, t); if (ca > 0) { const q = E.inOut(win(t, B0.b23, B0.b23 + 1.5)), p = S[0].p, x = lerp(540, p.x, q), y = lerp(700, p.y, q); ctx.save(); ctx.globalAlpha *= ca; P.glow(ctx, x, y, 200 * (1 - q) + 40, '255,230,170', 0.3); P.satGEO3(ctx, x, y, lerp(1.6, 0.31, q), t, { face: Math.atan2(860 - y, 540 - x), yaw: 0.3 }); ctx.restore(); }
+  // «¡Cuéntanos en los comentarios!»: sube un móvil con los comentarios del vídeo (avatares ilustrados) y alguien escribe
+  if (up > 0) { const cm = wt(24, 'comentarios'), C3 = [[3, 'Lucía', '¡En 1945! No tenía ni idea', T.s24 + 0.15], [8, 'Javi', '¿Y quién lanzó el primero?', cm - 0.15], [14, 'Marta', 'Ahora miro las antenas distinto', cm + 0.55]];
+   C3.forEach(([sd, nm, tx, t0], i) => { const a = sm(t0, t0 + 0.3, t); if (a <= 0) return; const y = 860 + i * 175 + (1 - E.out(a)) * 40; ctx.save(); ctx.globalAlpha *= a; ctx.fillStyle = 'rgba(16,20,34,0.9)'; ctx.beginPath(); ctx.roundRect(70, y - 72, 940, 144, 30); ctx.fill(); ctx.strokeStyle = 'rgba(255,255,255,0.18)'; ctx.lineWidth = 2; ctx.stroke(); P.avatar(ctx, 150, y, 48, sd); txt(ctx, nm, 225, y - 30, 32, 'rgba(245,247,250,0.7)', { w: 800, al: 'left' }); txt(ctx, tx, 225, y + 20, 38, C.blanco, { w: 800, al: 'left' }); ctx.restore(); }); }
   title(ctx, '¿CONOCÍAS ESTA IDEA?', t, T.idea - 0.5, T.asombroteca - 0.5, { px: 60 });
   const a = sm(T.asombroteca - 0.6, T.asombroteca, t); if (a > 0) { ctx.save(); ctx.globalAlpha *= a; ctx.strokeStyle = 'rgba(245,247,250,0.75)'; ctx.lineWidth = 2; const lw = 230 * E.out(a); ctx.beginPath(); ctx.moveTo(540 - lw, 230); ctx.lineTo(540 + lw, 230); ctx.moveTo(540 - lw, 338); ctx.lineTo(540 + lw, 338); ctx.stroke(); txt(ctx, 'ASOMBROTECA', 540, 285, 54, C.blanco, { w: 800, ls: 10, sh: 1 }); ctx.restore(); }
- }, sfx(k) { FX.aceleracion(k, B0.b23, 2.0, 0.5); FX.espacio(k, B0.b23, DURATION - B0.b23, 0.6); FX.campana(k, T.asombroteca + 0.1); FX.fin(k, T.end + 0.6); } });
+ }, sfx(k) { FX.aceleracion(k, B0.b23, 2.0, 0.5); FX.espacio(k, B0.b23, DURATION - B0.b23, 0.6); FX.campana(k, T.asombroteca + 0.1); FX.fin(k, T.end + 0.6); FX.toque(k, T.s24 + 0.2); FX.toque(k, wt(24, 'comentarios') - 0.1); FX.toque(k, wt(24, 'comentarios') + 0.6); } });
 
  const EP = PL.make({
   skin: 'plana', align: A, duration: DURATION, beats: B, capStyle: 'barra', capY: 1540,
