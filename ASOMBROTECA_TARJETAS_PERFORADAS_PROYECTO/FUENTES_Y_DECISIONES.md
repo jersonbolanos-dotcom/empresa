@@ -20,3 +20,9 @@ Archivo original `01_ENTRADA/audio/voz_original_tarjetas_perforadas.mp3` (87,72 
 
 ## Música y efectos
 Originales, generados por la plantilla (MUS.pulso, MUS.industrial, MUS.epica, MUS.piano; FX nuevos perforar, tecleo, tarjetaRoce, escobilla, cascadaTarjetas y dialHollerith). Mezcla con sidechain a −14 LUFS.
+
+## Retoque cinematográfico final (V2 · `ASOMBROTECA_EP05_FINAL_PUBLICACION.mp4`)
+- **FORTRAN**: se mantiene `READ 5, A, B`, porque la narración habla de «una línea de un programa» sin citar ninguna instrucción. Es sintaxis de FORTRAN II («READ n, lista»: lee las variables con la sentencia FORMAT n). El mazo contiene un programa coherente: `5 FORMAT (2F10.2)`, `C = A + B`, `PRINT 6, C`, `6 FORMAT (F12.2)`, `STOP`, `END`. Los caracteres = ( ) + usan el juego FORTRAN de la perforadora IBM 026 (3-8, 0-4-8, 12-4-8, 12), de la misma época que la IBM 026 de la foto. Se descartó `READ (5,*) A,B`, que es de FORTRAN 77 y no corresponde a esta máquina.
+- **microSD**: medidas estándar de 11 × 15 × 1 mm, con escalón lateral y 8 contactos. Se eliminó la mano. La tarjeta se apoya en una base y se muestra una regla de 15 mm. En la comparación, la pila y la microSD están sobre la misma mesa a la misma escala, sin cifras de capacidad.
+- **Lector**: se distinguen las piezas fijas (bastidor, guías, soportes) de las móviles (rodillos de goma y acero que giran con el avance, escobillas de bronce). Hay dos estados de contacto, separados en el tiempo. La señal es una línea iluminada y una lámpara de lectura, sin chispas.
+- **Hollerith**: prensa con agujas en tubos con resorte, pocillos de mercurio, electroimán con trinquete que avanza el dial y timbre (según la Oficina del Censo). Queda un solo empleado en la escena.

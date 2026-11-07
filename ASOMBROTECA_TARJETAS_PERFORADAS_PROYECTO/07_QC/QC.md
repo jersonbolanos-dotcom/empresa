@@ -1,28 +1,33 @@
-# QC · ASOMBROTECA_05_TARJETAS_PERFORADAS_FINAL.mp4
+# QC · ASOMBROTECA_EP05_FINAL_PUBLICACION.mp4 (retoque cinematográfico final, V2)
+
+Versión anterior: `07_OUTPUT/V1/ASOMBROTECA_05_TARJETAS_PERFORADAS_FINAL_V1.mp4` (QC en `07_QC/V1/`).
 
 ## Técnico (`qc_tecnico.txt`)
 | Comprobación | Resultado |
 |---|---|
 | Vídeo | H.264, 1080×1920, 30 fps constantes, 2662 fotogramas |
 | Audio | AAC 48 kHz estéreo, 192 kb/s |
-| Duración / tamaño | 88,73 s (voz 87,72 s + 1 s de cierre) · 64,5 MB (< 100 MB) |
+| Duración / tamaño | 88,73 s (voz 87,72 s + 1 s de cierre) · 66,7 MB |
 | Decodificación completa | 0 errores |
-| blackdetect (0,3 s) / freezedetect (1,5 s) / silencedetect (−50 dB, 1 s) | sin incidencias |
-| Sonoridad | −14,1 LUFS integrados · pico verdadero −1,8 dBTP · LRA 2,5 LU |
-| Voz | md5 `54a6b7b9684b8dee63da881aaf9de058` = archivo subido (sin alterar; reloj maestro) |
+| blackdetect / freezedetect / silencedetect | sin incidencias |
+| Sonoridad | −14,1 LUFS · pico −1,9 dBTP · LRA 2,5 LU |
+| Voz | md5 `54a6b7b9684b8dee63da881aaf9de058` = archivo original (intacta) |
 | Determinismo | `hash.js`: fotogramas idénticos entre ejecuciones |
 
-## Revisión visual
-Hoja `hoja_contacto_final.jpg`, 18 fotogramas de inspección en `fotogramas/` (los 15 puntos pedidos y algunos más) y 18 tiras de movimiento en `movimiento/` (gancho, agujero, tarjeta IBM, columna, código, lector, señal, línea de programa, pila, perforadora, desorden, transición a 1890, censo, Hollerith, computación, microSD, cartón→chips, cierre).
-
-| Tramo | Revisión |
+## Lista de verificación del retoque
+| Punto | Estado |
 |---|---|
-| Gancho 0–10 s | La tarjeta 3D (agujeros reales, se ve a través) avanza por el lector; 80 escobillas se iluminan al tocar el rodillo a través de los agujeros; la cámara baja y atraviesa un agujero hasta el corte del lector |
-| Código 14–26 s | Foto real (tarjeta IBM FORTRAN) junto a la tarjeta 3D; 80 columnas y 12 posiciones; «5» = fila 5; «A» = 12 + 1; READ = varias columnas |
-| Lector y señal 26–34 s | Lector de escobillas (único mecanismo del episodio); corte: escobilla, tarjeta, rodillo, circuito, impulso → A |
-| No era magia 34–38 s | Misma columna: 12+1 = A, 12+2 = B (código válido distinto) |
-| Programa 38–55 s | Una tarjeta = una línea (FORTRAN de ejemplo, número de secuencia en 73–80); el mazo crece; perforadora de teclado + foto IBM 026; el mazo se vuelca y se reordena por los números de secuencia |
-| 1890 55–66 s | La tarjeta IBM se transforma en una de Hollerith (redonda, otro formato); oficina del censo, tabuladora con 40 diales y mesa de clasificación; grabado de Scientific American; corte de la prensa: agujas, mercurio, diales, timbre |
-| Electrónica y hoy 66–88 s | Sala de computación con lector y cable de datos; microSD en la yema del dedo con fotografías; pila de cartón frente a microSD (sin cifras); tarjeta → disco duro → flash → microSD; ASOMBROTECA discreto |
+| microSD con proporciones correctas (11 × 15 × 1 mm, escalón lateral, 8 contactos) | ✔ modelo 3D nuevo, regla de 15 mm |
+| Mano artificial | ✔ eliminada (la microSD se apoya en una base con ranura) |
+| Tarjetas apiladas como objetos individuales | ✔ capas con desplazamiento, tono y junta propios + sombra de contacto |
+| Perforadora con secuencia mecánica coherente | ✔ tecla → varilla → barra → punzones → matriz → recorte cae → regreso → avance por cremallera |
+| Lector: contacto eléctrico | ✔ estado A «SIN CONTACTO» / estado B «CONTACTO DETECTADO», nunca a la vez, sincronizados con «detectaba… / lo convertía en información» |
+| La tarjeta no atraviesa rodillos ni superficies | ✔ holguras revisadas (rodillo de arrastre a 0,8 mm de la bancada, tarjeta 0,18 mm) |
+| Agujeros en posiciones válidas | ✔ código de tarjeta; = ( ) + con el juego FORTRAN de la IBM 026 |
+| FORTRAN coherente | ✔ `READ 5, A, B` (FORTRAN II: lee A y B con el FORMAT 5); el mazo contiene el programa completo (FORMAT, suma, PRINT, STOP, END) |
+| Hollerith ≠ lector IBM | ✔ prensa de agujas y mercurio, electroimán, trinquete y dial; tarjeta redonda de otro formato |
+| Fotos con atribuciones | ✔ las tres, con crédito en pantalla |
+| Títulos duplicados, objetos fantasma, negros | ✔ ninguno (se corrigió la desaparición de la tarjeta al atravesar el agujero) |
+| Subtítulos sincronizados, voz intacta, música equilibrada, cierre limpio | ✔ |
 
-Subtítulos `barra`, `capY 1540`; notas ≥ 32 px por encima de la franja de subtítulos; fotos sin tapar subtítulos ni la explicación animada.
+Fotogramas de inspección del MP4 en `fotogramas/` (20) y tiras de movimiento en `movimiento/` (14).

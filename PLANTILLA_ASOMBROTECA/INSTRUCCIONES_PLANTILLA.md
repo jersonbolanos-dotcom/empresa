@@ -658,3 +658,12 @@ Pasos:
 | `computerRoom60(ctx, cam, t, {pulse, lights, reader})` | Sala genérica de mediados del s. XX con lector, cable de datos y consola |
 
 FX v1.23: `perforar(k, t, g)`, `tecleo(k, t, n, dt, g)`, `tarjetaRoce(k, t, d, g)`, `escobilla(k, t, g)`, `cascadaTarjetas(k, t, d, g)`, `dialHollerith(k, t, g)`.
+
+**v1.23.1 · añadidos:**
+
+| Bloque | Uso |
+|---|---|
+| `punchMech3(ctx, cam, t, {card, rows, ph, label, rack})` | Mecanismo de perforación en primer plano; `ph` 0..1 es la fase de una pulsación (tecla, punzón, recorte y avance) |
+| `sdFrame(c, {yaw, pitch})` · `microSD3(ctx, cam, sd, t)` | microSD 3D de 11 × 15 × 1 mm con contactos; apoyarla siempre sobre una base o una mesa |
+| `cardReader3(…, {roll, signal, sigAge})` · `readerSection(…, {sigAge})` | Giro de rodillos, cable y lámpara de señal; dos estados de contacto separados en el tiempo |
+| `P.poly3(ctx, cam, pts, fill)` | Polígono 3D recortado contra la cámara, para escenarios sencillos en los episodios |

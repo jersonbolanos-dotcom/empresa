@@ -10,7 +10,7 @@ channels=2
 r_frame_rate=0/0
 nb_frames=4160
 duration=88.733333
-size=64489045
+size=66730501
 == decode errors
 0
 == blackdetect
@@ -19,6 +19,6 @@ size=64489045
 == ebur128
     I:         -14.1 LUFS
     LRA:         2.5 LU
-    Peak:       -1.8 dBFS
+    Peak:       -1.9 dBFS
 == md5 voz (original subido: 54a6b7b9684b8dee63da881aaf9de058)
 54a6b7b9684b8dee63da881aaf9de058  01_ENTRADA/audio/voz_original_tarjetas_perforadas.mp3

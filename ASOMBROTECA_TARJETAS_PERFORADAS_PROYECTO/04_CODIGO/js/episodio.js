@@ -15,8 +15,8 @@
  function wt(seg, word, nth = 0) { let k = 0; for (const w of A.words) if (w.seg === seg && norm(w.w) === norm(word)) { if (k === nth) return w.s; k++; } throw new Error('palabra ' + seg + ' ' + word); }
  const SG = (i) => A.segments[i];
  const T = { usb: wt(0, 'usb'), agujeros: wt(2, 'agujeros'), papel: wt(4, 'papel'), posicion: wt(5, 'posición'), columnas: wt(6, 'columnas'), agujeros7: wt(7, 'agujeros'), lector: wt(7, 'lector'), numeros: wt(7, 'números'), letras: wt(7, 'letras'), instrucciones: wt(7, 'instrucciones'),
-  impresas: wt(8, 'impresas'), perforaciones: wt(11, 'perforaciones'), tarjeta13: wt(13, 'tarjeta'), linea: wt(13, 'línea'), programa13: wt(13, 'programa'), miles: wt(14, 'miles'), preparar: wt(14, 'preparar'), ordenar: wt(14, 'ordenar'), desordenaban: wt(15, 'desordenaban'), problema: wt(15, 'problema'),
-  antes: wt(16, 'antes'), hollerith: wt(17, 'hollerith'), procesar: wt(17, 'procesar'), censo: wt(17, 'censo'), programas: wt(18, 'programas'), datos18: wt(18, 'datos'), fotografias: wt(19, 'fotografías'), memoria: wt(19, 'memoria'), pila: wt(20, 'pila'), asombroteca: wt(22, 'asombroteca'), end: A.speech_end };
+  impresas: wt(8, 'impresas'), perforaciones: wt(11, 'perforaciones'), convertia: wt(9, 'convertía'), informacion: wt(9, 'información'), tarjeta13: wt(13, 'tarjeta'), linea: wt(13, 'línea'), programa13: wt(13, 'programa'), miles: wt(14, 'miles'), preparar: wt(14, 'preparar'), ordenar: wt(14, 'ordenar'), desordenaban: wt(15, 'desordenaban'), problema: wt(15, 'problema'),
+  antes: wt(16, 'antes'), hollerith: wt(17, 'hollerith'), procesar: wt(17, 'procesar'), censo: wt(17, 'censo'), programas: wt(18, 'programas'), datos18: wt(18, 'datos'), fotografias: wt(19, 'fotografías'), memoria: wt(19, 'memoria'), pila: wt(20, 'pila'), asombroteca: wt(22, 'asombroteca'), programa20: wt(20, 'programa'), end: A.speech_end };
  for (let i = 0; i < A.segments.length; i++) T['s' + i] = SG(i).s;
  const B0 = { b1b: T.s2 - 0.22, b2: T.s3 - 0.18, b3: T.s5 - 0.2, b4: T.s6 - 0.2, b5: T.s7 - 0.2, b6: T.s8 - 0.2, b7: T.s9 - 0.2, b8: T.s10 - 0.2, b9: T.s12 - 0.2, b10: T.s13 - 0.2, b11: T.s14 - 0.2, b12: T.preparar - 0.55, b13: T.s15 - 0.2, b15: T.s16 - 0.2, b16: T.s17 - 0.2, b17: T.procesar + 0.3, b18: T.s18 - 0.2, b19: T.s19 - 0.2, b20: T.s20 - 0.2, b21: T.s21 - 0.2, b22: T.s22 - 0.2 };
 
@@ -39,7 +39,7 @@
  // ---------------- datos de la tarjeta protagonista (ejemplo FORTRAN; solo letras, dígitos, espacio y coma: mismo código en 026 y 029) ----------------
  const F = P.CARDF.ibm, pad = (s, n) => (s + ' '.repeat(80)).slice(0, n), seqN = (i) => String(i * 10).padStart(8, '0');
  const LINE = pad('      READ 5, A, B', 72) + seqN(1), HOLES = P.cardHoles(LINE);
- const PROG = ['      READ 5, A, B', '      PRINT 6, A, B', '   10 CONTINUE', '      GO TO 10', '      STOP', '      END'];
+ const PROG = ['      READ 5, A, B', '    5 FORMAT (2F10.2)', '      C = A + B', '      PRINT 6, C', '    6 FORMAT (F12.2)', '      STOP', '      END'];
  const progLine = (i) => pad(PROG[i % PROG.length], 72) + seqN(i + 1);
  const colX = (c) => -F.w / 2 + F.c0 + (c - 1) * F.dc;
  const techBg = (ctx, t, a = 1) => { const g = ctx.createLinearGradient(0, 0, 0, HH); g.addColorStop(0, '#0A1621'); g.addColorStop(1, '#0d2436'); ctx.fillStyle = g; ctx.fillRect(0, 0, W, HH); ctx.save(); ctx.globalAlpha = 0.07 * a; ctx.strokeStyle = '#4CD3E8'; ctx.lineWidth = 1; for (let x = 0; x <= W; x += 60) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, HH); ctx.stroke(); } for (let y = 0; y <= HH; y += 60) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke(); } ctx.restore(); };
@@ -59,24 +59,26 @@
   P.CROWS.forEach((r, i) => { const on = rows.includes(r), cx = x + i * cw + cw / 2; ctx.fillStyle = on ? '#FFD447' : 'rgba(228,215,186,0.16)'; ctx.fillRect(cx - 9, y - 4, 18, 40); if (on) P.glow(ctx, cx, y + 16, 46, '255,212,71', 0.45); ctx.font = '700 32px "IBM Plex Mono"'; ctx.fillStyle = on ? '#FFD447' : 'rgba(245,247,247,0.6)'; ctx.fillText(String(r), cx, y - 38); });
   if (a > 0 && sym) { ctx.globalAlpha *= cl(a); ctx.fillStyle = '#4CD3E8'; ctx.font = '900 56px Nunito'; ctx.fillText('→', x + 12 * cw + 50, y); ctx.fillStyle = '#F5F7F7'; ctx.font = `900 ${o.px || 92}px "IBM Plex Mono"`; ctx.fillText(sym, x + 12 * cw + 160, y + 2); }
   ctx.restore(); };
+ const sigAgeAt = (times, t) => { let last = -99; for (const x of times) if (x <= t) last = x; return t - last; };
  const holeLight = (holes, cols, t0, dt, t) => holes.filter(([c]) => cols.includes(c)).map(([c, r], i) => ({ c, r, a: sm(t0 + i * dt, t0 + i * dt + 0.2, t) }));
 
  const B = [];
  // 1 · GANCHO — una tarjeta real avanza hacia el lector; la cámara la sigue a centímetros; las escobillas detectan sus agujeros
- const zc1 = (t) => lerp(300, -46, E.out(win(t, 0, B0.b1b + 0.3)));
+ const zc1 = (t) => lerp(300, -46, E.out(win(t, 0, B0.b1b + 0.3))), CT1 = crossTimes(zc1, 0, B0.b2, HOLES);
  B.push({ t0: 0, t1: B0.b1b, in: { type: 'cut' }, draw(ctx, t) {
-  roomBg(ctx); const zc = zc1(t), u = win(t, 0, B0.b1b), cd = { ...P.cardFrame([0, 900.6, zc], { pitch: Math.PI / 2 }), holes: HOLES }, ct = contactsAt(HOLES, zc);
-  const cam = P.cam3([lerp(150, 110, E.inOut(u)), lerp(985, 975, E.inOut(u)), lerp(zc + 150, 150, E.inOut(sm(0.35, 0.9, u)))], [lerp(-20, 0, u), 902, lerp(zc - 25, -10, E.inOut(sm(0.35, 0.9, u)))], 1000);
-  P.cardReader3(ctx, cam, t, { card: cd, contacts: ct, hopper: 0, stacker: 60, cover: 0 }); vign(ctx, 0.45);
-  title(ctx, '¡COMPUTADORAS QUE LEÍAN CARTÓN!', t, 0.2, 4.4, { px: 50 }); lab(ctx, 'UNA ESCOBILLA POR COLUMNA', null, 540, 1320, t, 4.4, B0.b1b + 0.2, { col: C.oro, sub: 'donde hay agujero, toca el rodillo' }); recon(ctx, 'RECONSTRUCCIÓN ANIMADA · LECTOR', t, 0.6, B0.b1b);
+  roomBg(ctx); const zc = zc1(t), u = win(t, 0, B0.b1b), cd = { ...P.cardFrame([0, 900.6, zc], { pitch: Math.PI / 2 }), holes: HOLES }, ct = contactsAt(HOLES, zc), age = sigAgeAt(CT1, t);
+  const ap = E.inOut(sm(0.4, 0.95, u)), cam = P.cam3([lerp(150, 100, ap), lerp(985, 962, ap), lerp(zc + 150, 135, ap)], [lerp(-20, 20, ap), 902, lerp(zc - 25, -6, ap)], 1000);
+  P.cardReader3(ctx, cam, t, { card: cd, contacts: ct, roll: 300 - zc + t * 4, signal: ct.length ? 1 : 0, sigAge: age, hopper: 0, stacker: 60, cover: 0 }); vign(ctx, 0.45);
+  title(ctx, '¡COMPUTADORAS QUE LEÍAN CARTÓN!', t, 0.2, 4.4, { px: 50 }); lab(ctx, 'UNA ESCOBILLA POR COLUMNA', null, 540, 1320, t, 4.4, B0.b1b + 0.2, { col: C.oro, sub: 'agujero → toca el rodillo → señal' }); recon(ctx, 'RECONSTRUCCIÓN ANIMADA · LECTOR', t, 0.6, B0.b1b);
  }, sfx(k) { FX.tarjetaRoce(k, 0.15, 5.5, 0.9); k.play('roller', 0.3, { dur: 6.5, gain: 0.25 }); crossTimes(zc1, 0.2, B0.b1b, HOLES).forEach((tt) => FX.escobilla(k, tt)); } });
  // 1b · la cámara atraviesa un agujero y entra en el mecanismo
  B.push({ t0: B0.b1b, t1: B0.b2, in: { type: 'cut' }, draw(ctx, t) {
   const zc = zc1(t), cd = { ...P.cardFrame([0, 900.6, zc], { pitch: Math.PI / 2 }), holes: HOLES }, [hu, hv] = P.holeUV('ibm', 15, 5), hp = P.cardPt(cd, hu, hv), d = E.in(win(t, B0.b1b, T.agujeros + 0.35));
   const cam = P.cam3([lerp(hp[0] + 60, hp[0], d), lerp(1010, 901.4, d), lerp(hp[2] + 120, hp[2] + 0.35, d)], [hp[0], 900, hp[2] - lerp(40, 0.1, d)], 1000);
-  roomBg(ctx); P.cardReader3(ctx, cam, t, { card: cd, contacts: contactsAt(HOLES, zc), hopper: 0, stacker: 60, cover: 0 });
+  roomBg(ctx); P.cardReader3(ctx, cam, t, { card: cd, contacts: contactsAt(HOLES, zc), roll: 300 - zc + t * 4, sigAge: sigAgeAt(CT1, t), hopper: 0, stacker: 60, cover: 0 });
   const q = [[hu - F.hw / 2, hv - F.hh / 2], [hu + F.hw / 2, hv - F.hh / 2], [hu + F.hw / 2, hv + F.hh / 2], [hu - F.hw / 2, hv + F.hh / 2]].map(([a, b]) => cam.pr(P.cardPt(cd, a, b))), full = t > T.agujeros + 0.36;
-  const inner = (ia) => { techBg(ctx, t); P.readerSection(ctx, 60, 430, 960, 780, t, { u: lerp(0.18, 0.36, win(t, T.agujeros, B0.b2 + 0.6)), rows: [12, 1] }); lab(ctx, 'DENTRO DEL LECTOR', null, 540, 1320, t, T.agujeros + 0.4, B0.b2 + 0.3, { col: C.cian }); void ia; };
+  const inner = (ia) => { techBg(ctx, t); P.readerSection(ctx, 60, 430, 960, 780, t, { u: lerp(0.3, 0.45, win(t, T.agujeros, B0.b2 + 0.6)), rows: [12, 1] }); lab(ctx, 'DENTRO DEL LECTOR', null, 540, 1320, t, T.agujeros + 0.4, B0.b2 + 0.3, { col: C.cian }); void ia; };
+  if (!full && d > 0.72) { const gg = ctx.createLinearGradient(0, 0, W, HH); gg.addColorStop(0, '#d9ccae'); gg.addColorStop(1, '#b9ab8c'); ctx.fillStyle = gg; ctx.fillRect(0, 0, W, HH); if (q.every((p) => p[2] > 0.5)) { ctx.save(); ctx.strokeStyle = 'rgba(70,52,32,0.8)'; ctx.lineWidth = 10; ctx.beginPath(); q.forEach((p, i) => (i ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1]))); ctx.closePath(); ctx.stroke(); ctx.restore(); } }
   if (full) inner(1); else if (q.every((p) => p[2] > 0.5)) { ctx.save(); ctx.beginPath(); q.forEach((p, i) => (i ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1]))); ctx.closePath(); ctx.clip(); inner(1); ctx.restore(); }
   if (!full) { vign(ctx, 0.4); lab(ctx, 'TARJETAS LLENAS DE AGUJEROS', null, 540, 1320, t, B0.b1b + 0.1, T.agujeros, { col: C.oro }); }
  }, sfx(k) { k.play('whoosh', T.agujeros - 0.2, { dur: 0.7, top: 2400, gain: 0.3 }); } });
@@ -111,19 +113,20 @@
   title(ctx, 'AGUJEROS → SÍMBOLOS', t, B0.b5 + 0.2, B0.b6 + 0.2, {}); recon(ctx, 'CÓDIGO REAL DE TARJETA IBM', t, B0.b5 + 0.5, T.numeros - 0.3);
  }, sfx(k) { FX.etiqueta(k, T.agujeros7); FX.correcto(k, T.lector); k.play('whoosh', T.letras - 0.5, { dur: 0.4, gain: 0.18 }); FX.correcto(k, T.letras); FX.etiqueta(k, T.instrucciones); } });
  // 6 · el lector: no lee la tinta, solo detecta el patrón de agujeros
- const zc6 = (t) => lerp(150, -70, win(t, B0.b6 + 0.2, B0.b7 + 0.2));
+ const zc6 = (t) => lerp(150, -70, win(t, B0.b6 + 0.2, B0.b7 + 0.2)), CT6 = crossTimes(zc6, B0.b6, B0.b7, HOLES);
  B.push({ t0: B0.b6, t1: B0.b7, in: { type: 'fade', d: 0.3 }, draw(ctx, t) {
   roomBg(ctx); const zc = zc6(t), u = win(t, B0.b6, B0.b7), cd = { ...P.cardFrame([0, 900.6, zc], { pitch: Math.PI / 2 }), holes: HOLES };
-  const cam = P.cam3([lerp(260, 200, u), lerp(990, 960, u), lerp(190, 130, u)], [0, 908, -8], 1150); P.cardReader3(ctx, cam, t, { card: cd, contacts: contactsAt(HOLES, zc), hopper: 0, stacker: 80, cover: 0.35 }); vign(ctx, 0.4);
+  const cam = P.cam3([lerp(260, 215, u), lerp(990, 965, u), lerp(190, 140, u)], [30, 906, -8], 1150), ct = contactsAt(HOLES, zc); P.cardReader3(ctx, cam, t, { card: cd, contacts: ct, roll: 150 - zc, signal: ct.length ? 1 : 0, sigAge: sigAgeAt(CT6, t), hopper: 0, stacker: 80, cover: 0.25 }); vign(ctx, 0.4);
   title(ctx, 'LECTURA DEL PATRÓN', t, B0.b6 + 0.2, B0.b7 + 0.2, {}); lab(ctx, 'NO LEE LA TINTA', null, 540, 1320, t, T.impresas - 0.2, B0.b7 + 0.2, { col: C.oro, sub: 'solo detecta dónde hay agujeros' }); recon(ctx, 'RECONSTRUCCIÓN · LECTOR DE ESCOBILLAS', t, B0.b6 + 0.3, T.impresas - 0.4);
  }, sfx(k) { FX.tarjetaRoce(k, B0.b6 + 0.2, 3.4, 0.8); crossTimes(zc6, B0.b6, B0.b7, HOLES).forEach((tt) => FX.escobilla(k, tt)); } });
- // 7 · de agujero a señal (corte): escobilla, tarjeta, rodillo, impulso eléctrico y decodificación
- const S7 = { a: B0.b7 + 0.25, b: B0.b8 - 0.15 }, u7 = (t) => win(t, S7.a, S7.b);
+ // 7 · de agujero a señal (corte): estado A «SIN CONTACTO» (el cartón separa escobilla y rodillo) → estado B «CONTACTO DETECTADO»
+ // (un agujero llega bajo la escobilla, el circuito se cierra y el impulso viaja a la lectura). Filas 1 y 12 ⇒ «A».
+ const T7a = T.convertia - 0.3, T7b = T.informacion - 0.05, U1 = P.readerSectionU(60, 960, 1), U12 = P.readerSectionU(60, 960, 12), u7 = (t) => cl(U1 + ((t - T7a) * (U12 - U1)) / (T7b - T7a));
  B.push({ t0: B0.b7, t1: B0.b8, in: { type: 'fade', d: 0.3 }, draw(ctx, t) {
-  techBg(ctx, t); const r = P.readerSection(ctx, 60, 400, 960, 760, t, { u: u7(t), rows: [12, 1] });
-  rowStrip(ctx, 75, 1290, r.passed, 'A', r.passed.length === 2 ? sm(0, 0.01, 1) : 0, t);
-  title(ctx, 'PATRÓN FÍSICO → SEÑAL', t, B0.b7 + 0.2, B0.b8 + 0.2, {}); recon(ctx, 'VISUALIZACIÓN CONCEPTUAL', t, B0.b7 + 0.3, B0.b8);
- }, sfx(k) { k.play('roller', S7.a, { dur: S7.b - S7.a, gain: 0.2 }); for (const rr of [1, 12]) { const uu = P.readerSectionU(60, 960, rr), tt = lerp(S7.a, S7.b, uu); FX.escobilla(k, tt, 1.3); k.play('blip', tt + 0.05, { f: 700, dur: 0.12, gain: 0.2 }); } } });
+  techBg(ctx, t); const age = sigAgeAt([T7a, T7b], t), r = P.readerSection(ctx, 60, 400, 960, 760, t, { u: u7(t), rows: [12, 1], sigAge: age });
+  rowStrip(ctx, 75, 1290, r.passed, 'A', r.passed.length === 2 ? sm(T7b, T7b + 0.2, t) : 0, t);
+  title(ctx, 'PATRÓN FÍSICO → SEÑAL', t, B0.b7 + 0.2, B0.b8 + 0.2, {}); recon(ctx, 'VISUALIZACIÓN CONCEPTUAL', t, B0.b7 + 0.3, T7a - 0.2);
+ }, sfx(k) { k.play('roller', B0.b7 + 0.2, { dur: B0.b8 - B0.b7 - 0.3, gain: 0.18 }); for (const tt of [T7a, T7b]) { FX.escobilla(k, tt, 1.3); k.play('blip', tt + 0.08, { f: 700, dur: 0.12, gain: 0.18 }); } } });
  // 8 · no era magia: otra posición = otro símbolo (código válido)
  B.push({ t0: B0.b8, t1: B0.b9, in: { type: 'fade', d: 0.3 }, draw(ctx, t) {
   techBg(ctx, t); const mv = E.inOut(win(t, T.perforaciones - 0.4, T.perforaciones + 0.2)), ha = [[15, 12], [15, 1]];
@@ -143,31 +146,36 @@
  // 10 · una línea de programa: el texto se convierte en su patrón de perforaciones y la tarjeta entra al lector
  B.push({ t0: B0.b10, t1: B0.b11, in: { type: 'fade', d: 0.3 }, draw(ctx, t) {
   techBg(ctx, t); const ty = win(t, B0.b10 + 0.3, T.tarjeta13 - 0.1), n = Math.round(18 * ty), hp = win(t, T.tarjeta13, T.linea + 0.2), hn = Math.round(18 * hp), go = E.in(win(t, T.programa13 - 0.2, B0.b11)), s = PROG[0];
-  ctx.save(); ctx.fillStyle = 'rgba(10,22,33,0.9)'; ctx.beginPath(); ctx.roundRect(60, 400, 960, 170, 22); ctx.fill(); txt(ctx, s.slice(0, n).trim() + (n < 18 && Math.floor(t * 3) % 2 ? '_' : ''), 540, 470, 72, C.blanco, { f: '"IBM Plex Mono"', w: 700 }); txt(ctx, 'ejemplo en FORTRAN', 540, 535, 32, C.oro, { w: 700 }); ctx.restore();
+  ctx.save(); ctx.fillStyle = 'rgba(10,22,33,0.9)'; ctx.beginPath(); ctx.roundRect(60, 400, 960, 170, 22); ctx.fill(); txt(ctx, s.slice(0, n).trim() + (n < 18 && Math.floor(t * 3) % 2 ? '_' : ''), 540, 470, 72, C.blanco, { f: '"IBM Plex Mono"', w: 700 }); txt(ctx, 'FORTRAN II · lee A y B (formato 5)', 540, 535, 32, C.oro, { w: 700 }); ctx.restore();
   ctx.save(); ctx.beginPath(); ctx.rect(0, 0, 900, HH); if (go > 0) ctx.clip(); const cd = cardAt([0, 0, 0], { holes: P.cardHoles(LINE, { n: hn }) }); const r = flatCard(ctx, cd, 540 + go * 700, 860, 5.0, t, { textN: hn, band: hn > 0 && hn < 18 ? { c: hn, a: 1 } : null }); ctx.restore();
   if (go > 0) { ctx.save(); ctx.globalAlpha = sm(T.programa13 - 0.3, T.programa13, t); ctx.fillStyle = '#465258'; ctx.fillRect(900, 640, 180, 440); ctx.fillStyle = '#0e1214'; ctx.fillRect(895, 690, 14, 340); txt(ctx, 'LECTOR', 990, 1110, 32, C.blanco, { w: 800 }); ctx.restore(); }
   if (r && hn >= 18 && go < 0.2) { const p = r.proj(F.c0 + 75.5 * F.dc, 2.35); lab(ctx, 'COLUMNAS 73–80: NÚMERO DE ORDEN', [p[0], p[1] + 8], 540, 1180, t, T.linea + 0.3, T.programa13, { col: C.cian }); }
   title(ctx, '1 TARJETA = 1 LÍNEA', t, B0.b10 + 0.2, B0.b11 + 0.2, {}); lab(ctx, 'EN MUCHOS SISTEMAS', null, 540, 1320, t, T.tarjeta13, B0.b11 + 0.2, { col: C.oro, sub: 'una práctica común, no una regla universal' });
  }, sfx(k) { FX.escribir(k, B0.b10 + 0.3, T.tarjeta13 - B0.b10 - 0.4, 0.7); FX.tecleo(k, T.tarjeta13, 18, (T.linea + 0.2 - T.tarjeta13) / 18, 0.6); FX.tarjetaRoce(k, T.programa13 - 0.2, 0.6); } });
- // 11 · miles de tarjetas: el mazo crece sobre la mesa; travelling lateral
+ // 11 · miles de tarjetas: tarjetas individuales (cantos con capas reales); la cámara empieza cerca del borde y retrocede
  B.push({ t0: B0.b11, t1: B0.b12, in: { type: 'fade', d: 0.3 }, draw(ctx, t) {
-  roomBg(ctx); const u = win(t, B0.b11, B0.b12), n = Math.round(lerp(1, 2400, E.in(win(t, B0.b11 + 0.1, B0.b12 - 0.1)))), hgt = n * F.th, cam = P.cam3([lerp(-330, 300, E.inOut(u)), lerp(110, 220, u) + hgt * 0.5, lerp(380, 470, u)], [0, hgt * 0.45 + 15, 0], 1000);
-  table(ctx, cam, {}); P.cardDeck3(ctx, cam, 0, 0, 0, n, t, { topCard: { holes: P.cardHoles(progLine(n)), text: progLine(n) } });
+  roomBg(ctx); const u = E.inOut(win(t, B0.b11, B0.b12 + 0.2)), n = 2600, hgt = n * F.th, cam = P.cam3([lerp(150, -560, u), lerp(hgt + 30, hgt * 0.75, u), lerp(190, 980, u)], [lerp(20, 60, u), lerp(hgt - 25, hgt * 0.42, u), lerp(0, -120, u)], 1000);
+  table(ctx, cam, { x0: -1100, x1: 1100, z0: -900 }); const items = [[300, -330, 1900, 7], [-280, -420, 2200, 11], [0, 0, n, 3]].map(([x, z, nn, sd]) => ({ d: cam.depth([x, nn * F.th / 2, z]), f: () => P.cardDeck3(ctx, cam, x, 0, z, nn, t, { seed: sd, topCard: { holes: P.cardHoles(progLine(sd)), text: progLine(sd) } }) }));
+  items.sort((a, b) => b.d - a.d).forEach((x) => x.f());
   title(ctx, 'MILES DE TARJETAS', t, B0.b11 + 0.2, B0.b12 + 0.2, {}); lab(ctx, 'UN PROGRAMA LARGO = UN MAZO ENORME', null, 540, 1320, t, T.miles + 0.2, B0.b12 + 0.2, { col: C.oro });
- }, sfx(k) { FX.cascadaTarjetas(k, B0.b11 + 0.2, 2.0, 0.5); } });
- // 12 · preparación: perforadora de teclado (tipo IBM 026); el operador pulsa, el punzón perfora y la tarjeta avanza + FOTO 02
- const K0 = B0.b12 + 0.15, KD = 0.2, kcol = (t) => (t - K0) / KD;
+ }, sfx(k) { FX.paginas(k, B0.b11 + 0.3, 2, 0.4); FX.tarjetaRoce(k, B0.b11 + 1.2, 1.0, 0.4); } });
+ // 12 · preparación: perforadora de teclado (tipo IBM 026) + FOTO 02; después el mecanismo en primer plano: la tecla baja, los
+ // punzones atraviesan el cartón hacia la matriz, el recorte cae, los punzones regresan y la cremallera avanza una columna («READ»).
+ const K0 = B0.b12 + 0.15, KD = 0.2, kcol = (t) => (t - K0) / KD, M0 = T.ordenar + 0.05, MD = 0.42;
  B.push({ t0: B0.b12, t1: B0.b13, in: { type: 'fade', d: 0.3 }, draw(ctx, t) {
-  roomBg(ctx); const kf = Math.max(0, kcol(t)), col = Math.min(19, 1 + Math.floor(kf)), ph = kf % 1, press = kf > 0 && col < 19 ? Math.pow(Math.max(0, Math.sin(Math.min(1, ph * 2) * Math.PI)), 2) : 0, adv = col + (col < 19 ? E.inOut(cl((ph - 0.5) * 2)) : 0) - 1;
-  const kp = { punchX: 70, bedY: 1040, bedZ: -66 }, cx = kp.punchX - (F.c0 + (adv) * F.dc) + F.w / 2, cd = cardAt([cx, kp.bedY + 20, kp.bedZ + 1], { holes: P.cardHoles(LINE, { n: col - 1 }) }), close = t > T.ordenar;
-  const cam = close ? P.cam3([kp.punchX - 40, kp.bedY + 70, kp.bedZ + 420], [kp.punchX - 80, kp.bedY + 15, kp.bedZ], 1000) : P.cam3([lerp(640, 480, win(t, B0.b12, T.ordenar)), 1650, 1900], [0, 1050, -60], 1000);
-  P.keypunch3(ctx, cam, t, { card: cd, cardOpts: { textN: col - 1 }, press, key: (col * 7) % 44 });
-  if (!close) { const s = bill(ctx, cam, [-330, 0, 520], 1250, (x, y, h) => [x, y, h]); if (s) P.operatorSeated(ctx, s[0], s[1], s[2], t, { press }); }
-  else if (press > 0.6) { const p = cam.pr([kp.punchX, kp.bedY, kp.bedZ - 6]); for (let i = 0; i < 3; i++) { ctx.fillStyle = '#E4D7BA'; ctx.fillRect(p[0] - 4 + i * 6, p[1] + 20 + ph * 140 + i * 18, 6, 12); } }
+  roomBg(ctx);
+  if (t < M0) { const kf = Math.max(0, kcol(t)), col = Math.min(7, 1 + Math.floor(kf)), ph = kf % 1, press = kf > 0 && col < 7 ? Math.pow(Math.max(0, Math.sin(Math.min(1, ph * 2) * Math.PI)), 2) : 0, adv = col + (col < 7 ? E.inOut(cl((ph - 0.5) * 2)) : 0) - 1;
+   const kp = { punchX: 70, bedY: 1040, bedZ: -66 }, cx = kp.punchX - (F.c0 + adv * F.dc) + F.w / 2, cd = cardAt([cx, kp.bedY + 20, kp.bedZ + 1], { holes: P.cardHoles(LINE, { n: col - 1 }) });
+   const cam = P.cam3([lerp(640, 480, win(t, B0.b12, M0)), 1650, 1900], [0, 1050, -60], 1000); P.keypunch3(ctx, cam, t, { card: cd, cardOpts: { textN: col - 1 }, press, key: (col * 7) % 44, rack: -adv * F.dc });
+   const s2 = bill(ctx, cam, [-330, 0, 520], 1250, (x, y, h) => [x, y, h]); if (s2) P.operatorSeated(ctx, s2[0], s2[1], s2[2], t, { press }); recon(ctx, 'RECONSTRUCCIÓN ANIMADA', t, B0.b12 + 0.3, T.preparar - 0.3); }
+  else { const kf = Math.max(0, (t - M0) / MD), i = Math.min(3, Math.floor(kf)), ph = kf >= 4 ? 1 : kf % 1, c = 7 + i, ch = 'READ'[i], rows = P.cardCode(ch), done = ph >= 0.26, adv = E.inOut(cl((ph - 0.55) / 0.3)) * (kf < 4 ? 1 : 0);
+   const holes = P.cardHoles(LINE, { n: c - 1 + (done ? 1 : 0) }), cd = cardAt([F.w / 2 - (F.c0 + (c - 1 + adv) * F.dc), 0, 0], { holes }), u = win(t, M0, B0.b13);
+   const cam = P.cam3([lerp(118, 104, u), lerp(156, 146, u), lerp(66, 78, u)], [0, -4, 6], 930); ctx.save(); ctx.translate(0, -330); P.punchMech3(ctx, cam, t, { card: cd, cardOpts: { textN: c - 1 + (done ? 1 : 0) }, rows, ph, label: ch, rack: -(c - 1 + adv) * F.dc }); ctx.restore();
+   rowStrip(ctx, 75, 1235, rows, ch, 1, t, { px: 80 }); }
   title(ctx, 'PREPARACIÓN DEL PROGRAMA', t, B0.b12 + 0.2, B0.b13 + 0.2, { px: 48 });
-  P.floatPhoto(ctx, IMG.perforadora, 560, 480, 520, t, T.preparar - 0.2, T.ordenar + 0.1, { tag: 'PERFORADORA IBM 026', label: 'MÁQUINA REAL · DEUTSCHES MUSEUM', sub: 'mediados del siglo XX', credit: 'Foto: Ben Franske · CC BY-SA 4.0', from: 1, rotY: -0.12 });
-  lab(ctx, 'LA PERFORADORA HACE LOS AGUJEROS', null, 540, 1320, t, T.ordenar + 0.1, B0.b13 + 0.2, { col: C.oro, sub: 'el lector, después, los interpreta' }); recon(ctx, 'RECONSTRUCCIÓN ANIMADA', t, B0.b12 + 0.3, T.preparar - 0.3);
- }, sfx(k) { for (let i = 0; i < 18; i++) { const tt = K0 + i * KD; FX.perforar(k, tt + KD * 0.25, 0.7); } FX.revelar(k, T.preparar - 0.2); } });
+  P.floatPhoto(ctx, IMG.perforadora, 560, 480, 520, t, T.preparar - 0.2, M0 + 0.05, { tag: 'PERFORADORA IBM 026', label: 'MÁQUINA REAL · DEUTSCHES MUSEUM', sub: 'mediados del siglo XX', credit: 'Foto: Ben Franske · CC BY-SA 4.0', from: 1, rotY: -0.12 });
+  lab(ctx, 'TECLA → PUNZÓN → AGUJERO', null, 540, 1372, t, M0 + 0.1, B0.b13 + 0.2, { col: C.oro, sub: 'la perforadora hace los agujeros; el lector los interpreta' });
+ }, sfx(k) { for (let i = 0; i < 6; i++) { const tt = K0 + i * KD; if (tt < M0 - 0.1) FX.perforar(k, tt + KD * 0.25, 0.6); } FX.revelar(k, T.preparar - 0.2); for (let i = 0; i < 4; i++) { const tt = M0 + i * MD; k.play('click', tt + 0.02, { gain: 0.5 }); FX.perforar(k, tt + MD * 0.27, 0.9); k.play('tock', tt + MD * 0.62, { f: 520, gain: 0.25, minor: true }); } } });
  // 13–14 · ¡y si se desordenaban! el mazo se vuelca y se reordena gracias a los números de secuencia
  const NL = 26, LOOSE = (() => { const R = H.rng(51); return [...Array(NL).keys()].map((i) => ({ i, x: R.range(-420, 420), z: R.range(-240, 200), yaw: R.range(-1.3, 1.3), ts: B0.b13 + 0.35 + (NL - 1 - i) * 0.035 + R() * 0.05 })); })();
  B.push({ t0: B0.b13, t1: B0.b15, in: { type: 'fade', d: 0.3 }, draw(ctx, t) {
@@ -193,7 +201,8 @@
  B.push({ t0: B0.b16, t1: B0.b17, in: { type: 'fade', d: 0.35 }, draw(ctx, t) {
   const u = win(t, B0.b16, B0.b17), cam = P.cam3([lerp(2500, 1100, E.inOut(u)), lerp(1750, 1350, u), lerp(4300, 2300, E.inOut(u))], [lerp(300, 300, u), lerp(1150, 1000, u), -200], 950), cnt = Math.floor((t - B0.b16) / 1.6);
   P.office1890(ctx, cam, t, {}); const items = [{ d: cam.depth([0, 900, -100]), f: () => P.tabulator1890(ctx, cam, t, { press: press16(t), counts: [...Array(40).keys()].map((i) => (i * 7 + cnt * ((i % 3) + 1)) % 20), lid: cnt % 12, lidA: sm(0.75, 0.9, ((t - B0.b16) / 1.6) % 1) }) }];
-  for (const [x, z, v, pose] of [[-620, 380, 1, 'talk'], [1520, -380, 2, 'point'], [-1150, 700, 0, 'stand']]) items.push({ d: cam.depth([x, 900, z]), f: () => bill(ctx, cam, [x, 0, z], 1750, (X, Y, h) => P.traveler1865(ctx, X, Y, h, t, { var: v, pose, dir: -1 })) });
+  { const cyc = ((t - B0.b16) / 1.6) % 1, mv = E.inOut(cl(cyc / 0.18)) * (1 - sm(0.85, 1, cyc)), cx = lerp(-260, 290, mv), cdh = { ...P.cardFrame([cx, 791, 150], { fmt: 'h1890', pitch: -Math.PI / 2 }), holes: [[2, 1], [5, 6], [9, 3], [14, 9], [19, 4]] }; items.push({ d: cam.depth([cx, 795, 150]) - 80, f: () => { P.box3(ctx, cam, -380, -150, 790, 830, 100, 200, '#D8C5A3', {}); if (cyc < 0.86) P.punchCard3(ctx, cam, cdh, t, { print: false }); } }); }
+  for (const [x, z, v, pose] of [[-620, 380, 1, 'talk']]) items.push({ d: cam.depth([x, 900, z]), f: () => bill(ctx, cam, [x, 0, z], 1750, (X, Y, h) => P.traveler1865(ctx, X, Y, h, t, { var: v, pose, dir: -1 })) });
   items.sort((a, b) => b.d - a.d).forEach((x) => x.f()); sepiaWarm(ctx, 0.25); vign(ctx, 0.45);
   title(ctx, '1890 · CENSO DE ESTADOS UNIDOS', t, B0.b16 + 0.2, T.hollerith - 0.2, { px: 46 });
   P.floatPhoto(ctx, IMG.grabado, 540, 640, lerp(700, 780, win(t, T.hollerith - 0.4, B0.b17)), t, T.hollerith - 0.4, B0.b17 + 0.2, { tag: 'CENSO DE 1890 · GRABADO HISTÓRICO', label: 'MÁQUINAS DE HOLLERITH', sub: 'Scientific American, 30 de agosto de 1890', credit: 'Ilustración · dominio público', from: 1, rotY: -0.08 });
@@ -203,7 +212,7 @@
  B.push({ t0: B0.b17, t1: B0.b18, in: { type: 'fade', d: 0.3 }, draw(ctx, t) {
   const g = ctx.createLinearGradient(0, 0, 0, HH); g.addColorStop(0, '#2a2018'); g.addColorStop(1, '#1a130d'); ctx.fillStyle = g; ctx.fillRect(0, 0, W, HH);
   const pr = sm(B0.b17 + 0.3, B0.b17 + 0.9, t) * (1 - sm(B0.b18 - 0.7, B0.b18 - 0.3, t)), hit = t > B0.b17 + 0.9 ? 1 : 0;
-  P.hollerithPress(ctx, 60, 380, 960, 880, t, { press: pr, holes: [true, false, true, false, false, true], counts: [6 + hit, 0, 11 + hit, 0, 0, 3 + hit], bell: sm(B0.b17 + 0.9, B0.b17 + 1.0, t) * (1 - sm(B0.b17 + 1.8, B0.b17 + 2.1, t)) });
+  P.hollerithPress(ctx, 60, 380, 960, 880, t, { cardIn: win(t, B0.b17 - 0.1, B0.b17 + 0.3), press: pr, holes: [true, false, true, false, false, true], counts: [6 + hit, 0, 11 + hit, 0, 0, 3 + hit], bell: sm(B0.b17 + 0.9, B0.b17 + 1.0, t) * (1 - sm(B0.b17 + 1.8, B0.b17 + 2.1, t)) });
   title(ctx, 'TABULACIÓN ELECTROMECÁNICA', t, B0.b17 + 0.2, B0.b18 + 0.2, { px: 46 }); lab(ctx, 'NO ERA UNA COMPUTADORA ELECTRÓNICA', null, 540, 1350, t, B0.b17 + 1.2, B0.b18 + 0.2, { col: C.papel, sub: 'contaba: cada circuito cerrado avanzaba un dial' }); recon(ctx, 'VISUALIZACIÓN CONCEPTUAL', t, B0.b17 + 0.3, B0.b17 + 1.1);
  }, sfx(k) { k.play('press', B0.b17 + 0.85, { gain: 0.45 }); FX.dialHollerith(k, B0.b17 + 0.92, 1); FX.campana(k, B0.b17 + 1.0); } });
  // 18 · computadoras electrónicas: las tarjetas entran al lector y los datos viajan por el cable hasta el computador
@@ -213,35 +222,42 @@
   P.computerRoom60(ctx, cam, t, { pulse: t * 0.7, lights: 1, reader: { card: cd, contacts: contactsAt(HOLES, zc), hopper: 500, stacker: 200 } }); vign(ctx, 0.35);
   title(ctx, 'PROGRAMAS Y DATOS', t, B0.b18 + 0.3, B0.b19 + 0.2, {}); lab(ctx, 'LECTOR DE TARJETAS', cam.pr([-1400, 1010, -100]), 70, 1240, t, T.programas - 0.8, B0.b19 + 0.2, { al: 'left', col: C.cian }); lab(ctx, 'COMPUTADORA ELECTRÓNICA', cam.pr([800, 1820, -1500]), 1010, 460, t, T.datos18, B0.b19 + 0.2, { al: 'right', col: C.oro, sub: 'mediados del siglo XX' }); recon(ctx, 'RECONSTRUCCIÓN GENÉRICA', t, B0.b18 + 0.4, B0.b19);
  }, sfx(k) { for (let tt = B0.b18; tt < B0.b19; tt += 1.5) FX.tarjetaRoce(k, tt, 0.9, 0.6); FX.flujoDatos ? FX.flujoDatos(k, T.datos18, 1.6) : FX.datos(k, T.datos18); } });
- // 19 · hoy: miles de fotografías en una microSD sobre la yema de un dedo (otra tecnología: celdas electrónicas, sin agujeros)
+ // escenario de la microSD: base de acrílico oscuro con ranura (la tarjeta NO flota) y regla vertical de 15 mm como referencia de escala
+ const sdStage = (ctx, cam, t, yaw, o = {}) => { const fl = [[-200, -3, -200], [200, -3, -200], [200, -3, 200], [-200, -3, 200]]; P.poly3(ctx, cam, fl, '#0b111c'); P.box3(ctx, cam, -9, 9, -3, 0, -4, 4, '#1c2633', {}); P.poly3(ctx, cam, [[-6.2, 0.01, -0.7], [6.2, 0.01, -0.7], [6.2, 0.01, 0.7], [-6.2, 0.01, 0.7]], '#05080c');
+  const items = [{ d: cam.depth([0, 6, 0]), f: () => P.microSD3(ctx, cam, P.sdFrame([0, 6.0, 0.5], { yaw }), t, {}) }];
+  if (o.ruler !== false) items.push({ d: cam.depth([12, 6, 0]), f: () => { P.box3(ctx, cam, 10.5, 12.5, -1.5, 13.5, -0.6, 0.6, '#c9d0d3', {}); for (let m = 0; m <= 15; m++) { const a = cam.pr([10.5, -1.5 + m, 0.62]), b = cam.pr([m % 5 ? 11.3 : 12, -1.5 + m, 0.62]); if (a[2] > 1) { ctx.strokeStyle = '#2a3236'; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.moveTo(a[0], a[1]); ctx.lineTo(b[0], b[1]); ctx.stroke(); } } } });
+  items.sort((a, b) => b.d - a.d).forEach((x) => x.f()); };
+ // 19 · hoy: miles de fotografías en una microSD real (11 × 15 × 1 mm) — sin mano; la cámara orbita y muestra grosor, cantos y contactos
  B.push({ t0: B0.b19, t1: B0.b20, in: { type: 'fade', d: 0.35 }, draw(ctx, t) {
   const sw = sm(T.fotografias - 0.7, T.fotografias - 0.2, t); if (sw < 1) { techBg(ctx, t); const u = win(t, B0.b19, T.fotografias), d = lerp(330, 120, E.in(u)), az = 0.4 - u * 0.5, cd = cardAt([0, 0, 0]), cam = P.cam3([Math.sin(az) * d, 10, Math.cos(az) * d], [0, -4, 0], 1500); stand(ctx, cam, cd); P.punchCard3(ctx, cam, cd, t, {}); }
-  if (sw > 0) { ctx.save(); ctx.globalAlpha = sw; ctx.fillStyle = '#0D1424'; ctx.fillRect(0, 0, W, HH); const ph = sm(T.fotografias, T.memoria + 0.3, t), ty = 900, fw = 230, tiles = [...Array(10).keys()].map((i) => { const a = t * 0.5 + (i * TAU) / 10; return [i, a]; });
-   const tile = ([i, a]) => { const r = 390 * ph, x = 540 + Math.cos(a) * r, y = ty + 240 + Math.sin(a) * r * 0.32, s = 110 * (0.75 + 0.25 * (Math.sin(a) + 1) / 2) * ph; if (s > 2) P.photoTile(ctx, x, y, s, i, { rot: Math.cos(a) * 0.15 }); };
-   tiles.filter(([, a]) => Math.sin(a) < 0).forEach(tile); P.fingertip(ctx, 540, ty, fw, t, { glow: 0.4 + 0.3 * Math.sin(t * 2), cardRot: -0.12 + Math.sin(t * 0.6) * 0.04 }); tiles.filter(([, a]) => Math.sin(a) >= 0).forEach(tile); ctx.restore(); }
-  title(ctx, 'MILES DE FOTOGRAFÍAS', t, T.fotografias - 0.2, B0.b20 + 0.2, {}); lab(ctx, 'MEMORIA FLASH (MICROSD)', null, 540, 1360, t, T.memoria, B0.b20 + 0.2, { col: C.cian, sub: 'guarda datos de forma electrónica, sin agujeros' });
- }, sfx(k) { k.play('whoosh', T.fotografias - 0.7, { dur: 0.7, top: 2600, gain: 0.3 }); FX.chipFlash(k, T.fotografias - 0.15); FX.miniaturizar ? FX.miniaturizar(k, T.memoria) : 0; } });
- // 20 · antes una enorme pila de cartón era un programa (comparación sin cifras inventadas)
+  if (sw > 0) { ctx.save(); ctx.globalAlpha = sw; const g = ctx.createLinearGradient(0, 0, 0, HH); g.addColorStop(0, '#0D1424'); g.addColorStop(1, '#070b14'); ctx.fillStyle = g; ctx.fillRect(0, 0, W, HH);
+   const ph = sm(T.fotografias, T.memoria, t); for (let i = 0; i < 24; i++) { const R = H.rng(i + 31), cx = 90 + (i % 6) * 180 + R.range(-20, 20), cy = 420 + Math.floor(i / 6) * 150 - ((t * 18 + i * 9) % 60), a = ph * (0.25 + 0.2 * R()); if (a <= 0.01) continue; ctx.save(); ctx.globalAlpha *= a; P.photoTile(ctx, cx, cy, 120, i, { rot: R.range(-0.1, 0.1) }); ctx.restore(); }
+   const u = win(t, T.fotografias - 0.4, B0.b20), yaw = lerp(0.75, -2.55, E.inOut(u)), cam = P.cam3([lerp(-14, 10, u), lerp(16, 9, u), lerp(34, 30, u)], [1.5, 5.5, 0], 1000); ctx.save(); ctx.translate(0, 120); sdStage(ctx, cam, t, yaw); const rp = cam.pr([12.6, 6, 0.6]); ctx.restore(); if (rp[2] > 1) txt(ctx, '15 mm', rp[0] + 14, rp[1] + 120, 32, C.blanco, { al: 'left', w: 800 }); ctx.restore(); }
+  title(ctx, 'MILES DE FOTOGRAFÍAS', t, T.fotografias - 0.2, B0.b20 + 0.2, {}); lab(ctx, 'MEMORIA FLASH (MICROSD)', null, 540, 1360, t, T.memoria, B0.b20 + 0.2, { col: C.cian, sub: 'guarda datos de forma electrónica, sin agujeros' }); recon(ctx, 'FOTOS: REPRESENTACIÓN CONCEPTUAL', t, T.fotografias, T.memoria - 0.1);
+ }, sfx(k) { k.play('whoosh', T.fotografias - 0.7, { dur: 0.7, top: 2600, gain: 0.3 }); FX.chipFlash(k, T.fotografias - 0.15); } });
+ // 20 · antes una enorme pila de cartón era un programa: MISMA mesa, MISMA escala — la cámara baja desde lo alto de la pila hasta la
+ // microSD apoyada a su lado (sin equivalencias de capacidad)
  B.push({ t0: B0.b20, t1: B0.b21, in: { type: 'fade', d: 0.35 }, draw(ctx, t) {
-  roomBg(ctx); const u = win(t, B0.b20, B0.b21), n = 3000, hgt = n * F.th, up = Math.sin(Math.PI * cl(u * 1.15)), cam = P.cam3([360, lerp(100, hgt + 140, up), 620], [0, lerp(60, hgt * 0.9, up), 0], 1000);
-  ctx.save(); ctx.beginPath(); ctx.rect(0, 0, 540, HH); ctx.clip(); ctx.translate(-270, 0); table(ctx, cam, {}); P.cardDeck3(ctx, cam, 0, 0, 0, n, t, { topCard: { holes: P.cardHoles(progLine(9)), text: progLine(9) } }); ctx.restore();
-  ctx.save(); ctx.beginPath(); ctx.rect(540, 0, 540, HH); ctx.clip(); ctx.fillStyle = '#0D1424'; ctx.fillRect(540, 0, 540, HH); P.fingertip(ctx, 810, 940, 150, t, { glow: 0.5, cardRot: -0.1 }); ctx.restore(); ctx.fillStyle = C.blanco; ctx.fillRect(536, 0, 8, HH);
-  title(ctx, 'DEL CARTÓN A LOS CHIPS', t, B0.b20 + 0.2, B0.b21 + 0.2, {}); lab(ctx, 'PILA DE TARJETAS', null, 270, 1330, t, T.pila - 0.2, B0.b21 + 0.2, { col: C.papel, sub: 'un programa' }); lab(ctx, 'MICROSD', null, 810, 1330, t, T.pila + 0.3, B0.b21 + 0.2, { col: C.cian, sub: 'memoria flash' });
- }, sfx(k) { k.play('whoosh', B0.b20 + 0.2, { dur: 1.6, gain: 0.22 }); FX.etiqueta(k, T.pila - 0.2); FX.etiqueta(k, T.pila + 0.3); } });
+  roomBg(ctx); const u = E.inOut(win(t, B0.b20 + 0.2, B0.b21 - 0.2)), n = 3000, hgt = n * F.th, cam = P.cam3([lerp(330, 150, u), lerp(hgt + 160, 40, u), lerp(560, 190, u)], [lerp(-80, 70, u), lerp(hgt - 60, 2, u), lerp(0, 50, u)], 1000);
+  table(ctx, cam, {}); const sd = P.sdFrame([90, 1.0, 60], { pitch: -Math.PI / 2, yaw: 0.4 }), items = [{ d: cam.depth([-80, hgt / 2, 0]), f: () => P.cardDeck3(ctx, cam, -80, 0, 0, n, t, { seed: 5, topCard: { holes: P.cardHoles(progLine(9)), text: progLine(9) } }) }, { d: cam.depth([90, 0.5, 60]), f: () => { P.microSD3(ctx, cam, sd, t, {}); } }];
+  items.sort((a, b) => b.d - a.d).forEach((x) => x.f()); const sp = cam.pr([95, 1, 60]), dp = cam.pr([-80, hgt * 0.5, 41]);
+  title(ctx, 'DEL CARTÓN A LOS CHIPS', t, B0.b20 + 0.2, B0.b21 + 0.2, {}); lab(ctx, 'PILA DE TARJETAS: UN PROGRAMA', dp[2] > 1 ? dp : null, 70, 1250, t, T.pila - 0.2, T.programa20 - 0.6, { al: 'left', col: C.papel }); lab(ctx, 'MICROSD · MISMA ESCALA', sp[2] > 1 ? sp : null, 540, 1340, t, T.programa20 - 0.5, B0.b21 + 0.2, { col: C.cian, sub: 'otra tecnología: memoria flash' });
+ }, sfx(k) { k.play('whoosh', B0.b20 + 0.3, { dur: 2.6, gain: 0.2 }); FX.etiqueta(k, T.pila - 0.2); FX.etiqueta(k, T.programa20 - 0.5); } });
  // 21 · pregunta: la tarjeta real gira lentamente en su soporte, macro
  B.push({ t0: B0.b21, t1: B0.b22, in: { type: 'fade', d: 0.3 }, draw(ctx, t) {
   techBg(ctx, t); const u = win(t, B0.b21, B0.b22), az = lerp(0.6, -0.4, E.inOut(u)), d = lerp(300, 220, u), cd = cardAt([0, 0, 0]), cam = P.cam3([Math.sin(az) * d, 18, Math.cos(az) * d], [lerp(-20, 10, u), -4, 0], 1500);
   stand(ctx, cam, cd); P.punchCard3(ctx, cam, cd, t, { thk: 2 }); title(ctx, '¿CONOCÍAS ESTA TECNOLOGÍA?', t, B0.b21 + 0.2, B0.b22 + 0.2, { px: 46 });
  }, sfx(k) { k.play('whoosh', B0.b21 + 0.1, { dur: 1.2, gain: 0.18 }); } });
- // 22 · cierre: tarjeta → disco duro → memoria flash → microSD; ASOMBROTECA discreto
+ // 22 · cierre limpio: la tarjeta perforada se desplaza a la izquierda, la microSD aparece a la derecha, un trazo de luz las une; ASOMBROTECA
  B.push({ t0: B0.b22, t1: DURATION + 1, in: { type: 'fade', d: 0.4 }, draw(ctx, t) {
-  ctx.fillStyle = '#0D1424'; ctx.fillRect(0, 0, W, HH); const u = E.inOut(win(t, B0.b22, DURATION)), sc = lerp(1.08, 0.98, u); ctx.save(); ctx.translate(540, 900); ctx.scale(sc, sc); ctx.translate(-540, -900);
-  const ap = (i) => sm(B0.b22 + 0.2 + i * 0.55, B0.b22 + 0.6 + i * 0.55, t), pos = [[280, 640], [800, 700], [290, 1120], [800, 1140]], names = ['TARJETA', 'DISCO DURO', 'FLASH', 'MICROSD'];
-  for (let i = 0; i < 3; i++) { const a = ap(i + 1); if (a <= 0) continue; ctx.save(); ctx.globalAlpha = a; ctx.strokeStyle = C.oro; ctx.lineWidth = 5; ctx.setLineDash([12, 10]); const [x0, y0] = pos[i], [x1, y1] = pos[i + 1]; ctx.beginPath(); ctx.moveTo(lerp(x0, x1, 0.28), lerp(y0, y1, 0.28)); ctx.lineTo(lerp(x0, x1, 0.72), lerp(y0, y1, 0.72)); ctx.stroke(); ctx.setLineDash([]); ctx.restore(); }
-  for (let i = 0; i < 4; i++) { const a = ap(i); if (a <= 0) continue; ctx.save(); ctx.globalAlpha = a; const [x, y] = pos[i]; if (i === 0) flatCard(ctx, cardAt([0, 0, 0]), x, y, 1.7, t, { print: false }); else if (i === 1) P.hdd35(ctx, x, y, 1.5, t, {}); else if (i === 2) P.flashChip(ctx, x, y, 6, t, {}); else P.microSD(ctx, x, y, 9, { glow: 0.5 }); txt(ctx, names[i], x, y + (i === 1 ? 160 : i === 3 ? 120 : 130), 34, C.blanco, { w: 800 }); ctx.restore(); }
-  ctx.restore();
+  const g = ctx.createLinearGradient(0, 0, 0, HH); g.addColorStop(0, '#0D1424'); g.addColorStop(1, '#0a0f1a'); ctx.fillStyle = g; ctx.fillRect(0, 0, W, HH);
+  const mv = E.inOut(win(t, B0.b22, B0.b22 + 1.4)), ca = 1, sa = sm(B0.b22 + 0.9, B0.b22 + 1.5, t), la = sm(B0.b22 + 1.2, B0.b22 + 2.0, t), cx = lerp(540, 300, mv);
+  flatCard(ctx, cardAt([0, 0, 0]), cx, 900, lerp(4.6, 2.2, mv), t, { alpha: ca });
+  if (la > 0) { ctx.save(); ctx.globalAlpha = la; const x0 = 520, x1 = 690, gr = ctx.createLinearGradient(x0, 0, x1, 0); gr.addColorStop(0, 'rgba(255,212,71,0)'); gr.addColorStop(0.5, 'rgba(255,212,71,0.9)'); gr.addColorStop(1, 'rgba(76,211,232,0)'); ctx.fillStyle = gr; ctx.fillRect(x0, 897, x1 - x0, 6); const q = ((t - B0.b22) * 0.6) % 1; P.glow(ctx, lerp(x0, x1, q), 900, 30, '255,212,71', 0.8); ctx.restore(); }
+  if (sa > 0) { ctx.save(); ctx.globalAlpha = sa; const cam = P.cam3([10, 9, 36], [0, 6, 0], 1000); ctx.translate(800 - 540, 900 - 960 + 40); sdStage(ctx, { ...cam }, t, lerp(0.6, 0.2, win(t, B0.b22, DURATION)), { ruler: false }); ctx.restore(); }
+  const ta = sm(B0.b22 + 1.4, B0.b22 + 1.9, t); if (ta > 0) { ctx.save(); ctx.globalAlpha = ta; txt(ctx, 'TARJETA PERFORADA', 300, 1110, 34, C.papel, { w: 800 }); txt(ctx, 'MICROSD', 800, 1110, 34, C.cian, { w: 800 }); ctx.restore(); }
   const a = sm(T.asombroteca, T.asombroteca + 0.6, t); if (a > 0) { ctx.save(); ctx.globalAlpha *= a; ctx.strokeStyle = 'rgba(245,247,250,0.75)'; ctx.lineWidth = 2; const lw = 230 * E.out(a); ctx.beginPath(); ctx.moveTo(540 - lw, 230); ctx.lineTo(540 + lw, 230); ctx.moveTo(540 - lw, 338); ctx.lineTo(540 + lw, 338); ctx.stroke(); txt(ctx, 'ASOMBROTECA', 540, 285, 54, C.blanco, { w: 800, ls: 10 }); ctx.restore(); }
- }, sfx(k) { for (let i = 0; i < 4; i++) FX.etiqueta(k, B0.b22 + 0.2 + i * 0.55); FX.campana(k, T.asombroteca + 0.1); FX.fin(k, T.end + 0.6); } });
+ }, sfx(k) { k.play('whoosh', B0.b22 + 0.2, { dur: 1.2, gain: 0.2 }); FX.chipFlash(k, B0.b22 + 1.0, 0.6); FX.campana(k, T.asombroteca + 0.1); FX.fin(k, T.end + 0.6); } });
 
  const EP = PL.make({
   skin: 'plana', align: A, duration: DURATION, beats: B, capStyle: 'barra', capY: 1540,
