@@ -1,17 +1,18 @@
 // =====================================================================================================
-// episodio.js — «¿Por qué el café te quita el sueño?» · DEMO de la PLANTILLA ASOMBROTECA v1.26 (voz sintética Kokoro)
+// episodio.js — «¿Por qué el café te quita el sueño?» · DEMO de la PLANTILLA ASOMBROTECA v1.27 (voz sintética Kokoro con 4 pausas
+// dramáticas de 0,5-0,8 s antes de cada revelación; tiempos con wa('palabra', n), independientes de cómo se partan los tramos)
 // Muestra en un solo vídeo los recursos nuevos: 3D de producto (taza torneada con sombra), personajes con cara, metáfora
 // llave/cerradura, plano técnico «blueprint» con HUD, barras y reloj, subtítulos «ios» con iconos y el cierre de compartir.
 // Fórmula de las referencias: gancho → giro → metáfora → mecanismo con cifras → consecuencia → remate → «Envíaselo a ese amigo…».
 // =====================================================================================================
 (function () {
  const A = window.ALIGN, PL = window.PLANTILLA, P = PL.P, FX = PL.FX, MUS = PL.MUS;
- const K = PL.kit(A), { W, HH, TAU, cl, sm, E, lerp, win, wt, T, B0, DURATION } = K;
+ const K = PL.kit(A), { W, HH, TAU, cl, sm, E, lerp, win, wt, wa, T, B0, DURATION } = K;
  // tiempos anclados a palabras de la voz
- const Tk = { sueno: wt(0, 'sueño'), no: wt(1, 'no'), energia: wt(1, 'energía'), trampa: wt(2, 'trampa'), cerebro: wt(2, 'cerebro'), mientras: wt(2, 'mientras'), despierto: wt(2, 'despierto'),
-  neuronas: wt(2, 'neuronas'), acumulan: wt(2, 'acumulan'), adenosina: wt(2, 'adenosina'), molecula: wt(2, 'molécula'), cansancio: wt(2, 'cansancio'), cuanta: wt(2, 'cuanta'), encaja: wt(2, 'encaja'), cerraduras: wt(2, 'cerraduras'),
-  suenoDa: wt(3, 'sueño'), cafeina: wt(3, 'cafeína'), misma: wt(3, 'misma'), entra: wt(3, 'entra'), pero: wt(3, 'pero'), abre: wt(3, 'abre'),
-  asi: wt(4, 'así'), turno: wt(4, 'turno'), rapido: wt(4, 'rápido'), cinco: wt(4, 'cinco'), mitad: wt(4, 'mitad'), sangre: wt(4, 'sangre'), si: wt(4, 'si'), tarde: wt(4, 'tarde'), diez: wt(4, 'diez'), mitad2: wt(4, 'mitad', 1), envia: wt(4, 'envíaselo'), amigo: wt(4, 'amigo') };
+ const Tk = { sueno: wa('sueño'), no: wa('no'), energia: wa('energía'), trampa: wa('trampa'), cerebro: wa('cerebro'), mientras: wa('mientras'), despierto: wa('despierto'),
+  neuronas: wa('neuronas'), acumulan: wa('acumulan'), adenosina: wa('adenosina'), molecula: wa('molécula'), cansancio: wa('cansancio'), cuanta: wa('cuanta'), encaja: wa('encaja'), cerraduras: wa('cerraduras'),
+  suenoDa: wa('sueño', 1), cafeina: wa('cafeína'), misma: wa('misma'), entra: wa('entra'), pero: wa('pero'), abre: wa('abre'),
+  asi: wa('así'), turno: wa('turno'), rapido: wa('rápido'), cinco: wa('cinco'), mitad: wa('mitad'), sangre: wa('sangre'), si: wa('si'), tarde: wa('tarde'), diez: wa('diez'), mitad2: wa('mitad', 1), envia: wa('envíaselo'), amigo: wa('amigo') };
  const S = { b2: T.s1 - 0.15, b3: Tk.trampa - 0.6, b4: Tk.mientras - 0.15, b5: Tk.cuanta - 0.2, b6: Tk.cafeina - 0.25, b7: Tk.asi - 0.2, b8: Tk.rapido - 0.35, b9: Tk.envia - 0.25 };
  const ADE = '#ffb347', CAF = '#9b6cff';
 
@@ -40,7 +41,7 @@
  const B = [];
  // 1 · GANCHO (3D de producto): la cámara rodea y se acerca a la taza humeante
  B.push({ t0: 0, t1: S.b2, in: { type: 'cut' }, draw(ctx, t) {
-  const u = E.inOut(win(t, 0, S.b2)), a = lerp(-0.55, 0.15, u), d = lerp(3.4, 2.5, u), cam = P.cam3([Math.sin(a) * d, lerp(2.1, 1.65, u), Math.cos(a) * d], [0, 0.42, 0], 1050);
+  const u = E.out(win(t, 0, S.b2)), a = lerp(-0.55, 0.15, u), d = lerp(3.4, 2.5, u), cam = P.cam3([Math.sin(a) * d, lerp(2.1, 1.65, u), Math.cos(a) * d], [0, 0.42, 0], 1050);
   const top = escenaTaza(ctx, t, cam); const la = sm(Tk.sueno - 0.1, Tk.sueno + 0.25, t); if (la > 0) { ctx.save(); ctx.globalAlpha *= la; P.character(ctx, 'nube', top[0] + 230, top[1] - 380, 70, t, { mood: 'dormido', bounce: 0.6 }); P.icon(ctx, 'luna', top[0] + 330, top[1] - 470, 70, { mode: 'flat', col: '#FFD447' }); ctx.restore(); }
  }, sfx(k) { k.noise(0, { dur: S.b2, color: 'pink', filter: 'lowpass', f: 900, gain: 0.02, a: 0.3, hold: S.b2 * 0.6 }); FX.personaje(k, Tk.sueno); } });
  // 2 · GIRO: «No te da energía» — el rayo se tacha
@@ -87,13 +88,13 @@
   PL.setSkin('blueprint'); P.fondo(ctx, t, 'blueprint');
   P.hud(ctx, t, [{ label: 'Cafeína en sangre', from: 100, to: 50, t0: Tk.cinco, t1: Tk.mitad + 0.4, suffix: '%', y: 470 }, { label: 'Horas', from: 0, to: 5, t0: Tk.cinco, t1: Tk.mitad + 0.4, x: 'right', hi: true, y: 470 }]);
   const ba = 1 - sm(Tk.si - 0.3, Tk.si, t); if (ba > 0) { ctx.save(); ctx.globalAlpha *= ba; P.barsGrow(ctx, 160, 640, 760, 560, [100, 50, 25], lerp(0, 3, win(t, Tk.cinco - 0.2, Tk.sangre + 0.2)), { labels: ['0 h', '5 h', '10 h'], hi: (i) => i === 1, fmt: (v) => v + ' %' }); ctx.restore(); }
-  const ca = sm(Tk.si - 0.3, Tk.si, t); if (ca > 0) { ctx.save(); ctx.globalAlpha *= ca; const h = lerp(17, 22, E.inOut(win(t, Tk.tarde, Tk.diez + 0.2))); P.clockBP(ctx, 540, 920, 270, h, { hi: [17, h], label: 'Café a las 17:00' }); P.statBig(ctx, '50 %', 540, 1390, t, Tk.mitad2 - 0.2, S.b9, { px: 110, sub: 'sigue en tu sangre', col: '#F8CD45' }); ctx.restore(); }
+  const ca = sm(Tk.si - 0.3, Tk.si, t); if (ca > 0) { ctx.save(); ctx.globalAlpha *= ca; const h = lerp(17, 22, E.inOut(win(t, Tk.tarde, Tk.diez + 0.2))); P.clockBP(ctx, 540, 920, 270, h, { hi: [17, h], label: 'Café a las 17:00' }); P.statBig(ctx, '50 %', 540, 1310, t, Tk.mitad2 - 0.2, S.b9, { px: 110, sub: 'sigue en tu sangre', col: '#F8CD45' }); ctx.restore(); }
   PL.setSkin('cartoon');
  }, sfx(k) { FX.contador(k, Tk.cinco, Tk.mitad + 0.4, 100, 50); FX.tictac(k, Tk.tarde, 4, 0.3); FX.aparece(k, Tk.mitad2 - 0.2, 660); } });
  // 9 · CIERRE: «Envíaselo a ese amigo…» (móvil, hoja de compartir, toque, enviado) + marca
  B.push({ t0: S.b9, t1: DURATION, in: { type: 'zoom', d: 0.4, x: 540, y: 960 }, draw(ctx, t) {
   P.fondo(ctx, t, 'producto'); P.ctaShare(ctx, t, S.b9 + 0.1, DURATION + 1, { preview: (c, x, y, w, h) => P.mini(c, x, y, w, h, (cc) => { P.fondo(cc, t, 'cartoon'); P.character(cc, 'cerebro', 540, 900, 250, t, { mood: 'mareado' }); }), names: ['Lucía', 'Javi', 'Marta', 'Dani'] });
-  P.marca(ctx, t, T.end + 0.2, { y: 1765 });
+  P.marca(ctx, t, T.end + 0.2);
  }, sfx(k) { FX.compartir(k, S.b9 + 0.1); FX.fin(k, T.end + 0.3); } });
 
  const EP = PL.make({

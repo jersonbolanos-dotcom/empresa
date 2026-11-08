@@ -110,6 +110,14 @@ def p_prueba(P, a):
     print(f'Hoja de prueba: {out}')
 
 
+def pausas(P, mn=0.4, mx=1.6):
+    f = os.path.join(P, '04_CODIGO', 'alineacion.json')
+    if not os.path.exists(f):
+        return []
+    ws = json.load(open(f))['words']
+    return [(ws[i - 1]['e'], ws[i]['s']) for i in range(1, len(ws)) if mn <= ws[i]['s'] - ws[i - 1]['e'] <= mx]
+
+
 def nombre_final(P, a):
     if a.salida:
         return a.salida
@@ -127,7 +135,10 @@ def p_render(P, a):
     shutil.copy2(os.path.join(AU, 'music.wav'), os.path.join(A5, 'musica_original.wav'))
     shutil.copy2(os.path.join(AU, 'sfx.wav'), os.path.join(A5, 'efectos_sonido.wav'))
     mez = os.path.join(A5, 'mezcla_final.wav')
-    fc = ('[0:a]aresample=48000,aformat=channel_layouts=stereo,apad[v];[v]asplit[v1][v2];[1:a]volume=4dB[m];'
+    PZ = pausas(P); duck = ('+'.join(f'between(t,{x - 0.05:.2f},{y + 0.1:.2f})' for x, y in PZ) if PZ else '0')
+    # v1.27: durante cada pausa dramática la música baja a ~40 % (la animación casi se para y entra FX.pausa)
+    fc = ('[0:a]aresample=48000,aformat=channel_layouts=stereo,apad[v];[v]asplit[v1][v2];'
+          f"[1:a]volume=4dB,volume='if({duck},0.4,1)':eval=frame[m];"
           '[m][v2]sidechaincompress=threshold=0.03:ratio=6:attack=20:release=400[md];[2:a]volume=-1dB[s];'
           f'[v1][md][s]amix=inputs=3:normalize=0,volume=7.4dB,alimiter=limit=0.8:level=false,afade=t=out:st={D - 0.8:.3f}:d=0.8,atrim=0:{D}[o]')
     sh(['ffmpeg', '-v', 'error', '-y', '-i', voz(P), '-i', os.path.join(A5, 'musica_original.wav'), '-i', os.path.join(A5, 'efectos_sonido.wav'),
@@ -179,6 +190,27 @@ def p_qc(P, a):
     if os.path.exists(os.path.join(C, 'index.html')):
         r = subprocess.run(['node', os.path.join(T, 'determinismo.js'), 'index.html'], cwd=C, capture_output=True, text=True); det = 'DETERMINISMO OK' in r.stdout
     sh(['ffmpeg', '-v', 'error', '-y', '-i', out, '-vf', f'fps=1/{max(1.0, dur / 20):.3f},scale=216:384,tile=10x2', '-frames:v', '1', os.path.join(Q, 'hoja_contacto.jpg')])
+    # v1.27 · zona segura de Instagram, etiquetas a la vez, título fijo
+    zs = None
+    if os.path.exists(os.path.join(C, 'index.html')):
+        r = subprocess.run(['node', os.path.join(T, 'zona_segura.js'), 'index.html'], cwd=C, capture_output=True, text=True)
+        try:
+            zs = json.loads(r.stdout.strip().splitlines()[-1])
+        except Exception:
+            zs = None
+    # v1.27 · gancho, cierre y pausas (desde la alineación)
+    al = os.path.join(C, 'alineacion.json'); gancho = cierre = None; npz = len(pausas(P))
+    if os.path.exists(al):
+        ws = json.load(open(al))['words']; txt0 = ' '.join(w['w'] for w in ws[:6]).lower(); ult = ' '.join(w['w'] for w in ws if w['seg'] == ws[-1]['seg']).lower(); todo = ' '.join(w['w'] for w in ws).lower()
+        gancho = not re.match(r'^[¡¿]?\s*(imagina|en el año|en \d{3,4}|antes de|hace mucho|había una vez|hace \d+ años)', txt0)
+        cierre = bool(re.search(r'env[ií]a', ult)) and not re.search(r'\b(sigue a|s[ií]guenos|s[ií]gueme)\b', todo)
+    # v1.27 · movimiento desde el fotograma 0 (ni negro ni quieto)
+    def gris(tt):
+        raw = subprocess.run(['ffmpeg', '-v', 'error', '-ss', str(tt), '-i', out, '-frames:v', '1', '-vf', 'scale=108:192,format=gray', '-f', 'rawvideo', '-'], capture_output=True).stdout
+        return list(raw)
+    g0, g1 = gris(0), gris(0.5); mov = None
+    if g0 and g1 and len(g0) == len(g1):
+        lum = sum(g0) / len(g0); dif = sum(abs(x - y) for x, y in zip(g0, g1)) / len(g0); mov = lum > 12 and dif > 1.0
     ok = lambda c: '✔' if c else '✘'
     filas = [
         ('Formato', f'{vs["codec_name"]} {vs["width"]}×{vs["height"]} {vs["r_frame_rate"]} · {au[0]["codec_name"] + " " + au[0]["sample_rate"] + " Hz" if au else "SIN AUDIO"}', vs['width'] == 1080 and vs['height'] == 1920 and vs['r_frame_rate'] == '30/1' and bool(au)),
@@ -189,11 +221,18 @@ def p_qc(P, a):
         ('Sonoridad', f'{L["I"]:.1f} LUFS · pico {L["TP"]:.1f} dBTP' if L else '—', bool(L) and abs(L['I'] + 14) <= 1 and (L['TP'] or 0) <= -1),
         ('Voz intacta (md5)', 'igual al original' if vm else ('DISTINTA' if vm is False else 'sin referencia (paso «voz»)'), vm is not False),
         ('Determinismo', 'OK' if det else ('FALLO' if det is False else 'sin index.html'), det is not False),
+        ('Duración (objetivo 45-70 s)', f'{dur:.1f} s' + (' · AVISO: más de 75 s' if 75 < dur <= 90 else ''), dur <= 90),
+        ('Zona segura IG (texto en 220 ≤ y ≤ 1450, x ≤ 940)', ('sin datos' if zs is None else (f'{len(zs["fuera"])} textos fuera' + (': ' + ', '.join(f'{f["tipo"]} t={f["t"]} {f["motivo"]}' for f in zs['fuera'][:6]) if zs['fuera'] else ''))), zs is not None and not zs['fuera']),
+        ('Pantalla limpia (≤ 2 etiquetas a la vez, sin título fijo)', 'sin datos' if zs is None else f'máx. {zs["maxEtiquetas"]} etiquetas · {"con" if zs["titulos"] else "sin"} título', zs is not None and zs['maxEtiquetas'] <= 2 and not zs['titulos']),
+        ('Pausas dramáticas (0,4-1,6 s; objetivo 3-4)', f'{npz}' + ('' if 3 <= npz <= 6 else ' · AVISO: fuera del objetivo'), True),
+        ('Gancho sin frase de contexto', 'sin alineación' if gancho is None else ('correcto' if gancho else 'EMPIEZA CON CONTEXTO (Imagina / En el año / Antes de…)'), gancho is not False),
+        ('Cierre «Envíaselo a ese amigo…» (sin «Sigue a…»)', 'sin alineación' if cierre is None else ('correcto' if cierre else 'FALTA o hay «Sigue a…»'), cierre is not False),
+        ('Movimiento desde el fotograma 0', 'sin datos' if mov is None else ('sí' if mov else 'NEGRO o QUIETO al empezar'), mov is not False),
     ]
     txt = '\n'.join(f'{k}: {v} {ok(c)}' for k, v, c in filas)
     open(os.path.join(Q, 'qc_tecnico.txt'), 'w').write(f'Archivo: {out}\n{txt}\n')
     md = [f'# QC · {os.path.basename(out)}', '', '| Control | Resultado | |', '|---|---|---|'] + [f'| {k} | {v} | {ok(c)} |' for k, v, c in filas]
-    md += ['', 'Hoja de contacto: `hoja_contacto.jpg`. Revisión visual (rellenar): textos legibles, nada flota, rótulos fuera de la franja de subtítulos, datos con fuente en FUENTES_Y_DECISIONES.md.']
+    md += ['', 'Pausas cortas: los silencios de 0,4-1,6 s no cuentan como error (el control de silencios solo falla a partir de 1 s por debajo de −50 dB, y la música sigue sonando, más baja).', 'Hoja de contacto: `hoja_contacto.jpg`. Revisión visual (rellenar): textos legibles, nada flota, datos con fuente en FUENTES_Y_DECISIONES.md.']
     open(os.path.join(Q, 'QC.md'), 'w').write('\n'.join(md) + '\n')
     print(txt)
     print('QC: ' + ('TODO CORRECTO' if all(c for _, _, c in filas) else 'HAY PUNTOS A REVISAR'))

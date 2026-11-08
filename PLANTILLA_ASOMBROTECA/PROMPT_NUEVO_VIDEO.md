@@ -22,12 +22,22 @@ Antes de empezar, lee en este orden:
 
 DATOS DEL VÍDEO
 - Tema: [p. ej. «¿Por qué crujen los nudillos?»]
-- Audio: [nombre del archivo]. Es la voz original: no se modifica, ni se acelera, ni se recorta; marca el tiempo de todo.
-- Estilo: [cartoon | noche | blueprint | dossier | producto | tecno | asombroteca] (o «elige tú el más adecuado»)
+- Audio: [nombre del archivo | «genéralo con ElevenLabs»]. Si lo adjunto, es la voz original: no se modifica, ni se acelera, ni se recorta; marca el tiempo de todo.
+- Estilo: [asombroteca (por defecto) | cartoon | noche | blueprint | dossier | producto | tecno] (o «elige tú el más adecuado»)
 - Canal / marca al final: [ASOMBROTECA u otro nombre]
 - Referencias o fotos reales: [ninguna | adjuntas, con su licencia]
 
+REGLAS v1.27 (mandan sobre todo lo demás): zona segura de Instagram (texto solo en 220 ≤ y ≤ 1450 y x ≤ 940, subtítulos
+arriba), gancho sin contexto y con movimiento desde el fotograma 0, ángulo personal (tu móvil, tu casa, tu cuerpo), pantalla
+limpia (sin título fijo, ≤ 2 etiquetas de 1-3 palabras), 3-4 pausas dramáticas de 0,4-1,0 s, 45-70 s, y cierre
+«Envíaselo a ese amigo que…» con P.ctaShare (nunca «Sigue a Asombroteca»).
+
 CÓMO TRABAJAR
+0. GANCHOS: antes de escribir el guion completo, proponme 3 ganchos (contradicción, cifra imposible o algo en juego, en
+   segunda persona; prohibido empezar con «Imagina», «En el año…», «Antes de…», «Hace mucho…») y ESPERA a que elija uno.
+0b. VOZ (si no la adjunto): escribe el guion con 3-4 pausas `<break time="0.6s" />` justo antes de cada revelación y genérala
+   con el conector de ElevenLabs, modelo Multilingual v2 (si solo hay v3, usa guiones — en lugar de break). Si no puedes
+   guardar el audio dentro del proyecto, dame el enlace de ElevenLabs para descargarlo y te lo adjunto.
 1. Crea el proyecto:  python3 PLANTILLA_ASOMBROTECA/tools/nuevo_proyecto.py NOMBRE --estilo ESTILO --marca "MARCA" --voz AUDIO
 2. Voz:      python3 PLANTILLA_ASOMBROTECA/tools/producir.py NOMBRE_PROYECTO voz
    Corrige 03_GUION/tramos.txt (una línea por tramo de voz; cifras en forma hablada: 500|quinientos) y después:
@@ -38,7 +48,8 @@ CÓMO TRABAJAR
 4. UNA ronda de prueba:  python3 PLANTILLA_ASOMBROTECA/tools/producir.py NOMBRE_PROYECTO prueba 1 4 8 …   (10-12 instantes)
    Revisa la hoja 07_QC/prueba.jpg y corrige lo que se vea mal (textos tapados, objetos fuera de cuadro, nada flota).
 5. Render y control:  python3 PLANTILLA_ASOMBROTECA/tools/producir.py NOMBRE_PROYECTO todo
-   El QC debe salir «TODO CORRECTO»: 1080×1920, 30 fps, H.264 + AAC, −14 LUFS, pico ≤ −1 dBTP, voz intacta y determinista.
+   El QC debe salir «TODO CORRECTO»: 1080×1920, 30 fps, H.264 + AAC, −14 LUFS, pico ≤ −1 dBTP, voz intacta, determinista,
+   zona segura, ≤ 2 etiquetas, sin título fijo, gancho sin contexto, movimiento desde el fotograma 0, cierre de compartir, ≤ 90 s.
 6. Documenta las fuentes de cada dato en FUENTES_Y_DECISIONES.md y las licencias de las imágenes en CREDITOS_IMAGENES.md.
 7. Si añadiste bloques a la plantilla: anótalos en CAMBIOS_PLANTILLA.md e INSTRUCCIONES_PLANTILLA.md y, si sirve, añade una
    «regla aprendida» al SUPERPROMPT.

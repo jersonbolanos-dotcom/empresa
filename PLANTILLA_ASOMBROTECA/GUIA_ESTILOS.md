@@ -1,4 +1,13 @@
-# Guía de estilos y guion · PLANTILLA ASOMBROTECA v1.26
+# Guía de estilos y guion · PLANTILLA ASOMBROTECA v1.27
+
+> **v1.27 · Reglas para más visualizaciones (mandan sobre todo lo demás):**
+> 1. **Zona segura de Instagram:** texto importante solo en 220 ≤ y ≤ 1450 y x ≤ 940. Subtítulos arriba (estilo `ios`, capY 330-520), una palabra clave por frase.
+> 2. **Gancho (0-2 s):** nada de «Imagina», «En el año…», «Antes de…». Contradicción, cifra imposible o algo en juego, en segunda persona. Movimiento desde el fotograma 0. Se proponen 3 ganchos y el usuario elige antes del guion.
+> 3. **Ángulo personal:** se cuenta desde la vida del espectador (tu móvil, tu casa, tu cuerpo, tu ciudad).
+> 4. **Pantalla limpia:** sin título fijo arriba; máximo 2 etiquetas a la vez de 1-3 palabras; avisos pequeños y breves.
+> 5. **Pausas dramáticas:** 3-4 silencios de 0,4-1,0 s antes de las revelaciones (ElevenLabs Multilingual v2 con `<break time="0.6s" />`). La animación se frena, la música baja y entra `FX.pausa`.
+> 6. **Duración:** 45-70 s (el QC avisa por encima de 75 s y falla por encima de 90).
+> 7. **Cierre:** la última frase siempre es «Envíaselo a ese amigo que…» con `P.ctaShare`; «ASOMBROTECA» solo pequeño con `P.marca`; nunca «Sigue a Asombroteca».
 
 Lo que hace funcionar a los vídeos verticales de referencia, convertido en reglas y bloques de la plantilla.
 
@@ -30,7 +39,7 @@ Catálogo visual de todo lo nuevo: `catalogo/catalogo_v126.jpg`. Ejemplo ejecuta
 
 **Ritmo:**
 
-- Duración de 30 a 95 s, a unas 3 palabras por segundo.
+- Duración de 45 a 70 s (v1.27), a unas 3 palabras por segundo, con 3-4 pausas dramáticas de 0,4-1,0 s antes de cada revelación.
 - Frases cortas, casi sin subordinadas.
 - Segunda persona («tu cerebro», «tu móvil»).
 
@@ -71,11 +80,11 @@ Se eligen con `PL.make({ estilo: '…' })`, que fija piel, subtítulos y posici�
 |---|---|---|---|---|---|
 | `cartoon` | salud, química, biología, para todos los públicos | degradados vivos (morado, turquesa) con bokeh | `ios` arriba | `P.character`, `P.keyLock`, `P.icon` relleno | placer/fentanilo |
 | `noche` | cuerpo humano, fiesta, memoria, misterio | casi negro con bokeh de colores y partículas | `ios` arriba | `P.filmStrip`, `P.recBadge`, `P.scrCamera`, `P.scrAlert` | alcohol y memoria |
-| `blueprint` | lógica, matemáticas, datos, puzzles | plano técnico azul con cuadrícula, letra monoespaciada | `mono` abajo, clave en amarillo | `P.hud`, `P.iconGrid`, `P.dotMatrix`, `P.barsGrow`, `P.clockBP` | 1.000 botellas |
+| `blueprint` | lógica, matemáticas, datos, puzzles | plano técnico azul con cuadrícula, letra monoespaciada | `mono` arriba (capY 430), clave en amarillo | `P.hud`, `P.iconGrid`, `P.dotMatrix`, `P.barsGrow`, `P.clockBP` | 1.000 botellas |
 | `dossier` | historia, guerra, crimen, biografías | documental oscuro, mapa cenital de bosque | `ios` arriba | `P.mapTop`, `P.dossier`, `P.stamp`, `P.emblem`, `P.scope` | castillo de Itter |
 | `producto` | cómo funciona un objeto cotidiano | negro con resplandor cálido y motas | `ios` arriba | `P.render3` (3D), `P.tag`, flechas | gancho del metro |
 | `tecno` | electrónica, pantallas, internet | gris carbón con brillos cian y dorados | `ios` arriba | `P.layerStack` (campo y lecturas), `P.keyboardUI`, `P.smartphone` | teclado, pantalla táctil |
-| `asombroteca` | estándar del canal | piel «plana», subtítulos «barra» abajo | `barra` (y = 1540) | todos los anteriores | episodios 1-7 |
+| `asombroteca` | estándar del canal (v1.27) | piel «plana» | `ios` arriba (capY 420), una palabra clave por frase | todos los anteriores | episodios 1-7, ahora en zona segura |
 | `viral` | alias de `noche` | | | | |
 
 **Combinar estilos dentro de un vídeo** (como hace la demo):

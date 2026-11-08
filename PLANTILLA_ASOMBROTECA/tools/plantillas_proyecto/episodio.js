@@ -4,6 +4,10 @@
 // (icono + etiqueta) y, si el último tramo dice «envíaselo / compártelo / sígueme», el cierre de compartir.
 // Tu trabajo: sustituir las escenas provisionales por escenas reales (ver «CÓMO ESCRIBIR UNA ESCENA» abajo).
 //
+// REGLAS v1.27 (mandan): zona segura de Instagram (texto solo en 220 ≤ y ≤ 1450, x ≤ 940; los estilos ya ponen los subtítulos
+// arriba), gancho sin contexto con movimiento desde el fotograma 0 (primer beat con 'cut' y algo que ya se mueve en t = 0), SIN título
+// fijo (no uses K.title), ≤ 2 etiquetas a la vez, 3-4 pausas dramáticas (la plantilla frena la animación y baja la música sola),
+// 45-70 s y cierre «Envíaselo a ese amigo que…» con P.ctaShare. Ancla tiempos con wa('palabra', n) (toda la voz) o wt(tramo, …).
 // FÓRMULA DE GUION Y PLANOS (extraída de vídeos virales de referencia):
 //   gancho (pregunta o dato imposible, ≤ 2 s) → giro («no es X, es Y») → metáfora visual cotidiana → mecanismo en 2-4 pasos
 //   con cifras concretas → consecuencia sorprendente → remate que vuelve al gancho → «Envíaselo a ese amigo que…»
@@ -12,8 +16,8 @@
 (function () {
  const A = window.ALIGN, PL = window.PLANTILLA, P = PL.P, FX = PL.FX, MUS = PL.MUS;
  // Kit: wt(tramo, 'palabra') = instante en que se dice · T.s3 = inicio del tramo 3 · B0.b3 = T.s3 − 0,2 · DURATION = voz + 1 s
- const K = PL.kit(A, { lead: 0.2, tail: 1.0 }), { W, HH, TAU, cl, sm, E, lerp, win, wt, T, B0, DURATION, txt, title, lab } = K;
- const ESTILO = '{{ESTILO}}';   // asombroteca · viral · cartoon · noche · blueprint · dossier · producto · tecno (ver GUIA_ESTILOS.md)
+ const K = PL.kit(A, { lead: 0.2, tail: 1.0 }), { W, HH, TAU, cl, sm, E, lerp, win, wt, wa, T, B0, DURATION, txt, lab } = K;
+ const ESTILO = '{{ESTILO}}';   // asombroteca (por defecto, zona segura) · viral · cartoon · noche · blueprint · dossier · producto · tecno (ver GUIA_ESTILOS.md)
 
  // ---------- 1 · TIEMPOS CLAVE (palabras de TU voz donde pasa algo) ----------
  // Ejemplo: const Tk = { pregunta: wt(0, 'por'), llave: wt(3, 'llave'), cifra: wt(5, 'cien') };

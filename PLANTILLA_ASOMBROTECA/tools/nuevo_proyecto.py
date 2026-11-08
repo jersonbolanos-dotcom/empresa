@@ -31,7 +31,7 @@ def main():
     ap = argparse.ArgumentParser(description='Crea un proyecto de vídeo con la plantilla.')
     ap.add_argument('nombre', help='nombre corto del vídeo (p. ej. TECLADO_IPHONE)')
     ap.add_argument('--titulo', default=None, help='título legible del vídeo')
-    ap.add_argument('--estilo', default='viral', choices=ESTILOS, help='estilo visual (ver GUIA_ESTILOS.md)')
+    ap.add_argument('--estilo', default='asombroteca', choices=ESTILOS, help='estilo visual (ver GUIA_ESTILOS.md)')
     ap.add_argument('--marca', default='ASOMBROTECA', help='nombre del canal que aparece al final')
     ap.add_argument('--voz', default=None, help='archivo de voz (mp3/wav/m4a) que se copia a 01_ENTRADA/audio/')
     ap.add_argument('--destino', default=os.path.dirname(RAIZ), help='carpeta donde crear el proyecto')

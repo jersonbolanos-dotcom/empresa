@@ -4,7 +4,7 @@ Canal de videos verticales explicativos. El usuario manda audio de narración + 
 con resumen en español. Responder siempre en español.
 
 ## Leer primero (en este orden)
-1. `PLANTILLA_ASOMBROTECA/SUPERPROMPT_PLANTILLA_ASOMBROTECA.md` — reglas y «REGLAS APRENDIDAS» (1–98).
+1. `PLANTILLA_ASOMBROTECA/SUPERPROMPT_PLANTILLA_ASOMBROTECA.md` — reglas y «REGLAS APRENDIDAS» (1–105; las 99–105 de la v1.27 mandan sobre todo lo anterior).
 2. `PLANTILLA_ASOMBROTECA/INSTRUCCIONES_PLANTILLA.md` — todos los bloques `P.*` y FX disponibles por versión.
    `PLANTILLA_ASOMBROTECA/GUIA_ESTILOS.md` — fórmula de guion viral, 8 estilos y bloques v1.26 (personajes, móvil, HUD, mapas, 3D).
 3. `PLANTILLA_ASOMBROTECA/CAMBIOS_PLANTILLA.md` — versión actual de la plantilla.
@@ -13,8 +13,10 @@ con resumen en español. Responder siempre en español.
 ## Reglas fijas
 - Voz intocable (no alterar, sintetizar, acelerar ni recortar). El audio es el reloj maestro. Comprobar md5 de la voz.
 - 1080×1920, 30 fps, H.264 + AAC 48 kHz, < 100 MB, −14 LUFS, pico ≤ −1 dBTP.
-- Subtítulos `capStyle: 'barra'` (blanco, sin caja, barra amarilla), `capY: 1540`. Notas ≥ 32 px, fuera de la franja de subtítulos (y < 1420).
-- Sin logos; solo un «ASOMBROTECA» discreto al final.
+- v1.27 · Zona segura de Instagram: ningún texto importante en y < 220, y > 1450 ni x > 940. Subtítulos arriba palabra a palabra con `PL.make({ estilo: 'asombroteca' })` (estilo ios, capY 420, una palabra clave por frase). La barra en y = 1540 ya NO es el estándar (opción manual no recomendada). Notas ≥ 32 px.
+- v1.27 · Gancho sin contexto (contradicción / cifra imposible / algo en juego, en 2.ª persona) y movimiento desde el fotograma 0; proponer 3 ganchos y ESPERAR la elección del usuario antes del guion. Ángulo personal (tu móvil, tu casa, tu cuerpo).
+- v1.27 · Pantalla limpia: sin título fijo arriba, ≤ 2 etiquetas a la vez (1-3 palabras), avisos pequeños y breves. 3-4 pausas de 0,4-1,0 s antes de las revelaciones (voz con ElevenLabs Multilingual v2 y `<break time="0.6s" />`). Duración 45-70 s (QC avisa > 75, falla > 90). Cierre siempre «Envíaselo a ese amigo que…» + `P.ctaShare`; prohibido «Sigue a Asombroteca».
+- Sin logos; solo un «ASOMBROTECA» pequeño al final con `P.marca`.
 - Datos verificados con fuentes en `FUENTES_Y_DECISIONES.md`.
 - Determinismo: `H.rng`, nunca `Math.random`. No modificar `H` ni `SOUND`.
 - No crear plantillas nuevas: ampliar `PLANTILLA_ASOMBROTECA` (bloques nuevos, versión nueva en CAMBIOS) y comprobar retrocompatibilidad.

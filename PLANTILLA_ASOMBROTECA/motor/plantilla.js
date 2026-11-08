@@ -4966,15 +4966,16 @@
   const icn = (w) => { const k = Object.keys(IC).find((q) => nrm(q) === nrm(w.txt)); return k ? IC[k] : null; };
   const all = ch.map((w) => ctx.measureText(w.txt).width + (icn(w) ? iw : 0)), total = all.reduce((a, b) => a + b, 0) + sp * (ch.length - 1);
   let lines = [ch.map((_, i) => i)]; if (total > 900 && ch.length > 1) { let best = 1, bd = 1e9; for (let k = 1; k < ch.length; k++) { const a = all.slice(0, k).reduce((s, v) => s + v, 0), b = all.slice(k).reduce((s, v) => s + v, 0); if (Math.abs(a - b) < bd) { bd = Math.abs(a - b); best = k; } } lines = [ch.map((_, i) => i).slice(0, best), ch.map((_, i) => i).slice(best)]; }
+  const kwIdx = cfg.capMaxKW ? ch.findIndex(isKW) : -1; // v1.27: una sola palabra clave resaltada por trozo
   const lh = px * 1.22, y0 = y - (lines.length - 1) * lh / 2, fade = ini * fin;
   lines.forEach((ln, li) => { const lw = ln.reduce((s, i) => s + all[i], 0) + sp * (ln.length - 1); let x = 540 - lw / 2;
-   ln.forEach((i) => { const w = ch[i], shown = t >= w.s - 0.04, active = shown && (i === ch.length - 1 || t < ch[i + 1].s - 0.04), kw = isKW(w), ic = icn(w), pop = shown ? E.out(win(t, w.s - 0.04, w.s + 0.12)) : 0, yy = y0 + li * lh + (shown ? (1 - pop) * 8 : 0), tx = x + (ic ? iw : 0), ww = all[i] - (ic ? iw : 0);
+   ln.forEach((i) => { const w = ch[i], shown = t >= w.s - 0.04, active = shown && (i === ch.length - 1 || t < ch[i + 1].s - 0.04), kw = cfg.capMaxKW ? i === kwIdx : isKW(w), ic = icn(w), pop = shown ? E.out(win(t, w.s - 0.04, w.s + 0.12)) : 0, yy = y0 + li * lh + (shown ? (1 - pop) * 8 : 0), tx = x + (ic ? iw : 0), ww = all[i] - (ic ? iw : 0);
     if (!shown && !ahead) { x += all[i] + sp; return; }
     if (kw && shown && !mono) { const bx = tx - 10, by = yy - px * 0.88, bw = ww + 20, bh = px * 1.14; ctx.save(); ctx.globalAlpha = fade * pop; ctx.fillStyle = H.rgba(H.hex(sel), 0.26); ctx.beginPath(); ctx.roundRect(bx, by, bw, bh, 6); ctx.fill(); ctx.strokeStyle = sel; ctx.lineWidth = 3; ctx.stroke();
      ctx.lineWidth = 3.5; ctx.beginPath(); ctx.moveTo(bx, by - 4); ctx.lineTo(bx, by + bh * 0.6); ctx.moveTo(bx + bw, by + bh * 0.4); ctx.lineTo(bx + bw, by + bh + 4); ctx.stroke(); for (const [hx, hy] of [[bx, by - 10], [bx + bw, by + bh + 10]]) { ctx.fillStyle = sel; ctx.beginPath(); ctx.arc(hx, hy, 8.5, 0, TAU); ctx.fill(); ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 2.5; ctx.stroke(); ctx.strokeStyle = sel; } ctx.restore(); }
     if (ic && shown) { ctx.save(); ctx.globalAlpha = fade * pop; P.icon(ctx, ic, x + iw * 0.45, yy - px * 0.34, px * 0.9, { mode: 'flat', col: cfg.capIconCol || '#58b4ff' }); ctx.restore(); }
     ctx.font = active || kw ? fB : fD; ctx.globalAlpha = fade * (shown ? pop * (active || kw ? 1 : 0.58) : 0.24);
-    ctx.shadowColor = 'rgba(0,0,0,0.6)'; ctx.shadowBlur = 14; ctx.shadowOffsetY = 3; ctx.fillStyle = mono && kw && shown ? col('accent') : (cfg.capColor || '#ffffff'); ctx.fillText(w.txt, tx, yy); ctx.shadowBlur = 0; ctx.shadowOffsetY = 0;
+    ctx.shadowColor = 'rgba(0,0,0,0.6)'; ctx.shadowBlur = 14; ctx.shadowOffsetY = 3; ctx.fillStyle = mono && kw && shown ? col('accent') : (cfg.capColor || '#ffffff'); ctx.fillText(w.txt, tx, yy); ctx.shadowBlur = 0; ctx.shadowOffsetY = 0; safeLog('subtitulo', x, yy - px * 0.9, x + all[i], yy + px * 0.3);
     x += all[i] + sp; }); });
   ctx.restore(); }
 
@@ -4986,9 +4987,11 @@
   const wt = (seg, word, nth = 0) => { let k = 0; for (const w of A.words) if (w.seg === seg && norm(w.w) === norm(word)) { if (k === nth) return w.s; k++; } throw new Error('palabra no encontrada: tramo ' + seg + ' «' + word + '»'); };
   const T = { end: A.speech_end }, B0 = {}; A.segments.forEach((s, i) => { T['s' + i] = s.s; B0['b' + i] = Math.max(0, s.s - (o.lead ?? 0.2)); });
   const DURATION = +(A.duration + (o.tail ?? 1.0)).toFixed(3);
+  // v1.27: wa('palabra', n) = instante de la n-ésima aparición de la palabra en TODA la voz (no depende de cómo se partan los tramos)
+  const wa = (word, nth = 0) => { let k = 0; for (const w of A.words) if (norm(w.w) === norm(word)) { if (k === nth) return w.s; k++; } throw new Error('palabra no encontrada: «' + word + '» n.º ' + nth); };
   const txt = (ctx, s, x, y, px, c, q = {}) => { ctx.save(); ctx.font = `${q.w || 800} ${px}px "${q.f || SK.font.cap}"`; ctx.fillStyle = c || '#F5F7FA'; ctx.textAlign = q.al || 'center'; ctx.textBaseline = 'middle'; if (q.ls) ctx.letterSpacing = q.ls + 'px'; if (q.sh) { ctx.shadowColor = 'rgba(0,0,0,0.6)'; ctx.shadowBlur = 14; } ctx.fillText(s, x, y); ctx.restore(); };
   // título breve de escena con barra de acento animada (arriba). q: { y, px }
-  const title = (ctx, s, t, t0, t1, q = {}) => { const a = sm(t0, t0 + 0.3, t) * (1 - sm(t1 - 0.3, t1, t)); if (a <= 0) return; const y = q.y || 230, px = q.px || 62, e = E.out(cl((t - t0) / 0.5)); ctx.save(); ctx.globalAlpha *= a; const g = ctx.createLinearGradient(0, 0, 0, y + 170); g.addColorStop(0, 'rgba(0,0,0,0.45)'); g.addColorStop(1, 'rgba(0,0,0,0)'); ctx.fillStyle = g; ctx.fillRect(0, 0, W, y + 170); ctx.font = `900 ${px}px "${q.f || SK.font.cap}"`; const tw = ctx.measureText(s).width; ctx.fillStyle = col('accent'); ctx.fillRect(540 - tw / 2 * e - 10, y + px * 0.72, (tw + 20) * e, 8); txt(ctx, s, 540, y, px, '#F5F7FA', { w: 900, sh: 1, f: q.f }); ctx.restore(); };
+  const title = (ctx, s, t, t0, t1, q = {}) => { const a = sm(t0, t0 + 0.3, t) * (1 - sm(t1 - 0.3, t1, t)); if (a <= 0) return; const y = q.y || 230, px = q.px || 62, e = E.out(cl((t - t0) / 0.5)); ctx.save(); ctx.globalAlpha *= a; const g = ctx.createLinearGradient(0, 0, 0, y + 170); g.addColorStop(0, 'rgba(0,0,0,0.45)'); g.addColorStop(1, 'rgba(0,0,0,0)'); ctx.fillStyle = g; ctx.fillRect(0, 0, W, y + 170); ctx.font = `900 ${px}px "${q.f || SK.font.cap}"`; const tw = ctx.measureText(s).width; safeLog('titulo', 540 - tw / 2, y - px * 0.6, 540 + tw / 2, y + px * 0.8); ctx.fillStyle = col('accent'); ctx.fillRect(540 - tw / 2 * e - 10, y + px * 0.72, (tw + 20) * e, 8); txt(ctx, s, 540, y, px, '#F5F7FA', { w: 900, sh: 1, f: q.f }); ctx.restore(); };
   const lab = (ctx, s, anchor, x, y, t, t0, t1, q = {}) => P.ykLabel(ctx, s, anchor, x, y, t, t0, t1, { px: 38, ...q });
   const recon = (ctx, s, t, t0, t1, q = {}) => P.ykRecon(ctx, t, t0, t1, { s, y: q.y ?? 1330 });
   const vign = (ctx, a = 0.4) => { const g = ctx.createRadialGradient(540, 900, 500, 540, 900, 1250); g.addColorStop(0, 'rgba(0,0,0,0)'); g.addColorStop(1, `rgba(0,0,0,${a})`); ctx.fillStyle = g; ctx.fillRect(0, 0, W, HH); };
@@ -4996,7 +4999,7 @@
   // cámara 3D por fotogramas clave: keys = [[t, pos, target, f], …] con interpolación suave
   const shot = (keys, t) => { let i = 0; while (i < keys.length - 2 && t > keys[i + 1][0]) i++; const a = keys[i], b = keys[i + 1], u = E.inOut(win(t, a[0], b[0])), L = (p, q) => p.map((v, j) => lerp(v, q[j], u)); return P.cam3(L(a[1], b[1]), L(a[2], b[2]), lerp(a[3] || 900, b[3] || 900, u)); };
   const IMG = {}; const fotos = async () => { for (const k of Object.keys(window.FOTOS || {})) IMG[k] = await new Promise((res) => { const im = new Image(); im.onload = () => res(im); im.onerror = () => res(null); im.src = window.FOTOS[k]; }); return IMG; };
-  return { A, W, HH, TAU, cl, sm, E, lerp, win, wt, T, B0, DURATION, txt, title, lab, recon, vign, bill, shot, fotos, IMG }; };
+  return { A, W, HH, TAU, cl, sm, E, lerp, win, wt, wa, T, B0, DURATION, txt, title, lab, recon, vign, bill, shot, fotos, IMG }; };
  // Marca discreta al final (dos líneas finas y el nombre espaciado). Nombre: P.MARCA.nombre (configurable con PL.make({ marca })).
  P.marca = (ctx, t, t0, o = {}) => { const a = sm(t0 - 0.6, t0, t); if (a <= 0) return; const y = o.y ?? 285, nm = o.nombre || P.MARCA.nombre; ctx.save(); ctx.globalAlpha *= a; ctx.strokeStyle = 'rgba(245,247,250,0.75)'; ctx.lineWidth = 2; const lw = 230 * E.out(a); ctx.beginPath(); ctx.moveTo(540 - lw, y - 55); ctx.lineTo(540 + lw, y - 55); ctx.moveTo(540 - lw, y + 53); ctx.lineTo(540 + lw, y + 53); ctx.stroke(); ctx.font = `800 54px "${SK.font.cap}"`; ctx.letterSpacing = '10px'; ctx.fillStyle = '#F5F7FA'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.shadowColor = 'rgba(0,0,0,0.6)'; ctx.shadowBlur = 14; ctx.fillText(nm, 540, y); ctx.restore(); };
 
@@ -5133,7 +5136,7 @@
  // P.hud(ctx, t, items) — item: { label, value | from, to, t0, t1, x: 'left'|'right'|px, y, hi (amarillo), suffix, a, labelPx (24), valuePx (66) }
  const fmtN = (v) => { const n = Math.round(v), s = Math.abs(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.'); return (n < 0 ? '−' : '') + s; };
  P.fmtN = fmtN;
- P.hud = (ctx, t, items) => { ctx.save(); for (const it of items) { const a = it.a ?? 1; if (a <= 0) continue; const x = it.x === 'right' ? 1016 : it.x === 'left' || it.x == null ? 64 : it.x, al = it.x === 'right' ? 'right' : 'left', y = it.y ?? 150; let v = it.value; if (v == null && it.from != null) v = lerp(it.from, it.to, E.out(win(t, it.t0, it.t1))); const vs = typeof v === 'number' ? fmtN(v) : String(v);
+ P.hud = (ctx, t, items) => { ctx.save(); for (const it of items) { const a = it.a ?? 1; if (a <= 0) continue; const x = it.x === 'right' ? (P.SAFE && P.SAFE.on ? 930 : 1016) : it.x === 'left' || it.x == null ? 64 : it.x, al = it.x === 'right' ? 'right' : 'left', y = it.y ?? 150; let v = it.value; if (v == null && it.from != null) v = lerp(it.from, it.to, E.out(win(t, it.t0, it.t1))); const vs = typeof v === 'number' ? fmtN(v) : String(v);
    ctx.globalAlpha = a; ctx.textAlign = al; ctx.textBaseline = 'alphabetic'; const lp = it.labelPx || 24, vp = it.valuePx || 66; ctx.font = `600 ${lp}px "IBM Plex Mono"`; ctx.letterSpacing = '3px'; ctx.fillStyle = 'rgba(200,220,255,0.75)'; ctx.fillText(it.label.toUpperCase(), x, y - vp * 0.92); ctx.letterSpacing = '0px'; let sw = 0; if (it.suffix) { ctx.font = `600 ${lp}px "IBM Plex Mono"`; sw = ctx.measureText(' ' + it.suffix.toUpperCase()).width + 8; } ctx.font = `600 ${vp}px "IBM Plex Mono"`; ctx.fillStyle = it.hi ? col('accent') : '#F5F7FA'; const vx = al === 'right' ? x - sw : x; ctx.fillText(vs, vx, y); if (it.suffix) { const vw = ctx.measureText(vs).width; ctx.font = `600 ${lp}px "IBM Plex Mono"`; ctx.fillStyle = 'rgba(200,220,255,0.75)'; ctx.textAlign = 'left'; ctx.fillText(' ' + it.suffix.toUpperCase(), al === 'right' ? x - sw + 8 : x + vw + 8, y); } } ctx.restore(); };
 
  // ---- CUADRÍCULA DE PICTOGRAMAS (personas, botellas, monedas…) ----
@@ -5326,6 +5329,35 @@
   for (const F of faces) { const P2 = cam.clip(F.pts, o.near || 0.05); if (P2.length < 3) continue; ctx.save(); ctx.beginPath(); P2.forEach((p, i) => (i ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1]))); ctx.closePath();
    if (F.shadow) { ctx.filter = 'blur(10px)'; ctx.fillStyle = `rgba(0,0,0,${F.a})`; ctx.fill(); ctx.restore(); continue; }
    const st = `rgba(${F.rgb[0] | 0},${F.rgb[1] | 0},${F.rgb[2] | 0},${F.a})`; ctx.fillStyle = st; ctx.fill(); ctx.strokeStyle = st; ctx.lineWidth = 1.2; ctx.stroke(); if (F.it.paint) { ctx.clip(); F.it.paint(ctx, P2, F.f, F.fi); } ctx.restore(); } };
+ // ---------------- v1.27 · MÁS VISUALIZACIONES: ZONA SEGURA DE INSTAGRAM, PAUSAS DRAMÁTICAS, PANTALLA LIMPIA ----------------
+ // Todo se activa con PL.make({ estilo }) (los estilos llevan zonaSegura, pausas y una palabra clave por frase). Los episodios antiguos
+ // (sin estilo) no cambian: mismos fotogramas.
+ //  · Zona segura 1080×1920: nada de texto importante en y < 220 (cabecera), y > 1450 (descripción y usuario) ni x > 940 (botones).
+ //    P.SAFE = { top, bottom, right, on }. Con on, P.tag se recoloca dentro, P.hud alinea a la derecha en x = 930 y P.ykRecon también.
+ //    Registro para el QC: con window.__SAFE_QC = true, cada subtítulo/etiqueta/cifra dibujada se anota y PLANTILLA.safeLog() la devuelve.
+ //  · Pausas dramáticas: P.pausas(A) detecta silencios de 0,4-1,6 s entre palabras. Durante cada pausa la animación casi se detiene
+ //    (el tiempo de dibujo se frena en el centro de la pausa sin saltos), entra FX.pausa y producir.py baja la música en la mezcla.
+ P.SAFE = { top: 220, bottom: 1450, right: 940, on: false };
+ let SAFE_LOG = null;
+ const safeLog = (k, x0, y0, x1, y1) => { if (SAFE_LOG) SAFE_LOG.push([k, Math.round(x0), Math.round(y0), Math.round(x1), Math.round(y1)]); };
+ P.safeLog = safeLog;
+ P.pausas = (A, min = 0.4, max = 1.6) => { const out = [], ws = A.words || []; for (let i = 1; i < ws.length; i++) { const g = ws[i].s - ws[i - 1].e; if (g >= min && g <= max) out.push([ws[i - 1].e, ws[i].s]); } return out; };
+ // tiempo de dibujo frenado dentro de las pausas: f(u) = u + k·sen(2πu)/2π → velocidad 1−k en el centro (casi quieto), continua en los bordes
+ const pausaWarp = (PZ, k = 0.85) => (t) => { for (const [a, b] of PZ) if (t > a && t < b) { const u = (t - a) / (b - a); return a + (b - a) * (u + (k * Math.sin(TAU * u)) / TAU); } return t; };
+ P.pausaWarp = pausaWarp;
+ // los estilos cumplen la zona segura: subtítulos 'ios' arriba (capY 330-520), una palabra clave por frase, pausas activas
+ for (const k of Object.keys(ESTILOS)) Object.assign(ESTILOS[k], { zonaSegura: true, pausas: true, capMaxKW: 1 });
+ Object.assign(ESTILOS.asombroteca, { skin: 'plana', capStyle: 'ios', capY: 420 });
+ Object.assign(ESTILOS.blueprint, { capStyle: 'mono', capY: 430 });
+ for (const k of ['viral', 'noche', 'cartoon', 'dossier', 'producto', 'tecno']) ESTILOS[k].capY = 380;
+ // envolturas: registran la caja de texto para el QC y, con zona segura activa, recolocan lo que se saldría
+ { const _tag = P.tag; P.tag = (ctx, s, x, y, t, t0, t1, o = {}) => { if (t < t0 || (t1 && t > t1)) return _tag(ctx, s, x, y, t, t0, t1, o); const px = o.px || 34; ctx.save(); ctx.font = o.mono ? `600 ${px}px "IBM Plex Mono"` : `800 ${px}px "${SK.font.label || 'Nunito'}"`; if (o.mono) ctx.letterSpacing = '2px'; const bw = ctx.measureText(s).width + px * 0.9, bh = px * 1.45; ctx.restore();
+   if (P.SAFE.on) { x = Math.max(40 + bw / 2, Math.min(P.SAFE.right - 10 - bw / 2, x)); y = Math.max(P.SAFE.top + bh, Math.min(P.SAFE.bottom - bh, y)); } safeLog('etiqueta', x - bw / 2, y - bh / 2, x + bw / 2, y + bh / 2); return _tag(ctx, s, x, y, t, t0, t1, o); }; }
+ { const _lab = P.ykLabel; P.ykLabel = (ctx, s, anchor, x, y, t, t0, t1, o = {}) => { if (!(t < t0 || (t1 && t > t1))) { const px = o.px || 34, al = o.al || 'center'; ctx.save(); ctx.font = `800 ${px}px Nunito`; let tw = ctx.measureText(s).width; if (o.sub) { ctx.font = `600 ${Math.max(32, px - 2)}px Nunito`; tw = Math.max(tw, ctx.measureText(o.sub).width); } ctx.restore(); const bw = tw + 40, bh = o.sub ? px * 2.5 : px * 1.55, bx = al === 'left' ? x : al === 'right' ? x - bw : x - bw / 2; safeLog('etiqueta', bx, y - bh / 2, bx + bw, y + bh / 2); } return _lab(ctx, s, anchor, x, y, t, t0, t1, o); }; }
+ { const _rec = P.ykRecon; P.ykRecon = (ctx, t, t0, t1, o = {}) => { if (t < t0 || (t1 && t > t1)) return; ctx.save(); ctx.font = '700 32px "IBM Plex Mono"'; const s = o.s || 'RECONSTRUCCIÓN', tw = ctx.measureText(s).width; ctx.restore(); const q = { ...o }; if (P.SAFE.on && q.x == null) { q.x = P.SAFE.right - 24 - tw; q.y = Math.min(q.y ?? 1392, P.SAFE.bottom - 40); } const x = q.x ?? 1016 - tw, y = q.y ?? 1392; safeLog('aviso', x - 16, y - 24, x + tw + 16, y + 24); return _rec(ctx, t, t0, t1, q); }; }
+ { const _sb = P.statBig; P.statBig = (ctx, s, x, y, t, t0, t1, o = {}) => { if (!(t < t0 || (t1 && t > t1))) { const px = o.px || 120; ctx.save(); ctx.font = `900 ${px}px "${o.f || SK.font.cap}"`; const tw = ctx.measureText(s).width; ctx.restore(); safeLog('cifra', x - tw / 2, y - px * 0.6, x + tw / 2, y + (o.sub ? px * 0.95 : px * 0.6)); } return _sb(ctx, s, x, y, t, t0, t1, o); }; }
+ { const _mk = P.marca; P.marca = (ctx, t, t0, o = {}) => { if (t >= t0 - 0.6) { const y = o.y ?? 285; safeLog('marca', 280, y - 60, 800, y + 60); } return _mk(ctx, t, t0, o); }; }
+ { const _hud = P.hud; P.hud = (ctx, t, items) => { for (const it of items) { if ((it.a ?? 1) <= 0) continue; const y = it.y ?? 150, vp = it.valuePx || 66, right = it.x === 'right', x = right ? (P.SAFE.on ? 930 : 1016) : (it.x === 'left' || it.x == null ? 64 : it.x); safeLog('cifra', right ? x - 420 : x, y - vp * 1.3, right ? x : x + 420, y + 8); } return _hud(ctx, t, items); }; }
  // ---------------- SUBTÍTULOS (arriba, palabra a palabra, palabra clave seleccionada) ----------------
  // Trozos de ≤3 palabras (≤4 si son cortas); las palabras aparecen al decirse: la actual en blanco y negrita,
  // las ya dichas en gris; la palabra clave lleva recuadro de selección con asas en el color de acento.
@@ -5379,7 +5411,7 @@
      ctx.font = active || isKW ? fB : fD;
      ctx.globalAlpha = fade * pop * (active || isKW ? 1 : 0.62);
      ctx.shadowColor = 'rgba(0,0,0,0.55)'; ctx.shadowBlur = 14; ctx.shadowOffsetY = 3;
-     ctx.fillStyle = '#ffffff'; ctx.fillText(w.txt, x, yy); ctx.shadowBlur = 0; ctx.shadowOffsetY = 0;
+     ctx.fillStyle = '#ffffff'; ctx.fillText(w.txt, x, yy); ctx.shadowBlur = 0; ctx.shadowOffsetY = 0; safeLog('subtitulo', x, yy - px * 0.9, x + all[i], yy + px * 0.3);
     }
     x += all[i] + sp;
    });
@@ -5405,7 +5437,7 @@
   ctx.globalAlpha = a; ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
   ctx.fillStyle = '#f0b90b'; ctx.beginPath(); ctx.roundRect(bx, b0.y + px * 0.2, bw, Math.max(6, px * 0.1), 4); ctx.fill();
   ctx.shadowColor = 'rgba(0,0,0,0.75)'; ctx.shadowBlur = 16; ctx.shadowOffsetY = 3;
-  for (const b of boxes) { const kw = KW.some((k) => (Array.isArray(k) ? nrm(b.w) === nrm(k[0]) && b.s >= k[1] && b.s <= k[2] : nrm(b.w) === nrm(k))); ctx.fillStyle = kw ? '#ffd54a' : '#ffffff'; ctx.fillText(b.w, b.x, b.y); }
+  for (const b of boxes) { const kw = KW.some((k) => (Array.isArray(k) ? nrm(b.w) === nrm(k[0]) && b.s >= k[1] && b.s <= k[2] : nrm(b.w) === nrm(k))); ctx.fillStyle = kw ? '#ffd54a' : '#ffffff'; ctx.fillText(b.w, b.x, b.y); safeLog('subtitulo', b.x, b.y - px * 0.9, b.x + b.ww, b.y + px * 0.3); }
   ctx.restore();
  }
 
@@ -5436,6 +5468,7 @@
   if (cfg.estilo && ESTILOS[cfg.estilo]) cfg = { ...ESTILOS[cfg.estilo], ...cfg };
   if (cfg.marca) Object.assign(P.MARCA, cfg.marca);
   SK = SKINS[cfg.skin || 'plana'];
+  P.SAFE.on = !!cfg.zonaSegura; const PZ = cfg.pausas ? P.pausas(cfg.align, cfg.pausaMin ?? 0.4, cfg.pausaMax ?? 1.6) : [], WARP = PZ.length ? pausaWarp(PZ) : (t) => t;
   const A = cfg.align, D = cfg.duration;
   let LA = null, LB = null;
   const api = { P, W, HH, cl, sm, win, E, lerp, col, fill, SK: () => SK, TAU };
@@ -5445,8 +5478,9 @@
    const bs = cfg.beats; let i = bs.findIndex((b) => t >= b.t0 && t < b.t1); if (i < 0) i = t < bs[0].t0 ? 0 : bs.length - 1;
    const b = bs[i], tr = b.in || { type: 'cut', d: 0 }, u = tr.d ? win(t, b.t0, b.t0 + tr.d) : 1;
    ctx.save(); ctx.fillStyle = col('ink'); ctx.fillRect(0, 0, W, HH); ctx.restore();
-   if (i > 0 && u < 1 && tr.type !== 'cut') transition(ctx, tr.type, u, tr, (c) => drawBeat(c, bs[i - 1], t), (c) => drawBeat(c, b, t), LA);
-   else drawBeat(ctx, b, t);
+   SAFE_LOG = typeof window !== 'undefined' && window.__SAFE_QC ? [] : null; P.SAFE.on = !!cfg.zonaSegura; const tw = WARP(t);
+   if (i > 0 && u < 1 && tr.type !== 'cut') transition(ctx, tr.type, u, tr, (c) => drawBeat(c, bs[i - 1], tw), (c) => drawBeat(c, b, tw), LA);
+   else drawBeat(ctx, b, tw);
    // acabado de la piel
    H.vignette(ctx, W, HH, SK.vignette, SK.vigCol);
    captions(ctx, A, t, cfg);
@@ -5457,9 +5491,10 @@
   function scoreSound(k) {
    cfg.beats.forEach((b, i) => { if (i > 0 && b.in && b.in.type !== 'cut' && TS[b.in.type]) TS[b.in.type](k, b.t0, b.in.d || 0.5); if (b.sfx) b.sfx(k, api); });
    if (cfg.ambience) cfg.ambience(k, api);
+   for (const [pa, pb] of PZ) FX.pausa(k, pa, pb - pa);
   }
   function scoreMusic(k) { if (cfg.music) cfg.music(k, api); }
-  return { explainer, scoreSound, scoreMusic, DURATION: D };
+  return { explainer, scoreSound, scoreMusic, DURATION: D, pausas: PZ };
  }
  // sonidos de transición (paleta del medio: papel/tinta plana → swish y whoosh suaves)
  const TRANS_SFX = {
@@ -5687,6 +5722,8 @@
   alertaMovil: (k, t, g = 1) => { k.tone(t, { f: 'C6', dur: 0.14, gain: 0.08 * g, a: 0.004 }); k.tone(t + 0.16, { f: 'G5', dur: 0.22, gain: 0.08 * g, a: 0.004 }); },
   personaje: (k, t, g = 1) => { k.tone(t, { f: [[0, 520], [0.12, 880]], dur: 0.16, gain: 0.07 * g, a: 0.005 }); k.play('pop', t + 0.02, { f: 640, gain: 0.3 * g, minor: true }); },
   pasarPagina: (k, t, g = 1) => k.play('swish', t, { dur: 0.3, gain: 0.4 * g }),
+  // v1.27 · pausa dramática: respiración grave muy suave + campanilla lejana (no tapa la voz; entra en el silencio)
+  pausa: (k, t, d = 0.6, g = 1) => { k.noise(t, { dur: d + 0.3, color: 'brown', filter: 'lowpass', f: [[0, 220], [d, 520], [d + 0.3, 180]], gain: 0.05 * g, a: d * 0.5, minor: true }); k.tone(t + d * 0.2, { f: 'E6', dur: 0.9, gain: 0.025 * g, a: 0.01, verb: 0.6, minor: true }); },
   // fin v1.26
  };
  // ---------------- MÚSICA ORQUESTAL SINTÉTICA (v1.13) ----------------
@@ -5748,5 +5785,5 @@
    if (daf > 0) for (let t = t0; t < t1 - 0.1; t += beat) { const b = Math.round((t - t0) / beat) % 4; if (b === 0 || b === 2.5) { k.tone(t, { f: [[0, 110], [0.2, 60]], dur: 0.4, gain: 0.16 * g * daf, a: 0.002, bus: 'music', verb: 0.3 }); } if (b === 1 || b === 3) k.noise(t, { dur: 0.08, filter: 'bandpass', f: 2600, q: 1.5, gain: 0.05 * g * daf, a: 0.001, bus: 'music', verb: 0.3 }); if (b === 3) k.tone(t + beat / 2, { f: [[0, 120], [0.15, 70]], dur: 0.3, gain: 0.09 * g * daf, a: 0.002, bus: 'music' }); k.noise(t + beat / 2, { dur: 0.03, filter: 'highpass', f: 6000, gain: 0.02 * g * daf * R.range(0.5, 1), a: 0.001, bus: 'music' }); }
   },
  };
- window.PLANTILLA = { make, SKINS, P, FX, MUS, TRANS_SFX, setSkin: (n) => (SK = SKINS[n]), W, HH, kit: (A, o) => P.kit(A, o), ESTILOS };
+ window.PLANTILLA = { make, SKINS, P, FX, MUS, TRANS_SFX, setSkin: (n) => (SK = SKINS[n]), W, HH, kit: (A, o) => P.kit(A, o), ESTILOS, safeLog: () => SAFE_LOG || [] };
 })();

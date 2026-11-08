@@ -61,7 +61,7 @@ python3 PLANTILLA_ASOMBROTECA/tools/producir.py MI_VIDEO_PROYECTO todo      # re
 | `dossier` | Historia, guerra, crimen. |
 | `producto` | Objetos cotidianos en 3D. |
 | `tecno` | Electrónica y pantallas. |
-| `asombroteca` | Estándar del canal: subtítulos con barra abajo. |
+| `asombroteca` | Estándar del canal (por defecto): subtítulos arriba en zona segura. |
 
 Detalles y capturas en `GUIA_ESTILOS.md` y `catalogo/catalogo_v126.jpg`.
 
@@ -69,6 +69,14 @@ Detalles y capturas en `GUIA_ESTILOS.md` y `catalogo/catalogo_v126.jpg`.
 
 - Python 3, Node con Playwright y Chromium, y ffmpeg.
 - Opcional, para transcribir la voz: `pip install sherpa-onnx numpy`. El modelo Whisper se descarga solo y se borra al terminar.
+
+## Reglas v1.27 para más visualizaciones (mandan sobre todo lo demás)
+
+- Zona segura de Instagram: texto solo en 220 ≤ y ≤ 1450 y x ≤ 940; subtítulos arriba.
+- Gancho sin contexto y con movimiento desde el fotograma 0; primero se proponen 3 ganchos y el usuario elige.
+- Ángulo personal, pantalla limpia (sin título fijo, ≤ 2 etiquetas), 3-4 pausas dramáticas, 45-70 s.
+- Cierre: «Envíaselo a ese amigo que…» con `P.ctaShare`; nunca «Sigue a Asombroteca».
+- El QC de `producir.py` comprueba todo esto.
 
 ## Reglas que no se negocian
 

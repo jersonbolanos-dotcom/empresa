@@ -802,3 +802,24 @@ FX v1.26: `toque(k, t)`, `compartir(k, t0)`, `llave(k, t)`, `latido(k, t, n, gap
 | `tools/producir.py PROYECTO voz \| alinear \| build \| prueba t… \| render \| qc \| todo \| limpiar` | Producción completa. `render` incluye la mezcla con sidechain y corrige la sonoridad a −14 LUFS con pico ≤ −1 dBTP. `qc` escribe `07_QC/QC.md` con ✔/✘ |
 | `tools/determinismo.js index.html [t…]` | Comprueba que cada fotograma depende solo de t |
 
+---
+
+## v1.27 · Más visualizaciones (zona segura, pausas, pantalla limpia, QC de publicación)
+
+Las reglas 99-105 del SUPERPROMPT mandan sobre todo lo anterior. Todo se activa al usar `PL.make({ estilo })`; los episodios sin `estilo` no cambian.
+
+| Elemento | Uso |
+|---|---|
+| `P.SAFE = { top: 220, bottom: 1450, right: 940, on }` | Zona segura de Instagram. Con `on` (lo pone `make` si `zonaSegura`), `P.tag` se recoloca dentro y `P.hud`/`P.ykRecon` alinean a la derecha en x = 930 |
+| `PL.make({ estilo, zonaSegura, pausas, capMaxKW, pausaMin, pausaMax })` | Los estilos ya traen `zonaSegura: true`, `pausas: true` y `capMaxKW: 1`. `asombroteca` = subtítulos `ios` arriba (capY 420); `blueprint` = `mono` arriba (capY 430); los demás capY 380 |
+| `P.pausas(A, min = 0.4, max = 1.6)` → `[[a, b]…]` | Silencios entre palabras. Con `pausas`, `make` frena el tiempo de dibujo en el centro de cada pausa (`P.pausaWarp`: casi quieto, sin saltos), añade `FX.pausa(k, a, d)` y `EP.pausas` las expone |
+| `K.wa('palabra', n)` | Instante de la n-ésima aparición de la palabra en toda la voz (no depende de los tramos, que cambian al añadir pausas) |
+| `PLANTILLA.safeLog()` (con `window.__SAFE_QC = true`) | Cajas de texto dibujadas en el último fotograma: subtítulos, etiquetas, avisos, cifras, títulos y marca |
+| `tools/zona_segura.js index.html [paso]` | Recorre el vídeo y devuelve los textos fuera de zona, el máximo de etiquetas simultáneas y si hay título |
+| `producir.py qc` | Añade: zona segura ✘, pantalla limpia ✘, pausas (informativo), gancho sin contexto ✘, cierre «Envíaselo…» sin «Sigue a…» ✘, movimiento desde el fotograma 0 ✘, duración (aviso > 75 s, ✘ > 90 s) |
+| `producir.py render` | Baja la música al 40 % durante cada pausa dramática (desde `alineacion.json`) |
+
+FX v1.27: `pausa(k, t, d)` (respiración grave suave + campanilla lejana).
+
+**Voz con ElevenLabs (regla 103).** Guion con `<break time="0.6s" />` antes de cada revelación (3-4 veces) → `creative_generate_speech` con el modelo Multilingual v2 (con v3, guiones — en lugar de break) → guardar el audio en `01_ENTRADA/audio/` (o pedir al usuario que lo descargue del enlace y lo adjunte) → `producir.py voz`. En `03_GUION/tramos.txt`, cada pausa larga separa dos líneas.
+
