@@ -29,7 +29,8 @@ DATOS DEL VÍDEO
 
 REGLAS v1.27 (mandan sobre todo lo demás): zona segura de Instagram (texto solo en 220 ≤ y ≤ 1450 y x ≤ 940, subtítulos
 arriba), gancho sin contexto y con movimiento desde el fotograma 0, ángulo personal (tu móvil, tu casa, tu cuerpo), pantalla
-limpia (sin título fijo, ≤ 2 etiquetas de 1-3 palabras), 3-4 pausas dramáticas de 0,4-1,0 s, 45-70 s, y cierre
+limpia (sin título fijo, ≤ 2 etiquetas de 1-3 palabras), 3-4 pausas dramáticas de 0,4-1,0 s (se pueden alargar con
+«[PAUSA x]» en tramos.txt, v1.28), 45-70 s, y cierre
 «Envíaselo a ese amigo que…» con P.ctaShare (nunca «Sigue a Asombroteca»).
 
 CÓMO TRABAJAR
@@ -40,6 +41,10 @@ CÓMO TRABAJAR
    [long pause] (una sola vez) y puntos suspensivos. En 03_GUION/tramos.txt las etiquetas entre corchetes se pueden dejar:
    se quitan solas y nunca salen en los subtítulos. Si no puedes guardar el audio dentro del proyecto, dame el enlace de
    ElevenLabs para descargarlo y te lo adjunto.
+0c. PAUSAS EN POSPRODUCCIÓN (v1.28): si una pausa de la voz se queda corta, NO regeneres la voz: en 03_GUION/tramos.txt
+   pon una línea que sea solo «[PAUSA x]» (x de 0.3 a 1.0 s) entre los dos tramos. Se inserta silencio exacto, los tramos
+   de voz no se tocan y todos los tiempos siguientes (alineación, subtítulos) se desplazan solos. Un valor fuera de rango o
+   una «[PAUSA x]» dentro de una línea de texto da ERROR; las demás etiquetas entre corchetes se quitan sin más.
 1. Crea el proyecto:  python3 PLANTILLA_ASOMBROTECA/tools/nuevo_proyecto.py NOMBRE --estilo ESTILO --marca "MARCA" --voz AUDIO
 2. Voz:      python3 PLANTILLA_ASOMBROTECA/tools/producir.py NOMBRE_PROYECTO voz
    Corrige 03_GUION/tramos.txt (una línea por tramo de voz; cifras en forma hablada: 500|quinientos) y después:
@@ -50,8 +55,9 @@ CÓMO TRABAJAR
 4. UNA ronda de prueba:  python3 PLANTILLA_ASOMBROTECA/tools/producir.py NOMBRE_PROYECTO prueba 1 4 8 …   (10-12 instantes)
    Revisa la hoja 07_QC/prueba.jpg y corrige lo que se vea mal (textos tapados, objetos fuera de cuadro, nada flota).
 5. Render y control:  python3 PLANTILLA_ASOMBROTECA/tools/producir.py NOMBRE_PROYECTO todo
-   El QC debe salir «TODO CORRECTO»: 1080×1920, 30 fps, H.264 + AAC, −14 LUFS, pico ≤ −1 dBTP, voz intacta, determinista,
-   zona segura, ≤ 2 etiquetas, sin título fijo, gancho sin contexto, movimiento desde el fotograma 0, cierre de compartir, ≤ 90 s.
+   El QC debe salir «TODO CORRECTO»: 1080×1920, 30 fps, H.264 + AAC, −14 LUFS, pico ≤ −1 dBTP, voz intacta (md5 de cada
+   tramo), determinista, zona segura, ≤ 2 etiquetas, sin título fijo, gancho sin contexto, movimiento desde el fotograma 0,
+   cierre de compartir, ≤ 90 s (avisa si dura menos de 45 s o más de 75 s).
 6. Documenta las fuentes de cada dato en FUENTES_Y_DECISIONES.md y las licencias de las imágenes en CREDITOS_IMAGENES.md.
 7. Si añadiste bloques a la plantilla: anótalos en CAMBIOS_PLANTILLA.md e INSTRUCCIONES_PLANTILLA.md y, si sirve, añade una
    «regla aprendida» al SUPERPROMPT.

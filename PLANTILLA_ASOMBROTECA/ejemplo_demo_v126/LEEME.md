@@ -4,7 +4,7 @@ Vídeo de 39 s hecho con las herramientas y bloques nuevos: 3D de producto (taza
 metáfora llave/cerradura, plano técnico con HUD, barras y reloj, subtítulos «ios» con iconos y el cierre «Envíaselo a ese amigo…».
 La voz es sintética (Kokoro, Apache 2.0) porque es solo una demostración; en un vídeo real se usa la voz original o ElevenLabs.
 v1.27: la voz lleva 4 pausas dramáticas (0,5-0,8 s) antes de cada revelación; la animación se frena en ellas y la música baja.
-Resultado y control: `07_OUTPUT/ejemplo_demo_v127_FINAL.mp4`, `07_QC/QC.md` (todo ✔) y `07_QC/hoja_zona_segura.jpg`.
+Resultado y control: `07_OUTPUT/ejemplo_demo_v128_FINAL.mp4`, `07_QC/QC.md` (todo ✔) y `07_QC/hoja_zona_segura.jpg`.
 
 Verlo (desde esta carpeta):
 ```

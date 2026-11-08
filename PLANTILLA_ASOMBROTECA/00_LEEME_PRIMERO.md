@@ -77,6 +77,7 @@ Detalles y capturas en `GUIA_ESTILOS.md` y `catalogo/catalogo_v126.jpg`.
 - Ángulo personal, pantalla limpia (sin título fijo, ≤ 2 etiquetas), 3-4 pausas dramáticas, 45-70 s.
 - Cierre: «Envíaselo a ese amigo que…» con `P.ctaShare`; nunca «Sigue a Asombroteca».
 - El QC de `producir.py` comprueba todo esto.
+- v1.28: para alargar una pausa sin tocar la voz, línea `[PAUSA x]` (0.3–1.0 s) en `03_GUION/tramos.txt`; el QC compara la huella de cada tramo de voz.
 
 ## Reglas que no se negocian
 

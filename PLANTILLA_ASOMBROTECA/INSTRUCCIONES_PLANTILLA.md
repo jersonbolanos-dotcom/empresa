@@ -823,3 +823,28 @@ FX v1.27: `pausa(k, t, d)` (respiración grave suave + campanilla lejana).
 
 **Voz con ElevenLabs (regla 103).** Modelo Eleven v4, voz Dan (`9F4C8ztpNUmXkdDDbz3J`), con `creative_generate_speech`. v4 no acepta `<break>`: 3-4 pausas antes de cada revelación con `[short pause]`, `[long pause]` (una sola vez) y puntos suspensivos («…»). Guardar el audio en `01_ENTRADA/audio/` (o pedir al usuario que lo descargue del enlace y lo adjunte) → `producir.py voz` → `03_GUION/tramos.txt` (cada pausa larga separa dos líneas). Las etiquetas entre corchetes y `<…>` se eliminan en `alinear.py` y `subtitulos.py`: nunca salen en los subtítulos, y el QC falla si alguna se cuela.
 
+## v1.28 · Pausas en posproducción y QC de voz por tramo
+
+Para alargar un silencio sin regenerar la voz (por ejemplo, antes de una revelación), escribe en `03_GUION/tramos.txt` una línea que sea **solo** `[PAUSA x]`, con x entre 0.3 y 1.0 segundos, entre dos tramos de voz:
+
+```
+Y eso lo cambia todo.
+[PAUSA 0.8]
+Cinco horas después…
+```
+
+| Elemento | Qué hace |
+|---|---|
+| `[PAUSA x]` en `tramos.txt` | Inserta x s de silencio exacto en el centro del hueco entre el tramo anterior y el siguiente. Admite `0.8`, `0,8` y `0.8s`, en mayúsculas o minúsculas |
+| `alinear.py` | Desplaza todas las palabras y tramos siguientes (`alineacion.json`). Cada tramo conserva su tiempo en el original en `s0`/`e0`; la primera palabra tras la pausa lleva `pausa: x`; añade `pausas_post` y `duracion_original` |
+| `subtitulos.py` | `datos.js` y `subtitulos.srt` salen con los tiempos desplazados; «[PAUSA x]» nunca aparece |
+| `tools/montar_voz.py voz alineacion.json salida.wav` | Crea `05_AUDIO/voz_montada.wav`: la voz original con ceros insertados (WAV float, misma frecuencia y canales). No modifica ninguna muestra de voz. `producir.py alinear` lo ejecuta solo (y borra una voz montada vieja si ya no hay pausas) |
+| `build.py`, `producir.py render` | Si la alineación tiene `pausas_post`, usan `voz_montada.wav` (y `build.py` la regenera si falta o es más vieja que la alineación, p. ej. al descomprimir el kit); si no, la voz de `01_ENTRADA/audio` como siempre |
+| `P.pausas(A)` | Reconoce las pausas de posproducción igual que las naturales: animación frenada, `FX.pausa`, música al 40 % |
+| QC «Voz intacta (md5 por tramo)» | md5 del archivo original frente a `voz_md5.txt` **y** md5 de las muestras de cada tramo en la voz montada frente al original («8/8 tramos idénticos»). Falla si cambia un solo tramo |
+| QC «Duración» | Aviso (no fallo) por debajo de 45 s y por encima de 75 s; fallo por encima de 90 s |
+
+**Errores (detienen `alinear.py` con el número de línea, nunca se ignoran):** `[PAUSA x]` con x fuera de 0.3–1.0; valor mal escrito (`[PAUSA abc]`); `[PAUSA x]` dentro de una línea con texto; pausa antes del primer tramo o después del último. Cualquier otra etiqueta entre corchetes (`[short pause]`, `[long pause]`, `[laughs]`…) o `<…>` se sigue quitando de los subtítulos sin error.
+
+Ancla los tiempos del episodio con `wa('palabra', n)` o `wt(tramo, 'palabra')`: se desplazan solos al añadir o quitar pausas.
+

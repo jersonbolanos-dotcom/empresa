@@ -36,6 +36,20 @@ def voz(P):
     return fs[0]
 
 
+def voz_montada(P):
+    # v1.28: voz con las pausas de posproducción («[PAUSA x]» en tramos.txt), si las hay
+    f = os.path.join(P, '05_AUDIO', 'voz_montada.wav'); al = os.path.join(P, '04_CODIGO', 'alineacion.json')
+    try:
+        pp = json.load(open(al, encoding='utf-8')).get('pausas_post') if os.path.exists(al) else None
+    except Exception:
+        pp = None
+    return f if pp and os.path.exists(f) else None
+
+
+def voz_usada(P):
+    return voz_montada(P) or voz(P)
+
+
 def md5(f):
     h = hashlib.md5()
     with open(f, 'rb') as fh:
@@ -84,7 +98,13 @@ def p_alinear(P, a):
     os.makedirs(os.path.join(C, 'js'), exist_ok=True)
     sh(['python3', '-I', os.path.join(T, 'subtitulos.py'), 'alineacion.json', '../06_SUBTITULOS/subtitulos.srt', 'js/datos.js'], cwd=C)
     d = json.load(open(os.path.join(C, 'alineacion.json')))
-    print(f'Alineado: {len(d["segments"])} tramos, {len(d["words"])} palabras, voz {d["duration"]:.2f} s')
+    mont = os.path.join(P, '05_AUDIO', 'voz_montada.wav')
+    if d.get('pausas_post'):
+        os.makedirs(os.path.dirname(mont), exist_ok=True)
+        sh(['python3', '-I', os.path.join(T, 'montar_voz.py'), voz(P), os.path.join(C, 'alineacion.json'), mont])
+    elif os.path.exists(mont):
+        os.remove(mont)   # ya no hay pausas de posproducción: se usa la voz original
+    print(f'Alineado: {len(d["segments"])} tramos, {len(d["words"])} palabras, voz {d["duration"]:.2f} s' + (f' (con {len(d["pausas_post"])} pausas de posproducción)' if d.get('pausas_post') else ''))
 
 
 def p_build(P, a):
@@ -115,7 +135,7 @@ def pausas(P, mn=0.4, mx=1.6):
     if not os.path.exists(f):
         return []
     ws = json.load(open(f))['words']
-    return [(ws[i - 1]['e'], ws[i]['s']) for i in range(1, len(ws)) if mn <= ws[i]['s'] - ws[i - 1]['e'] <= mx]
+    return [(ws[i - 1]['e'], ws[i]['s']) for i in range(1, len(ws)) if mn <= ws[i]['s'] - ws[i - 1]['e'] <= mx or ws[i].get('pausa')]
 
 
 def nombre_final(P, a):
@@ -141,7 +161,7 @@ def p_render(P, a):
           f"[1:a]volume=4dB,volume='if({duck},0.4,1)':eval=frame[m];"
           '[m][v2]sidechaincompress=threshold=0.03:ratio=6:attack=20:release=400[md];[2:a]volume=-1dB[s];'
           f'[v1][md][s]amix=inputs=3:normalize=0,volume=7.4dB,alimiter=limit=0.8:level=false,afade=t=out:st={D - 0.8:.3f}:d=0.8,atrim=0:{D}[o]')
-    sh(['ffmpeg', '-v', 'error', '-y', '-i', voz(P), '-i', os.path.join(A5, 'musica_original.wav'), '-i', os.path.join(A5, 'efectos_sonido.wav'),
+    sh(['ffmpeg', '-v', 'error', '-y', '-i', voz_usada(P), '-i', os.path.join(A5, 'musica_original.wav'), '-i', os.path.join(A5, 'efectos_sonido.wav'),
         '-filter_complex', fc, '-map', '[o]', '-ar', '48000', mez])
     # corrección automática de sonoridad a −14 LUFS (solo ganancia; el limitador ya fija el pico)
     # (techo de −2 dBFS de muestra tras la ganancia: deja margen para los picos entre muestras y el AAC → ≤ −1 dBTP)
@@ -186,7 +206,12 @@ def p_qc(P, a):
     vm = None; ref = os.path.join(Q, 'voz_md5.txt')
     if os.path.exists(ref):
         vm = md5(voz(P)) == open(ref).read().split()[0]
-    det = None; C = os.path.join(P, '04_CODIGO')
+    # v1.28: con pausas de posproducción, además, cada tramo de la voz montada debe ser idéntico (md5 de muestras) al original
+    vt = None; C = os.path.join(P, '04_CODIGO')
+    if voz_montada(P) and os.path.exists(os.path.join(C, 'alineacion.json')):
+        sys.path.insert(0, T); import montar_voz
+        vt = montar_voz.tramos_identicos(voz(P), voz_montada(P), os.path.join(C, 'alineacion.json'))
+    det = None
     if os.path.exists(os.path.join(C, 'index.html')):
         r = subprocess.run(['node', os.path.join(T, 'determinismo.js'), 'index.html'], cwd=C, capture_output=True, text=True); det = 'DETERMINISMO OK' in r.stdout
     sh(['ffmpeg', '-v', 'error', '-y', '-i', out, '-vf', f'fps=1/{max(1.0, dur / 20):.3f},scale=216:384,tile=10x2', '-frames:v', '1', os.path.join(Q, 'hoja_contacto.jpg')])
@@ -223,9 +248,9 @@ def p_qc(P, a):
         ('Negros > 0,3 s / congelados > 1,5 s', f'{negros} / {cong}', negros == 0 and cong == 0),
         ('Silencios > 1 s (−50 dB)', f'{len(sil)}', not sil),
         ('Sonoridad', f'{L["I"]:.1f} LUFS · pico {L["TP"]:.1f} dBTP' if L else '—', bool(L) and abs(L['I'] + 14) <= 1 and (L['TP'] or 0) <= -1),
-        ('Voz intacta (md5)', 'igual al original' if vm else ('DISTINTA' if vm is False else 'sin referencia (paso «voz»)'), vm is not False),
+        ('Voz intacta (md5 por tramo)', ('original ' + ('igual' if vm else 'DISTINTO' if vm is False else 'sin referencia')) + (f' · {vt[0]}/{vt[1]} tramos idénticos en la voz montada' if vt else ''), vm is not False and (vt is None or vt[0] == vt[1])),
         ('Determinismo', 'OK' if det else ('FALLO' if det is False else 'sin index.html'), det is not False),
-        ('Duración (objetivo 45-70 s)', f'{dur:.1f} s' + (' · AVISO: más de 75 s' if 75 < dur <= 90 else ''), dur <= 90),
+        ('Duración (objetivo 45-70 s)', f'{dur:.1f} s' + (' · AVISO: más de 75 s' if 75 < dur <= 90 else ' · AVISO: menos de 45 s' if dur < 45 else ''), dur <= 90),
         ('Zona segura IG (texto en 220 ≤ y ≤ 1450, x ≤ 940)', ('sin datos' if zs is None else (f'{len(zs["fuera"])} textos fuera' + (': ' + ', '.join(f'{f["tipo"]} t={f["t"]} {f["motivo"]}' for f in zs['fuera'][:6]) if zs['fuera'] else ''))), zs is not None and not zs['fuera']),
         ('Pantalla limpia (≤ 2 etiquetas a la vez, sin título fijo)', 'sin datos' if zs is None else f'máx. {zs["maxEtiquetas"]} etiquetas · {"con" if zs["titulos"] else "sin"} título', zs is not None and zs['maxEtiquetas'] <= 2 and not zs['titulos']),
         ('Pausas dramáticas (0,4-1,6 s; objetivo 3-4)', f'{npz}' + ('' if 3 <= npz <= 6 else ' · AVISO: fuera del objetivo'), True),

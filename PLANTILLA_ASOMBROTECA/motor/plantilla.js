@@ -5337,11 +5337,12 @@
  //    Registro para el QC: con window.__SAFE_QC = true, cada subtítulo/etiqueta/cifra dibujada se anota y PLANTILLA.safeLog() la devuelve.
  //  · Pausas dramáticas: P.pausas(A) detecta silencios de 0,4-1,6 s entre palabras. Durante cada pausa la animación casi se detiene
  //    (el tiempo de dibujo se frena en el centro de la pausa sin saltos), entra FX.pausa y producir.py baja la música en la mezcla.
+ //    v1.28: también reconoce las pausas de posproducción («[PAUSA x]» en tramos.txt): la palabra que sigue lleva w.pausa = x.
  P.SAFE = { top: 220, bottom: 1450, right: 940, on: false };
  let SAFE_LOG = null;
  const safeLog = (k, x0, y0, x1, y1) => { if (SAFE_LOG) SAFE_LOG.push([k, Math.round(x0), Math.round(y0), Math.round(x1), Math.round(y1)]); };
  P.safeLog = safeLog;
- P.pausas = (A, min = 0.4, max = 1.6) => { const out = [], ws = A.words || []; for (let i = 1; i < ws.length; i++) { const g = ws[i].s - ws[i - 1].e; if (g >= min && g <= max) out.push([ws[i - 1].e, ws[i].s]); } return out; };
+ P.pausas = (A, min = 0.4, max = 1.6) => { const out = [], ws = A.words || []; for (let i = 1; i < ws.length; i++) { const g = ws[i].s - ws[i - 1].e; if ((g >= min && g <= max) || ws[i].pausa) out.push([ws[i - 1].e, ws[i].s]); } return out; };
  // tiempo de dibujo frenado dentro de las pausas: f(u) = u + k·sen(2πu)/2π → velocidad 1−k en el centro (casi quieto), continua en los bordes
  const pausaWarp = (PZ, k = 0.85) => (t) => { for (const [a, b] of PZ) if (t > a && t < b) { const u = (t - a) / (b - a); return a + (b - a) * (u + (k * Math.sin(TAU * u)) / TAU); } return t; };
  P.pausaWarp = pausaWarp;

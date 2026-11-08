@@ -35,8 +35,29 @@ if TRAMOS:
     # v1.27: las etiquetas de interpretación de ElevenLabs v4 ([short pause], [long pause], [whispers]…) y <break …/> se quitan:
     # nunca salen en los subtítulos. Los puntos suspensivos se conservan.
     _tag = lambda l: re.sub(r'\s+', ' ', re.sub(r'\[[^\]]*\]|<[^>]*>', ' ', l)).strip()
-    SEGS = [_tag(l) for l in open(TRAMOS, encoding='utf-8') if l.strip() and not l.startswith('#')]
-    SEGS = [x for x in SEGS if x]
+    # v1.28: una línea que sea SOLO «[PAUSA x]» (0,3 ≤ x ≤ 1,0 s) inserta x s de silencio exacto entre el tramo anterior y el
+    # siguiente (posproducción: los tramos de voz no se tocan). Un «[PAUSA …]» mal escrito, fuera de rango o dentro de una línea
+    # de texto es un ERROR (no se ignora). El resto de etiquetas entre corchetes se siguen quitando.
+    PAUSA_OK = re.compile(r'^\s*\[\s*pausa\s+([0-9]+(?:[.,][0-9]+)?)\s*s?\s*\]\s*$', re.I)
+    SEGS, PAUSAS_POST = [], []
+    for n, l in enumerate(open(TRAMOS, encoding='utf-8'), 1):
+        if not l.strip() or l.startswith('#'):
+            continue
+        m = PAUSA_OK.match(l)
+        if m:
+            x = float(m.group(1).replace(',', '.'))
+            if not 0.3 <= x <= 1.0:
+                sys.exit(f'ERROR tramos.txt línea {n}: «{l.strip()}» — la pausa debe estar entre 0.3 y 1.0 s')
+            if not SEGS:
+                sys.exit(f'ERROR tramos.txt línea {n}: una [PAUSA] no puede ir antes del primer tramo de voz')
+            PAUSAS_POST.append([len(SEGS) - 1, x]); continue
+        if re.search(r'\[\s*pausa\b', l, re.I):
+            sys.exit(f'ERROR tramos.txt línea {n}: «{l.strip()}» — [PAUSA x] debe ir sola en su línea, con x entre 0.3 y 1.0')
+        t = _tag(l)
+        if t:
+            SEGS.append(t)
+    if PAUSAS_POST and PAUSAS_POST[-1][0] >= len(SEGS) - 1:
+        sys.exit('ERROR tramos.txt: una [PAUSA] no puede ir después del último tramo de voz')
 
 def syl(w):
     w = w.lower().replace("_", " ")
@@ -116,8 +137,29 @@ for si, ((a, b), seg) in enumerate(zip(speech, SEGS)):
         result.append({"w": shown, "s": round(times[i], 3), "e": round(times[i + 1], 3), "seg": si})
 
 segs = [{"i": i, "s": round(a, 3), "e": round(b, 3), "text": re.sub(r"(\S+)\|\S+", r"\1", SEGS[i])} for i, (a, b) in enumerate(speech)]
+# v1.28 · pausas de posproducción: silencio insertado en el centro del hueco entre el tramo k y el k+1; todo lo que sigue se desplaza
+PP = globals().get('PAUSAS_POST', [])
+extra = {}
+pausas_post = []
+total = 0.0
+for k, x in PP:
+    t_ins = round((speech[k][1] + speech[k + 1][0]) / 2, 3)
+    pausas_post.append({"tras_tramo": k, "t": t_ins, "t_montado": round(t_ins + total, 3), "dur": x}); total += x
+for p in pausas_post:
+    for r in result:
+        if r["seg"] > p["tras_tramo"]:
+            r["s"] = round(r["s"] + p["dur"], 3); r["e"] = round(r["e"] + p["dur"], 3)
+    first = next(r for r in result if r["seg"] == p["tras_tramo"] + 1); first["pausa"] = round(first.get("pausa", 0) + p["dur"], 3)
+    for g in segs:
+        g.setdefault("s0", g["s"]); g.setdefault("e0", g["e"])
+        if g["i"] > p["tras_tramo"]:
+            g["s"] = round(g["s"] + p["dur"], 3); g["e"] = round(g["e"] + p["dur"], 3)
+if pausas_post:
+    extra = {"pausas_post": pausas_post, "duracion_original": round(DUR, 6)}
 for r in result:
     r["w"] = r["w"]
-json.dump({"duration": DUR, "speech_end": round(speech[-1][1], 3), "segments": segs, "words": result,
-           "method": "silencedetect + reparto silábico; sin ASR"}, open(OUT, "w"), ensure_ascii=False, indent=1)
+json.dump({"duration": round(DUR + total, 6) if pausas_post else DUR, "speech_end": round(speech[-1][1] + total, 3), "segments": segs, "words": result,
+           "method": "silencedetect + reparto silábico; sin ASR", **extra}, open(OUT, "w"), ensure_ascii=False, indent=1)
+if pausas_post:
+    print("pausas de posproducción:", ", ".join(f"{p['dur']} s tras el tramo {p['tras_tramo']}" for p in pausas_post))
 print(len(result), "palabras;", len(segs), "tramos")
