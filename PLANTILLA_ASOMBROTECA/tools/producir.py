@@ -204,6 +204,10 @@ def p_qc(P, a):
         ws = json.load(open(al))['words']; txt0 = ' '.join(w['w'] for w in ws[:6]).lower(); ult = ' '.join(w['w'] for w in ws if w['seg'] == ws[-1]['seg']).lower(); todo = ' '.join(w['w'] for w in ws).lower()
         gancho = not re.match(r'^[¡¿]?\s*(imagina|en el año|en \d{3,4}|antes de|hace mucho|había una vez|hace \d+ años)', txt0)
         cierre = bool(re.search(r'env[ií]a', ult)) and not re.search(r'\b(sigue a|s[ií]guenos|s[ií]gueme)\b', todo)
+    # v1.27 · ninguna etiqueta de interpretación ([short pause]…) ni <break/> en los subtítulos
+    etq = None; dj = os.path.join(C, 'js', 'datos.js')
+    if os.path.exists(dj):
+        etq = sorted(set(re.findall(r'\[[^\]"]*\]|<[^>"]*>', open(dj, encoding='utf-8').read())))
     # v1.27 · movimiento desde el fotograma 0 (ni negro ni quieto)
     def gris(tt):
         raw = subprocess.run(['ffmpeg', '-v', 'error', '-ss', str(tt), '-i', out, '-frames:v', '1', '-vf', 'scale=108:192,format=gray', '-f', 'rawvideo', '-'], capture_output=True).stdout
@@ -227,6 +231,7 @@ def p_qc(P, a):
         ('Pausas dramáticas (0,4-1,6 s; objetivo 3-4)', f'{npz}' + ('' if 3 <= npz <= 6 else ' · AVISO: fuera del objetivo'), True),
         ('Gancho sin frase de contexto', 'sin alineación' if gancho is None else ('correcto' if gancho else 'EMPIEZA CON CONTEXTO (Imagina / En el año / Antes de…)'), gancho is not False),
         ('Cierre «Envíaselo a ese amigo…» (sin «Sigue a…»)', 'sin alineación' if cierre is None else ('correcto' if cierre else 'FALTA o hay «Sigue a…»'), cierre is not False),
+        ('Subtítulos sin etiquetas [ ] ni < >', 'sin datos' if etq is None else ('limpios' if not etq else 'ETIQUETAS: ' + ', '.join(etq[:5])), etq is None or not etq),
         ('Movimiento desde el fotograma 0', 'sin datos' if mov is None else ('sí' if mov else 'NEGRO o QUIETO al empezar'), mov is not False),
     ]
     txt = '\n'.join(f'{k}: {v} {ok(c)}' for k, v, c in filas)

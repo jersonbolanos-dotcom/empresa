@@ -821,5 +821,5 @@ Las reglas 99-105 del SUPERPROMPT mandan sobre todo lo anterior. Todo se activa 
 
 FX v1.27: `pausa(k, t, d)` (respiración grave suave + campanilla lejana).
 
-**Voz con ElevenLabs (regla 103).** Guion con `<break time="0.6s" />` antes de cada revelación (3-4 veces) → `creative_generate_speech` con el modelo Multilingual v2 (con v3, guiones — en lugar de break) → guardar el audio en `01_ENTRADA/audio/` (o pedir al usuario que lo descargue del enlace y lo adjunte) → `producir.py voz`. En `03_GUION/tramos.txt`, cada pausa larga separa dos líneas.
+**Voz con ElevenLabs (regla 103).** Modelo Eleven v4, voz Dan (`9F4C8ztpNUmXkdDDbz3J`), con `creative_generate_speech`. v4 no acepta `<break>`: 3-4 pausas antes de cada revelación con `[short pause]`, `[long pause]` (una sola vez) y puntos suspensivos («…»). Guardar el audio en `01_ENTRADA/audio/` (o pedir al usuario que lo descargue del enlace y lo adjunte) → `producir.py voz` → `03_GUION/tramos.txt` (cada pausa larga separa dos líneas). Las etiquetas entre corchetes y `<…>` se eliminan en `alinear.py` y `subtitulos.py`: nunca salen en los subtítulos, y el QC falla si alguna se cuela.
 

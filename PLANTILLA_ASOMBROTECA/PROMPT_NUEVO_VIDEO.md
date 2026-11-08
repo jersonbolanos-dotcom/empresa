@@ -35,9 +35,11 @@ limpia (sin título fijo, ≤ 2 etiquetas de 1-3 palabras), 3-4 pausas dramátic
 CÓMO TRABAJAR
 0. GANCHOS: antes de escribir el guion completo, proponme 3 ganchos (contradicción, cifra imposible o algo en juego, en
    segunda persona; prohibido empezar con «Imagina», «En el año…», «Antes de…», «Hace mucho…») y ESPERA a que elija uno.
-0b. VOZ (si no la adjunto): escribe el guion con 3-4 pausas `<break time="0.6s" />` justo antes de cada revelación y genérala
-   con el conector de ElevenLabs, modelo Multilingual v2 (si solo hay v3, usa guiones — en lugar de break). Si no puedes
-   guardar el audio dentro del proyecto, dame el enlace de ElevenLabs para descargarlo y te lo adjunto.
+0b. VOZ (si no la adjunto): escribe el guion con 3-4 pausas justo antes de cada revelación o dato fuerte y genérala con el
+   conector de ElevenLabs: modelo Eleven v4, voz Dan (9F4C8ztpNUmXkdDDbz3J). v4 no acepta <break>: usa [short pause],
+   [long pause] (una sola vez) y puntos suspensivos. En 03_GUION/tramos.txt las etiquetas entre corchetes se pueden dejar:
+   se quitan solas y nunca salen en los subtítulos. Si no puedes guardar el audio dentro del proyecto, dame el enlace de
+   ElevenLabs para descargarlo y te lo adjunto.
 1. Crea el proyecto:  python3 PLANTILLA_ASOMBROTECA/tools/nuevo_proyecto.py NOMBRE --estilo ESTILO --marca "MARCA" --voz AUDIO
 2. Voz:      python3 PLANTILLA_ASOMBROTECA/tools/producir.py NOMBRE_PROYECTO voz
    Corrige 03_GUION/tramos.txt (una línea por tramo de voz; cifras en forma hablada: 500|quinientos) y después:

@@ -5,7 +5,7 @@
 > 2. **Gancho (0-2 s):** nada de «Imagina», «En el año…», «Antes de…». Contradicción, cifra imposible o algo en juego, en segunda persona. Movimiento desde el fotograma 0. Se proponen 3 ganchos y el usuario elige antes del guion.
 > 3. **Ángulo personal:** se cuenta desde la vida del espectador (tu móvil, tu casa, tu cuerpo, tu ciudad).
 > 4. **Pantalla limpia:** sin título fijo arriba; máximo 2 etiquetas a la vez de 1-3 palabras; avisos pequeños y breves.
-> 5. **Pausas dramáticas:** 3-4 silencios de 0,4-1,0 s antes de las revelaciones (ElevenLabs Multilingual v2 con `<break time="0.6s" />`). La animación se frena, la música baja y entra `FX.pausa`.
+> 5. **Pausas dramáticas:** 3-4 silencios antes de las revelaciones (ElevenLabs Eleven v4, voz Dan, con `[short pause]`, `[long pause]` una vez y «…»; los corchetes nunca salen en los subtítulos). La animación se frena, la música baja y entra `FX.pausa`.
 > 6. **Duración:** 45-70 s (el QC avisa por encima de 75 s y falla por encima de 90).
 > 7. **Cierre:** la última frase siempre es «Envíaselo a ese amigo que…» con `P.ctaShare`; «ASOMBROTECA» solo pequeño con `P.marca`; nunca «Sigue a Asombroteca».
 

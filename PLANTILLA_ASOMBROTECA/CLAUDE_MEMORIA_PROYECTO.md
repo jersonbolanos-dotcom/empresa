@@ -15,7 +15,7 @@ con resumen en español. Responder siempre en español.
 - 1080×1920, 30 fps, H.264 + AAC 48 kHz, < 100 MB, −14 LUFS, pico ≤ −1 dBTP.
 - v1.27 · Zona segura de Instagram: ningún texto importante en y < 220, y > 1450 ni x > 940. Subtítulos arriba palabra a palabra con `PL.make({ estilo: 'asombroteca' })` (estilo ios, capY 420, una palabra clave por frase). La barra en y = 1540 ya NO es el estándar (opción manual no recomendada). Notas ≥ 32 px.
 - v1.27 · Gancho sin contexto (contradicción / cifra imposible / algo en juego, en 2.ª persona) y movimiento desde el fotograma 0; proponer 3 ganchos y ESPERAR la elección del usuario antes del guion. Ángulo personal (tu móvil, tu casa, tu cuerpo).
-- v1.27 · Pantalla limpia: sin título fijo arriba, ≤ 2 etiquetas a la vez (1-3 palabras), avisos pequeños y breves. 3-4 pausas de 0,4-1,0 s antes de las revelaciones (voz con ElevenLabs Multilingual v2 y `<break time="0.6s" />`). Duración 45-70 s (QC avisa > 75, falla > 90). Cierre siempre «Envíaselo a ese amigo que…» + `P.ctaShare`; prohibido «Sigue a Asombroteca».
+- v1.27 · Pantalla limpia: sin título fijo arriba, ≤ 2 etiquetas a la vez (1-3 palabras), avisos pequeños y breves. 3-4 pausas antes de las revelaciones (voz con ElevenLabs Eleven v4, voz Dan 9F4C8ztpNUmXkdDDbz3J; sin `<break>`: `[short pause]`, `[long pause]` una vez y «…»; los corchetes nunca salen en los subtítulos). Duración 45-70 s (QC avisa > 75, falla > 90). Cierre siempre «Envíaselo a ese amigo que…» + `P.ctaShare`; prohibido «Sigue a Asombroteca».
 - Sin logos; solo un «ASOMBROTECA» pequeño al final con `P.marca`.
 - Datos verificados con fuentes en `FUENTES_Y_DECISIONES.md`.
 - Determinismo: `H.rng`, nunca `Math.random`. No modificar `H` ni `SOUND`.

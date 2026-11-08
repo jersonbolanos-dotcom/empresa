@@ -32,7 +32,11 @@ SEGS = [
 ]
 
 if TRAMOS:
-    SEGS = [l.strip() for l in open(TRAMOS, encoding='utf-8') if l.strip() and not l.startswith('#')]
+    # v1.27: las etiquetas de interpretación de ElevenLabs v4 ([short pause], [long pause], [whispers]…) y <break …/> se quitan:
+    # nunca salen en los subtítulos. Los puntos suspensivos se conservan.
+    _tag = lambda l: re.sub(r'\s+', ' ', re.sub(r'\[[^\]]*\]|<[^>]*>', ' ', l)).strip()
+    SEGS = [_tag(l) for l in open(TRAMOS, encoding='utf-8') if l.strip() and not l.startswith('#')]
+    SEGS = [x for x in SEGS if x]
 
 def syl(w):
     w = w.lower().replace("_", " ")

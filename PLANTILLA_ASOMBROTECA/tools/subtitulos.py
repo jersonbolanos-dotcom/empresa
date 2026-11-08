@@ -4,7 +4,9 @@
 import json, sys
 src, srt_out, js_out = sys.argv[1:4]
 d = json.load(open(src))
-W = d["words"]
+import re
+# v1.27: red de seguridad — ninguna etiqueta entre corchetes ([short pause]…) ni <break/> llega a los subtítulos
+W = [w for w in d["words"] if not re.fullmatch(r"\[[^\]]*\]|<[^>]*>", w["w"])]
 MAXW, MAXC = 6, 24
 
 def ends_phrase(w):
