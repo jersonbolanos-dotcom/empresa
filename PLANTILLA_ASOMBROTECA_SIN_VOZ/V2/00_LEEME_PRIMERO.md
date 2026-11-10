@@ -1,0 +1,106 @@
+# PLANTILLA ASOMBROTECA SIN VOZ 2.0 · Léeme primero
+
+Reels verticales **sin narración** del tipo «oddly satisfying» o simulación: **un solo proceso físico continuo que escala**. Ejemplos: bolas que se multiplican en un círculo, miles de bolitas que forman una campana o círculos que giran y dibujan un animal. Cada simulación esconde un dato de ciencia real, que se revela al final con una sola frase.
+
+Formato fijo:
+
+- 1080 × 1920, 30 fps, H.264 + AAC 48 kHz, < 100 MB;
+- de 25 a 45 s;
+- −14 LUFS, pico ≤ −1 dBTP;
+- el último fotograma empalma con el primero para que el reel se repita solo.
+
+> La versión 1.0 (5 formatos de infografía) está respaldada en `V1/`.
+
+## Reglas (el QC las comprueba)
+
+1. **Un solo proceso, sin cortes**: movimiento continuo desde el fotograma 0.
+2. **Simulación real y determinista**: gravedad, rebotes, colisiones y partículas, con `H.rng` y nunca `Math.random`. Se precalcula al cargar (`motor/sim.js`) y cada fotograma solo lee su estado: `seek(t)` es función pura de t.
+3. **Texto mínimo**:
+   - una **pregunta** de ≤ 6 palabras al inicio;
+   - un **contador** grande;
+   - una **frase final** que revela el dato;
+   - la marca de agua «ASOMBROTECA», pequeña y durante todo el vídeo, en una esquina dentro de la zona segura (220 ≤ y ≤ 1450, x ≤ 940).
+   - Nada más.
+4. **El sonido sale de la simulación**: cada choque o evento suena, con un tono que cambia según la velocidad o la cantidad (estilo ASMR). Música muy baja o ninguna.
+5. **Fondo oscuro y limpio**, con colores vivos en los objetos.
+6. **Final incierto** hasta el último segundo, y empalme con el inicio.
+7. **Dato real con su fuente** en `FUENTES_Y_DECISIONES.md`.
+8. **Nada flota**: lo que cae se apoya o sale por una abertura. Se revisa a ojo en la hoja de contacto.
+
+## Hacer un reel
+
+```
+python3 PLANTILLA_ASOMBROTECA_SIN_VOZ/tools/nuevo_reel.py MI_REEL --formato rebote|galton|fourier
+#   edita MI_REEL_REEL/03_GUION/tiempos.txt (pregunta, frase, fuente, duración, PARAM) y 04_CODIGO/js/episodio.js
+python3 PLANTILLA_ASOMBROTECA_SIN_VOZ/tools/producir_reel.py MI_REEL_REEL build
+node PLANTILLA_ASOMBROTECA_SIN_VOZ/tools/sim_info.js MI_REEL_REEL/04_CODIGO/index.html          # ajustar PARAM (en el navegador)
+python3 PLANTILLA_ASOMBROTECA_SIN_VOZ/tools/producir_reel.py MI_REEL_REEL prueba 0 1 5 10 20 30  # UNA hoja de contacto
+python3 PLANTILLA_ASOMBROTECA_SIN_VOZ/tools/producir_reel.py MI_REEL_REEL todo                   # MP4 + QC
+```
+
+Tras mirar `07_QC/hoja_contacto.jpg`, escribe `07_QC/revision_visual.txt` con `nada flota: OK` y repite `qc`.
+
+**Ajustar el final incierto.** Con simulaciones caóticas, Node y Chromium pueden dar resultados distintos. Ajusta los `PARAM` con `sim_info.js`, que corre en el mismo navegador que el render.
+
+## `03_GUION/tiempos.txt`
+
+```
+DURACION 35
+MUSICA no                      # no · muy_baja
+SEMILLA 7
+PREGUNTA 3.6 | ¿Llenarán el círculo antes del final?
+FRASE 30.0 | Una *E. coli* puede dividirse cada 20 minutos.
+FUENTE Sezonov et al. (2007), Journal of Bacteriology 189: 8746-8749
+PARAM tDiv 3.2
+```
+
+- La pregunta está en pantalla desde el fotograma 0 hasta el instante que indiques.
+- La frase entra en su instante y se va antes del empalme, así que nunca coincide con la pregunta.
+- Las palabras entre `*asteriscos*` salen en amarillo y ` / ` fuerza un salto de línea.
+
+## Los 3 formatos (con su ejemplo en `ejemplos/`)
+
+| `--formato` | Proceso | Contador | Final incierto → empalme | Ejemplo y dato |
+|---|---|---|---|---|
+| `rebote` | Una bola grande rebota dentro de un círculo. Al tocar el borde, si ya «maduró», se divide en dos hijas que se reparten su área. Choques elásticos reales | Bolas | ¿Se llena el círculo? (se ajusta para que ocurra en el último segundo) → todo se contrae en una bola | `SIM_BACTERIAS_REEL` · *E. coli* se divide cada 20 min |
+| `galton` | Miles de bolitas caen por una red de clavos (gravedad, choque y rebote) y se apilan en casillas | Bolas que llegan | ¿Dónde cae la última bola? → se abre la compuerta y el tablero se vacía | `SIM_GALTON_REEL` · sumar azares dibuja la campana de Gauss |
+| `fourier` | Epiciclos (DFT de un trazo cerrado) con cada vez más círculos | Círculos | ¿Qué figura es? → con cientos de círculos sale la silueta detallada; luego vuelve a un círculo | `SIM_FOURIER_REEL` · cualquier dibujo es una suma de círculos que giran (Fourier, 1822) |
+
+## QC (`producir_reel.py qc` → `07_QC/QC.md`)
+
+El QC revisa:
+
+- formato y duración de 25 a 45 s;
+- decodificación;
+- **una sola escena** (`scdet` sin cortes);
+- **movimiento continuo** (cambio cada medio segundo, sin fotogramas congelados ni negros) y movimiento desde el fotograma 0;
+- **fondo oscuro**;
+- −14 LUFS;
+- **sonido sacado de la simulación** (cada arranque de sonido coincide ±25 ms con un evento simulado);
+- música muy baja o ninguna;
+- determinismo;
+- zona segura;
+- **texto mínimo** (solo pregunta, contador, frase y marca);
+- pregunta ≤ 6 palabras en el fotograma 0;
+- frase final con su fuente;
+- **marca de agua en todas las muestras**;
+- bucle;
+- nada flota (revisión visual).
+
+Cuando todo pasa, escribe **TODO CORRECTO**.
+
+## Qué hay dentro
+
+| Archivo o carpeta | Para qué sirve |
+|---|---|
+| `PROMPT_NUEVO_REEL.md` | Prompt corto de copiar y pegar para pedir un reel nuevo. |
+| `INSTRUCCIONES_REEL.md` | Firmas de `SIM.*` y `R.*` y cómo escribir `episodio.js`. |
+| `motor/sim.js` | Simulaciones precalculadas y deterministas: `SIM.rebote`, `SIM.galton`, `SIM.fourier` y utilidades. |
+| `motor/reel.js` | Montaje (fondo, pregunta, contador, frase, marca de agua, bucle) y sonido ASMR desde los eventos (`R.asmr`). |
+| `motor/plantilla.js`, `lib/`, `fonts/` | Motor v1.28 sin cambios (se usan `H`, `SOUND`, `P.glow` y `P.fmtN`). |
+| `tools/` | `nuevo_reel.py`, `producir_reel.py`, `tiempos.py`, `sim_info.js`, `textos.js` (QC de textos), `build.py`, `render.js`, `audio.js`, `frames.js`, `sheet.py`, `determinismo.js`. |
+| `ejemplos/` | Los 3 reels de ejemplo (código, MP4 y QC). |
+| `V1/` | Respaldo de la versión 1.0. |
+| `INSTRUCCIONES_PLANTILLA.md`, `GUIA_ESTILOS.md`, `catalogo/` | Referencia heredada de los bloques `P.*` y `FX.*` (lo que habla de voz no se aplica aquí). |
+
+Requisitos: Python 3 con numpy, Node con Playwright y Chromium, y ffmpeg.

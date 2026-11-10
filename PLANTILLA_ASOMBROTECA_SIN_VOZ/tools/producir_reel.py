@@ -209,7 +209,7 @@ def p_qc(P, a):
     rv = os.path.join(Q, 'revision_visual.txt'); flota = None
     if os.path.exists(rv):
         flota = bool(re.search(r'nada flota:\s*ok', open(rv, encoding='utf-8').read(), re.I))
-    PERM = {'pregunta', 'contador', 'frase', 'marca'}
+    PERM = {'pregunta', 'contador', 'frase', 'marca', 'etiqueta', 'eje', 'formula'}   # etiqueta: ≤ 2 a la vez; eje: números/letras de ejes; formula: ≤ 1
     ok = lambda c: '✔' if c else '✘'
     filas = [
         ('Formato', f'{vs["codec_name"]} {vs["width"]}×{vs["height"]} {vs["r_frame_rate"]} · {au[0]["codec_name"] + " " + au[0]["sample_rate"] + " Hz" if au else "SIN AUDIO"}', vs['codec_name'] == 'h264' and vs['width'] == 1080 and vs['height'] == 1920 and vs['r_frame_rate'] == '30/1' and bool(au) and au[0]['codec_name'] == 'aac' and au[0]['sample_rate'] == '48000'),
@@ -225,7 +225,7 @@ def p_qc(P, a):
         ('Silencios > 1 s (informativo)', f'{len(sil)}', True),
         ('Determinismo (simulación precalculada incluida)', 'OK' if det else 'FALLO', det is True),
         ('Zona segura IG (texto en 220 ≤ y ≤ 1450, x ≤ 940)', 'sin datos' if tx is None else (f'{len(tx["fuera"])} textos fuera' + (': ' + ', '.join(f'{f["tipo"]} t={f["t"]} {f["motivo"]}' for f in tx['fuera'][:5]) if tx['fuera'] else '')), tx is not None and not tx['fuera']),
-        ('Texto mínimo (solo pregunta, contador, frase y marca)', 'sin datos' if tx is None else 'tipos: ' + ', '.join(f'{k} (máx. {tx["max"].get(k, 0)} a la vez)' for k in sorted(tx['tipos'])), tx is not None and set(tx['tipos']) <= PERM and all(v <= 1 for v in tx['max'].values())),
+        ('Texto mínimo (pregunta, contador, frase, marca; ≤ 2 etiquetas, ejes, fórmula)', 'sin datos' if tx is None else 'tipos: ' + ', '.join(f'{k} (máx. {tx["max"].get(k, 0)} a la vez)' for k in sorted(tx['tipos'])), tx is not None and set(tx['tipos']) <= PERM and all(v <= (2 if k == 'etiqueta' else 40 if k == 'eje' else 3 if k == 'formula' else 1) for k, v in tx['max'].items())),
         ('Pregunta y frase nunca juntas (empalme limpio)', 'sin datos' if tx is None else f'{tx.get("juntas", 0)} muestras con las dos', tx is not None and tx.get('juntas', 0) == 0),
         ('Pregunta ≤ 6 palabras en el fotograma 0 · contador visible', f'«{tl["pregunta"]}» ({np_} palabras)' + ('' if tx is None else f' · fotograma 0: {"sí" if tx["pregunta0"] else "NO"} · contador: {"sí" if tx["contador0"] else "NO"}'), np_ <= 6 and tx is not None and tx['pregunta0'] and tx['contador0']),
         ('Una sola frase final con el dato · fuente', f'«{tl["frase"]}» ({nf_} palabras) a {tl["tFrase"]:.1f} s · fuente: {"sí" if fu else "FALTA"}', nf_ <= 14 and tx is not None and tx['fraseFinal'] and fu),

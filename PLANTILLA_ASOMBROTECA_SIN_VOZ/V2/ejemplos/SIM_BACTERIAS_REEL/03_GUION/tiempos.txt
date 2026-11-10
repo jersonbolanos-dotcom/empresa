@@ -1,0 +1,10 @@
+# REEL DE SIMULACIÓN · formato «rebote» · bolas que se dividen al tocar el borde (crecimiento exponencial)
+DURACION 35
+MUSICA no
+SEMILLA 7
+PREGUNTA 3.6 | ¿Llenarán el círculo antes del final?
+FRASE 30.0 | Una *E. coli* puede dividirse cada 20 minutos.
+FUENTE Sezonov, Joseleau-Petit y D'Ari (2007), «Escherichia coli physiology in Luria-Bertani broth», Journal of Bacteriology 189(23): 8746-8749
+# tiempo mínimo entre divisiones de una misma bola (s) y bolas que llenan el círculo (ajustados para que se llene en el último segundo)
+PARAM tDiv 3.2
+PARAM nMax 600

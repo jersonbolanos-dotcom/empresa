@@ -3,9 +3,9 @@ window.TIEMPOS = {
  "duracion": 35.0,
  "musica": "no",
  "semilla": 7,
- "pregunta": "¿Llenarán el círculo antes del final?",
+ "pregunta": "¿En cuántas horas llenan esto?",
  "tPregunta": 3.6,
- "frase": "Una *E. coli* puede dividirse cada 20 minutos.",
+ "frase": "Dividiéndose cada 20 minutos, / 1 *E. coli* llega a 600 en unas 3 horas.",
  "tFrase": 30.0,
  "fuente": "Sezonov, Joseleau-Petit y D'Ari (2007), «Escherichia coli physiology in Luria-Bertani broth», Journal of Bacteriology 189(23): 8746-8749",
  "param": {

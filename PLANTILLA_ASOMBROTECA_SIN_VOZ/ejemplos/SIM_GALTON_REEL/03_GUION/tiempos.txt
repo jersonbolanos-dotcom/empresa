@@ -3,6 +3,8 @@ DURACION 40
 MUSICA no
 SEMILLA 3
 PREGUNTA 3.6 | ¿Dónde caerá la última bola?
-FRASE 33.4 | Sumar muchos azares siempre dibuja la *campana de Gauss*.
-FUENTE Galton, F. (1889), Natural Inheritance, Macmillan, cap. V (el «quincunx»); teorema central del límite (de Moivre 1733, Laplace 1812)
+FRASE 33.4 | Por eso la *estatura* de la gente forma esta misma curva.
+FUENTE Galton, F. (1889), Natural Inheritance, Macmillan (estatura de adultos y quincunx); Schilling, Watkins y Watkins (2002), «Is human height bimodal?», The American Statistician 56(3): 223-229
 PARAM nBolas 2000
+# desvío inicial de la bola blanca (elegido en el navegador: 8 → y casilla 8, llega a los 38 s)
+PARAM xUltima 0.75

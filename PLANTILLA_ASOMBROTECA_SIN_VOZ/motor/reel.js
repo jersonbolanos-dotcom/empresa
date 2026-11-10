@@ -71,6 +71,11 @@
   const tw = ctx.measureText(s).width, x = cl(o.x ?? 540, SAFE.left + tw / 2, SAFE.right - tw / 2), y = cl(o.y ?? 1335, SAFE.top + px * 0.62, SAFE.bottom - px * 0.62), b = o.bump || 0, sc = 1 + 0.06 * Math.sin(Math.PI * b);
   ctx.translate(x, y); ctx.scale(sc, sc); ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.shadowColor = `rgba(${o.glow || '255,213,74'},${0.55 + 0.3 * Math.sin(Math.PI * b)})`; ctx.shadowBlur = px * 0.35; ctx.fillStyle = o.col || '#ffffff'; ctx.fillText(s, 0, 0); ctx.shadowBlur = 0; ctx.fillText(s, 0, 0); ctx.restore();
   log('contador', x - tw / 2, y - px * 0.6, x + tw / 2, y + px * 0.6); };
+ // Texto pequeño sin animación (etiquetas de 1-3 palabras, números de ejes, fórmulas). o = { px (32), font, fw, col, align, alpha, kind:
+ //   'etiqueta' (≤ 2 a la vez) | 'eje' (números y letras de ejes) | 'formula', base ('middle'), sombra }
+ R.chico = (ctx, s, x, y, o = {}) => { if (!s) return null; const px = o.px || 32; ctx.save(); ctx.font = `${o.fw || 700} ${px}px "${o.font || 'Nunito'}"`; const tw = ctx.measureText(s).width, al = o.align || 'center', x0 = al === 'left' ? x : al === 'right' ? x - tw : x - tw / 2;
+  ctx.globalAlpha *= o.alpha ?? 1; ctx.textAlign = 'left'; ctx.textBaseline = 'middle'; if (o.sombra !== false) { ctx.strokeStyle = 'rgba(0,0,0,0.8)'; ctx.lineWidth = px * 0.16; ctx.lineJoin = 'round'; ctx.strokeText(s, x0, y); } ctx.fillStyle = o.col || '#ffffff'; ctx.fillText(s, x0, y); ctx.restore();
+  if ((o.alpha ?? 1) > 0.05) log(o.kind || 'etiqueta', x0, y - px * 0.6, x0 + tw, y + px * 0.6); return { x0, x1: x0 + tw, w: tw }; };
  // Marca de agua discreta durante TODO el vídeo (esquina inferior derecha de la zona segura por defecto)
  R.marcaAgua = (ctx, t, o = {}) => { const s = o.nombre || 'ASOMBROTECA', px = o.px || 32; ctx.save(); ctx.font = `800 ${px}px "Nunito"`; ctx.letterSpacing = '5px'; const tw = ctx.measureText(s).width, al = o.align || 'right', xr = o.x ?? 925, y = o.y ?? 1424, x0 = al === 'right' ? xr - tw : al === 'center' ? xr - tw / 2 : xr;
   ctx.textAlign = 'left'; ctx.textBaseline = 'middle'; ctx.globalAlpha *= o.alpha ?? 0.42; ctx.fillStyle = '#ffffff'; ctx.fillText(s, x0, y); ctx.restore(); log('marca', x0, y - px * 0.6, x0 + tw, y + px * 0.6); };

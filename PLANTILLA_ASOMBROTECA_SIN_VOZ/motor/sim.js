@@ -32,12 +32,12 @@
  // cfg = { dur, fps (30), sub (8 pasos por fotograma), cx, cy, R (radio del círculo), r (radio mínimo de bola), r0 (radio de la bola inicial;
  //   cada división lo divide por √2), v0 (px/s), tDiv (edad mínima para dividirse, s), age0 (edad inicial), nMax, seed, x0, y0, ang0,
  //   inicio (true: arranca tocando el borde con un evento 'inicio' en t = 0), tColapso (s antes del final sin más divisiones) }
- // → { n(f), x(f,i), y(f,i), radio(f,i), gen[i], born[i], tLleno, eventos: [{ t, tipo: 'inicio'|'borde'|'choque'|'nace'|'lleno', v, n, ang }] }
+ // → { n(f), x(f,i), y(f,i), radio(f,i), genF(f,i) (generación en el fotograma f), gen[i], born[i], madre[i], tLleno, eventos: [{ t, tipo: 'inicio'|'borde'|'choque'|'nace'|'lleno', v, n, ang }] }
  // =====================================================================================================
  SIM.rebote = (cfg) => { const fps = cfg.fps || 30, sub = cfg.sub || 8, dt = 1 / (fps * sub), NF = Math.round(cfg.dur * fps), R = cfg.R, rMin = cfg.r, cx = cfg.cx, cy = cfg.cy, nMax = cfg.nMax;
   // radio de cada bola según su generación: al dividirse, el área se reparte entre las dos hijas (radio / √2), hasta rMin
   const r0 = cfg.r0 ?? rMin, rad = (g) => Math.max(rMin, r0 * Math.pow(2, -g / 2));
-  const rng = H.rng(cfg.seed ?? 1), x = new Float64Array(nMax), y = new Float64Array(nMax), vx = new Float64Array(nMax), vy = new Float64Array(nMax), age = new Float64Array(nMax), gen = new Uint16Array(nMax), born = new Float32Array(nMax), rr = new Float64Array(nMax);
+  const rng = H.rng(cfg.seed ?? 1), x = new Float64Array(nMax), y = new Float64Array(nMax), vx = new Float64Array(nMax), vy = new Float64Array(nMax), age = new Float64Array(nMax), gen = new Uint16Array(nMax), born = new Float32Array(nMax), rr = new Float64Array(nMax), madre = new Int32Array(nMax).fill(-1);
   const genF = []; // generación de cada bola en cada fotograma (para el radio): se guarda como Uint8 por fotograma
   let n = 1; x[0] = cfg.x0 ?? cx; y[0] = cfg.y0 ?? cy - R * 0.35; const a0 = cfg.ang0 ?? 0.9; vx[0] = Math.cos(a0) * cfg.v0; vy[0] = Math.sin(a0) * cfg.v0; age[0] = cfg.age0 ?? 0; born[0] = -10; rr[0] = rad(0);
   if (cfg.inicio) { const d = Math.hypot(x[0] - cx, y[0] - cy) || 1; x[0] = cx + (x[0] - cx) / d * (R - rr[0]); y[0] = cy + (y[0] - cy) / d * (R - rr[0]); }   // arranca tocando el borde
@@ -54,7 +54,7 @@
      if (age[i] >= cfg.tDiv && n < nMax && t < tStop) { const j = n++, tx = -ny, ty = nx, sp = Math.hypot(vx[i], vy[i]), rot = (rng() - 0.5) * 1.4;
       gen[i]++; gen[j] = gen[i]; rr[i] = rr[j] = rad(gen[i]);
       x[j] = x[i] + tx * rr[i] * 2.05; y[j] = y[i] + ty * rr[i] * 2.05; const lj = R - rr[j], dj = Math.hypot(x[j] - cx, y[j] - cy); if (dj > lj) { x[j] = cx + (x[j] - cx) / dj * lj; y[j] = cy + (y[j] - cy) / dj * lj; }
-      const ang = Math.atan2(vy[i], vx[i]) + rot; vx[j] = Math.cos(ang) * sp; vy[j] = Math.sin(ang) * sp; age[i] = 0; age[j] = 0; born[j] = t;
+      const ang = Math.atan2(vy[i], vx[i]) + rot; vx[j] = Math.cos(ang) * sp; vy[j] = Math.sin(ang) * sp; age[i] = 0; age[j] = 0; born[j] = t; madre[j] = i;
       ev.push({ t, tipo: 'nace', n, v: sp }); if (n === nMax && tLleno == null) { tLleno = t; ev.push({ t, tipo: 'lleno', n }); } } }
     // choques entre bolas (elásticos, masa ∝ área), con rejilla espacial de celda = diámetro mayor
     let rM = 0; for (let i = 0; i < n; i++) if (rr[i] > rM) rM = rr[i]; if (!g || Math.abs(2 * rM - gCell) > 0.5) { gCell = 2 * rM; g = SIM.grid(gCell, 1080, 1920); }
@@ -67,17 +67,17 @@
   }
   off[NF] = total; const P = Float32Array.from(pos);
   const nAt = (f) => (off[cl(f + 1, 0, NF)] - off[cl(f, 0, NF - 1)]) / 2;
-  return { NF, fps, R, r: rMin, r0, rad, cx, cy, gen, born, tLleno, eventos: ev, nMax,
+  return { NF, fps, R, r: rMin, r0, rad, cx, cy, gen, born, madre, tLleno, eventos: ev, nMax, genF: (f, i) => genF[cl(f, 0, NF - 1)][i] ?? 0,
    n: (f) => nAt(cl(f, 0, NF - 1)), x: (f, i) => P[off[cl(f, 0, NF - 1)] + 2 * i], y: (f, i) => P[off[cl(f, 0, NF - 1)] + 2 * i + 1], radio: (f, i) => rad(genF[cl(f, 0, NF - 1)][i] ?? 0) };
  };
 
  // =====================================================================================================
  // 2 · GALTON: bolitas que caen por una red triangular de clavos (choques reales con gravedad y rebote) y se apilan en casillas
  // cfg = { dur, fps, sub, x0 (centro), yPeg0 (primera fila), filas, dx, dy, pegR, r, nBolas, tIni, tFin (última salida del grueso),
- //   pre (s de precarga antes del fotograma 0), tUltima (salida de la última bola, que cae sola), yFondo (fondo de las casillas), g, e (restitución), fric (velocidad lateral que queda
+ //   pre (s de precarga antes del fotograma 0), tUltima (salida de la última bola, que cae sola), xUltima (desvío inicial de la última), yFondo (fondo de las casillas), g, e (restitución), fric (velocidad lateral que queda
  //   tras un choque), drag (rozamiento lateral con el aire, 1/s), vMax (velocidad de caída máxima), seed }
  // → { NF, activas(f) → [x,y,id,…], cuenta(f) → bolas ya apiladas, pila(k) → posiciones de la casilla k, casilla[id], orden[id],
- //   llegada[id] (t), slot(k, s) → [x, y], eventos: [{ t, tipo: 'clavo'|'casilla', fila, k, v }] }
+ //   llegada[id] (t), slot(k, s) → [x, y], eventos: [{ t, tipo: 'clavo' {fila, col, v, id, lado ±1}|'casilla' {k, capa, v} }] }
  // =====================================================================================================
  SIM.galton = (cfg) => { const fps = cfg.fps || 30, sub = cfg.sub || 8, dt = 1 / (fps * sub), NF = Math.round(cfg.dur * fps);
   const rows = cfg.filas, dx = cfg.dx, dy = cfg.dy, x0 = cfg.x0, y0 = cfg.yPeg0, pegR = cfg.pegR, r = cfg.r, G = cfg.g ?? 1400, e = cfg.e ?? 0.42, nB = cfg.nBolas, rng = H.rng(cfg.seed ?? 3);
@@ -96,7 +96,7 @@
    // fotograma f: bolas en vuelo o cayendo dentro de su casilla (con «pre» s de precarga: en el fotograma 0 ya hay bolas cayendo)
    if (f >= 0) { const fr = []; for (const i of act) fr.push(bx[i], by[i], i); frames.push(Float32Array.from(fr)); cuentaF[f] = asent; }
    for (let s = 0; s < sub; s++) { const t = (f * sub + s) * dt;
-    while (lanz < nB && sal[lanz] <= t) { const i = lanz++; bx[i] = x0 + (rng() - 0.5) * 3.0; by[i] = y0 - dy * 1.6; bvx[i] = (rng() - 0.5) * 30; bvy[i] = 60 + rng() * 20; est[i] = 1; act.push(i); }
+    while (lanz < nB && sal[lanz] <= t) { const i = lanz++; bx[i] = x0 + (rng() - 0.5) * 3.0 + (i === nB - 1 ? (cfg.xUltima ?? 0) : 0); by[i] = y0 - dy * 1.6; bvx[i] = (rng() - 0.5) * 30; bvy[i] = 60 + rng() * 20; est[i] = 1; act.push(i); }
     for (let a = act.length - 1; a >= 0; a--) { const i = act[a];
      bvy[i] += G * dt; if (est[i] === 1) { bvx[i] *= Math.exp(-(cfg.drag ?? 0) * dt); if (bvy[i] > (cfg.vMax ?? 1e9)) bvy[i] = cfg.vMax; } bx[i] += bvx[i] * dt; by[i] += bvy[i] * dt;
      if (est[i] === 1) {
@@ -104,7 +104,7 @@
       const ri = Math.round((by[i] - y0) / dy); for (let rr = ri - 1; rr <= ri + 1; rr++) { if (rr < 0 || rr >= rows) continue; const py = y0 + rr * dy, cj = Math.round((bx[i] - x0) / dx + rr / 2);
        for (let j = cj - 1; j <= cj + 1; j++) { if (j < 0 || j > rr) continue; const px = x0 + (j - rr / 2) * dx, ddx = bx[i] - px, ddy = by[i] - py, d = Math.hypot(ddx, ddy);
         if (d < pegR + r && d > 1e-9) { const nx = ddx / d, ny = ddy / d; bx[i] = px + nx * (pegR + r); by[i] = py + ny * (pegR + r); const vn = bvx[i] * nx + bvy[i] * ny;
-         if (vn < 0) { bvx[i] -= (1 + e) * vn * nx; bvy[i] -= (1 + e) * vn * ny; bvx[i] *= (cfg.fric ?? 0.96); if (-vn > 40 && t >= 0) ev.push({ t, tipo: 'clavo', fila: rr, col: j, v: -vn }); } } } }
+         if (vn < 0) { bvx[i] -= (1 + e) * vn * nx; bvy[i] -= (1 + e) * vn * ny; bvx[i] *= (cfg.fric ?? 0.96); if (-vn > 40 && t >= 0) ev.push({ t, tipo: 'clavo', fila: rr, col: j, v: -vn, id: i, lado: Math.sign(ddx) || 1 }); } } } }
       segHit(i, wallL[0], wallL[1]); segHit(i, wallR[0], wallR[1]);
       if (by[i] >= yBin) { const k = cl(Math.floor((bx[i] - binL) / dx), 0, nBins - 1); casilla[i] = k; sl[i] = reserva[k]++; est[i] = 2; bvx[i] *= 0.3; }
      } else if (est[i] === 2) { const [tx, ty] = slot(casilla[i], sl[i]); bx[i] += (tx - bx[i]) * Math.min(1, dt * 14); bvx[i] = 0;
@@ -119,10 +119,11 @@
 
  // =====================================================================================================
  // 3 · FOURIER: epiciclos que dibujan un trazo cerrado
- // cfg = { trazo: [[x,y]…] (cerrado, en el orden en que se dibuja), N (muestras, 2048), K (términos guardados, 600) }
+ // cfg = { trazo: [[x,y]…] (cerrado, en el orden en que se dibuja), N (muestras, 2048), K (términos guardados, 600), muestras (ya remuestreadas:
+ //   p. ej. [[x, 0]…] para la DFT de una señal real; así se hacen dos cadenas, una para x(t) y otra para y(t)) }
  // → { coef: [{ k, re, im, r }] ordenados de mayor a menor radio (sin el término 0), c0, punto(n, tau) → [x, y], cadena(n, tau) → [[x,y]…] }
  // =====================================================================================================
- SIM.fourier = (cfg) => { const N = cfg.N || 2048, pts = SIM.resample(cfg.trazo, N), K = cfg.K || 600;
+ SIM.fourier = (cfg) => { const N = cfg.N || (cfg.muestras ? cfg.muestras.length : 2048), pts = cfg.muestras || SIM.resample(cfg.trazo, N), K = cfg.K || 600;
   const coef = []; let c0 = [0, 0];
   for (let k = -K; k <= K; k++) { let re = 0, im = 0; for (let n = 0; n < N; n++) { const a = -TAU * k * n / N, c = Math.cos(a), s = Math.sin(a); re += pts[n][0] * c - pts[n][1] * s; im += pts[n][0] * s + pts[n][1] * c; } re /= N; im /= N; if (k === 0) c0 = [re, im]; else coef.push({ k, re, im, r: Math.hypot(re, im) }); }
   coef.sort((a, b) => b.r - a.r);
