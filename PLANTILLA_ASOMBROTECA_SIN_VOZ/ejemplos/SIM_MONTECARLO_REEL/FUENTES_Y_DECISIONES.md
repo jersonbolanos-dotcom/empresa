@@ -21,5 +21,6 @@ Formato: `montecarlo` · Plantilla Asombroteca SIN_VOZ 2.2 · 32 s.
 - **Sonido**:
   - una gota por cada punto (las primeras se oyen una a una; luego suenan como lluvia, con el control de densidad de `R.asmr`);
   - ruido de lluvia que sigue al ritmo.
+  - Cierre (v2.3.1): un acorde suave (`R.cierre`) entra con la frase final y se desvanece antes del empalme.
   - Sin música.
 - **Nada flota**: cada gota cae y se queda en el punto donde toca el plano.

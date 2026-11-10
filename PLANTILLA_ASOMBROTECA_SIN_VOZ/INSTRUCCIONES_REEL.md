@@ -65,6 +65,7 @@ Ajustes conocidos (comprobados en Chromium):
 | `R.asmr(k, eventos, { voz, gain, maxBin (2), bin (1/50 s), dens (40), base })` | Cada evento `{ t, p | f, v, pan }` suena con la voz elegida. Por cada ventana de `bin` s quedan los `maxBin` más fuertes y el volumen baja con la densidad, para que mil choques suenen a lluvia suave sin saturar. Voces: `madera`, `cristal`, `gota`, `tic`, `campana` |
 | `R.nota(p, base)` | Índice → frecuencia de la escala pentatónica (siempre suena bien) |
 | `R.zumbido(k, t0, t1, f(t), g(t), { gain, trozo })` | Tono continuo que sigue a la simulación (p. ej., la velocidad del lápiz) |
+| `R.cierre(k, { t, fin, notas, base, gain })` (v2.3.1) | Acorde suave de cierre (pentatónica, triángulo con filtro y reverberación) que entra con la frase final (`TL.tFrase`) y se desvanece antes del empalme. Añade `TL.tFrase` a `eventos` |
 | `R.musica(k, D, 'no' \| 'muy_baja')` | Colchón de piano muy bajo (en la mezcla, −20 LUFS + `--musica-db` (−10)) |
 
 ## Cámara lenta y zoom (ejemplo de Galton)

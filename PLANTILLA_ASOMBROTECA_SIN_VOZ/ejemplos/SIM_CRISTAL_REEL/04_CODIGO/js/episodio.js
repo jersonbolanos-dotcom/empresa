@@ -55,8 +55,9 @@
 
  // ---------- 4 · SONIDO: una nota de cristal por partícula que se pega ----------
  const EVP = []; for (let i = 0; i < NP; i++) EVP.push({ t: tP(i), p: 6 + 12 * cl(S.r[i] / RF), v: 0.55, pan: cl(S.x[i] / RF, -1, 1) * 0.7 });
- function sound(k) { R.asmr(k, EVP, { voz: 'cristal', maxBin: 2, bin: 1 / 40, dens: 50, gain: 0.8 }); }
- const EP = R.make({ draw, sound, eventos: () => EVP.map((e) => e.t) });
+ function sound(k) { R.cierre(k);   // acorde de cierre con la frase
+  R.asmr(k, EVP, { voz: 'cristal', maxBin: 2, bin: 1 / 40, dens: 50, gain: 0.8 }); }
+ const EP = R.make({ draw, sound, eventos: () => EVP.map((e) => e.t).concat([TL.tFrase]) });
  window.EPISODIO = { explainer: EP.explainer, init: async () => {}, DURATION: EP.DURATION, eventos: EP.eventos, sim: S };
  window.scoreSound = EP.scoreSound; window.scoreMusic = EP.scoreMusic;
 })();

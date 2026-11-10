@@ -1,0 +1,69 @@
+// =====================================================================================================
+// episodio.js — «¿Seguirán juntos los dos?» · FORMATO: CAOS · Plantilla Asombroteca SIN_VOZ 2.3
+// Dos péndulos dobles (SIM.pendulo2: Lagrange + RK4, sin rozamiento) cuelgan del mismo eje, sobre un tablero. Salen casi iguales: el
+// segundo brazo del rosa tiene una millonésima de radián más. Desde el fotograma 0 se ven los dos: el rosa, más ancho, debajo (contorno)
+// y el celeste encima; al separarse (~15 s) cada uno va por su lado. Una barrita (escala logarítmica) muestra cómo crece la diferencia. Al final vuelven
+// a la posición de salida para empalmar. Sonido: una nota de cristal cada vez que el brazo de abajo de cada péndulo pasa por la
+// vertical (celeste a la izquierda, rosa a la derecha) y una campana suave cuando se separan.
+// =====================================================================================================
+(function () {
+ const R = window.REEL, PL = window.PLANTILLA, P = PL.P;
+ const { TL, cl, sm, E, lerp, win, TAU } = R, D = TL.dur;
+
+ // ---------- 1 · SIMULACIÓN ----------
+ const TH = TL.param.th0 ?? 1.76, DEL = TL.param.delta ?? 1e-6;
+ const S = SIM.pendulo2({ th1: TH, th2: TH, dur: D + 1, delta: DEL, L1: 1, L2: 1 });
+ const T_SEP = S.tSep(0.3); window.CAOS_INFO = { tSep: T_SEP, tSep05: S.tSep(0.05) };
+ const PIV = { x: 540, y: 800 }, LP = 204, T_R0 = D - 1.9, T_R1 = D - 0.65;   // longitud de cada brazo en px · vuelta a la salida
+ const wrap = (a) => a - TAU * Math.round(a / TAU);
+ const ang = (Q, t) => { const u = cl(t * 30, 0, S.NF - 1), i = Math.min(S.NF - 2, Math.floor(u)), q = u - i; let a1 = lerp(Q.t1[i], Q.t1[i + 1], q), a2 = lerp(Q.t2[i], Q.t2[i + 1], q);
+  const r = E.inOut(cl((t - T_R0) / (T_R1 - T_R0))); if (r > 0) { a1 = TH + wrap(a1 - TH) * (1 - r); a2 = TH + wrap(a2 - TH) * (1 - r); } return [a1, a2]; };
+ const pts = (Q, t) => { const [a1, a2] = ang(Q, t), x1 = PIV.x + LP * Math.sin(a1), y1 = PIV.y + LP * Math.cos(a1); return [x1, y1, x1 + LP * Math.sin(a2), y1 + LP * Math.cos(a2)]; };
+
+ // ---------- 2 · DIBUJO ----------
+ const COL = { A: '90,215,255', B: '255,105,200' };   // celeste y rosa
+ function draw(ctx, t) {
+  ctx.save();
+  // tablero de fondo con el eje atornillado (los dos péndulos cuelgan de él)
+  ctx.fillStyle = '#10142a'; ctx.beginPath(); ctx.roundRect(104, 372, 872, 856, 28); ctx.fill(); ctx.strokeStyle = 'rgba(160,175,230,0.25)'; ctx.lineWidth = 2; ctx.stroke();
+  for (const [x, y] of [[132, 400], [948, 400], [132, 1200], [948, 1200]]) { ctx.fillStyle = 'rgba(170,185,230,0.35)'; ctx.beginPath(); ctx.arc(x, y, 6, 0, TAU); ctx.fill(); }
+  ctx.strokeStyle = 'rgba(160,175,230,0.07)'; ctx.lineWidth = 1; ctx.beginPath(); ctx.arc(PIV.x, PIV.y, 2 * LP, 0, TAU); ctx.stroke();
+  const fe = 1 - sm(T_R0 - 0.3, T_R0 + 0.6, t);   // las estelas se apagan antes de volver a la salida
+  // estelas largas (2,5 s) y brillantes de la bola de abajo de cada péndulo
+  ctx.globalCompositeOperation = 'lighter'; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+  for (const k of ['B', 'A']) { const Q = S[k], c = COL[k]; let prev = null; for (let q = 75; q >= 0; q--) { const tt = t - q / 30; if (tt < 0) continue; const p = pts(Q, tt);
+    if (prev) { const a = (1 - q / 76); ctx.strokeStyle = `rgba(${c},${0.85 * a * a * fe})`; ctx.lineWidth = 3 + 5 * a; ctx.beginPath(); ctx.moveTo(prev[2], prev[3]); ctx.lineTo(p[2], p[3]); ctx.stroke(); } prev = p; } }
+  ctx.globalCompositeOperation = 'source-over';
+  // los dos péndulos, SIEMPRE distinguibles: el rosa (B) va debajo y más ancho (contorno), el celeste (A) encima
+  const dib = (Q, c, wR, rb1, rb2) => { const [x1, y1, x2, y2] = pts(Q, t); ctx.strokeStyle = `rgb(${c})`; ctx.lineWidth = wR; ctx.beginPath(); ctx.moveTo(PIV.x, PIV.y); ctx.lineTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
+   ctx.fillStyle = `rgb(${c})`; ctx.beginPath(); ctx.arc(x1, y1, rb1, 0, TAU); ctx.fill(); ctx.beginPath(); ctx.arc(x2, y2, rb2, 0, TAU); ctx.fill(); return [x2, y2]; };
+  P.glow(ctx, ...pts(S.B, t).slice(2), 70, COL.B, 0.35); P.glow(ctx, ...pts(S.A, t).slice(2), 60, COL.A, 0.3);
+  const pb = dib(S.B, COL.B, 22, 22, 34), pa = dib(S.A, COL.A, 10, 15, 24);
+  // «1 millonésima» señala a los dos (dos líneas finas, una a cada bola) mientras siguen juntos
+  const al = 1 - sm(5, 6.5, t); if (al > 0.02) { const LX = 600, LY = 520; ctx.globalAlpha = al; ctx.lineWidth = 2.5;
+   ctx.strokeStyle = `rgb(${COL.B})`; ctx.beginPath(); ctx.moveTo(LX + 110, LY + 18); ctx.lineTo(pb[0] - 10, pb[1] - 30); ctx.stroke();
+   ctx.strokeStyle = `rgb(${COL.A})`; ctx.beginPath(); ctx.moveTo(LX + 90, LY + 18); ctx.lineTo(pa[0] - 18, pa[1] - 14); ctx.stroke(); ctx.globalAlpha = 1; }
+  ctx.fillStyle = '#dfe6ff'; ctx.beginPath(); ctx.arc(PIV.x, PIV.y, 11, 0, TAU); ctx.fill(); ctx.fillStyle = '#3a4266'; ctx.beginPath(); ctx.arc(PIV.x, PIV.y, 4, 0, TAU); ctx.fill();
+  // barrita de la diferencia (escala logarítmica: de una millonésima a todo el péndulo)
+  const sp = S.sep(Math.round(cl(t, 0, T_R0) * 30)) * (1 - E.inOut(cl((t - T_R0) / (T_R1 - T_R0)))), fr = cl((Math.log10(Math.max(sp, 1e-7)) + 6.5) / 6.5);
+  ctx.fillStyle = 'rgba(160,175,230,0.18)'; ctx.beginPath(); ctx.roundRect(200, 1250, 680, 14, 7); ctx.fill();
+  const gb = ctx.createLinearGradient(200, 0, 880, 0); gb.addColorStop(0, '#50e6ff'); gb.addColorStop(1, '#ff50c8'); ctx.fillStyle = gb; ctx.beginPath(); ctx.roundRect(200, 1250, Math.max(14, 680 * fr), 14, 7); ctx.fill();
+  ctx.restore();
+  R.chico(ctx, '1 millonésima', 600, 520, { px: 34, col: '#ffffff', align: 'center', kind: 'etiqueta', alpha: 1 - sm(5, 6.5, t) });
+  R.contador(ctx, t, (Math.round(t * 10) / 10).toFixed(1).replace('.', ',') + ' s', { x: 540, y: 1345, px: 96, glow: '200,140,255' });
+  R.pregunta(ctx, t, { y: 300, px: 72 }); R.frase(ctx, t, { y: 300, px: 50 });
+ }
+
+ // ---------- 3 · SONIDO: una nota cada vez que el brazo de abajo de un péndulo pasa por la vertical (celeste a la izquierda, rosa a la
+ // derecha; más aguda cuanto más rápido) y una campana cuando se separan. Mientras van juntos, las dos notas coinciden; luego no.
+ const pasos = (Q, pan, base) => { const ev = []; for (let f = 1; f < S.NF && f / 30 < T_R0; f++) { const a = wrap(Q.t2[f - 1]), b = wrap(Q.t2[f]);
+   if (a * b < 0 && Math.abs(a - b) < Math.PI) { const tt = (f - 1 + a / (a - b)) / 30; ev.push({ t: tt, p: base + Math.min(10, Math.abs(Q.w2[f]) * 0.9), v: 0.45 + 0.4 * cl(Math.abs(Q.w2[f]) / 10), pan }); } } return ev; };
+ const EVA = pasos(S.A, -0.6, 6), EVB = pasos(S.B, 0.6, 8);
+ function sound(k) {
+  R.asmr(k, EVA, { voz: 'cristal', maxBin: 2, bin: 1 / 40, gain: 0.8 }); R.asmr(k, EVB, { voz: 'cristal', maxBin: 2, bin: 1 / 40, gain: 0.7 });
+  if (isFinite(T_SEP)) R.asmr(k, [{ t: T_SEP, p: 6, v: 0.9 }], { voz: 'campana', maxBin: 1, gain: 0.7 });
+ }
+ const EP = R.make({ draw, sound, eventos: () => EVA.concat(EVB).map((e) => e.t).concat(isFinite(T_SEP) ? [T_SEP] : []) });
+ window.EPISODIO = { explainer: EP.explainer, init: async () => {}, DURATION: EP.DURATION, eventos: EP.eventos, sim: S };
+ window.scoreSound = EP.scoreSound; window.scoreMusic = EP.scoreMusic;
+})();

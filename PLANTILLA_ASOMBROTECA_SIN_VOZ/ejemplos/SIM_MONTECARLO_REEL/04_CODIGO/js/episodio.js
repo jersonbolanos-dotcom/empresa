@@ -52,10 +52,11 @@
 
  // ---------- 3 · SONIDO: cada gota (las primeras una a una; luego lluvia) ----------
  const EVG = []; for (let i = 0; i < NG; i++) EVG.push({ t: tk(i), p: S.dentro[i] ? 15 + (i % 3) : 9 + (i % 3), v: 0.55, pan: S.x[i] * 0.6 });
- function sound(k) { R.asmr(k, EVG, { voz: 'gota', maxBin: 2, bin: 1 / 40, dens: 70, gain: 0.8 });
+ function sound(k) { R.cierre(k);   // acorde de cierre con la frase
+  R.asmr(k, EVG, { voz: 'gota', maxBin: 2, bin: 1 / 40, dens: 70, gain: 0.8 });
   for (let t = 2; t < TL_ + T0; t += 0.25) { const r = n(t + 0.25) - n(t); if (r < 8) continue; k.noise(t, { dur: 0.3, color: 'pink', filter: 'bandpass', f: 3000, q: 0.7, gain: Math.min(0.05, 0.004 * Math.sqrt(r)), a: 0.08 }); R.EV.push(t); } }
 
- const EP = R.make({ draw, sound, eventos: () => EVG.map((e) => e.t).concat(Array.from({ length: 200 }, (_, q) => 2 + q * 0.25)) });
+ const EP = R.make({ draw, sound, eventos: () => EVG.map((e) => e.t).concat(Array.from({ length: 200 }, (_, q) => 2 + q * 0.25), [TL.tFrase]) });
  window.EPISODIO = { explainer: EP.explainer, init: async () => {}, DURATION: EP.DURATION, eventos: EP.eventos, sim: S };
  window.scoreSound = EP.scoreSound; window.scoreMusic = EP.scoreMusic;
 })();

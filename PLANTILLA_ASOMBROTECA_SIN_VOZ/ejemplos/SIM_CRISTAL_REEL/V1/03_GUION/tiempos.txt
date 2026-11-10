@@ -1,0 +1,11 @@
+# REEL DE SIMULACIÓN · formato «cristal» · agregación limitada por difusión: partículas que caminan al azar y se pegan al tocar
+DURACION 32
+MUSICA no
+SEMILLA 5
+PREGUNTA 3.6 | ¿Qué forma / crecerá aquí?
+FRASE 27.4 | Partículas pegándose al azar / forman ramas como las de un *rayo*.
+FUENTE Witten, T. A. y Sander, L. M. (1981), «Diffusion-limited aggregation, a kinetic critical phenomenon», Physical Review Letters 47: 1400-1403; Niemeyer, L., Pietronero, L. y Wiesmann, H. J. (1984), «Fractal dimension of dielectric breakdown», Physical Review Letters 52: 1033-1036
+# partículas · segundos de la primera caminando sola · aceleración de las llegadas
+PARAM n 6000
+PARAM lento 1.3
+PARAM A 4

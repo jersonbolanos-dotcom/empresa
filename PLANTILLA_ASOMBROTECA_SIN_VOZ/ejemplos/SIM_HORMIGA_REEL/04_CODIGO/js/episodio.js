@@ -70,8 +70,9 @@
  const JIDX = new Map(S.celdas.map((c, j) => [c, j]));   // casilla → índice (para saber si estaba llena: nota más grave)
  const EVK = []; for (let k = 1; k < NK && tK(k) < T_FIN; k++) EVK.push({ t: tK(k), p: S.estado(JIDX.get(S.celda[k]), k) ? 9 : 13, v: 0.5, pan: cl((S.px[k] - S.px[0]) / 60, -0.8, 0.8) });
  const EVA = []; if (S.autopista > 0) for (let k = S.autopista; k < NK && tK(k) < T_FIN; k += 104) EVA.push({ t: tK(k), p: 8, v: 0.8 });
- function sound(k) { R.asmr(k, EVK, { voz: 'tic', maxBin: 2, bin: 1 / 40, dens: 60, gain: 0.55 }); R.asmr(k, EVA, { voz: 'gota', maxBin: 1, bin: 0.1, gain: 0.7 }); }
- const EP = R.make({ draw, sound, eventos: () => EVK.map((e) => e.t).concat(EVA.map((e) => e.t)) });
+ function sound(k) { R.cierre(k);   // acorde de cierre con la frase
+  R.asmr(k, EVK, { voz: 'tic', maxBin: 2, bin: 1 / 40, dens: 60, gain: 0.55 }); R.asmr(k, EVA, { voz: 'gota', maxBin: 1, bin: 0.1, gain: 0.7 }); }
+ const EP = R.make({ draw, sound, eventos: () => EVK.map((e) => e.t).concat(EVA.map((e) => e.t), [TL.tFrase]) });
  window.EPISODIO = { explainer: EP.explainer, init: async () => {}, DURATION: EP.DURATION, eventos: EP.eventos, sim: S };
  window.scoreSound = EP.scoreSound; window.scoreMusic = EP.scoreMusic;
 })();

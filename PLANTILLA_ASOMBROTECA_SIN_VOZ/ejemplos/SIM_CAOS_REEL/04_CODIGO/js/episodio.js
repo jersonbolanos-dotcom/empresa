@@ -60,10 +60,11 @@
    if (a * b < 0 && Math.abs(a - b) < Math.PI) { const tt = (f - 1 + a / (a - b)) / 30; ev.push({ t: tt, p: base + Math.min(10, Math.abs(Q.w2[f]) * 0.9), v: 0.45 + 0.4 * cl(Math.abs(Q.w2[f]) / 10), pan }); } } return ev; };
  const EVA = pasos(S.A, -0.6, 6), EVB = pasos(S.B, 0.6, 8);
  function sound(k) {
+  R.cierre(k);   // acorde de cierre con la frase
   R.asmr(k, EVA, { voz: 'cristal', maxBin: 2, bin: 1 / 40, gain: 0.8 }); R.asmr(k, EVB, { voz: 'cristal', maxBin: 2, bin: 1 / 40, gain: 0.7 });
   if (isFinite(T_SEP)) R.asmr(k, [{ t: T_SEP, p: 6, v: 0.9 }], { voz: 'campana', maxBin: 1, gain: 0.7 });
  }
- const EP = R.make({ draw, sound, eventos: () => EVA.concat(EVB).map((e) => e.t).concat(isFinite(T_SEP) ? [T_SEP] : []) });
+ const EP = R.make({ draw, sound, eventos: () => EVA.concat(EVB).map((e) => e.t).concat(isFinite(T_SEP) ? [T_SEP] : [], [TL.tFrase]) });
  window.EPISODIO = { explainer: EP.explainer, init: async () => {}, DURATION: EP.DURATION, eventos: EP.eventos, sim: S };
  window.scoreSound = EP.scoreSound; window.scoreMusic = EP.scoreMusic;
 })();

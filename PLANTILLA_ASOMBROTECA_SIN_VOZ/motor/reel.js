@@ -103,6 +103,12 @@
  // Zumbido continuo cuyo tono y volumen siguen a la simulación (p. ej., la velocidad del lápiz): f(t) Hz y g(t) 0..1
  R.zumbido = (k, t0, t1, f, g, o = {}) => { const st = o.paso ?? 0.05; for (let t = t0; t < t1; t += o.trozo ?? 1.0) { const d = Math.min(o.trozo ?? 1.0, t1 - t) + 0.08, fe = [], ge = []; for (let u = 0; u <= d + 1e-6; u += st) fe.push([u, f(t + u)]);
    const gm = g(t + d / 2); k.tone(t, { f: fe, dur: d, gain: (o.gain ?? 0.05) * gm, a: 0.04, hold: d - 0.08, type: o.type || 'sine', filter: 'lowpass', f2: 1800, verb: 0.25, pan: 0 }); } };
+ // v2.3: sonido de cierre mientras sale la frase final: un acorde suave (pentatónica) que entra con la frase y se desvanece antes del
+ // empalme, para que los últimos segundos no queden en silencio. o = { t (TL.tFrase), fin (dur − loop − 0,15), notas ([0, 2, 4, 5]), base, gain }
+ R.cierre = (k, o = {}) => { const t0 = o.t ?? TL.tFrase, t1 = o.fin ?? TL.dur - R.LOOP - 0.15, d = Math.max(1, t1 - t0), G = o.gain ?? 1;
+  (o.notas || [0, 2, 4, 5]).forEach((p, i) => { const f = R.nota(p, o.base ?? 196); k.tone(t0, { f, type: 'triangle', dur: d, gain: 0.07 * G, a: 0.02, hold: d * 0.35, filter: 'lowpass', f2: 1400, verb: 0.5, pan: (i - 1.5) * 0.25 });
+   k.tone(t0, { f: f * 2, dur: d * 0.8, gain: 0.018 * G, a: 0.02, hold: d * 0.2, verb: 0.5, pan: (i - 1.5) * 0.25 }); });
+  R.EV.push(t0); return t0; };
  R.musica = (k, D, tipo) => { if (!tipo || tipo === 'no') return; MUS.piano(k, 0, D, { bpm: 240 * Math.max(2, Math.round(D / (240 / 60))) / D, gain: 0.35, strings: 0.8, chords: [['A2', 'E3', 'A3', 'C4'], ['F2', 'C3', 'F3', 'A3'], ['C3', 'G3', 'C4', 'E4'], ['G2', 'D3', 'G3', 'B3']] }); };
 
  // ---------------- MONTAJE (una sola escena, sin cortes) ----------------
