@@ -3,8 +3,8 @@
 // Dos péndulos dobles (SIM.pendulo2: Lagrange + RK4, sin rozamiento) cuelgan del mismo eje, sobre un tablero. Salen casi iguales: el
 // segundo brazo del rosa tiene una millonésima de radián más. Desde el fotograma 0 se ven los dos: el rosa, más ancho, debajo (contorno)
 // y el celeste encima; al separarse (~15 s) cada uno va por su lado. Una barrita (escala logarítmica) muestra cómo crece la diferencia. Al final vuelven
-// a la posición de salida para empalmar. Sonido: un zumbido por péndulo que sigue la velocidad del brazo de abajo; un golpe suave
-// cuando se separan.
+// a la posición de salida para empalmar. Sonido: una nota de cristal cada vez que el brazo de abajo de cada péndulo pasa por la
+// vertical (celeste a la izquierda, rosa a la derecha) y una campana suave cuando se separan.
 // =====================================================================================================
 (function () {
  const R = window.REEL, PL = window.PLANTILLA, P = PL.P;
@@ -54,15 +54,16 @@
   R.pregunta(ctx, t, { y: 300, px: 72 }); R.frase(ctx, t, { y: 300, px: 50 });
  }
 
- // ---------- 3 · SONIDO: un zumbido por péndulo (velocidad del brazo de abajo) y un golpe al separarse ----------
- const w2 = (Q, t) => { const u = cl(t * 30, 0, S.NF - 1); return Math.abs(Q.w2[Math.floor(u)]) * (1 - sm(T_R0, T_R1, t)); };
- const TRZ = 0.5, CH = []; for (let t = 0; t < D - 0.3; t += TRZ) CH.push(t);
+ // ---------- 3 · SONIDO: una nota cada vez que el brazo de abajo de un péndulo pasa por la vertical (celeste a la izquierda, rosa a la
+ // derecha; más aguda cuanto más rápido) y una campana cuando se separan. Mientras van juntos, las dos notas coinciden; luego no.
+ const pasos = (Q, pan, base) => { const ev = []; for (let f = 1; f < S.NF && f / 30 < T_R0; f++) { const a = wrap(Q.t2[f - 1]), b = wrap(Q.t2[f]);
+   if (a * b < 0 && Math.abs(a - b) < Math.PI) { const tt = (f - 1 + a / (a - b)) / 30; ev.push({ t: tt, p: base + Math.min(10, Math.abs(Q.w2[f]) * 0.9), v: 0.45 + 0.4 * cl(Math.abs(Q.w2[f]) / 10), pan }); } } return ev; };
+ const EVA = pasos(S.A, -0.6, 6), EVB = pasos(S.B, 0.6, 8);
  function sound(k) {
-  R.zumbido(k, 0, D - 0.3, (t) => 150 + 22 * w2(S.A, t), (t) => 0.35 + 0.65 * cl(w2(S.A, t) / 9), { gain: 0.05, trozo: TRZ });
-  R.zumbido(k, 0, D - 0.3, (t) => 225 + 33 * w2(S.B, t), (t) => 0.35 + 0.65 * cl(w2(S.B, t) / 9), { gain: 0.04, trozo: TRZ });
+  R.asmr(k, EVA, { voz: 'cristal', maxBin: 2, bin: 1 / 40, gain: 0.8 }); R.asmr(k, EVB, { voz: 'cristal', maxBin: 2, bin: 1 / 40, gain: 0.7 });
   if (isFinite(T_SEP)) R.asmr(k, [{ t: T_SEP, p: 6, v: 0.9 }], { voz: 'campana', maxBin: 1, gain: 0.7 });
  }
- const EP = R.make({ draw, sound, eventos: () => CH.concat(isFinite(T_SEP) ? [T_SEP] : []) });
+ const EP = R.make({ draw, sound, eventos: () => EVA.concat(EVB).map((e) => e.t).concat(isFinite(T_SEP) ? [T_SEP] : []) });
  window.EPISODIO = { explainer: EP.explainer, init: async () => {}, DURATION: EP.DURATION, eventos: EP.eventos, sim: S };
  window.scoreSound = EP.scoreSound; window.scoreMusic = EP.scoreMusic;
 })();
