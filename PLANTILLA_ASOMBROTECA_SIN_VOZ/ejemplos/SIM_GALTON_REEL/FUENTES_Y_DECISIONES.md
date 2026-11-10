@@ -1,24 +1,34 @@
 # Fuentes y decisiones · ¿Dónde caerá la última bola?
 
-Formato: `galton` · Plantilla Asombroteca SIN_VOZ 2.0 · 40 s.
+Formato: `galton` · Plantilla Asombroteca SIN_VOZ 2.1 · 45 s.
 
 ## Dato que revela la frase final
 
 | Frase | Dato | Fuente |
 |---|---|---|
-| «Sumar muchos azares siempre dibuja la campana de Gauss.» | Cada bolita sufre 16 desvíos al azar; la suma de muchas variables aleatorias independientes tiende a la distribución normal (teorema central del límite). Galton construyó este tablero, el *quincunx*, para mostrarlo | Galton, F. (1889), *Natural Inheritance*, Macmillan, cap. V; de Moivre, A. (1733), aproximación normal de la binomial; Laplace, P.-S. (1812), *Théorie analytique des probabilités* |
+| «Por eso la *estatura* de la gente forma esta misma curva.» | La estatura de los adultos de un mismo sexo se distribuye casi exactamente como una normal (campana de Gauss): resulta de sumar muchos efectos pequeños (genes y ambiente), igual que cada bola suma 16 desvíos al azar (teorema central del límite). Al mezclar hombres y mujeres sigue saliendo una sola campana, algo más ancha (no es bimodal) | Galton, F. (1889), *Natural Inheritance*, Macmillan (estatura de adultos y quincunx); Schilling, M. F., Watkins, A. E. y Watkins, W. (2002), «Is human height bimodal?», *The American Statistician* 56(3): 223-229 |
 
 ## Decisiones
 
-- **Proceso**: 2.000 bolitas caen por 16 filas de clavos con gravedad (1.400 px/s²), choques reales con restitución 0,5, rozamiento en el choque y resistencia lateral (`SIM.galton`, 240 Hz, `H.rng(3)`). Con estos parámetros la distribución sale con σ ≈ 2,3 casillas y curtosis ≈ 3, como una normal.
-- **Simplificación**: en las casillas las bolitas se apilan con una regla de llenado (sin choques entre ellas). Así son viables 2.000 bolitas y la pila queda limpia.
-- **Campana dorada**: es una normal ajustada a la media y la desviación de lo que cayó de verdad, no una binomial ideal, porque un tablero físico no es una binomial perfecta.
-- **Final incierto**: la última bola (blanca) sale sola y cae a los ~38,5 s; su casilla no se sabe hasta que llega. Después se abre la compuerta del piso, las bolitas salen por la ranura (nada se dibuja bajo el piso ni tapa la marca) y el tablero vacío empalma con el inicio.
-- **Movimiento desde el fotograma 0**: hay 1,2 s de precarga, así que al empezar ya caen bolitas.
+- **Contexto con la imagen**:
+  - la cámara sigue a la bola blanca a **cámara lenta** (~11 s; la física es la misma, solo cambia la velocidad de reproducción);
+  - en cada fila aparece una flechita ← o →, y la etiqueta «← 7 · 9 →» cuenta sus 16 decisiones;
+  - debajo de cada casilla va su número, que es cuántas veces una bola fue a la derecha;
+  - la blanca hace 9 → y cae en la casilla 9, que se enciende.
+- **Las 16 decisiones**: con choques reales, una bola puede pasar por un hueco o rebotar dos veces. Por eso cada flecha marca el lado hacia el que se desplaza entre una fila y la siguiente, y siempre son 16. La salida de la blanca (`xUltima = 0,625`, elegida en Chromium) hace que el número de → coincida con su casilla.
+- **Proceso**:
+  - 2.000 bolitas caen por 16 filas de clavos con gravedad, restitución 0,5, rozamiento en el choque y resistencia lateral (`SIM.galton`, 90 estados/s, `H.rng(3)`);
+  - la distribución sale con σ ≈ 2,3 casillas y curtosis ≈ 3, como una normal;
+  - en las casillas se apilan con una regla de llenado (sin choques entre ellas).
+- **Campana dorada**: es una normal ajustada a la media y la desviación de lo que cayó.
+- **Frase**: aparece solo cuando la bola blanca ya llegó (38,8 s), para no revelar la respuesta antes.
+- **Encuadre**: durante el zoom (×1,3, altura fija), el tablero entero, de la tolva al piso, queda dentro de la zona segura (piso en y ≈ 1415). La marca de agua tiene contorno oscuro y siempre va encima.
+- **Bucle**: tras la llegada se abre la compuerta y las bolitas salen por la ranura, sin dibujarse bajo el piso. El tablero vacío empalma con el inicio.
 - **Sonido**:
-  - cada clavo tocado: madera, más grave en las filas de abajo, con paneo según la columna, y el clavo se ilumina;
-  - cada bolita que llega a su casilla: gota, con el tono según la casilla;
-  - la última bola: acorde de campana;
-  - el vaciado: arena que cae.
+  - madera en cada clavo;
+  - gota en cada casilla;
+  - cristal en cada decisión de la blanca (más agudo a la derecha);
+  - campana a su llegada;
+  - arena al vaciar.
   - Sin música.
-- **Nada flota**: todas las bolitas caen por gravedad y se apoyan en la pila o en el fondo.
+- **Nada flota**: todas las bolitas caen por gravedad y se apoyan en la pila o en el piso.

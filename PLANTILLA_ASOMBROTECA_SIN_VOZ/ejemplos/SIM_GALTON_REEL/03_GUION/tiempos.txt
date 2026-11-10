@@ -1,10 +1,14 @@
 # REEL DE SIMULACIÓN · formato «galton» · miles de bolitas que forman la campana de Gauss
-DURACION 40
+DURACION 45
 MUSICA no
 SEMILLA 3
-PREGUNTA 3.6 | ¿Dónde caerá la última bola?
-FRASE 33.4 | Por eso la *estatura* de la gente forma esta misma curva.
+PREGUNTA 3.6 | ¿Dónde caerá / la última bola?
+FRASE 38.8 | Por eso la *estatura* de la gente forma esta misma curva.
 FUENTE Galton, F. (1889), Natural Inheritance, Macmillan (estatura de adultos y quincunx); Schilling, Watkins y Watkins (2002), «Is human height bimodal?», The American Statistician 56(3): 223-229
 PARAM nBolas 2000
-# desvío inicial de la bola blanca (elegido en el navegador: 8 → y casilla 8, llega a los 38 s)
-PARAM xUltima 0.75
+# el grueso sale hasta tFin y la bola blanca en tUltima (s de simulación); su caída se ve a cámara lenta durante «lenta» s de vídeo
+PARAM tFin 27
+PARAM tUltima 28.3
+PARAM lenta 11
+# desvío inicial de la bola blanca, elegido en el navegador (nº de → = su casilla)
+PARAM xUltima 0.625

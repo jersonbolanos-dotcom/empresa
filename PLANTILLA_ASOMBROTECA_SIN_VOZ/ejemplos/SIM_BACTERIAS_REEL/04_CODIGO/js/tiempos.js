@@ -3,7 +3,7 @@ window.TIEMPOS = {
  "duracion": 35.0,
  "musica": "no",
  "semilla": 7,
- "pregunta": "¿En cuántas horas llenan esto?",
+ "pregunta": "¿En cuántas horas / llenan esto?",
  "tPregunta": 3.6,
  "frase": "Dividiéndose cada 20 minutos, / 1 *E. coli* llega a 600 en unas 3 horas.",
  "tFrase": 30.0,

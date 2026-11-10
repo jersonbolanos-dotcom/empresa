@@ -1,4 +1,4 @@
-# PLANTILLA ASOMBROTECA SIN VOZ 2.0 · Léeme primero
+# PLANTILLA ASOMBROTECA SIN VOZ 2.1 · Léeme primero
 
 Reels verticales **sin narración** del tipo «oddly satisfying» o simulación: **un solo proceso físico continuo que escala**. Ejemplos: bolas que se multiplican en un círculo, miles de bolitas que forman una campana o círculos que giran y dibujan un animal. Cada simulación esconde un dato de ciencia real, que se revela al final con una sola frase.
 
@@ -9,18 +9,19 @@ Formato fijo:
 - −14 LUFS, pico ≤ −1 dBTP;
 - el último fotograma empalma con el primero para que el reel se repita solo.
 
-> La versión 1.0 (5 formatos de infografía) está respaldada en `V1/`.
+> Respaldos: la versión 1.0 (5 formatos de infografía) está en `V1/`, y la 2.0 (simulación sin elementos de contexto) en `V2/`.
 
 ## Reglas (el QC las comprueba)
 
 1. **Un solo proceso, sin cortes**: movimiento continuo desde el fotograma 0.
 2. **Simulación real y determinista**: gravedad, rebotes, colisiones y partículas, con `H.rng` y nunca `Math.random`. Se precalcula al cargar (`motor/sim.js`) y cada fotograma solo lee su estado: `seek(t)` es función pura de t.
 3. **Texto mínimo**:
-   - una **pregunta** de ≤ 6 palabras al inicio;
+   - una **pregunta** de ≤ 6 palabras al inicio, con saltos de línea equilibrados (` / `);
    - un **contador** grande;
-   - una **frase final** que revela el dato;
-   - la marca de agua «ASOMBROTECA», pequeña y durante todo el vídeo, en una esquina dentro de la zona segura (220 ≤ y ≤ 1450, x ≤ 940).
-   - Nada más.
+   - una **frase final** que revela el dato y solo sale cuando ya se vio el desenlace;
+   - la marca de agua «ASOMBROTECA», pequeña, con contorno y durante todo el vídeo, en una esquina dentro de la zona segura (220 ≤ y ≤ 1450, x ≤ 940).
+   - Además, como mucho **1-2 etiquetas** de 1-3 palabras y, si hacen falta, números de ejes o una fórmula pequeña.
+3 bis. **El contexto lo da la IMAGEN, no el texto**: placa de Petri y bacilos que se parten, con un reloj de 20 min por generación; flechitas ← → de la bola que se sigue y números bajo las casillas; plano cartesiano con cadenas x/y y la fórmula. Si hace falta, cámara lenta (la física no cambia) y zoom encuadrado dentro de la zona segura.
 4. **El sonido sale de la simulación**: cada choque o evento suena, con un tono que cambia según la velocidad o la cantidad (estilo ASMR). Música muy baja o ninguna.
 5. **Fondo oscuro y limpio**, con colores vivos en los objetos.
 6. **Final incierto** hasta el último segundo, y empalme con el inicio.
@@ -62,9 +63,9 @@ PARAM tDiv 3.2
 
 | `--formato` | Proceso | Contador | Final incierto → empalme | Ejemplo y dato |
 |---|---|---|---|---|
-| `rebote` | Una bola grande rebota dentro de un círculo. Al tocar el borde, si ya «maduró», se divide en dos hijas que se reparten su área. Choques elásticos reales | Bolas | ¿Se llena el círculo? (se ajusta para que ocurra en el último segundo) → todo se contrae en una bola | `SIM_BACTERIAS_REEL` · *E. coli* se divide cada 20 min |
-| `galton` | Miles de bolitas caen por una red de clavos (gravedad, choque y rebote) y se apilan en casillas | Bolas que llegan | ¿Dónde cae la última bola? → se abre la compuerta y el tablero se vacía | `SIM_GALTON_REEL` · sumar azares dibuja la campana de Gauss |
-| `fourier` | Epiciclos (DFT de un trazo cerrado) con cada vez más círculos | Círculos | ¿Qué figura es? → con cientos de círculos sale la silueta detallada; luego vuelve a un círculo | `SIM_FOURIER_REEL` · cualquier dibujo es una suma de círculos que giran (Fourier, 1822) |
+| `rebote` | Bacilos en una placa de Petri. Al tocar el borde, si ya «maduraron», se estrechan y se parten en dos hijas que se reparten su área. Choques elásticos reales. Reloj de 20 min por generación | Bacterias (+ reloj) | ¿En cuántas horas se llena? (en el último segundo) → todo vuelve a una bacteria | `SIM_BACTERIAS_REEL` · 1 *E. coli* llega a 600 en unas 3 h |
+| `galton` | Miles de bolitas caen por una red de clavos (gravedad, choque y rebote) y se apilan en casillas numeradas. La última, blanca, se sigue a cámara lenta con una flechita ← → por fila | Bolas que llegan (+ «← · →») | ¿Dónde cae la bola blanca? → se abre la compuerta y el tablero se vacía | `SIM_GALTON_REEL` · por eso la estatura forma esta curva |
+| `fourier` | Dos cadenas de epiciclos (x arriba, y a la izquierda) con líneas punteadas al lápiz, sobre un plano cartesiano, y la fórmula en una esquina | Círculos | ¿Qué figura es? → con cientos de círculos sale la silueta detallada; luego vuelve a un círculo | `SIM_FOURIER_REEL` · cualquier dibujo es una suma de círculos que giran (Fourier, 1822) |
 
 ## QC (`producir_reel.py qc` → `07_QC/QC.md`)
 
@@ -80,7 +81,8 @@ El QC revisa:
 - música muy baja o ninguna;
 - determinismo;
 - zona segura;
-- **texto mínimo** (solo pregunta, contador, frase y marca);
+- **texto mínimo** (pregunta, contador, frase y marca; ≤ 2 etiquetas, ejes y fórmula);
+- pregunta y frase nunca juntas;
 - pregunta ≤ 6 palabras en el fotograma 0;
 - frase final con su fuente;
 - **marca de agua en todas las muestras**;

@@ -3,7 +3,7 @@
 DURACION 35
 MUSICA no
 SEMILLA 7
-PREGUNTA 3.6 | ¿En cuántas horas llenan esto?
+PREGUNTA 3.6 | ¿En cuántas horas / llenan esto?
 FRASE 30.0 | Dividiéndose cada 20 minutos, / 1 *E. coli* llega a 600 en unas 3 horas.
 FUENTE Sezonov, Joseleau-Petit y D'Ari (2007), «Escherichia coli physiology in Luria-Bertani broth», Journal of Bacteriology 189(23): 8746-8749
 # tiempo mínimo entre divisiones de una misma bola (s) y bolas que llenan el círculo (ajustados para que se llene en el último segundo)

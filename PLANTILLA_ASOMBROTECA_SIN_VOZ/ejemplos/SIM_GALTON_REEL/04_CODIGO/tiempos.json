@@ -1,14 +1,17 @@
 {
- "duracion": 40.0,
+ "duracion": 45.0,
  "musica": "no",
  "semilla": 3,
- "pregunta": "¿Dónde caerá la última bola?",
+ "pregunta": "¿Dónde caerá / la última bola?",
  "tPregunta": 3.6,
  "frase": "Por eso la *estatura* de la gente forma esta misma curva.",
- "tFrase": 33.4,
+ "tFrase": 38.8,
  "fuente": "Galton, F. (1889), Natural Inheritance, Macmillan (estatura de adultos y quincunx); Schilling, Watkins y Watkins (2002), «Is human height bimodal?», The American Statistician 56(3): 223-229",
  "param": {
   "nBolas": 2000.0,
-  "xUltima": 0.75
+  "tFin": 27.0,
+  "tUltima": 28.3,
+  "lenta": 11.0,
+  "xUltima": 0.625
  }
 }

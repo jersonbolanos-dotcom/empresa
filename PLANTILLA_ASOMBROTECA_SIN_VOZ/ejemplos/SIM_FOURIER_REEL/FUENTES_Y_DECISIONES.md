@@ -1,18 +1,30 @@
 # Fuentes y decisiones · ¿Qué animal dibujan estos círculos?
 
-Formato: `fourier` · Plantilla Asombroteca SIN_VOZ 2.0 · 32 s.
+Formato: `fourier` · Plantilla Asombroteca SIN_VOZ 2.1 · 32 s.
 
 ## Dato que revela la frase final
 
 | Frase | Dato | Fuente |
 |---|---|---|
-| «Cualquier dibujo se puede hacer sumando círculos que giran. (Fourier, 1822)» | Una curva cerrada se puede escribir como una suma de vectores giratorios c·e^(2πikt) (serie de Fourier); con más términos se acerca más a la figura | Fourier, J. (1822), *Théorie analytique de la chaleur*, Firmin Didot |
+| «Cualquier dibujo se puede hacer sumando círculos que giran. (Fourier, 1822)» | Cada coordenada de una curva cerrada es una suma de cosenos (serie de Fourier): x(t) = Σ aₖ·cos(kt + φₖ), y(t) = Σ bₖ·cos(kt + ψₖ). Cada término es un círculo que gira | Fourier, J. (1822), *Théorie analytique de la chaleur*, Firmin Didot |
 
 ## Decisiones
 
-- **Proceso**: transformada discreta de Fourier (2.048 muestras) del contorno de un elefante dibujado de una sola línea. Incluye lomo, cabeza, oreja, trompa, colmillo, patas con uñas y cola, y es una silueta propia, no copiada. Los epiciclos se ordenan de mayor a menor radio.
-- **Etapas**: 1, 2, 3, 4, 5, 6, 8, 10, 13, 18, 40 y 900 círculos. Las primeras son garabatos; el animal solo se reconoce en los últimos segundos y con 900 círculos sale detallado.
-- **Detalles finales**: al completar la silueta se rellenan el cuerpo, la oreja (lámina) y el colmillo (marfil), y se dibuja el ojo. Estos detalles no los trazan los círculos: el ojo como bucle del trazo salía como una muesca en la frente.
-- **Bucle**: después el dibujo funde con el fotograma 0, que es un solo círculo girando.
-- **Sonido**: campanita que sube con cada etapa nueva, acorde al completar el dibujo y zumbido suave del lápiz cuyo tono sigue a su velocidad. Sin música.
-- **Nada flota**: no hay objetos físicos; los círculos van encadenados centro con centro desde el primero, que gira sobre un centro fijo.
+- **Contexto con la imagen** (estilo del vídeo de referencia del colibrí):
+  - la cadena de epiciclos de **arriba** calcula x(t) y la de la **izquierda** calcula y(t);
+  - de sus puntas salen líneas punteadas, celeste y rosa, que se cruzan en el lápiz;
+  - detrás hay un plano cartesiano tenue con ejes, marcas y las letras x, y.
+- **Fórmula**: va pequeña en la esquina superior izquierda. La fila «k = …» enciende en amarillo los términos nuevos de cada etapa.
+- **Cálculo**:
+  - es la DFT (2.048 muestras) de cada coordenada por separado, como señales reales;
+  - la punta de cada cadena es la parte real de la suma de vectores giratorios, que equivale a Σ |cₖ|·cos(kt + arg cₖ);
+  - se ordenan de mayor a menor radio.
+- **Etapas**: 1, 2, 3, 4, 5, 6, 8, 10, 13, 18, 40 y 900 círculos por cadena. El animal solo se reconoce en las últimas.
+- **Elefante**:
+  - silueta propia de una sola línea;
+  - el propio trazo dibuja el ojo (un bucle que cuelga de la frente) y las arrugas de la trompa, con más puntos de contorno;
+  - el trazo es más grueso y brillante;
+  - al completarse, la cámara se acerca (×1,14) y lo centra;
+  - los círculos siguen girando tenues y un tramo de luz recorre la silueta, así que nunca se queda quieto.
+- **Sonido**: campanita que sube con cada etapa, acorde al completar el dibujo y zumbido suave del lápiz cuyo tono sigue a su velocidad. Sin música.
+- **Nada flota**: las cadenas van encadenadas centro con centro desde un centro fijo.

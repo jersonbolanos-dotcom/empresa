@@ -49,7 +49,7 @@
   ctx.strokeStyle = 'rgba(200,210,255,0.35)'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(x0, O.y); ctx.lineTo(x1, O.y); ctx.moveTo(O.x, y1); ctx.lineTo(O.x, y0); ctx.stroke();
   ctx.fillStyle = 'rgba(200,210,255,0.35)'; ctx.beginPath(); ctx.moveTo(x1, O.y); ctx.lineTo(x1 - 14, O.y - 7); ctx.lineTo(x1 - 14, O.y + 7); ctx.fill(); ctx.beginPath(); ctx.moveTo(O.x, y0); ctx.lineTo(O.x - 7, y0 + 14); ctx.lineTo(O.x + 7, y0 + 14); ctx.fill();
   ctx.beginPath(); for (let x = O.x - 360; x <= x1 - 30; x += 40) { ctx.moveTo(x, O.y - 6); ctx.lineTo(x, O.y + 6); } for (let y = y0 + 40; y <= y1; y += 40) { ctx.moveTo(O.x - 6, y); ctx.lineTo(O.x + 6, y); } ctx.stroke(); ctx.restore();
-  R.chico(ctx, 'x', x1 - 6, O.y + 28, { px: 32, col: 'rgba(200,210,255,0.7)', kind: 'eje', alpha: a }); R.chico(ctx, 'y', O.x + 26, y0 + 10, { px: 32, col: 'rgba(200,210,255,0.7)', kind: 'eje', alpha: a }); }
+  R.chico(ctx, 'x', 918, O.y + 30, { px: 32, col: 'rgba(200,210,255,0.7)', kind: 'eje', alpha: a }); R.chico(ctx, 'y', O.x + 26, y0 + 10, { px: 32, col: 'rgba(200,210,255,0.7)', kind: 'eje', alpha: a }); }
  // cadena de epiciclos; rot = 0 (cadena de x: la punta da la x) o 1 (cadena de y, girada 90°: la punta da la y)
  function cadena(ctx, F, n, tau, C, rot, a) { const ch = F.cadena(n, tau), S = (p) => (rot ? [C.x - p[1], C.y + p[0]] : [C.x + p[0], C.y + p[1]]); ctx.save(); ctx.lineWidth = 1.6;
   for (let j = 0; j < n; j++) { const r = F.coef[j].r; if (r < 0.6) break; const [x, y] = S(ch[j]), [x2, y2] = S(ch[j + 1]); ctx.strokeStyle = `rgba(255,255,255,${a * (j < 2 ? 0.34 : 0.2)})`; ctx.beginPath(); ctx.arc(x, y, r, 0, TAU); ctx.stroke(); ctx.strokeStyle = `rgba(255,255,255,${a * 0.6})`; ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x2, y2); ctx.stroke(); }
