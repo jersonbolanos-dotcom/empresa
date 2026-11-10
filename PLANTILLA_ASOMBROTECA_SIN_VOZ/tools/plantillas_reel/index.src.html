@@ -28,11 +28,12 @@
  <button id="snd" aria-pressed="true">Sonido</button>
  <button id="loop" aria-pressed="true">Loop</button>
 </div>
-<div id="note">Reel SIN VOZ: animación + texto en pantalla + efectos y música originales (SOUND / MUS). Plantilla Asombroteca SIN_VOZ v{{VERSION}}.</div>
+<div id="note">Reel SIN VOZ de simulación: física precalculada y determinista; el sonido sale de los eventos de la simulación (SOUND). Plantilla Asombroteca SIN_VOZ v{{VERSION}}.</div>
 <!-- @inline-js {{RUTA}}/lib/harness.js -->
 <!-- @inline-js {{RUTA}}/lib/sound.js -->
 <!-- @inline-js js/tiempos.js -->
 <!-- @inline-js {{RUTA}}/motor/plantilla.js -->
+<!-- @inline-js {{RUTA}}/motor/sim.js -->
 <!-- @inline-js {{RUTA}}/motor/reel.js -->
 <!-- @inline-js js/episodio.js -->
 <script>
@@ -54,6 +55,7 @@
  // seek(t): recalcula el fotograma exacto, en cualquier orden (cada fotograma es función pura de t)
  window.seek = (t) => { draw(t); return true; };
  window.explainer = window.EPISODIO.explainer;
+ window.eventos = window.EPISODIO.eventos || (() => []);
  window.__ready = true;
  if (window.__HEADLESS) { draw(0); return; }
 

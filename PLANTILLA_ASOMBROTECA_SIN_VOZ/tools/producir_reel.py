@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
-# Producción de un reel SIN VOZ de la PLANTILLA ASOMBROTECA, paso a paso o de una vez.
+# Producción de un reel SIN VOZ de SIMULACIÓN (Plantilla Asombroteca SIN_VOZ 2.0), paso a paso o de una vez.
 # Uso:  python3 PLANTILLA_ASOMBROTECA_SIN_VOZ/tools/producir_reel.py <carpeta_reel> <paso> [opciones]
 # Pasos:
-#   tiempos   03_GUION/tiempos.txt → 04_CODIGO/js/tiempos.js + tiempos.json (valida textos, efectos, gancho y duración)
-#   build     tiempos + 04_CODIGO/index.html (reproductor con efectos y música sintetizados)
+#   tiempos   03_GUION/tiempos.txt → 04_CODIGO/js/tiempos.js + tiempos.json (pregunta ≤ 6 palabras, frase, fuente, 25-45 s)
+#   build     tiempos + 04_CODIGO/index.html (reproductor; la simulación se precalcula al cargar)
 #   prueba    hoja de contacto con los instantes pedidos → 07_QC/prueba.jpg   (p. ej.: prueba 0 2 5.5 9 14)
-#   render    fotogramas + efectos + música + mezcla (−14 LUFS, ≤ −1 dBTP) + H.264/AAC → 07_OUTPUT/<NOMBRE>_FINAL.mp4
-#   qc        control técnico del reel → 07_QC/qc_tecnico.txt, 07_QC/QC.md, 07_QC/hoja_contacto.jpg
+#   render    fotogramas + sonido de los eventos + música (opcional) + mezcla (−14 LUFS, ≤ −1 dBTP) + H.264/AAC → 07_OUTPUT/<NOMBRE>_FINAL.mp4
+#   qc        control del reel (una escena, movimiento, fondo oscuro, texto mínimo, sonido = eventos, marca, bucle…) → 07_QC/qc_tecnico.txt, 07_QC/QC.md, 07_QC/hoja_contacto.jpg
 #   todo      build + render + qc          limpiar   borra index.html y temporales
-# Opciones: --workers 6 · --salida NOMBRE.mp4 · --trabajo DIR (temporales; por defecto /tmp) · --musica-db -2 (ajuste de la música sobre −20 LUFS)
+# Opciones: --workers 6 · --salida NOMBRE.mp4 · --trabajo DIR (temporales; por defecto /tmp) · --musica-db -10 (música «muy baja»: −20 LUFS + este valor antes de normalizar)
 import argparse, glob, json, os, re, shutil, subprocess, sys, tempfile
 
 RAIZ = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -123,23 +123,30 @@ def leer_wav(f):
     return np.abs(data.reshape(-1, ch)).max(axis=1), sr
 
 
-def sincro(P):
-    # cada línea de tiempos.txt con efecto debe sonar en su fotograma: subida de nivel en [t0, t0 + 0,1 s]
+def onsets(f):
+    # arranques de sonido en la pista de efectos: subidas de nivel de la envolvente (ventanas de 5 ms)
+    import numpy as np
+    env, sr = leer_wav(f); w = int(0.005 * sr); n = len(env) // w
+    e = env[:n * w].reshape(n, w).max(axis=1); out = []; last = -1
+    for i in range(6, n):
+        base = e[i - 6:i - 1].max()
+        if e[i] >= 0.004 and e[i] > 1.8 * base + 1e-4 and i - last > 4:
+            out.append(i * w / sr); last = i
+    return out
+
+
+def sincro(P, eventos):
+    # cada arranque de sonido debe coincidir (±25 ms) con un evento de la simulación: el sonido SALE de la simulación
     f = os.path.join(P, '05_AUDIO', 'efectos_sonido.wav')
-    if not os.path.exists(f):
+    if not os.path.exists(f) or not eventos:
         return None
-    env, sr = leer_wav(f); tl = leer_tiempos(P); ok = tot = 0; fallos = []
-    for l in tl['lineas']:
-        if not l['sfx']:
-            continue
-        tot += 1; a0 = int(l['t0'] * sr)
-        post = env[a0:a0 + int(0.1 * sr)].max() if a0 < len(env) else 0
-        pre = env[max(0, a0 - int(0.12 * sr)):max(1, a0 - int(0.01 * sr))].max() if a0 > int(0.02 * sr) else 0
-        if post >= 0.01 and (post >= 1.2 * pre or post >= 0.25):
+    import bisect
+    ev = sorted(eventos); ons = onsets(f); ok = 0
+    for t in ons:
+        i = bisect.bisect_left(ev, t - 0.025)
+        if i < len(ev) and ev[i] <= t + 0.01:
             ok += 1
-        else:
-            fallos.append(f'{l["t0"]:.2f}s')
-    return ok, tot, fallos
+    return ok, len(ons), len(ev)
 
 
 def gris(out, tt=None, frame=None):
@@ -152,6 +159,12 @@ def gris(out, tt=None, frame=None):
     return list(raw)
 
 
+def grises(out, fps):
+    raw = subprocess.run(['ffmpeg', '-v', 'error', '-i', out, '-vf', f'fps={fps},scale=108:192,format=gray', '-f', 'rawvideo', '-'], capture_output=True).stdout
+    n = 108 * 192
+    return [raw[i:i + n] for i in range(0, len(raw) - n + 1, n)]
+
+
 def p_qc(P, a):
     O = os.path.join(P, '07_OUTPUT'); Q = os.path.join(P, '07_QC'); os.makedirs(Q, exist_ok=True)
     out = os.path.join(O, nombre_final(P, a))
@@ -161,73 +174,69 @@ def p_qc(P, a):
             sys.exit('No hay vídeo en 07_OUTPUT/: ejecuta «render».')
         out = mp4[-1]
     if not os.path.exists(os.path.join(C(P), 'index.html')):
-        p_build(P, a)   # determinismo y zona segura se comprueban sobre el reproductor
+        p_build(P, a)
+    import numpy as np
     info = json.loads(sh(['ffprobe', '-v', 'error', '-show_entries', 'stream=codec_name,width,height,r_frame_rate,sample_rate,channels,nb_frames:format=duration,size', '-of', 'json', out], capture=True).stdout)
     vs = [s for s in info['streams'] if s.get('width')][0]; au = [s for s in info['streams'] if s.get('sample_rate')]
     dur = float(info['format']['duration']); size = int(info['format']['size']); nfr = int(vs.get('nb_frames') or round(dur * 30))
     err = subprocess.run(['ffmpeg', '-v', 'error', '-i', out, '-f', 'null', '-'], capture_output=True, text=True).stderr.strip().splitlines()
     log = lambda vf, af=None: subprocess.run(['ffmpeg', '-hide_banner', '-i', out] + (['-vf', vf, '-an'] if vf else ['-af', af, '-vn']) + ['-f', 'null', '-'], capture_output=True, text=True).stderr
-    negros = len(re.findall('black_start', log('blackdetect=d=0.3:pix_th=0.08'))); cong = len(re.findall('freeze_start', log('freezedetect=n=0.002:d=1.5')))
-    sil = re.findall(r'silence_start: ([\d.]+)', log(None, 'silencedetect=n=-50dB:d=1')); L = sonoridad(out)
-    tl = leer_tiempos(P); mus = tl.get('musica', 'suave') != 'no'
+    negros = len(re.findall('black_start', log('blackdetect=d=0.3:pix_th=0.02'))); cong = len(re.findall('freeze_start', log('freezedetect=n=0.001:d=1.0')))
+    cortes = re.findall(r'lavfi\.scd\.time: ([\d.]+)', log('scdet=threshold=14'))
+    L = sonoridad(out); tl = leer_tiempos(P); mus = tl.get('musica', 'no') != 'no'
+    sil = re.findall(r'silence_start: ([\d.]+)', log(None, 'silencedetect=n=-50dB:d=1'))
     det = None
-    if os.path.exists(os.path.join(C(P), 'index.html')):
-        r = subprocess.run(['node', os.path.join(T, 'determinismo.js'), 'index.html'], cwd=C(P), capture_output=True, text=True); det = 'DETERMINISMO OK' in r.stdout
+    r = subprocess.run(['node', os.path.join(T, 'determinismo.js'), 'index.html'], cwd=C(P), capture_output=True, text=True); det = 'DETERMINISMO OK' in r.stdout
     sh(['ffmpeg', '-v', 'error', '-y', '-i', out, '-vf', f'fps=1/{max(1.0, dur / 12):.3f},scale=270:480,tile=6x2', '-frames:v', '1', os.path.join(Q, 'hoja_contacto.jpg')])
-    zs = None
-    if os.path.exists(os.path.join(C(P), 'index.html')):
-        r = subprocess.run(['node', os.path.join(T, 'zona_segura.js'), 'index.html', '0.1'], cwd=C(P), capture_output=True, text=True)
-        try:
-            zs = json.loads(r.stdout.strip().splitlines()[-1])
-        except Exception:
-            zs = None
-    # gancho: texto antes de 1 s, con pregunta o cifra
-    txts = [l for l in tl['lineas'] if l['texto']]
-    g0 = txts[0] if txts else None
-    gancho = bool(g0) and g0['t0'] < 1.0 and bool(re.search(r'[?¿\d]', g0['texto']))
+    tx = None
+    r = subprocess.run(['node', os.path.join(T, 'textos.js'), 'index.html', '0.1'], cwd=C(P), capture_output=True, text=True)
+    try:
+        tx = json.loads(r.stdout.strip().splitlines()[-1])
+    except Exception:
+        print(r.stderr[-1500:])
+    # imagen: fondo oscuro, movimiento continuo (cada medio segundo cambia algo), arranque en movimiento, bucle
+    G2 = [np.frombuffer(g, dtype=np.uint8).astype(np.int16) for g in grises(out, 2)]
+    lum = float(np.mean([g.mean() for g in G2])) if G2 else None
+    difs = [float(np.abs(G2[i + 1] - G2[i]).mean()) for i in range(len(G2) - 1)]
+    g0, g5 = gris(out, 0), gris(out, 0.5); gl = gris(out, frame=nfr - 1)
+    mov0 = float(np.abs(np.array(g0, dtype=np.int16) - np.array(g5, dtype=np.int16)).mean()) if g0 and g5 and len(g0) == len(g5) else None
+    loopd = float(np.abs(np.array(g0, dtype=np.int16) - np.array(gl, dtype=np.int16)).mean()) if g0 and gl and len(g0) == len(gl) else None
     import importlib.util
     spec = importlib.util.spec_from_file_location('tiempos_mod', os.path.join(T, 'tiempos.py')); tm = importlib.util.module_from_spec(spec); spec.loader.exec_module(tm)
-    maxp = max((tm.palabras(l['texto']) for l in txts), default=0)
-    sinsfx = [l for l in txts if not l['sfx']]
-    sc = sincro(P)
-    envia = any(re.search(r'env[ií]a', l['texto'], re.I) for l in txts)
-    # movimiento desde el fotograma 0
-    g_0, g_5 = gris(out, 0), gris(out, 0.5); mov = None
-    if g_0 and g_5 and len(g_0) == len(g_5):
-        lum = sum(g_0) / len(g_0); dif = sum(abs(x - y) for x, y in zip(g_0, g_5)) / len(g_0); mov = lum > 12 and dif > 1.0; movd = dif
-    # bucle: el último fotograma enlaza con el primero
-    gl = gris(out, frame=nfr - 1); loopd = None
-    if g_0 and gl and len(g_0) == len(gl):
-        loopd = sum(abs(x - y) for x, y in zip(g_0, gl)) / len(g_0)
-    # nada flota: revisión visual (07_QC/revision_visual.txt con «nada flota: OK» tras mirar la hoja de contacto)
+    np_ = tm.palabras(tl['pregunta']); nf_ = tm.palabras(tl['frase'])
+    fuentes = os.path.join(P, 'FUENTES_Y_DECISIONES.md'); fu = os.path.exists(fuentes) and bool(tl.get('fuente'))
+    sc = sincro(P, tx['eventos'] if tx else [])
     rv = os.path.join(Q, 'revision_visual.txt'); flota = None
     if os.path.exists(rv):
         flota = bool(re.search(r'nada flota:\s*ok', open(rv, encoding='utf-8').read(), re.I))
+    PERM = {'pregunta', 'contador', 'frase', 'marca'}
     ok = lambda c: '✔' if c else '✘'
     filas = [
         ('Formato', f'{vs["codec_name"]} {vs["width"]}×{vs["height"]} {vs["r_frame_rate"]} · {au[0]["codec_name"] + " " + au[0]["sample_rate"] + " Hz" if au else "SIN AUDIO"}', vs['codec_name'] == 'h264' and vs['width'] == 1080 and vs['height'] == 1920 and vs['r_frame_rate'] == '30/1' and bool(au) and au[0]['codec_name'] == 'aac' and au[0]['sample_rate'] == '48000'),
-        ('Duración (12-30 s) / tamaño (< 100 MB)', f'{dur:.2f} s · {size / 1e6:.1f} MB', 12 <= dur <= 30.05 and size < 100e6),
+        ('Duración (25-45 s) / tamaño (< 100 MB)', f'{dur:.2f} s · {size / 1e6:.1f} MB', 25 <= dur <= 45.05 and size < 100e6),
         ('Decodificación completa', f'{len(err)} errores', not err),
-        ('Negros > 0,3 s / congelados > 1,5 s', f'{negros} / {cong}', negros == 0 and cong == 0),
-        ('Silencios > 1 s (−50 dB)', f'{len(sil)}' + ('' if mus else ' · sin música: informativo'), (not sil) or not mus),
+        ('Una sola escena (sin cortes: scdet)', f'{len(cortes)} cortes' + (': ' + ', '.join(cortes[:5]) if cortes else ''), not cortes),
+        ('Movimiento continuo (cambio entre medios segundos)', f'mín. {min(difs):.2f}/255 · {cong} congelados > 1 s · {negros} negros' if difs else 'sin datos', bool(difs) and min(difs) > 0.15 and cong == 0 and negros == 0),
+        ('Movimiento desde el fotograma 0', 'sin datos' if mov0 is None else f'{mov0:.2f}/255 en 0,5 s', mov0 is not None and mov0 > 0.4),
+        ('Fondo oscuro (luminancia media)', 'sin datos' if lum is None else f'{lum:.1f}/255', lum is not None and lum < 45),
         ('Sonoridad (−14 LUFS, pico ≤ −1 dBTP)', f'{L["I"]:.1f} LUFS · pico {L["TP"]:.1f} dBTP' if L else '—', bool(L) and abs(L['I'] + 14) <= 1 and (L['TP'] or 0) <= -1),
-        ('Determinismo', 'OK' if det else ('FALLO' if det is False else 'sin index.html'), det is True),
-        ('Zona segura IG (texto en 220 ≤ y ≤ 1450, x ≤ 940)', ('sin datos' if zs is None else (f'{len(zs["fuera"])} textos fuera' + (': ' + ', '.join(f'{f["tipo"]} t={f["t"]} {f["motivo"]}' for f in zs['fuera'][:6]) if zs['fuera'] else ''))), zs is not None and not zs['fuera']),
-        ('Pantalla limpia (≤ 2 etiquetas a la vez, sin título fijo)', 'sin datos' if zs is None else f'máx. {zs["maxEtiquetas"]} etiquetas · {"con" if zs["titulos"] else "sin"} título', zs is not None and zs['maxEtiquetas'] <= 2 and not zs['titulos']),
-        ('Gancho: pregunta o cifra en pantalla antes de 1 s', f'«{g0["texto"]}» a {g0["t0"]:.2f} s' if g0 else 'sin texto', gancho),
-        ('Movimiento desde el fotograma 0', 'sin datos' if mov is None else (f'sí (cambio medio {movd:.1f}/255 en 0,5 s)' if mov else f'NEGRO o QUIETO al empezar ({movd:.1f}/255)'), mov is True),
-        ('Texto corto (≤ 8 palabras por pantalla)', f'máx. {maxp} palabras', maxp <= 8),
-        ('Efecto en cada aparición (tiempos.txt)', f'{len(txts) - len(sinsfx)}/{len(txts)} textos con efecto', not sinsfx),
-        ('Efectos en su fotograma (subida de nivel en t0)', 'sin datos' if sc is None else f'{sc[0]}/{sc[1]} a tiempo' + (' · fallan: ' + ', '.join(sc[2][:6]) if sc[2] else ''), sc is not None and sc[0] == sc[1]),
+        ('Sonido sacado de la simulación (arranques = eventos ±25 ms)', 'sin datos' if not sc else f'{sc[0]}/{sc[1]} arranques coinciden con eventos ({sc[2]} eventos)', bool(sc) and sc[1] > 0 and sc[0] / sc[1] >= 0.95),
+        ('Música (muy baja o ninguna)', 'ninguna' if not mus else f'muy baja (−20 LUFS {a.musica_db:+.0f} dB antes de normalizar)', (not mus) or a.musica_db <= -6),
+        ('Silencios > 1 s (informativo)', f'{len(sil)}', True),
+        ('Determinismo (simulación precalculada incluida)', 'OK' if det else 'FALLO', det is True),
+        ('Zona segura IG (texto en 220 ≤ y ≤ 1450, x ≤ 940)', 'sin datos' if tx is None else (f'{len(tx["fuera"])} textos fuera' + (': ' + ', '.join(f'{f["tipo"]} t={f["t"]} {f["motivo"]}' for f in tx['fuera'][:5]) if tx['fuera'] else '')), tx is not None and not tx['fuera']),
+        ('Texto mínimo (solo pregunta, contador, frase y marca)', 'sin datos' if tx is None else 'tipos: ' + ', '.join(f'{k} (máx. {tx["max"].get(k, 0)} a la vez)' for k in sorted(tx['tipos'])), tx is not None and set(tx['tipos']) <= PERM and all(v <= 1 for v in tx['max'].values())),
+        ('Pregunta ≤ 6 palabras en el fotograma 0 · contador visible', f'«{tl["pregunta"]}» ({np_} palabras)' + ('' if tx is None else f' · fotograma 0: {"sí" if tx["pregunta0"] else "NO"} · contador: {"sí" if tx["contador0"] else "NO"}'), np_ <= 6 and tx is not None and tx['pregunta0'] and tx['contador0']),
+        ('Una sola frase final con el dato · fuente', f'«{tl["frase"]}» ({nf_} palabras) a {tl["tFrase"]:.1f} s · fuente: {"sí" if fu else "FALTA"}', nf_ <= 14 and tx is not None and tx['fraseFinal'] and fu),
+        ('Marca de agua «ASOMBROTECA» todo el vídeo', 'sin datos' if tx is None else f'{tx["marca"]}/{tx["muestras"]} muestras', tx is not None and tx['marca'] == tx['muestras']),
         ('Bucle (último fotograma ≈ primero)', 'sin datos' if loopd is None else f'diferencia media {loopd:.1f}/255', loopd is not None and loopd < 8),
         ('Nada flota (revisión visual de la hoja de contacto)', 'pendiente: crear 07_QC/revision_visual.txt' if flota is None else ('OK' if flota else 'REVISAR'), flota is True),
-        ('Cierre «Envíaselo…» (opcional)', 'presente' if envia else 'no (opcional)', True),
     ]
     txt = '\n'.join(f'{k}: {v} {ok(c)}' for k, v, c in filas)
     veredicto = 'TODO CORRECTO' if all(c for _, _, c in filas) else 'HAY PUNTOS A REVISAR'
     open(os.path.join(Q, 'qc_tecnico.txt'), 'w').write(f'Archivo: {out}\n{txt}\nQC: {veredicto}\n')
     md = [f'# QC · {os.path.basename(out)}', '', f'**{veredicto}**', '', '| Control | Resultado | |', '|---|---|---|'] + [f'| {k} | {v} | {ok(c)} |' for k, v, c in filas]
-    md += ['', 'Reel SIN VOZ: no hay comprobación de voz ni de md5. Hoja de contacto: `hoja_contacto.jpg`. Datos con fuente en `FUENTES_Y_DECISIONES.md`.']
+    md += ['', 'Reel SIN VOZ de simulación (v2.0): sin comprobación de voz ni de md5. Hoja de contacto: `hoja_contacto.jpg`. Dato y fuente en `FUENTES_Y_DECISIONES.md`.']
     if os.path.exists(rv):
         md += ['', '## Revisión visual', '', open(rv, encoding='utf-8').read().strip()]
     open(os.path.join(Q, 'QC.md'), 'w').write('\n'.join(md) + '\n')
@@ -244,10 +253,10 @@ def p_limpiar(P, a):
 
 
 def main():
-    ap = argparse.ArgumentParser(description='Produce un reel SIN VOZ.')
+    ap = argparse.ArgumentParser(description='Produce un reel SIN VOZ de simulación.')
     ap.add_argument('proyecto'); ap.add_argument('paso', choices=['tiempos', 'build', 'prueba', 'render', 'qc', 'todo', 'limpiar'])
     ap.add_argument('extra', nargs='*', help='instantes (s) para «prueba»')
-    ap.add_argument('--workers', type=int, default=6); ap.add_argument('--musica-db', type=float, default=-2.0)
+    ap.add_argument('--workers', type=int, default=6); ap.add_argument('--musica-db', type=float, default=-10.0)
     ap.add_argument('--salida', default=None); ap.add_argument('--trabajo', default=None)
     a = ap.parse_args(); P = os.path.abspath(a.proyecto)
     if not os.path.isfile(os.path.join(P, '03_GUION', 'tiempos.txt')):

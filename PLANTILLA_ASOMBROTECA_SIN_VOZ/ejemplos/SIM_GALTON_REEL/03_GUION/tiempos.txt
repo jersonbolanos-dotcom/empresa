@@ -1,0 +1,8 @@
+# REEL DE SIMULACIÓN · formato «galton» · miles de bolitas que forman la campana de Gauss
+DURACION 40
+MUSICA no
+SEMILLA 3
+PREGUNTA 3.6 | ¿Dónde caerá la última bola?
+FRASE 33.4 | Sumar muchos azares siempre dibuja la *campana de Gauss*.
+FUENTE Galton, F. (1889), Natural Inheritance, Macmillan, cap. V (el «quincunx»); teorema central del límite (de Moivre 1733, Laplace 1812)
+PARAM nBolas 2000

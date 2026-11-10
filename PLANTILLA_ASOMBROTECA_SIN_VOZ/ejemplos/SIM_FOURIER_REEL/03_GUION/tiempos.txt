@@ -1,0 +1,7 @@
+# REEL DE SIMULACIÓN · formato «fourier» · epiciclos que dibujan la silueta de un animal
+DURACION 32
+MUSICA no
+SEMILLA 1
+PREGUNTA 3.6 | ¿Qué animal dibujan estos círculos?
+FRASE 28.6 | Cualquier dibujo se puede hacer sumando *círculos que giran.* / (Fourier, 1822)
+FUENTE Fourier, J. (1822), Théorie analytique de la chaleur, Firmin Didot (series de Fourier); epiciclos: suma de vectores giratorios c·e^(2πikt)

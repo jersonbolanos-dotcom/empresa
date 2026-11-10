@@ -1,0 +1,15 @@
+// Generado por tools/tiempos.py desde 03_GUION/tiempos.txt — no editar a mano.
+window.TIEMPOS = {
+ "duracion": 35.0,
+ "musica": "no",
+ "semilla": 7,
+ "pregunta": "¿Llenarán el círculo antes del final?",
+ "tPregunta": 3.6,
+ "frase": "Una *E. coli* puede dividirse cada 20 minutos.",
+ "tFrase": 30.0,
+ "fuente": "Sezonov, Joseleau-Petit y D'Ari (2007), «Escherichia coli physiology in Luria-Bertani broth», Journal of Bacteriology 189(23): 8746-8749",
+ "param": {
+  "tDiv": 2.3,
+  "nMax": 620.0
+ }
+};
