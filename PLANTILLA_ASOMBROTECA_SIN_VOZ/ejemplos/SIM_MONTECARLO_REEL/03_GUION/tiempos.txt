@@ -1,0 +1,10 @@
+# REEL DE SIMULACIÓN · formato «montecarlo» · gotas al azar sobre un cuadrado con un círculo dentro: 4 · dentro / total → π
+DURACION 32
+MUSICA no
+SEMILLA 403
+PREGUNTA 3.6 | ¿Qué número esconde / esta lluvia?
+FRASE 27.6 | Lanzando puntos al azar se puede calcular *π*.
+FUENTE Método de Montecarlo: Metropolis y Ulam (1949), «The Monte Carlo method», Journal of the American Statistical Association 44(247): 335-341; antecedente: aguja de Buffon (1777), Essai d'arithmétique morale
+# número total de gotas y segundo en que deja de llover
+PARAM gotas 40000
+PARAM tLluvia 27

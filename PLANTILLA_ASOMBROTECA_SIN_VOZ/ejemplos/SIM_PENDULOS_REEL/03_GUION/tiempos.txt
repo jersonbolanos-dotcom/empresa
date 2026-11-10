@@ -1,0 +1,10 @@
+# REEL DE SIMULACIÓN · formato «pendulos» · onda de péndulos: 15 péndulos de longitudes distintas se desfasan y se realinean
+DURACION 38
+MUSICA no
+SEMILLA 1
+PREGUNTA 3.6 | ¿Volverán a alinearse?
+FRASE 34.3 | Cada péndulo marca su ritmo solo con su *longitud*.
+FUENTE Periodo del péndulo T = 2π√(L/g) (Huygens, 1673, Horologium Oscillatorium); onda de péndulos: Berg, R. E. (1991), «Pendulum waves: A demonstration of wave motion using pendula», American Journal of Physics 59(2): 186-187
+# en «gamma» s el péndulo n completa K + n oscilaciones (todos se realinean en gamma)
+PARAM gamma 34
+PARAM K 14

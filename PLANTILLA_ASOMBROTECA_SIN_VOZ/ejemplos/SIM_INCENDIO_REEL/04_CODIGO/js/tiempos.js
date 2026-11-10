@@ -1,0 +1,16 @@
+// Generado por tools/tiempos.py desde 03_GUION/tiempos.txt — no editar a mano.
+window.TIEMPOS = {
+ "duracion": 40.0,
+ "musica": "no",
+ "semilla": 51,
+ "pregunta": "¿Se quemará / todo el bosque?",
+ "tPregunta": 3.6,
+ "frase": "Por debajo del *59 %* de árboles, el fuego ya no cruza el bosque.",
+ "tFrase": 35.4,
+ "fuente": "Umbral de percolación de sitios en la red cuadrada p_c = 0,592746 (Newman y Ziff, 2000, Physical Review Letters 85: 4104); Stauffer y Aharony (1994), Introduction to Percolation Theory, Taylor & Francis",
+ "param": {
+  "densidad": 0.7,
+  "corte": 0.55,
+  "tFuego": 33.5
+ }
+};

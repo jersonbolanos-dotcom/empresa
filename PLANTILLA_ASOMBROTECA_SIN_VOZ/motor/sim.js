@@ -132,5 +132,50 @@
   return { coef, c0, punto, cadena, muestras: pts };
  };
 
+ // =====================================================================================================
+ // 4 · INCENDIO (v2.2): bosque en cuadrícula; el fuego pasa de un árbol a sus 4 vecinos con un retraso al azar (percolación de sitios).
+ // cfg = { cols, rows, densidad(c, r) → probabilidad de árbol, corte(c, r) → true si el árbol se cortó (cortafuegos), focos: [[c, r]…],
+ //   dMin, dMax (retraso de contagio, s), arde (s que arde un árbol), seed }
+ // → { cols, rows, arbol (Uint8: 0 vacío, 1 árbol, 2 tocón), tIgn (Float64, Infinity si no arde), orden (índices por tiempo), tFin, escala(k) }
+ // =====================================================================================================
+ SIM.incendio = (cfg) => { const C = cfg.cols, Rw = cfg.rows, N = C * Rw, rng = H.rng(cfg.seed ?? 5), arbol = new Uint8Array(N), tIgn = new Float64Array(N).fill(Infinity);
+  for (let r = 0; r < Rw; r++) for (let c = 0; c < C; c++) { const i = r * C + c; if (rng() < cfg.densidad(c, r)) arbol[i] = cfg.corte && cfg.corte(c, r, rng) ? 2 : 1; }
+  const del = new Float32Array(N * 4); for (let i = 0; i < N * 4; i++) del[i] = (cfg.dMin ?? 0.1) + rng() * ((cfg.dMax ?? 0.3) - (cfg.dMin ?? 0.1));
+  // Dijkstra con montículo binario: el primer árbol vecino que arde enciende al siguiente
+  const heap = [], push = (t, i) => { heap.push([t, i]); let k = heap.length - 1; while (k > 0) { const p = (k - 1) >> 1; if (heap[p][0] <= heap[k][0]) break; [heap[p], heap[k]] = [heap[k], heap[p]]; k = p; } };
+  const pop = () => { const top = heap[0], last = heap.pop(); if (heap.length) { heap[0] = last; let k = 0; for (;;) { const a = 2 * k + 1, b = a + 1; let m = k; if (a < heap.length && heap[a][0] < heap[m][0]) m = a; if (b < heap.length && heap[b][0] < heap[m][0]) m = b; if (m === k) break; [heap[m], heap[k]] = [heap[k], heap[m]]; k = m; } } return top; };
+  for (const [c, r] of cfg.focos) { const i = r * C + c; if (arbol[i] === 1) { tIgn[i] = 0; push(0, i); } }
+  const orden = [];
+  while (heap.length) { const [t, i] = pop(); if (t > tIgn[i]) continue; orden.push(i); const c = i % C, r = (i / C) | 0;
+   const vec = [c > 0 ? i - 1 : -1, c < C - 1 ? i + 1 : -1, r > 0 ? i - C : -1, r < Rw - 1 ? i + C : -1];
+   for (let d = 0; d < 4; d++) { const j = vec[d]; if (j < 0 || arbol[j] !== 1) continue; const tj = t + del[i * 4 + d]; if (tj < tIgn[j]) { tIgn[j] = tj; push(tj, j); } } }
+  const tFin = orden.length ? tIgn[orden[orden.length - 1]] : 0;
+  // escala(k): multiplica todos los tiempos (Dijkstra es lineal en los retrasos: el orden no cambia)
+  const escala = (k) => { for (const i of orden) tIgn[i] *= k; return tIgn[orden[orden.length - 1]]; };
+  return { cols: C, rows: Rw, arbol, tIgn, orden, tFin, escala, arde: cfg.arde ?? 1.2 };
+ };
+
+ // =====================================================================================================
+ // 5 · MONTECARLO (v2.2): puntos al azar en el cuadrado [-1, 1]²; los que caen dentro del círculo unidad cuentan para estimar π ≈ 4·dentro/total
+ // cfg = { n, seed } → { x, y (Float32), dentro (Uint8), acum (Int32: dentro acumulado), pi(k) → estimación con los k primeros }
+ // =====================================================================================================
+ SIM.montecarlo = (cfg) => { const n = cfg.n, rng = H.rng(cfg.seed ?? 1), x = new Float32Array(n), y = new Float32Array(n), dentro = new Uint8Array(n), acum = new Int32Array(n + 1);
+  for (let i = 0; i < n; i++) { x[i] = rng() * 2 - 1; y[i] = rng() * 2 - 1; dentro[i] = x[i] * x[i] + y[i] * y[i] <= 1 ? 1 : 0; acum[i + 1] = acum[i] + dentro[i]; }
+  return { n, x, y, dentro, acum, pi: (k) => (k > 0 ? 4 * acum[Math.min(k, n)] / Math.min(k, n) : 0) };
+ };
+
+ // =====================================================================================================
+ // 6 · PÉNDULOS (v2.2): onda de péndulos (Berg 1991). En `gamma` s, el péndulo n completa K + n oscilaciones ⇒ T_n = gamma / (K + n),
+ // L_n = g·(T_n / 2π)². Aproximación de ángulo pequeño: θ_n(t) = θ0·cos(2π t / T_n) (todos sueltos a la vez desde θ0).
+ // cfg = { n (15), gamma (s), K, g (9,81), theta0 (rad) } → { T[], L[], theta(n, t), cruces: [{ t, n }] (pasos por la vertical hasta gamma + extra) }
+ // =====================================================================================================
+ SIM.pendulos = (cfg) => { const n = cfg.n ?? 15, G = cfg.gamma, K = cfg.K, g = cfg.g ?? 9.81, th0 = cfg.theta0 ?? 0.25, T = [], L = [], cruces = [];
+  for (let k = 0; k < n; k++) { T.push(G / (K + k)); L.push(g * Math.pow(T[k] / TAU, 2)); }
+  const hasta = G + (cfg.extra ?? 5);
+  for (let k = 0; k < n; k++) for (let q = 0; ; q++) { const t = T[k] / 4 + q * T[k] / 2; if (t > hasta) break; cruces.push({ t, n: k, sentido: q % 2 ? 1 : -1 }); }
+  cruces.sort((a, b) => a.t - b.t);
+  return { n, T, L, gamma: G, K, theta: (k, t) => th0 * Math.cos(TAU * t / T[k]), oscilaciones: (k, t) => Math.floor(t / T[k] + 1e-9), cruces };
+ };
+
  root.SIM = SIM;
 })(typeof window !== 'undefined' ? window : globalThis);

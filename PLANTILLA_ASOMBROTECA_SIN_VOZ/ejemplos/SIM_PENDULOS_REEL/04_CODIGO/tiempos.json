@@ -1,0 +1,14 @@
+{
+ "duracion": 38.0,
+ "musica": "no",
+ "semilla": 1,
+ "pregunta": "¿Volverán a alinearse?",
+ "tPregunta": 3.6,
+ "frase": "Cada péndulo marca su ritmo solo con su *longitud*.",
+ "tFrase": 34.3,
+ "fuente": "Periodo del péndulo T = 2π√(L/g) (Huygens, 1673, Horologium Oscillatorium); onda de péndulos: Berg, R. E. (1991), «Pendulum waves: A demonstration of wave motion using pendula», American Journal of Physics 59(2): 186-187",
+ "param": {
+  "gamma": 34.0,
+  "K": 14.0
+ }
+}

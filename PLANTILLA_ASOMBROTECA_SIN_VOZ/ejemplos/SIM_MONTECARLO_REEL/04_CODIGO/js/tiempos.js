@@ -1,0 +1,15 @@
+// Generado por tools/tiempos.py desde 03_GUION/tiempos.txt — no editar a mano.
+window.TIEMPOS = {
+ "duracion": 32.0,
+ "musica": "no",
+ "semilla": 403,
+ "pregunta": "¿Qué número esconde / esta lluvia?",
+ "tPregunta": 3.6,
+ "frase": "Lanzando puntos al azar se puede calcular *π*.",
+ "tFrase": 27.6,
+ "fuente": "Método de Montecarlo: Metropolis y Ulam (1949), «The Monte Carlo method», Journal of the American Statistical Association 44(247): 335-341; antecedente: aguja de Buffon (1777), Essai d'arithmétique morale",
+ "param": {
+  "gotas": 40000.0,
+  "tLluvia": 27.0
+ }
+};
