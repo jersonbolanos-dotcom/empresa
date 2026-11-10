@@ -42,12 +42,19 @@
    const ti = S.tIgn[i], q = t - ti;
    if (q < 0 || brote(i)) { const s = brote(i) ? E.out(cl((t - T_BROTE - BROTE[i] * 1.6) / 0.4)) : 1; ctx.fillStyle = `hsl(${105 + TONO[i] * 40},${55 + TONO[i] * 25}%,${30 + TONO[i] * 14}%)`; ctx.beginPath(); ctx.arc(x, y, (5.6 + TONO[i] * 2.2) * s, 0, TAU); ctx.fill(); ctx.fillStyle = 'rgba(190,255,150,0.18)'; ctx.beginPath(); ctx.arc(x - 1.8 * s, y - 1.8 * s, 2.4 * s, 0, TAU); ctx.fill(); continue; }
    if (q < S.arde) continue;   // los que arden se dibujan después (capa de luz)
-   const em = 1 - cl((q - S.arde) / 1.6); ctx.fillStyle = `rgb(${26 + 150 * em},${22 + 50 * em},${20 + 6 * em})`; ctx.beginPath(); ctx.arc(x, y, 4.4, 0, TAU); ctx.fill(); }
+   const em = 1 - cl((q - S.arde) / 1.6), br = 0.22 * Math.exp(-(q - S.arde) / 3.5) * (0.5 + 0.5 * Math.sin(t * 6.3 + i * 1.7)), e2 = Math.max(em, br);   // brasas que titilan unos segundos
+   ctx.fillStyle = `rgb(${26 + 150 * e2},${22 + 50 * e2},${20 + 6 * e2})`; ctx.beginPath(); ctx.arc(x, y, 4.4, 0, TAU); ctx.fill(); }
   // árboles que arden: llama que parpadea (capa aditiva)
   ctx.globalCompositeOperation = 'lighter';
   const n0 = cuantos(t - S.arde), n1 = cuantos(t); for (let k = n0; k < n1; k++) { const i = S.orden[k]; if (brote(i)) continue; const [x, y] = pos(i), q = (t - S.tIgn[i]) / S.arde, fl = 0.75 + 0.25 * Math.sin(t * 31 + i), v = Math.sin(Math.PI * Math.min(1, q * 1.4));
    ctx.fillStyle = `rgba(255,${70 + 50 * fl},10,${0.28 * v})`; ctx.beginPath(); ctx.arc(x, y - 3, 22 * v * fl, 0, TAU); ctx.fill(); ctx.fillStyle = `rgba(255,${120 + 60 * fl},30,${0.55 * v})`; ctx.beginPath(); ctx.arc(x, y - 2, 11 * v * fl, 0, TAU); ctx.fill(); ctx.fillStyle = `rgba(255,${225 + 30 * fl},${150},${0.95 * v})`; ctx.beginPath(); ctx.arc(x, y - 1, 5 * v * fl, 0, TAU); ctx.fill(); }
-  ctx.globalCompositeOperation = 'source-over'; ctx.restore();
+  ctx.globalCompositeOperation = 'source-over';
+  // humo: velos grises que derivan despacio sobre el bosque mientras arde y se disipan tras apagarse (movimiento continuo)
+  const hum = cl((t - 2) / 3) * (1 - sm(T_APAGA - 0.5, T_BROTE + 0.4, t)); if (hum > 0.01) { ctx.save(); ctx.beginPath(); ctx.rect(X0 - 10, Y0 - 10, CO * CS + 20, RO * CS + 20); ctx.clip(); const W = CO * CS + 240;
+   for (let b = 0; b < 9; b++) { const x = X0 - 120 + ((b * 137 + t * (22 + b * 3)) % W), y = Y0 + RO * CS * ((b * 0.383) % 1) - 30 * Math.sin(t * 0.4 + b), rr = 110 + 30 * Math.sin(t * 0.7 + b * 2);
+    const g2 = ctx.createRadialGradient(x, y, 0, x, y, rr); g2.addColorStop(0, `rgba(150,140,135,${0.16 * hum})`); g2.addColorStop(1, 'rgba(150,140,135,0)'); ctx.fillStyle = g2; ctx.fillRect(x - rr, y - rr, 2 * rr, 2 * rr); }
+   ctx.restore(); }
+  ctx.restore();
   // etiquetas: % de árboles que quedan en cada cortafuegos
   [F1, F2].forEach(([a, b], q) => { const xc = X0 + (a + b + 1) / 2 * CS; R.chico(ctx, `${DF[q]} % árboles`, xc, Y0 - 36, { px: 32, col: q ? '#9fd0ff' : '#ffb27a', kind: 'etiqueta' }); ctx.save(); ctx.strokeStyle = 'rgba(233,195,138,0.6)'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(xc, Y0 - 16); ctx.lineTo(xc, Y0 - 2); ctx.stroke(); ctx.restore(); });
   // contador: % del bosque quemado (vuelve a 0 al rebrotar)
