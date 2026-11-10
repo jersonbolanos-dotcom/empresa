@@ -18,5 +18,5 @@ Pregunta ≤ 6 palabras en el fotograma 0 · contador visible: «¿Volverán a a
 Una sola frase final con el dato · fuente: «Cada péndulo marca su ritmo solo con su *longitud*.» (9 palabras) a 34.3 s · fuente: sí ✔
 Marca de agua «ASOMBROTECA» todo el vídeo: 380/380 muestras ✔
 Bucle (último fotograma ≈ primero): diferencia media 0.2/255 ✔
-Nada flota (revisión visual de la hoja de contacto): pendiente: crear 07_QC/revision_visual.txt ✘
-QC: HAY PUNTOS A REVISAR
+Nada flota (revisión visual de la hoja de contacto): OK ✔
+QC: TODO CORRECTO

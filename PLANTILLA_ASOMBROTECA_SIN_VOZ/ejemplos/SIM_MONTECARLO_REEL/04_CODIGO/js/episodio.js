@@ -30,6 +30,10 @@
   // gotas ya caídas (se secan al final)
   ctx.globalAlpha = 1 - seca; const sz = k < 400 ? 7 : k < 4000 ? 4.5 : 3;
   for (let i = 0; i < k; i++) { ctx.fillStyle = S.dentro[i] ? '#4fe3ff' : '#ff5fb4'; ctx.fillRect(sx(i) - sz / 2, sy(i) - sz / 2, sz, sz); }
+  // al terminar la lluvia, un barrido de luz gira sobre el círculo (resalta los puntos de dentro; mantiene el movimiento)
+  { const u = sm(TL_ + T0 - 0.6, TL_ + T0 + 0.4, t) * (1 - seca); if (u > 0.01) { const an = (t - TL_) * 1.5; ctx.save(); ctx.beginPath(); ctx.arc(CX, CY, RAD, 0, TAU); ctx.clip(); ctx.globalCompositeOperation = 'lighter';
+    for (let q = 0; q < 12; q++) { ctx.globalAlpha = u * 0.11 * (1 - q / 12); ctx.fillStyle = '#9ff4ff'; ctx.beginPath(); ctx.moveTo(CX, CY); ctx.arc(CX, CY, RAD, an - (q + 1) * 0.06, an - q * 0.06); ctx.closePath(); ctx.fill(); }
+    ctx.restore(); ctx.globalAlpha = 1 - seca; } }
   // salpicadura de las gotas recientes (anillo que se abre)
   ctx.lineWidth = 2; for (let i = Math.max(0, k - 40); i < k; i++) { const u = (t - tk(i)) / 0.45; if (u < 0 || u > 1) continue; ctx.strokeStyle = S.dentro[i] ? `rgba(79,227,255,${1 - u})` : `rgba(255,95,180,${1 - u})`; ctx.beginPath(); ctx.arc(sx(i), sy(i), 4 + 22 * E.out(u), 0, TAU); ctx.stroke(); }
   // las primeras gotas caen desde arriba (estela)
