@@ -1,0 +1,78 @@
+{
+ "duracion": 22.0,
+ "musica": "suave",
+ "lineas": [
+  {
+   "t0": 0.0,
+   "d": 2.0,
+   "texto": "¿El *Everest* cabe en el océano?",
+   "sfx": [
+    "whoosh"
+   ],
+   "clave": "gancho"
+  },
+  {
+   "t0": 2.0,
+   "d": 2.4,
+   "texto": "Un buzo: *40 m*",
+   "sfx": [
+    "pop"
+   ],
+   "clave": "buzo"
+  },
+  {
+   "t0": 4.4,
+   "d": 2.6,
+   "texto": "Ballena de Cuvier: *2.992 m*",
+   "sfx": [
+    "pop"
+   ],
+   "clave": "ballena"
+  },
+  {
+   "t0": 7.0,
+   "d": 2.6,
+   "texto": "El *Titanic*: 3.800 m",
+   "sfx": [
+    "pop"
+   ],
+   "clave": "titanic"
+  },
+  {
+   "t0": 9.6,
+   "d": 3.0,
+   "texto": "Fosa de las *Marianas*",
+   "sfx": [
+    "riser"
+   ],
+   "clave": "fosa"
+  },
+  {
+   "t0": 12.6,
+   "d": 3.0,
+   "texto": "Ahora, el *Everest*: 8.849 m",
+   "sfx": [
+    "golpe"
+   ],
+   "clave": "everest"
+  },
+  {
+   "t0": 15.6,
+   "d": 3.2,
+   "texto": "Y sobran / *más de 2 km* de agua",
+   "sfx": [
+    "revelar"
+   ],
+   "clave": "sobra"
+  },
+  {
+   "t0": 18.8,
+   "d": 3.2,
+   "texto": "¿Lo sabías? / *Comenta*",
+   "sfx": [
+    "pop"
+   ],
+   "clave": "comenta"
+  }
+ ]
+}

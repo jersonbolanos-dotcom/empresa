@@ -1,0 +1,12 @@
+# REEL · «Una bacteria mientras ves esto» · formato: contador imposible
+# El reloj del reel (no hay voz). inicio y duración en segundos; texto ≤ 8 palabras; *amarillo*; « / » salto de línea.
+DURACION 20
+MUSICA pulso
+# inicio | duración | texto en pantalla                    | efecto    | clave
+0.0      | 2.0      | ¿Cuántas habrá al *final* del video?  | whoosh    | gancho
+2.0      | 2.8      | Se divide en dos cada *20 minutos*    | pop       | divide
+5.0      | 2.8      | Y cada copia, *también*               | pop       | copia
+8.0      | 3.2      | Cada *clic* son / 20 minutos          | popAgudo  | clic
+11.4     | 3.0      | *Sin parar*                           | golpe     | sinparar
+14.6     | 3.0      | 10 horas: / *más de mil millones*     | revelar   | final
+17.8     | 2.2      | Y empezó con *una sola*               | pop       | una

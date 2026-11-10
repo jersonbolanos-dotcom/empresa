@@ -38,3 +38,9 @@ con resumen en español. Responder siempre en español.
 - Antes de crear un bloque/FX nuevo, buscar que el nombre no exista ya en `plantilla.js` (las claves repetidas pisan a las antiguas).
 - En arquitectura/paisaje: modelo maestro con ejes cardinales y vector solar + `comprobaciones.js` (ver Yakhchal); fotos con licencia condicionada → entregar versión FINAL sin foto y otra CON_FOTO.
 - Los efectos de sonido se generan con `FX.*` dentro de cada beat (`sfx(k)`); no hace falta audio externo.
+
+## Reels SIN VOZ (`PLANTILLA_ASOMBROTECA_SIN_VOZ`)
+- Reels de 15-25 s sin narración. El reloj es `03_GUION/tiempos.txt` (no hay voz ni md5). Leer `PLANTILLA_ASOMBROTECA_SIN_VOZ/00_LEEME_PRIMERO.md` e `INSTRUCCIONES_REEL.md`.
+- `tools/nuevo_reel.py NOMBRE --formato contador|quiz|tamanos|linea|capas` → `tools/producir_reel.py NOMBRE_REEL prueba …` → `todo`.
+- Texto ≤ 8 palabras, efecto en cada aparición, gancho antes de 1 s, bucle (último fotograma ≈ primero). QC «TODO CORRECTO» con `07_QC/revision_visual.txt` («nada flota: OK»).
+- Se amplía `motor/reel.js`; `motor/plantilla.js` y `lib/` son copias intactas de la v1.28.

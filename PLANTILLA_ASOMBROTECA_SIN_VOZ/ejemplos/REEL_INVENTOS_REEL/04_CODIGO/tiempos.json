@@ -1,0 +1,78 @@
+{
+ "duracion": 22.0,
+ "musica": "suave",
+ "lineas": [
+  {
+   "t0": 0.0,
+   "d": 2.2,
+   "texto": "¿Qué nació antes: / el *fax* o el teléfono?",
+   "sfx": [
+    "whoosh"
+   ],
+   "clave": "gancho"
+  },
+  {
+   "t0": 2.4,
+   "d": 2.8,
+   "texto": "*1843*: el fax",
+   "sfx": [
+    "sello"
+   ],
+   "clave": "fax"
+  },
+  {
+   "t0": 5.4,
+   "d": 2.8,
+   "texto": "*1876*: el teléfono",
+   "sfx": [
+    "sello"
+   ],
+   "clave": "telefono"
+  },
+  {
+   "t0": 8.4,
+   "d": 2.8,
+   "texto": "*1886*: el automóvil",
+   "sfx": [
+    "sello"
+   ],
+   "clave": "auto"
+  },
+  {
+   "t0": 11.4,
+   "d": 2.8,
+   "texto": "*1903*: el avión",
+   "sfx": [
+    "sello"
+   ],
+   "clave": "avion"
+  },
+  {
+   "t0": 14.4,
+   "d": 2.8,
+   "texto": "*1969*: internet",
+   "sfx": [
+    "sello"
+   ],
+   "clave": "internet"
+  },
+  {
+   "t0": 17.4,
+   "d": 2.6,
+   "texto": "El fax le ganó / por *33 años*",
+   "sfx": [
+    "golpe"
+   ],
+   "clave": "gana"
+  },
+  {
+   "t0": 20.0,
+   "d": 2.0,
+   "texto": "¿Te sorprendió? *Comenta*",
+   "sfx": [
+    "pop"
+   ],
+   "clave": "comenta"
+  }
+ ]
+}

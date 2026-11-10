@@ -1,0 +1,78 @@
+{
+ "duracion": 22.0,
+ "musica": "pulso",
+ "lineas": [
+  {
+   "t0": 0.0,
+   "d": 2.0,
+   "texto": "¿Qué hay *debajo* / del vidrio de tu celular?",
+   "sfx": [
+    "whoosh"
+   ],
+   "clave": "gancho"
+  },
+  {
+   "t0": 2.0,
+   "d": 3.0,
+   "texto": "*Vidrio* protector",
+   "sfx": [
+    "whoosh"
+   ],
+   "clave": "vidrio"
+  },
+  {
+   "t0": 5.0,
+   "d": 3.0,
+   "texto": "Sensor *táctil*: siente tu dedo",
+   "sfx": [
+    "whoosh"
+   ],
+   "clave": "tactil"
+  },
+  {
+   "t0": 8.0,
+   "d": 3.0,
+   "texto": "*Polarizador*: corta los reflejos",
+   "sfx": [
+    "whoosh"
+   ],
+   "clave": "polar"
+  },
+  {
+   "t0": 11.0,
+   "d": 3.0,
+   "texto": "*Píxeles*: rojo, verde y azul",
+   "sfx": [
+    "whoosh"
+   ],
+   "clave": "oled"
+  },
+  {
+   "t0": 14.0,
+   "d": 3.0,
+   "texto": "¿Cuántos píxeles tiene / un *Full HD*?",
+   "sfx": [
+    "clic"
+   ],
+   "clave": "pixeles"
+  },
+  {
+   "t0": 17.0,
+   "d": 2.6,
+   "texto": "*Transistores*: encienden cada píxel",
+   "sfx": [
+    "whoosh"
+   ],
+   "clave": "tft"
+  },
+  {
+   "t0": 19.6,
+   "d": 2.4,
+   "texto": "¿Cuál no conocías? *Comenta*",
+   "sfx": [
+    "pop"
+   ],
+   "clave": "comenta"
+  }
+ ]
+}

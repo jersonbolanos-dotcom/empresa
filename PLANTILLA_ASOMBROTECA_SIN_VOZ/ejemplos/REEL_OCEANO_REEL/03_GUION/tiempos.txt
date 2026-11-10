@@ -1,0 +1,12 @@
+# REEL · «¿El Everest cabe en el océano?» · formato: comparación de tamaños
+DURACION 22
+MUSICA suave
+# inicio | duración | texto en pantalla                     | efecto    | clave
+0.0      | 2.0      | ¿El *Everest* cabe en el océano?       | whoosh    | gancho
+2.0      | 2.4      | Un buzo: *40 m*                        | pop       | buzo
+4.4      | 2.6      | Ballena de Cuvier: *2.992 m*           | pop       | ballena
+7.0      | 2.6      | El *Titanic*: 3.800 m                  | pop       | titanic
+9.6      | 3.0      | Fosa de las *Marianas*                 | riser     | fosa
+12.6     | 3.0      | Ahora, el *Everest*: 8.849 m           | golpe     | everest
+15.6     | 3.2      | Y sobran / *más de 2 km* de agua        | revelar   | sobra
+18.8     | 3.2      | ¿Lo sabías? / *Comenta*                | pop       | comenta

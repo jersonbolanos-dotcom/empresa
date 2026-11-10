@@ -1,0 +1,12 @@
+# REEL · «¿Qué nació antes: el fax o el teléfono?» · formato: línea del tiempo (dossier)
+DURACION 22
+MUSICA suave
+# inicio | duración | texto en pantalla                          | efecto  | clave
+0.0      | 2.2      | ¿Qué nació antes: / el *fax* o el teléfono? | whoosh  | gancho
+2.4      | 2.8      | *1843*: el fax                              | sello   | fax
+5.4      | 2.8      | *1876*: el teléfono                         | sello   | telefono
+8.4      | 2.8      | *1886*: el automóvil                        | sello   | auto
+11.4     | 2.8      | *1903*: el avión                            | sello   | avion
+14.4     | 2.8      | *1969*: internet                            | sello   | internet
+17.4     | 2.6      | El fax le ganó / por *33 años*              | golpe   | gana
+20.0     | 2.0      | ¿Te sorprendió? *Comenta*                   | pop     | comenta

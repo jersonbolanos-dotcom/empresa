@@ -1,0 +1,12 @@
+# REEL · «¿Qué hay debajo del vidrio de tu celular?» · formato: qué hay por dentro (capas)
+DURACION 22
+MUSICA pulso
+# inicio | duración | texto en pantalla                              | efecto   | clave
+0.0      | 2.0      | ¿Qué hay *debajo* / del vidrio de tu celular?   | whoosh   | gancho
+2.0      | 3.0      | *Vidrio* protector                              | whoosh   | vidrio
+5.0      | 3.0      | Sensor *táctil*: siente tu dedo                 | whoosh   | tactil
+8.0      | 3.0      | *Polarizador*: corta los reflejos               | whoosh   | polar
+11.0     | 3.0      | *Píxeles*: rojo, verde y azul                   | whoosh   | oled
+14.0     | 3.0      | ¿Cuántos píxeles tiene / un *Full HD*?          | clic     | pixeles
+17.0     | 2.6      | *Transistores*: encienden cada píxel            | whoosh   | tft
+19.6     | 2.4      | ¿Cuál no conocías? *Comenta*                    | pop      | comenta
