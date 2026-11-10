@@ -1,0 +1,10 @@
+# REEL DE SIMULACIÓN · formato «caos» · dos péndulos dobles que salen casi iguales (una millonésima de radián) y se separan
+DURACION 34
+MUSICA no
+SEMILLA 1
+PREGUNTA 3.6 | ¿Seguirán juntos / los dos?
+FRASE 29.0 | Una diferencia de una *millonésima* / basta para cambiarlo todo.
+FUENTE Lorenz, E. N. (1963), «Deterministic nonperiodic flow», Journal of the Atmospheric Sciences 20: 130-141; Shinbrot, T., Grebogi, C., Wisdom, J. y Yorke, J. A. (1992), «Chaos in a double pendulum», American Journal of Physics 60: 491-499
+# ángulo inicial de los dos brazos (rad, desde la vertical) · diferencia del segundo brazo en el péndulo B (rad)
+PARAM th0 1.76
+PARAM delta 0.000001

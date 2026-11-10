@@ -177,5 +177,81 @@
   return { n, T, L, gamma: G, K, theta: (k, t) => th0 * Math.cos(TAU * t / T[k]), oscilaciones: (k, t) => Math.floor(t / T[k] + 1e-9), cruces };
  };
 
+ // =====================================================================================================
+ // 7 · HORMIGA DE LANGTON (v2.3): en casilla vacía gira 90° a la derecha, en casilla llena a la izquierda; invierte la casilla y avanza.
+ // Sin azar. cfg = { pasos, W (lado de la rejilla, 512) } → { N, px, py (posición ANTES del paso k; px[N] = final), dir[k],
+ //   celda[k] (casilla invertida en el paso k), celdas (lista de casillas tocadas), estado(i, K) (0/1 tras K pasos), primero[i],
+ //   caja(K) → [x0, y0, x1, y1] (rectángulo de casillas tocadas hasta K), autopista (paso desde el que el movimiento es periódico, 104 pasos) }
+ // =====================================================================================================
+ SIM.hormiga = (cfg) => { const N = cfg.pasos, W = cfg.W || 512, g = new Uint8Array(W * W), px = new Int16Array(N + 1), py = new Int16Array(N + 1), dir = new Uint8Array(N + 1), celda = new Int32Array(N);
+  let x = W >> 1, y = W >> 1, d = 0; const DX = [0, 1, 0, -1], DY = [-1, 0, 1, 0];
+  const bx0 = new Int16Array(N + 1), by0 = new Int16Array(N + 1), bx1 = new Int16Array(N + 1), by1 = new Int16Array(N + 1); let a0 = x, b0 = y, a1 = x, b1 = y;
+  for (let k = 0; k < N; k++) { px[k] = x; py[k] = y; dir[k] = d; bx0[k] = a0; by0[k] = b0; bx1[k] = a1; by1[k] = b1; const i = y * W + x;
+   d = g[i] ? (d + 3) & 3 : (d + 1) & 3; g[i] ^= 1; celda[k] = i; x += DX[d]; y += DY[d];
+   if (x < 1 || y < 1 || x >= W - 1 || y >= W - 1) throw new Error('SIM.hormiga: la rejilla es pequeña');
+   a0 = Math.min(a0, x); b0 = Math.min(b0, y); a1 = Math.max(a1, x); b1 = Math.max(b1, y); }
+  px[N] = x; py[N] = y; dir[N] = d; bx0[N] = a0; by0[N] = b0; bx1[N] = a1; by1[N] = b1;
+  // inversiones por casilla (CSR): el estado tras K pasos es la paridad de las inversiones con paso < K
+  const cnt = new Map(); for (let k = 0; k < N; k++) cnt.set(celda[k], (cnt.get(celda[k]) || 0) + 1);
+  const celdas = [...cnt.keys()], idx = new Map(celdas.map((c, j) => [c, j])), off = new Int32Array(celdas.length + 1); celdas.forEach((c, j) => { off[j + 1] = off[j] + cnt.get(c); });
+  const lst = new Int32Array(N), fill = off.slice(0, -1); for (let k = 0; k < N; k++) { const j = idx.get(celda[k]); lst[fill[j]++] = k; }
+  const estado = (j, K) => { let lo = off[j], hi = off[j + 1]; while (lo < hi) { const m = (lo + hi) >> 1; if (lst[m] < K) lo = m + 1; else hi = m; } return (lo - off[j]) & 1; };
+  const primero = (j) => lst[off[j]], ultimo = (j, K) => { let lo = off[j], hi = off[j + 1]; while (lo < hi) { const m = (lo + hi) >> 1; if (lst[m] < K) lo = m + 1; else hi = m; } return lo > off[j] ? lst[lo - 1] : -1; };
+  // autopista: desde qué paso el desplazamiento cada 104 pasos es siempre el mismo
+  let autopista = -1; if (N > 400) { const P = 104, ex = px[N] - px[N - P], ey = py[N] - py[N - P]; let s = N - P; while (s > 0 && px[s - 1 + P] - px[s - 1] === ex && py[s - 1 + P] - py[s - 1] === ey) s--; if (s < N - 3 * P) autopista = s; }
+  const K_ = (K) => Math.max(0, Math.min(N, K | 0));
+  return { N, W, px, py, dir, celda, celdas, estado, primero, ultimo, autopista, caja: (K) => { K = K_(K); return [bx0[K], by0[K], bx1[K], by1[K]]; } };
+ };
+
+ // =====================================================================================================
+ // 8 · AGREGACIÓN LIMITADA POR DIFUSIÓN, DLA (v2.3; Witten y Sander 1981): partículas que caminan al azar por una rejilla fina y se pegan
+ // al tocar el cúmulo (4 vecinos). Lanzamiento en un círculo justo fuera del cúmulo, saltos largos lejos de él y se relanzan si se alejan.
+ // cfg = { n, G (lado de la rejilla, 801), seed, r0 (radio de lanzamiento de la primera, para verla caminar), cola (pasos guardados) }
+ // → { n, x, y (relativas al núcleo), r (distancia), rMax[i] (radio del cúmulo con i pegadas), camino0 ([x, y…] de la primera), cola[i] }
+ // =====================================================================================================
+ SIM.dla = (cfg) => { const n = cfg.n, G = cfg.G || 801, C = G >> 1, rng = H.rng(cfg.seed ?? 1), occ = new Uint8Array(G * G), CO = cfg.cola ?? 24;
+  const x = new Int16Array(n), y = new Int16Array(n), r = new Float32Array(n), rMax = new Float32Array(n + 1), colas = []; occ[C * G + C] = 1; let RM = 1, camino0 = [];
+  const vecino = (a, b) => occ[(b + C) * G + a + C + 1] || occ[(b + C) * G + a + C - 1] || occ[(b + C + 1) * G + a + C] || occ[(b + C - 1) * G + a + C];
+  for (let i = 0; i < n; i++) { rMax[i] = RM; let hecho = false, tray;
+   while (!hecho) { const rl = i === 0 && cfg.r0 ? cfg.r0 : RM + 6, an = rng() * Math.PI * 2; let a = Math.round(rl * Math.cos(an)), b = Math.round(rl * Math.sin(an)); tray = [a, b]; const rk = Math.max(RM * 2 + 20, rl + 40);
+    for (let paso = 0; paso < 2e6; paso++) { const dd = Math.hypot(a, b);
+     if (dd > rk || Math.abs(a) > C - 3 || Math.abs(b) > C - 3) break;                                   // se alejó: se relanza
+     if (dd > RM + 6 && !(i === 0 && cfg.r0)) { const L = dd - RM - 4, t2 = rng() * Math.PI * 2; a = Math.round(a + L * Math.cos(t2)); b = Math.round(b + L * Math.sin(t2)); }   // salto largo (no puede tocar el cúmulo)
+     else { const q = (rng() * 4) | 0; if (q === 0) a++; else if (q === 1) a--; else if (q === 2) b++; else b--; }
+     if (occ[(b + C) * G + a + C]) continue;
+     tray.push(a, b); if (i > 0 && tray.length > CO * 2 + 40) tray.splice(0, tray.length - CO * 2);
+     if (Math.hypot(a, b) <= RM + 2 && vecino(a, b)) { occ[(b + C) * G + a + C] = 1; x[i] = a; y[i] = b; r[i] = Math.hypot(a, b); RM = Math.max(RM, r[i]); hecho = true; break; } } }
+   if (i === 0) camino0 = tray; colas.push(Int16Array.from(tray.slice(-CO * 2))); }
+  rMax[n] = RM; return { n, x, y, r, rMax, camino0, cola: colas };
+ };
+
+ // =====================================================================================================
+ // 9 · PÉNDULO DOBLE (v2.3): dos brazos rígidos sin rozamiento (ecuaciones de Lagrange, RK4). Dos copias, A y B, salen casi iguales:
+ // B tiene `delta` rad más en el segundo brazo. cfg = { th1, th2, w1, w2, L1, L2, m1, m2, g, delta, dur, fps (30), sub (40) }
+ // → { NF, A: { t1, t2 } y B: { t1, t2 } (ángulos por fotograma, Float64), w2A, w2B (velocidades del 2.º brazo), sep(f) (distancia
+ //   entre las bolas de abajo / (L1 + L2)), tSep(umbral) (primer instante en que la separación supera el umbral), energia }
+ // =====================================================================================================
+ SIM.pendulo2 = (cfg) => { const fps = cfg.fps || 30, sub = cfg.sub || 40, dt = 1 / (fps * sub), NF = Math.round(cfg.dur * fps) + 1;
+  const L1 = cfg.L1 ?? 1, L2 = cfg.L2 ?? 1, m1 = cfg.m1 ?? 1, m2 = cfg.m2 ?? 1, g = cfg.g ?? 9.81;
+  const acc = (a1, a2, w1, w2) => { const dl = a1 - a2, den = 2 * m1 + m2 - m2 * Math.cos(2 * dl);
+   return [(-g * (2 * m1 + m2) * Math.sin(a1) - m2 * g * Math.sin(a1 - 2 * a2) - 2 * Math.sin(dl) * m2 * (w2 * w2 * L2 + w1 * w1 * L1 * Math.cos(dl))) / (L1 * den),
+           (2 * Math.sin(dl) * (w1 * w1 * L1 * (m1 + m2) + g * (m1 + m2) * Math.cos(a1) + w2 * w2 * L2 * m2 * Math.cos(dl))) / (L2 * den)]; };
+  const corre = (s0) => { let [a1, a2, w1, w2] = s0; const T1 = new Float64Array(NF), T2 = new Float64Array(NF), W2 = new Float64Array(NF);
+   for (let f = 0; f < NF; f++) { T1[f] = a1; T2[f] = a2; W2[f] = w2;
+    for (let s = 0; s < sub; s++) { const k1 = acc(a1, a2, w1, w2), k1a = [w1, w2];
+     const k2 = acc(a1 + k1a[0] * dt / 2, a2 + k1a[1] * dt / 2, w1 + k1[0] * dt / 2, w2 + k1[1] * dt / 2), k2a = [w1 + k1[0] * dt / 2, w2 + k1[1] * dt / 2];
+     const k3 = acc(a1 + k2a[0] * dt / 2, a2 + k2a[1] * dt / 2, w1 + k2[0] * dt / 2, w2 + k2[1] * dt / 2), k3a = [w1 + k2[0] * dt / 2, w2 + k2[1] * dt / 2];
+     const k4 = acc(a1 + k3a[0] * dt, a2 + k3a[1] * dt, w1 + k3[0] * dt, w2 + k3[1] * dt), k4a = [w1 + k3[0] * dt, w2 + k3[1] * dt];
+     a1 += dt / 6 * (k1a[0] + 2 * k2a[0] + 2 * k3a[0] + k4a[0]); a2 += dt / 6 * (k1a[1] + 2 * k2a[1] + 2 * k3a[1] + k4a[1]);
+     w1 += dt / 6 * (k1[0] + 2 * k2[0] + 2 * k3[0] + k4[0]); w2 += dt / 6 * (k1[1] + 2 * k2[1] + 2 * k3[1] + k4[1]); } }
+   return { t1: T1, t2: T2, w2: W2 }; };
+  const s0 = [cfg.th1, cfg.th2, cfg.w1 ?? 0, cfg.w2 ?? 0], A = corre(s0), B = corre([s0[0], s0[1] + (cfg.delta ?? 1e-6), s0[2], s0[3]]);
+  const pos = (P, f) => [L1 * Math.sin(P.t1[f]) + L2 * Math.sin(P.t2[f]), L1 * Math.cos(P.t1[f]) + L2 * Math.cos(P.t2[f])];
+  const sep = (f) => { f = Math.max(0, Math.min(NF - 1, f | 0)); const [ax, ay] = pos(A, f), [bx, by] = pos(B, f); return Math.hypot(ax - bx, ay - by) / (L1 + L2); };
+  const tSep = (u) => { for (let f = 0; f < NF; f++) if (sep(f) > u) return f / fps; return Infinity; };
+  const energia = -(m1 + m2) * g * L1 * Math.cos(s0[0]) - m2 * g * L2 * Math.cos(s0[1]);
+  return { NF, fps, A, B, L1, L2, sep, tSep, energia };
+ };
+
  root.SIM = SIM;
 })(typeof window !== 'undefined' ? window : globalThis);

@@ -1,0 +1,15 @@
+{
+ "duracion": 35.0,
+ "musica": "no",
+ "semilla": 1,
+ "pregunta": "¿Qué construirá / la hormiga?",
+ "tPregunta": 3.6,
+ "frase": "Con 2 reglas, tras *10.000 pasos* / de caos, construye esta autopista.",
+ "tFrase": 30.4,
+ "fuente": "Langton, C. G. (1986), «Studying artificial life with cellular automata», Physica D 22: 120-149; desde la rejilla vacía la autopista (ciclo de 104 pasos) empieza hacia el paso 10.000 (en esta simulación, el 9.976)",
+ "param": {
+  "lento": 2.5,
+  "tAutopista": 21.5,
+  "ritmo": 300.0
+ }
+}
