@@ -1,6 +1,6 @@
 # Fuentes y decisiones · ¿Qué animal dibujan estos círculos?
 
-Formato: `fourier` · Plantilla Asombroteca SIN_VOZ 2.1 · 32 s.
+Formato: `fourier` · Plantilla Asombroteca SIN_VOZ 2.1.1 · 35 s.
 
 ## Dato que revela la frase final
 
@@ -19,12 +19,15 @@ Formato: `fourier` · Plantilla Asombroteca SIN_VOZ 2.1 · 32 s.
   - es la DFT (2.048 muestras) de cada coordenada por separado, como señales reales;
   - la punta de cada cadena es la parte real de la suma de vectores giratorios, que equivale a Σ |cₖ|·cos(kt + arg cₖ);
   - se ordenan de mayor a menor radio.
-- **Etapas**: 1, 2, 3, 4, 5, 6, 8, 10, 13, 18, 40 y 900 círculos por cadena. El animal solo se reconoce en las últimas.
-- **Elefante**:
-  - silueta propia de una sola línea;
-  - el propio trazo dibuja el ojo (un bucle que cuelga de la frente) y las arrugas de la trompa, con más puntos de contorno;
-  - el trazo es más grueso y brillante;
-  - al completarse, la cámara se acerca (×1,14) y lo centra;
-  - los círculos siguen girando tenues y un tramo de luz recorre la silueta, así que nunca se queda quieto.
+- **Etapas**: 1, 2, 3, 4, 5, 6, 8, 10, 13, 18, 40 y **1.800** círculos por cadena. El animal solo se reconoce en las últimas.
+- **Elefante (contorno nuevo)**:
+  - es un diseño original de una sola línea continua, escrito como trazo SVG con `tools/elefante/generar_trazo.py` (con su visor `ver_trazo.js`) y muestreado con **4.096 puntos**;
+  - la **oreja** es grande y cerrada, con el lóbulo en punta; el lomo llega a su borde superior y sigue por su contorno (la oreja tapa el hombro; el borde superior se repasa sobre sí mismo para cerrar el bucle sin cruces);
+  - la **trompa** es gruesa en la base, con arrugas en el borde exterior y la punta enroscada;
+  - el **colmillo** es más grande y se rellena de marfil brillante cuando el lápiz lo dibuja;
+  - el **ojo** es una almendra con su pliegue;
+  - las **patas** son columnas que se ensanchan hacia el pie, con uñas en las cercanas;
+  - la **cola** lleva mechón.
+- **Encuadre**: durante todo el dibujo el elefante queda dentro de la zona segura (280 ≤ x ≤ 928). Al completarse (27,8 s), la cámara lo amplía a ~840 px de ancho y se queda **3,2 s** antes de la frase (31 s), con un acercamiento lento y los colores girando despacio (movimiento continuo). El contador está abajo a la izquierda y nunca tapa el dibujo.
 - **Sonido**: campanita que sube con cada etapa, acorde al completar el dibujo y zumbido suave del lápiz cuyo tono sigue a su velocidad. Sin música.
 - **Nada flota**: las cadenas van encadenadas centro con centro desde un centro fijo.
