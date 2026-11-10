@@ -1,13 +1,14 @@
 #!/usr/bin/env python3
 # Crea un reel SIN VOZ de SIMULACIÓN a partir del ejemplo de su formato (funciona desde el primer minuto).
-# Uso:  python3 PLANTILLA_ASOMBROTECA_SIN_VOZ/tools/nuevo_reel.py NOMBRE --formato rebote|galton|fourier
+# Uso:  python3 PLANTILLA_ASOMBROTECA_SIN_VOZ/tools/nuevo_reel.py NOMBRE --formato rebote|galton|fourier|incendio|montecarlo|pendulos
 #                [--marca ASOMBROTECA] [--titulo "Título"] [--destino CARPETA]
 # Resultado: <destino>/NOMBRE_REEL/ con 03_GUION/tiempos.txt, 04_CODIGO/{index.src.html, js/episodio.js}, FUENTES_Y_DECISIONES.md.
 # Después: editar tiempos.txt y episodio.js → python3 PLANTILLA_ASOMBROTECA_SIN_VOZ/tools/producir_reel.py NOMBRE_REEL todo
 import argparse, os, re, shutil, sys
 
 RAIZ = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-FORMATOS = {'rebote': 'SIM_BACTERIAS_REEL', 'galton': 'SIM_GALTON_REEL', 'fourier': 'SIM_FOURIER_REEL'}
+FORMATOS = {'rebote': 'SIM_BACTERIAS_REEL', 'galton': 'SIM_GALTON_REEL', 'fourier': 'SIM_FOURIER_REEL',
+            'incendio': 'SIM_INCENDIO_REEL', 'montecarlo': 'SIM_MONTECARLO_REEL', 'pendulos': 'SIM_PENDULOS_REEL'}   # v2.2
 
 
 def version():

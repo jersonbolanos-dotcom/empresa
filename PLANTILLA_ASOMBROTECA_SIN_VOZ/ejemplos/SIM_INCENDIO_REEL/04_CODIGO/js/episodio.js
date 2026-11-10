@@ -52,7 +52,8 @@
   [F1, F2].forEach(([a, b], q) => { const xc = X0 + (a + b + 1) / 2 * CS; R.chico(ctx, `${DF[q]} % árboles`, xc, Y0 - 36, { px: 32, col: q ? '#9fd0ff' : '#ffb27a', kind: 'etiqueta' }); ctx.save(); ctx.strokeStyle = 'rgba(233,195,138,0.6)'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(xc, Y0 - 16); ctx.lineTo(xc, Y0 - 2); ctx.stroke(); ctx.restore(); });
   // contador: % del bosque quemado (vuelve a 0 al rebrotar)
   const qn = cuantos(t), reb = sm(T_BROTE, T_BROTE + 2.0, t), pct = Math.round(100 * qn / N_ARB * (1 - reb));
-  R.contador(ctx, t, pct, { x: 430, y: 1385, px: 96, sufijo: ' %', glow: '255,140,60', bump: 0 });
+  R.contador(ctx, t, pct, { x: 430, y: 1360, px: 96, sufijo: ' %', glow: '255,140,60', bump: 0 });
+  R.chico(ctx, 'quemado', 430, 1424, { px: 32, col: 'rgba(255,190,140,0.9)', kind: 'unidad' });   // qué mide el contador (no confundir con los % de los cortafuegos)
   R.pregunta(ctx, t, { y: 300, px: 70 }); R.frase(ctx, t, { y: 300, px: 54 });
  }
 

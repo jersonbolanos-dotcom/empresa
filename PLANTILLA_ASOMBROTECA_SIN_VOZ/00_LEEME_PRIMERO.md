@@ -1,4 +1,4 @@
-# PLANTILLA ASOMBROTECA SIN VOZ 2.1 · Léeme primero
+# PLANTILLA ASOMBROTECA SIN VOZ 2.2 · Léeme primero
 
 Reels verticales **sin narración** del tipo «oddly satisfying» o simulación: **un solo proceso físico continuo que escala**. Ejemplos: bolas que se multiplican en un círculo, miles de bolitas que forman una campana o círculos que giran y dibujan un animal. Cada simulación esconde un dato de ciencia real, que se revela al final con una sola frase.
 
@@ -31,7 +31,7 @@ Formato fijo:
 ## Hacer un reel
 
 ```
-python3 PLANTILLA_ASOMBROTECA_SIN_VOZ/tools/nuevo_reel.py MI_REEL --formato rebote|galton|fourier
+python3 PLANTILLA_ASOMBROTECA_SIN_VOZ/tools/nuevo_reel.py MI_REEL --formato rebote|galton|fourier|incendio|montecarlo|pendulos
 #   edita MI_REEL_REEL/03_GUION/tiempos.txt (pregunta, frase, fuente, duración, PARAM) y 04_CODIGO/js/episodio.js
 python3 PLANTILLA_ASOMBROTECA_SIN_VOZ/tools/producir_reel.py MI_REEL_REEL build
 node PLANTILLA_ASOMBROTECA_SIN_VOZ/tools/sim_info.js MI_REEL_REEL/04_CODIGO/index.html          # ajustar PARAM (en el navegador)
@@ -59,13 +59,16 @@ PARAM tDiv 3.2
 - La frase entra en su instante y se va antes del empalme, así que nunca coincide con la pregunta.
 - Las palabras entre `*asteriscos*` salen en amarillo y ` / ` fuerza un salto de línea.
 
-## Los 3 formatos (con su ejemplo en `ejemplos/`)
+## Los 6 formatos (con su ejemplo en `ejemplos/`)
 
 | `--formato` | Proceso | Contador | Final incierto → empalme | Ejemplo y dato |
 |---|---|---|---|---|
 | `rebote` | Bacilos en una placa de Petri. Al tocar el borde, si ya «maduraron», se estrechan y se parten en dos hijas que se reparten su área. Choques elásticos reales. Reloj de 20 min por generación | Bacterias (+ reloj) | ¿En cuántas horas se llena? (en el último segundo) → todo vuelve a una bacteria | `SIM_BACTERIAS_REEL` · 1 *E. coli* llega a 600 en unas 3 h |
 | `galton` | Miles de bolitas caen por una red de clavos (gravedad, choque y rebote) y se apilan en casillas numeradas. La última, blanca, se sigue a cámara lenta con una flechita ← → por fila | Bolas que llegan (+ «← · →») | ¿Dónde cae la bola blanca? → se abre la compuerta y el tablero se vacía | `SIM_GALTON_REEL` · por eso la estatura forma esta curva |
 | `fourier` | Dos cadenas de epiciclos (x arriba, y a la izquierda) con líneas punteadas al lápiz, sobre un plano cartesiano, y la fórmula en una esquina | Círculos | ¿Qué figura es? → con cientos de círculos sale la silueta detallada; luego vuelve a un círculo | `SIM_FOURIER_REEL` · cualquier dibujo es una suma de círculos que giran (Fourier, 1822) |
+| `incendio` (v2.2) | Bosque visto desde arriba; el fuego salta de árbol en árbol (percolación). Dos cortafuegos iguales: uno con 66 % de árboles (el fuego lo cruza) y otro con 42 % (lo detiene), con su % en una etiqueta | % quemado (+ «quemado») | ¿Se quemará todo? (el fuego tantea el segundo cortafuegos) → el bosque rebrota | `SIM_INCENDIO_REEL` · por debajo del 59 % de árboles el fuego no cruza (Newman y Ziff, 2000) |
+| `montecarlo` (v2.2) | Lluvia de 40.000 puntos al azar sobre un cuadrado con su círculo inscrito; dentro azul, fuera rosa; fórmula pequeña con los recuentos | Estimación de π | La cifra oscila hasta el final → la lluvia se seca y vuelve a «?» | `SIM_MONTECARLO_REEL` · con puntos al azar se calcula π (Metropolis y Ulam, 1949) |
+| `pendulos` (v2.2) | Onda de péndulos clásica en 3D: 15 péndulos colgados en V de una barra, de longitudes calculadas; serpiente, ondas y caos aparente | Segundos | ¿Volverán a alinearse? (a los 34 s) → siguen y empalman | `SIM_PENDULOS_REEL` · el ritmo de un péndulo solo depende de su longitud (Huygens, 1673; Berg, 1991) |
 
 ## QC (`producir_reel.py qc` → `07_QC/QC.md`)
 
@@ -81,7 +84,7 @@ El QC revisa:
 - música muy baja o ninguna;
 - determinismo;
 - zona segura;
-- **texto mínimo** (pregunta, contador, frase y marca; ≤ 2 etiquetas, ejes y fórmula);
+- **texto mínimo** (pregunta, contador, frase y marca; ≤ 2 etiquetas, ejes, fórmula y una unidad bajo el contador);
 - pregunta y frase nunca juntas;
 - pregunta ≤ 6 palabras en el fotograma 0;
 - frase final con su fuente;
@@ -97,11 +100,11 @@ Cuando todo pasa, escribe **TODO CORRECTO**.
 |---|---|
 | `PROMPT_NUEVO_REEL.md` | Prompt corto de copiar y pegar para pedir un reel nuevo. |
 | `INSTRUCCIONES_REEL.md` | Firmas de `SIM.*` y `R.*` y cómo escribir `episodio.js`. |
-| `motor/sim.js` | Simulaciones precalculadas y deterministas: `SIM.rebote`, `SIM.galton`, `SIM.fourier` y utilidades. |
+| `motor/sim.js` | Simulaciones precalculadas y deterministas: `SIM.rebote`, `SIM.galton`, `SIM.fourier`, `SIM.incendio`, `SIM.montecarlo`, `SIM.pendulos` y utilidades. |
 | `motor/reel.js` | Montaje (fondo, pregunta, contador, frase, marca de agua, bucle) y sonido ASMR desde los eventos (`R.asmr`). |
 | `motor/plantilla.js`, `lib/`, `fonts/` | Motor v1.28 sin cambios (se usan `H`, `SOUND`, `P.glow` y `P.fmtN`). |
 | `tools/` | `nuevo_reel.py`, `producir_reel.py`, `tiempos.py`, `sim_info.js`, `textos.js` (QC de textos), `build.py`, `render.js`, `audio.js`, `frames.js`, `sheet.py`, `determinismo.js`. |
-| `ejemplos/` | Los 3 reels de ejemplo (código, MP4 y QC). |
+| `ejemplos/` | Los 6 reels de ejemplo (código, MP4 y QC). |
 | `V1/` | Respaldo de la versión 1.0. |
 | `INSTRUCCIONES_PLANTILLA.md`, `GUIA_ESTILOS.md`, `catalogo/` | Referencia heredada de los bloques `P.*` y `FX.*` (lo que habla de voz no se aplica aquí). |
 

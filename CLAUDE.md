@@ -39,10 +39,10 @@ con resumen en español. Responder siempre en español.
 - En arquitectura/paisaje: modelo maestro con ejes cardinales y vector solar + `comprobaciones.js` (ver Yakhchal); fotos con licencia condicionada → entregar versión FINAL sin foto y otra CON_FOTO.
 - Los efectos de sonido se generan con `FX.*` dentro de cada beat (`sfx(k)`); no hace falta audio externo.
 
-## Reels SIN VOZ (`PLANTILLA_ASOMBROTECA_SIN_VOZ`, v2.1: simulación hipnótica con contexto visual; v1.0 en `V1/`, v2.0 en `V2/`)
+## Reels SIN VOZ (`PLANTILLA_ASOMBROTECA_SIN_VOZ`, v2.2: simulación hipnótica con contexto visual, 6 formatos; v1.0 en `V1/`, v2.0 en `V2/`)
 - Un solo proceso físico continuo y determinista (`motor/sim.js`, precalculado con `H.rng`), 25-45 s, sin cortes, en movimiento desde el fotograma 0.
 - Texto mínimo: pregunta ≤ 6 palabras (saltos equilibrados) + contador grande + una frase final con el dato que sale SOLO tras el desenlace (fuente en `FUENTES_Y_DECISIONES.md`) + como mucho 1-2 etiquetas de 1-3 palabras. Marca de agua «ASOMBROTECA» con contorno durante TODO el vídeo, en una esquina de la zona segura.
 - El CONTEXTO se da con la imagen (placa de Petri y reloj, flechitas y números de casillas, plano cartesiano y fórmula), con cámara lenta y zoom si hace falta, todo dentro de la zona segura (y ≤ 1450).
 - Sonido sacado de los eventos (`R.asmr`); música muy baja o ninguna; fondo oscuro; final incierto y empalme con el inicio.
-- `tools/nuevo_reel.py NOMBRE --formato rebote|galton|fourier` → ajustar PARAM con `tools/sim_info.js` (en el navegador: Node y Chromium difieren en simulaciones caóticas) → UNA hoja de contacto al usuario → `producir_reel.py NOMBRE_REEL todo` → `07_QC/revision_visual.txt` («nada flota: OK») → QC «TODO CORRECTO».
+- `tools/nuevo_reel.py NOMBRE --formato rebote|galton|fourier|incendio|montecarlo|pendulos` → ajustar PARAM con `tools/sim_info.js` (en el navegador: Node y Chromium difieren en simulaciones caóticas) → UNA hoja de contacto al usuario → `producir_reel.py NOMBRE_REEL todo` → `07_QC/revision_visual.txt` («nada flota: OK») → QC «TODO CORRECTO».
 - Se amplía `motor/sim.js` / `motor/reel.js`; `motor/plantilla.js` y `lib/` son copias intactas de la v1.28.

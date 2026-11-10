@@ -1,4 +1,4 @@
-# Instrucciones · motor de simulación (`motor/sim.js`) y montaje (`motor/reel.js`) · SIN_VOZ 2.1
+# Instrucciones · motor de simulación (`motor/sim.js`) y montaje (`motor/reel.js`) · SIN_VOZ 2.2
 
 Orden de carga en `index.src.html`: `lib/harness.js` (H), `lib/sound.js` (SOUND), `js/tiempos.js`, `motor/plantilla.js`, `motor/sim.js`, `motor/reel.js` y `js/episodio.js`.
 
@@ -30,11 +30,17 @@ Todas corren una vez al cargar, con paso fijo (`fps × sub`, por defecto 30 × 8
 | `SIM.galton(cfg)` | `dur, x0, yPeg0, filas, dx, dy, pegR, r, nBolas, tIni, tFin, tUltima` (la última, sola), `pre` (precarga), `yFondo, g, e` (restitución), `fric, drag, vMax, seed` | `activas(f)` → `[x, y, id…]`, `cuenta(f)`, `pilas[k]`, `slot(k, s)`, `casilla, sl, llegada, sal, ultima, binL, yBin, yF, per`, `eventos` (`clavo {fila, col, v}`, `casilla {k, capa, v}`) |
 | `SIM.fourier(cfg)` | `trazo` (`[[x, y]…]` cerrado, en orden de dibujo), `N` (muestras, 2048), `K` (términos ±K) | `coef` (de mayor a menor radio), `c0`, `punto(n, tau)`, `cadena(n, tau)`, `muestras` |
 | v2.1 | `SIM.rebote` → `genF(f, i)` (generación en el fotograma f) y `madre[i]` · `SIM.galton` → `fps` libre (90 para cámara lenta, con `sub: 3`), `xUltima`, y en cada choque `id` y `lado` · `SIM.fourier({ muestras })`: dos DFT de señales reales (`[x, 0]` y `[y, 0]`) para las cadenas x/y | |
+| `SIM.incendio(cfg)` (v2.2) | `cols, rows, densidad(c, r)`, `corte(c, r, rng)` (árbol cortado → tocón), `focos [[c, r]…]`, `dMin, dMax` (retraso de contagio entre vecinos), `arde` (s), `seed` | `arbol` (0 vacío, 1 árbol, 2 tocón), `tIgn[i]`, `orden` (de ignición), `tFin`, `escala(k)` (multiplica los tiempos; Dijkstra es lineal) |
+| `SIM.montecarlo(cfg)` (v2.2) | `n, seed` | `x, y` en [-1, 1], `dentro`, `acum`, `pi(k)` = 4 · dentro / total con los k primeros |
+| `SIM.pendulos(cfg)` (v2.2) | `n (15), gamma, K, g, theta0, extra` | `T[k] = gamma/(K+k)`, `L[k] = g(T/2π)²`, `theta(k, t)`, `oscilaciones(k, t)`, `cruces [{ t, n, sentido }]` (pasos por la vertical) |
 | `SIM.grid(cell, W, H)` · `SIM.resample(pts, N)` | Rejilla espacial para choques · remuestreo por longitud de arco con Catmull-Rom | |
 
 Ajustes conocidos (comprobados en Chromium):
 - **Rebote**: `r0 40`, `r 13`, `R 420`, `v0 900`, `tDiv 3,2`, `nMax 600`, `ang0 −0,25` y `seed 7` llenan el círculo a los 33,5 s de 35.
 - **Galton**: `e 0,5`, `fric 0,7`, `drag 1,5` y `pegR 8` con `dx 46` dan σ ≈ 2,3 casillas y curtosis ≈ 3, como una normal.
+- **Incendio**: bosque al 86 %, cortafuegos de 8 columnas que conservan 66 % (el fuego cruza) y 42 % (se detiene): pasa en 177 de 400 semillas; la 244 llega a la última columna. Para quitar el tiempo muerto final, remapea `tIgn` de forma monótona (ver el ejemplo).
+- **Montecarlo**: `seed 403` con 40.000 puntos termina en 3,1416 exacto.
+- **Péndulos**: `gamma 34`, `K 36` (proporción de longitudes 1,9 : 1, como los aparatos clásicos); vista 3D con una cámara fija (`pr(x, y, z)` en el ejemplo).
 
 **Importante**: ajusta los `PARAM` con `node tools/sim_info.js 04_CODIGO/index.html`. Calcula en el mismo navegador que el render; Node puede dar otro resultado en una simulación caótica.
 
@@ -48,7 +54,7 @@ Ajustes conocidos (comprobados en Chromium):
 | `R.contador(ctx, t, valor, { x, y (1335), px (130), glow 'r,g,b', bump 0..1, sufijo })` | Cifra grande blanca con halo de color |
 | `R.frase(ctx, t, { y, px, fin })` | La frase final (el dato), entra en `tFrase` y se va antes del empalme (`fin`, por defecto `dur − loop − 0,15`) |
 | `R.marcaAgua(ctx, t, o)` | «ASOMBROTECA» de 32 px al 50 %, con contorno oscuro, en (925, 1424), alineado a la derecha |
-| `R.chico(ctx, s, x, y, { px (32), font, fw, col, align, alpha, kind })` | Texto pequeño sin animación: `kind` `'etiqueta'` (≤ 2 a la vez, 1-3 palabras), `'eje'` (números/letras de ejes) o `'formula'` |
+| `R.chico(ctx, s, x, y, { px (32), font, fw, col, align, alpha, kind })` | Texto pequeño sin animación: `kind` `'etiqueta'` (≤ 2 a la vez, 1-3 palabras), `'eje'` (números/letras de ejes), `'formula'` o `'unidad'` (v2.2: una palabra bajo el contador, ≤ 1) |
 | `R.texto(ctx, s, t, t0, t1, o)` | Texto con contorno dentro de la zona segura (`*resalte*`, ` / ` salto de línea). Lo usan los anteriores |
 | `R.asmr(k, eventos, { voz, gain, maxBin (2), bin (1/50 s), dens (40), base })` | Cada evento `{ t, p | f, v, pan }` suena con la voz elegida. Por cada ventana de `bin` s quedan los `maxBin` más fuertes y el volumen baja con la densidad, para que mil choques suenen a lluvia suave sin saturar. Voces: `madera`, `cristal`, `gota`, `tic`, `campana` |
 | `R.nota(p, base)` | Índice → frecuencia de la escala pentatónica (siempre suena bien) |
@@ -67,7 +73,7 @@ La simulación se calcula en su propio tiempo `s`. El vídeo la recorre con un r
 | Movimiento continuo | Diferencia media entre fotogramas cada 0,5 s > 0,15/255, sin congelados > 1 s ni negros |
 | Fondo oscuro | Luminancia media < 45/255 |
 | Sonido de la simulación | Arranques de la pista de efectos (subidas de envolvente de 5 ms) que coinciden ±25 ms con un evento (`window.eventos()`): ≥ 95 % |
-| Texto mínimo | `tools/textos.js` cada 0,1 s: `pregunta`, `contador`, `frase` y `marca` (uno de cada), `etiqueta` (≤ 2), `eje` y `formula`, dentro de la zona segura; pregunta y frase nunca juntas (también durante el empalme) |
+| Texto mínimo | `tools/textos.js` cada 0,1 s: `pregunta`, `contador`, `frase` y `marca` (uno de cada), `etiqueta` (≤ 2), `eje`, `formula` y `unidad` (≤ 1), dentro de la zona segura; pregunta y frase nunca juntas (también durante el empalme) |
 | Marca de agua | Presente en el 100 % de las muestras |
 | Bucle | Último fotograma ≈ primero (diferencia < 8/255) |
 | Nada flota | `07_QC/revision_visual.txt` con «nada flota: OK» tras mirar la hoja de contacto |
