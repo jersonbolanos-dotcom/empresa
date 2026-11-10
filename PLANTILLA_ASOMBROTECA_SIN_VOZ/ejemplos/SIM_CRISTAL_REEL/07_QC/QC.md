@@ -5,16 +5,16 @@
 | Control | Resultado | |
 |---|---|---|
 | Formato | h264 1080×1920 30/1 · aac 48000 Hz | ✔ |
-| Duración (25-45 s) / tamaño (< 100 MB) | 32.00 s · 7.6 MB | ✔ |
+| Duración (25-45 s) / tamaño (< 100 MB) | 32.00 s · 7.7 MB | ✔ |
 | Decodificación completa | 0 errores | ✔ |
 | Una sola escena (sin cortes: scdet) | 0 cortes | ✔ |
 | Movimiento continuo (cambio entre medios segundos) | mín. 0.40/255 · 0 congelados > 1 s · 0 negros | ✔ |
 | Movimiento desde el fotograma 0 | 0.79/255 en 0,5 s | ✔ |
 | Fondo oscuro (luminancia media) | 16.0/255 | ✔ |
-| Sonoridad (−14 LUFS, pico ≤ −1 dBTP) | -14.0 LUFS · pico -7.0 dBTP | ✔ |
-| Sonido sacado de la simulación (arranques = eventos ±25 ms) | 5/5 arranques coinciden con eventos (6000 eventos) | ✔ |
+| Sonoridad (−14 LUFS, pico ≤ −1 dBTP) | -13.8 LUFS · pico -6.7 dBTP | ✔ |
+| Sonido sacado de la simulación (arranques = eventos ±25 ms) | 6/6 arranques coinciden con eventos (6001 eventos) | ✔ |
 | Música (muy baja o ninguna) | ninguna | ✔ |
-| Silencios > 1 s (informativo) | 2 | ✔ |
+| Silencios > 1 s (informativo) | 1 | ✔ |
 | Determinismo (simulación precalculada incluida) | OK | ✔ |
 | Zona segura IG (texto en 220 ≤ y ≤ 1450, x ≤ 940) | 0 textos fuera | ✔ |
 | Texto mínimo (pregunta, contador, frase, marca; ≤ 2 etiquetas, ejes, fórmula, unidad) | tipos: contador (máx. 1 a la vez), frase (máx. 1 a la vez), marca (máx. 1 a la vez), pregunta (máx. 1 a la vez), unidad (máx. 1 a la vez) | ✔ |
