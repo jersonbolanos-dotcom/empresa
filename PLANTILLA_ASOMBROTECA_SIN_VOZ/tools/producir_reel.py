@@ -84,11 +84,11 @@ def p_render(P, a):
     shutil.copy2(os.path.join(AU, 'sfx.wav'), os.path.join(A5, 'efectos_sonido.wav'))
     mez = os.path.join(A5, 'mezcla_final.wav'); mus_wav = os.path.join(A5, 'musica_original.wav'); sfx_wav = os.path.join(A5, 'efectos_sonido.wav')
     # sin voz: la música se lleva a un nivel fijo (−20 LUFS + --musica-db) y los efectos se comprimen un poco (los clics tienen
-    # picos muy altos); después loudnorm en dos pasadas fija −14 LUFS con pico verdadero ≤ −1,5 dBTP. Fundidos mínimos para el bucle.
+    # picos muy altos); después loudnorm en dos pasadas fija −14 LUFS con pico verdadero ≤ −1,5 dBTP. Fundidos mínimos para el bucle. v2.2: paso bajo de 16 kHz (el AAC corta esos agudos y su rebote subía el pico del MP4).
     Lm = sonoridad(mus_wav); gm = (-20 + a.musica_db - Lm['I']) if Lm and Lm['I'] > -70 else -60
     pre = (f'[0:a]aresample=48000,aformat=channel_layouts=stereo,volume={gm:.2f}dB[m];'
            '[1:a]aresample=48000,aformat=channel_layouts=stereo,acompressor=threshold=0.06:ratio=4:attack=1:release=120:makeup=2[s];'
-           f'[m][s]amix=inputs=2:normalize=0,afade=t=in:st=0:d=0.01,afade=t=out:st={D - 0.12:.3f}:d=0.12,atrim=0:{D}')
+           f'[m][s]amix=inputs=2:normalize=0,lowpass=f=16000,afade=t=in:st=0:d=0.01,afade=t=out:st={D - 0.12:.3f}:d=0.12,atrim=0:{D}')
     r = subprocess.run(['ffmpeg', '-hide_banner', '-i', mus_wav, '-i', sfx_wav, '-filter_complex', pre + ',loudnorm=I=-14:TP=-1.5:LRA=11:print_format=json[o]', '-map', '[o]', '-f', 'null', '-'], capture_output=True, text=True).stderr
     j = json.loads(r[r.rindex('{'):r.rindex('}') + 1])
     ln = (f"loudnorm=I=-14:TP=-1.5:LRA=11:measured_I={j['input_i']}:measured_TP={j['input_tp']}:measured_LRA={j['input_lra']}:measured_thresh={j['input_thresh']}:offset={j['target_offset']}:linear=true")

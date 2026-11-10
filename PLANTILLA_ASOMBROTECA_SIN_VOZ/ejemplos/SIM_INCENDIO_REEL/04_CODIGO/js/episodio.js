@@ -50,7 +50,7 @@
    ctx.fillStyle = `rgba(255,${70 + 50 * fl},10,${0.28 * v})`; ctx.beginPath(); ctx.arc(x, y - 3, 22 * v * fl, 0, TAU); ctx.fill(); ctx.fillStyle = `rgba(255,${120 + 60 * fl},30,${0.55 * v})`; ctx.beginPath(); ctx.arc(x, y - 2, 11 * v * fl, 0, TAU); ctx.fill(); ctx.fillStyle = `rgba(255,${225 + 30 * fl},${150},${0.95 * v})`; ctx.beginPath(); ctx.arc(x, y - 1, 5 * v * fl, 0, TAU); ctx.fill(); }
   ctx.globalCompositeOperation = 'source-over';
   // humo: velos grises que derivan despacio sobre el bosque mientras arde y se disipan tras apagarse (movimiento continuo)
-  const hum = cl((t - 2) / 3) * (1 - sm(T_APAGA - 0.5, T_BROTE + 0.4, t)); if (hum > 0.01) { ctx.save(); ctx.beginPath(); ctx.rect(X0 - 10, Y0 - 10, CO * CS + 20, RO * CS + 20); ctx.clip(); const W = CO * CS + 240;
+  const hum = cl((t - 2) / 3) * (1 - sm(T_BROTE - 0.2, T_BROTE + 1.4, t)); if (hum > 0.01) { ctx.save(); ctx.beginPath(); ctx.rect(X0 - 10, Y0 - 10, CO * CS + 20, RO * CS + 20); ctx.clip(); const W = CO * CS + 240;
    for (let b = 0; b < 9; b++) { const x = X0 - 120 + ((b * 137 + t * (22 + b * 3)) % W), y = Y0 + RO * CS * ((b * 0.383) % 1) - 30 * Math.sin(t * 0.4 + b), rr = 110 + 30 * Math.sin(t * 0.7 + b * 2);
     const g2 = ctx.createRadialGradient(x, y, 0, x, y, rr); g2.addColorStop(0, `rgba(150,140,135,${0.16 * hum})`); g2.addColorStop(1, 'rgba(150,140,135,0)'); ctx.fillStyle = g2; ctx.fillRect(x - rr, y - rr, 2 * rr, 2 * rr); }
    ctx.restore(); }
