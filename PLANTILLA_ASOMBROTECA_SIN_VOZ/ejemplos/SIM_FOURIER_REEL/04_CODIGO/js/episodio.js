@@ -52,7 +52,10 @@
   const gr = ctx.createLinearGradient(160, 450, 1000, 1150); gr.addColorStop(0, '#5fd2ff'); gr.addColorStop(0.55, '#b78cff'); gr.addColorStop(1, '#ff5fb4');
   ctx.save(); ctx.shadowColor = 'rgba(150,170,255,0.9)'; ctx.shadowBlur = 16; traza(ctx, e, u, 5 + fin, gr, 1); ctx.restore();
   // epiciclos (se apagan al terminar el dibujo)
-  const ca = 1 - fin; if (ca > 0) { const ch = F.cadena(e.n, u); ctx.save(); ctx.lineWidth = 1.6;
+  // al completar el dibujo los círculos NO se paran: siguen girando tenues y el punto de luz vuelve a recorrer la silueta (movimiento continuo)
+  const ca = 1 - 0.5 * fin, ug = t > T_FIN ? ((t - e.t0) / e.d) % 1 : u;
+  if (fin > 0) { const q1 = Math.floor(ug * M), q0 = Math.max(0, q1 - 90); ctx.save(); ctx.globalAlpha = 0.85 * fin; ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 8; ctx.lineCap = 'round'; ctx.shadowColor = 'rgba(255,255,255,0.9)'; ctx.shadowBlur = 22; ctx.beginPath(); for (let q = q0; q <= q1; q++) { const x = e.traza[2 * q], y = e.traza[2 * q + 1]; q === q0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y); } ctx.stroke(); ctx.restore(); }   // tramo de luz que recorre la silueta
+  if (ca > 0) { const ch = F.cadena(e.n, ug); ctx.save(); ctx.lineWidth = 1.6;
    for (let j = 0; j < e.n; j++) { const r = F.coef[j].r; if (r < 0.7) break; const [x, y] = ch[j], [x2, y2] = ch[j + 1]; ctx.strokeStyle = `rgba(255,255,255,${ca * (j < 3 ? 0.32 : 0.18)})`; ctx.beginPath(); ctx.arc(x, y, r, 0, TAU); ctx.stroke(); ctx.strokeStyle = `rgba(255,255,255,${ca * 0.55})`; ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x2, y2); ctx.stroke(); }
    const [px, py] = ch[ch.length - 1]; ctx.fillStyle = '#ffffff'; ctx.beginPath(); ctx.arc(px, py, 7, 0, TAU); ctx.fill(); P.glow(ctx, px, py, 40, '255,255,255', 0.5 * ca); ctx.restore(); }
   R.contador(ctx, t, e.n, { y: 1345, glow: '183,140,255', bump: 1 - cl((t - e.t0) / 0.3) });

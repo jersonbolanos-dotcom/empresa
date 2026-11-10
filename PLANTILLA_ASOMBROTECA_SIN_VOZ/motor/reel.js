@@ -62,8 +62,10 @@
 
  // La pregunta (≤ 6 palabras) ya está en el fotograma 0 y se va en tPregunta
  R.pregunta = (ctx, t, o = {}) => R.texto(ctx, TL.pregunta, t, 0, TL.tPregunta, { y: 330, px: 74, kind: 'pregunta', ...o });
- // La frase final (el dato) entra en tFrase y se queda hasta el final (el bucle la funde con la pregunta)
- R.frase = (ctx, t, o = {}) => R.texto(ctx, TL.frase, t, TL.tFrase, null, { y: 330, px: 60, anim: 'sube', kind: 'frase', maxLines: 3, fadeOut: false, ...o });
+ // La frase final (el dato) entra en tFrase y se queda casi hasta el final
+ // y se va por completo ANTES de que empiece el empalme con el fotograma 0 (así nunca se encima con la pregunta)
+ R.LOOP = 0.6;
+ R.frase = (ctx, t, o = {}) => R.texto(ctx, TL.frase, t, TL.tFrase, o.fin ?? TL.dur - R.LOOP - 0.15, { y: 330, px: 60, anim: 'sube', kind: 'frase', maxLines: 3, ...o });
  // Contador grande. o = { x, y (1335), px (130), col, glow 'r,g,b', bump 0..1, sufijo }
  R.contador = (ctx, t, valor, o = {}) => { const s = (typeof valor === 'number' ? fmtN(valor) : String(valor)) + (o.sufijo || ''); let px = o.px || 130; ctx.save(); ctx.font = `900 ${px}px "Nunito"`; while (ctx.measureText(s).width > (o.maxW || 760) && px > 40) { px -= 4; ctx.font = `900 ${px}px "Nunito"`; }
   const tw = ctx.measureText(s).width, x = cl(o.x ?? 540, SAFE.left + tw / 2, SAFE.right - tw / 2), y = cl(o.y ?? 1335, SAFE.top + px * 0.62, SAFE.bottom - px * 0.62), b = o.bump || 0, sc = 1 + 0.06 * Math.sin(Math.PI * b);
@@ -99,11 +101,12 @@
  R.musica = (k, D, tipo) => { if (!tipo || tipo === 'no') return; MUS.piano(k, 0, D, { bpm: 240 * Math.max(2, Math.round(D / (240 / 60))) / D, gain: 0.35, strings: 0.8, chords: [['A2', 'E3', 'A3', 'C4'], ['F2', 'C3', 'F3', 'A3'], ['C3', 'G3', 'C4', 'E4'], ['G2', 'D3', 'G3', 'B3']] }); };
 
  // ---------------- MONTAJE (una sola escena, sin cortes) ----------------
- R.make = (cfg) => { const D = cfg.duration ?? TL.dur, LOOP = cfg.loop ?? 0.6; let LY = null;
+ R.make = (cfg) => { const D = cfg.duration ?? TL.dur, LOOP = cfg.loop ?? 0.6; R.LOOP = LOOP; let LY = null;
   const frame = (ctx, t) => { ctx.save(); R.fondo(ctx, t, cfg.fondo); cfg.draw(ctx, t); R.marcaAgua(ctx, t, cfg.marca); ctx.restore(); };
   const explainer = (ctx, Wd, Hd, t) => { LOG = typeof window !== 'undefined' && window.__SAFE_QC ? [] : null; frame(ctx, t);
-   if (LOOP > 0 && t > D - LOOP) { if (!LY) LY = H.layer(W, HH); const c = LY.getContext('2d'); c.setTransform(1, 0, 0, 1, 0, 0); c.globalAlpha = 1; c.clearRect(0, 0, W, HH); const keep = LOG; LOG = null; frame(c, 0); LOG = keep;
-    ctx.save(); ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.globalAlpha = E.inOut(win(t, D - LOOP, D)); ctx.drawImage(LY, 0, 0); ctx.restore(); }
+   if (LOOP > 0 && t > D - LOOP) { if (!LY) LY = H.layer(W, HH); const c = LY.getContext('2d'); c.setTransform(1, 0, 0, 1, 0, 0); c.globalAlpha = 1; c.clearRect(0, 0, W, HH); const keep = LOG, al = E.inOut(win(t, D - LOOP, D)); LOG = keep ? [] : null; frame(c, 0); const sub = LOG; LOG = keep;
+    if (keep && sub && al > 0.02) for (const e of sub) keep.push(['empalme:' + e[0], e[1], e[2], e[3], e[4]]);   // textos del fotograma 0 que vuelven (QC)
+    ctx.save(); ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.globalAlpha = al; ctx.drawImage(LY, 0, 0); ctx.restore(); }
    // viñeta suave (fondo limpio)
    H.vignette(ctx, W, HH, 0.35, '0,0,0'); };
   const scoreSound = (k) => { R.EV = []; cfg.sound(k); };

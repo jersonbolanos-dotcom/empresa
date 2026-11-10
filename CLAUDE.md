@@ -39,8 +39,9 @@ con resumen en español. Responder siempre en español.
 - En arquitectura/paisaje: modelo maestro con ejes cardinales y vector solar + `comprobaciones.js` (ver Yakhchal); fotos con licencia condicionada → entregar versión FINAL sin foto y otra CON_FOTO.
 - Los efectos de sonido se generan con `FX.*` dentro de cada beat (`sfx(k)`); no hace falta audio externo.
 
-## Reels SIN VOZ (`PLANTILLA_ASOMBROTECA_SIN_VOZ`)
-- Reels de 15-25 s sin narración. El reloj es `03_GUION/tiempos.txt` (no hay voz ni md5). Leer `PLANTILLA_ASOMBROTECA_SIN_VOZ/00_LEEME_PRIMERO.md` e `INSTRUCCIONES_REEL.md`.
-- `tools/nuevo_reel.py NOMBRE --formato contador|quiz|tamanos|linea|capas` → `tools/producir_reel.py NOMBRE_REEL prueba …` → `todo`.
-- Texto ≤ 8 palabras, efecto en cada aparición, gancho antes de 1 s, bucle (último fotograma ≈ primero). QC «TODO CORRECTO» con `07_QC/revision_visual.txt` («nada flota: OK»).
-- Se amplía `motor/reel.js`; `motor/plantilla.js` y `lib/` son copias intactas de la v1.28.
+## Reels SIN VOZ (`PLANTILLA_ASOMBROTECA_SIN_VOZ`, v2.0: simulación hipnótica; la v1.0 de infografías está en `V1/`)
+- Un solo proceso físico continuo y determinista (`motor/sim.js`, precalculado con `H.rng`), 25-45 s, sin cortes, en movimiento desde el fotograma 0.
+- Texto mínimo: pregunta ≤ 6 palabras + contador grande + una frase final con el dato (fuente en `FUENTES_Y_DECISIONES.md`). Marca de agua «ASOMBROTECA» durante TODO el vídeo, en una esquina de la zona segura.
+- Sonido sacado de los eventos (`R.asmr`); música muy baja o ninguna; fondo oscuro; final incierto y empalme con el inicio.
+- `tools/nuevo_reel.py NOMBRE --formato rebote|galton|fourier` → ajustar PARAM con `tools/sim_info.js` (en el navegador: Node y Chromium difieren en simulaciones caóticas) → UNA hoja de contacto al usuario → `producir_reel.py NOMBRE_REEL todo` → `07_QC/revision_visual.txt` («nada flota: OK») → QC «TODO CORRECTO».
+- Se amplía `motor/sim.js` / `motor/reel.js`; `motor/plantilla.js` y `lib/` son copias intactas de la v1.28.

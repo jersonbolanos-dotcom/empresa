@@ -36,10 +36,13 @@
   // guías laterales y separadores de las casillas
   ctx.strokeStyle = 'rgba(255,255,255,0.22)'; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(G.x0 - G.dx * 0.75, G.yPeg0 - G.dy * 1.2); ctx.lineTo(S.binL, S.yBin); ctx.moveTo(G.x0 + G.dx * 0.75, G.yPeg0 - G.dy * 1.2); ctx.lineTo(S.binL + S.nBins * G.dx, S.yBin); ctx.stroke();
   ctx.strokeStyle = 'rgba(255,255,255,0.16)'; ctx.lineWidth = 2; ctx.beginPath(); for (let k = 0; k <= S.nBins; k++) { const x = S.binL + k * G.dx; ctx.moveTo(x, S.yBin + 6); ctx.lineTo(x, S.yF + 4); } ctx.stroke();
-  // compuerta del fondo (se abre al vaciar)
-  const ab = cl(vac / 0.25); ctx.strokeStyle = 'rgba(255,255,255,0.4)'; ctx.lineWidth = 4; ctx.beginPath(); for (let k = 0; k < S.nBins; k++) { const x = S.binL + k * G.dx; ctx.moveTo(x, S.yF + 4); ctx.lineTo(x + G.dx * Math.cos(ab * 1.3), S.yF + 4 + G.dx * Math.sin(ab * 1.3)); } ctx.stroke();
+  // compuerta del piso: cada tramo se desliza en horizontal y deja una ranura (no baja, no tapa la marca de agua)
+  const ab = E.inOut(cl(vac / 0.3)) * (1 - sm(D - 0.75, D - 0.6, t)); ctx.strokeStyle = 'rgba(255,255,255,0.4)'; ctx.lineWidth = 4; ctx.beginPath(); for (let k = 0; k < S.nBins; k++) { const x = S.binL + k * G.dx; ctx.moveTo(x, S.yF + 4); ctx.lineTo(x + G.dx * (1 - 0.7 * ab), S.yF + 4); } ctx.stroke();
+  // al vaciar, las bolas salen por la ranura: nada se dibuja por debajo del piso
+  ctx.save(); ctx.beginPath(); ctx.rect(0, 0, 1080, S.yF + 2); ctx.clip();
   // bolas apiladas
   for (let k = 0; k < S.nBins; k++) { const p = pil[k]; for (let q = 0; q < p.length; q++) { const b = p[q]; if (b.t > t) continue; const [x, y] = S.slot(k, b.s); const isU = b.i === U; ctx.globalAlpha = fadeV; ctx.fillStyle = isU ? '#ffffff' : COLS[b.i]; ctx.beginPath(); ctx.arc(x, y + drop, G.r * (isU ? 1.5 : 1), 0, TAU); ctx.fill(); if (isU && fadeV > 0) P.glow(ctx, x, y + drop, 60, '255,255,255', 0.6 * fadeV); } }
+  ctx.restore();
   // bolas en vuelo
   const A = S.activas(f); for (let q = 0; q < A.length; q += 3) { const id = A[q + 2], isU = id === U; ctx.globalAlpha = 1; ctx.fillStyle = isU ? '#ffffff' : COLS[id]; ctx.beginPath(); ctx.arc(A[q], A[q + 1], G.r * (isU ? 1.5 : 1), 0, TAU); ctx.fill(); if (isU) P.glow(ctx, A[q], A[q + 1], 70, '255,255,255', 0.55); }
   ctx.globalAlpha = 1;

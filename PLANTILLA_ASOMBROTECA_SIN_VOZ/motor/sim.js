@@ -29,39 +29,46 @@
 
  // =====================================================================================================
  // 1 · REBOTE: bolas que se dividen al tocar el borde (como bacterias que se dividen)
- // cfg = { dur, fps (30), sub (8 pasos por fotograma), cx, cy, R (radio del círculo), r (radio de bola), v0 (px/s), tDiv (edad mínima
- //   para dividirse, s), nMax, seed, x0, y0, ang0, tColapso (s antes del final en que todo vuelve a una bola), dColapso }
- // → { n(f), x(f,i), y(f,i), gen[i], born[i], tLleno, eventos: [{ t, tipo: 'borde'|'choque'|'nace'|'lleno', v, n, ang }] }
+ // cfg = { dur, fps (30), sub (8 pasos por fotograma), cx, cy, R (radio del círculo), r (radio mínimo de bola), r0 (radio de la bola inicial;
+ //   cada división lo divide por √2), v0 (px/s), tDiv (edad mínima para dividirse, s), age0 (edad inicial), nMax, seed, x0, y0, ang0,
+ //   inicio (true: arranca tocando el borde con un evento 'inicio' en t = 0), tColapso (s antes del final sin más divisiones) }
+ // → { n(f), x(f,i), y(f,i), radio(f,i), gen[i], born[i], tLleno, eventos: [{ t, tipo: 'inicio'|'borde'|'choque'|'nace'|'lleno', v, n, ang }] }
  // =====================================================================================================
- SIM.rebote = (cfg) => { const fps = cfg.fps || 30, sub = cfg.sub || 8, dt = 1 / (fps * sub), NF = Math.round(cfg.dur * fps), R = cfg.R, r = cfg.r, cx = cfg.cx, cy = cfg.cy, nMax = cfg.nMax;
-  const rng = H.rng(cfg.seed ?? 1), x = new Float64Array(nMax), y = new Float64Array(nMax), vx = new Float64Array(nMax), vy = new Float64Array(nMax), age = new Float64Array(nMax), gen = new Uint16Array(nMax), born = new Float32Array(nMax);
-  let n = 1; x[0] = cfg.x0 ?? cx; y[0] = cfg.y0 ?? cy - R * 0.35; const a0 = cfg.ang0 ?? 0.9; vx[0] = Math.cos(a0) * cfg.v0; vy[0] = Math.sin(a0) * cfg.v0; age[0] = cfg.age0 ?? 0; born[0] = -10;
-  const ev = [], g = SIM.grid(2 * r, 1080, 1920), off = new Int32Array(NF + 1), pos = []; let tLleno = null, total = 0;
-  const lim = R - r, tStop = cfg.dur - (cfg.tColapso ?? 1.2);
+ SIM.rebote = (cfg) => { const fps = cfg.fps || 30, sub = cfg.sub || 8, dt = 1 / (fps * sub), NF = Math.round(cfg.dur * fps), R = cfg.R, rMin = cfg.r, cx = cfg.cx, cy = cfg.cy, nMax = cfg.nMax;
+  // radio de cada bola según su generación: al dividirse, el área se reparte entre las dos hijas (radio / √2), hasta rMin
+  const r0 = cfg.r0 ?? rMin, rad = (g) => Math.max(rMin, r0 * Math.pow(2, -g / 2));
+  const rng = H.rng(cfg.seed ?? 1), x = new Float64Array(nMax), y = new Float64Array(nMax), vx = new Float64Array(nMax), vy = new Float64Array(nMax), age = new Float64Array(nMax), gen = new Uint16Array(nMax), born = new Float32Array(nMax), rr = new Float64Array(nMax);
+  const genF = []; // generación de cada bola en cada fotograma (para el radio): se guarda como Uint8 por fotograma
+  let n = 1; x[0] = cfg.x0 ?? cx; y[0] = cfg.y0 ?? cy - R * 0.35; const a0 = cfg.ang0 ?? 0.9; vx[0] = Math.cos(a0) * cfg.v0; vy[0] = Math.sin(a0) * cfg.v0; age[0] = cfg.age0 ?? 0; born[0] = -10; rr[0] = rad(0);
+  if (cfg.inicio) { const d = Math.hypot(x[0] - cx, y[0] - cy) || 1; x[0] = cx + (x[0] - cx) / d * (R - rr[0]); y[0] = cy + (y[0] - cy) / d * (R - rr[0]); }   // arranca tocando el borde
+  const ev = cfg.inicio ? [{ t: 0, tipo: 'inicio', v: cfg.v0, ang: Math.atan2(y[0] - cy, x[0] - cx), n: 1 }] : [], off = new Int32Array(NF + 1), pos = []; let tLleno = null, total = 0, g = null, gCell = 0;
+  const tStop = cfg.dur - (cfg.tColapso ?? 1.2);
   for (let f = 0; f < NF; f++) {
-   off[f] = total; for (let i = 0; i < n; i++) { pos.push(x[i], y[i]); } total += 2 * n;   // estado del fotograma f (instante f/fps)
+   off[f] = total; const gf = new Uint8Array(n); for (let i = 0; i < n; i++) { pos.push(x[i], y[i]); gf[i] = Math.min(255, gen[i]); } genF.push(gf); total += 2 * n;   // estado del fotograma f
    for (let s = 0; s < sub; s++) { const t = (f * sub + s) * dt;
     for (let i = 0; i < n; i++) { x[i] += vx[i] * dt; y[i] += vy[i] * dt; age[i] += dt; }
-    // borde del círculo: rebote especular y, si la bola ya «maduró», división
-    const nNow = n; for (let i = 0; i < nNow; i++) { const dx = x[i] - cx, dy = y[i] - cy, d = Math.hypot(dx, dy); if (d <= lim) continue;
+    // borde del círculo: rebote especular y, si la bola ya «maduró», división en dos hijas
+    const nNow = n; for (let i = 0; i < nNow; i++) { const lim = R - rr[i], dx = x[i] - cx, dy = y[i] - cy, d = Math.hypot(dx, dy); if (d <= lim) continue;
      const nx = dx / d, ny = dy / d, vn = vx[i] * nx + vy[i] * ny; x[i] = cx + nx * lim; y[i] = cy + ny * lim; if (vn <= 0) continue;
-     vx[i] -= 2 * vn * nx; vy[i] -= 2 * vn * ny; ev.push({ t, tipo: 'borde', v: vn, ang: Math.atan2(ny, nx), n });
+     vx[i] -= 2 * vn * nx; vy[i] -= 2 * vn * ny; ev.push({ t, tipo: 'borde', v: vn, ang: Math.atan2(ny, nx), n, r: rr[i] });
      if (age[i] >= cfg.tDiv && n < nMax && t < tStop) { const j = n++, tx = -ny, ty = nx, sp = Math.hypot(vx[i], vy[i]), rot = (rng() - 0.5) * 1.4;
-      x[j] = x[i] + tx * r * 2.05; y[j] = y[i] + ty * r * 2.05; const dj = Math.hypot(x[j] - cx, y[j] - cy); if (dj > lim) { x[j] = cx + (x[j] - cx) / dj * lim; y[j] = cy + (y[j] - cy) / dj * lim; }
-      const ang = Math.atan2(vy[i], vx[i]) + rot; vx[j] = Math.cos(ang) * sp; vy[j] = Math.sin(ang) * sp; age[i] = 0; age[j] = 0; gen[j] = gen[i] + 1; born[j] = t;
+      gen[i]++; gen[j] = gen[i]; rr[i] = rr[j] = rad(gen[i]);
+      x[j] = x[i] + tx * rr[i] * 2.05; y[j] = y[i] + ty * rr[i] * 2.05; const lj = R - rr[j], dj = Math.hypot(x[j] - cx, y[j] - cy); if (dj > lj) { x[j] = cx + (x[j] - cx) / dj * lj; y[j] = cy + (y[j] - cy) / dj * lj; }
+      const ang = Math.atan2(vy[i], vx[i]) + rot; vx[j] = Math.cos(ang) * sp; vy[j] = Math.sin(ang) * sp; age[i] = 0; age[j] = 0; born[j] = t;
       ev.push({ t, tipo: 'nace', n, v: sp }); if (n === nMax && tLleno == null) { tLleno = t; ev.push({ t, tipo: 'lleno', n }); } } }
-    // choques entre bolas (elásticos), con rejilla espacial
+    // choques entre bolas (elásticos, masa ∝ área), con rejilla espacial de celda = diámetro mayor
+    let rM = 0; for (let i = 0; i < n; i++) if (rr[i] > rM) rM = rr[i]; if (!g || Math.abs(2 * rM - gCell) > 0.5) { gCell = 2 * rM; g = SIM.grid(gCell, 1080, 1920); }
     g.clear(); for (let i = 0; i < n; i++) g.add(i, x[i], y[i]);
     for (let i = 0; i < n; i++) { const gx = Math.floor(x[i] / g.cell) + 1, gy = Math.floor(y[i] / g.cell) + 1;
-     for (let oy = -1; oy <= 1; oy++) for (let ox = -1; ox <= 1; ox++) { let j = g.head[(gy + oy) * g.nx + gx + ox]; while (j >= 0) { if (j > i) { const dx = x[j] - x[i], dy = y[j] - y[i], d2 = dx * dx + dy * dy;
-       if (d2 < 4 * r * r && d2 > 1e-9) { const d = Math.sqrt(d2), nx = dx / d, ny = dy / d, ov = (2 * r - d) / 2; x[i] -= nx * ov; y[i] -= ny * ov; x[j] += nx * ov; y[j] += ny * ov;
-        const rv = (vx[j] - vx[i]) * nx + (vy[j] - vy[i]) * ny; if (rv < 0) { vx[i] += rv * nx; vy[i] += rv * ny; vx[j] -= rv * nx; vy[j] -= rv * ny; if (-rv > (cfg.vChoque ?? 120)) ev.push({ t, tipo: 'choque', v: -rv, n }); } } } j = g.next[j]; } } }
+     for (let oy = -1; oy <= 1; oy++) for (let ox = -1; ox <= 1; ox++) { let j = g.head[(gy + oy) * g.nx + gx + ox]; while (j >= 0) { if (j > i) { const dx = x[j] - x[i], dy = y[j] - y[i], d2 = dx * dx + dy * dy, sr = rr[i] + rr[j];
+       if (d2 < sr * sr && d2 > 1e-9) { const d = Math.sqrt(d2), nx = dx / d, ny = dy / d, mi = rr[i] * rr[i], mj = rr[j] * rr[j], ov = sr - d; x[i] -= nx * ov * mj / (mi + mj); y[i] -= ny * ov * mj / (mi + mj); x[j] += nx * ov * mi / (mi + mj); y[j] += ny * ov * mi / (mi + mj);
+        const rv = (vx[j] - vx[i]) * nx + (vy[j] - vy[i]) * ny; if (rv < 0) { const k = 2 * rv / (mi + mj); vx[i] += k * mj * nx; vy[i] += k * mj * ny; vx[j] -= k * mi * nx; vy[j] -= k * mi * ny; if (-rv > (cfg.vChoque ?? 120)) ev.push({ t, tipo: 'choque', v: -rv, n }); } } } j = g.next[j]; } } }
    }
   }
   off[NF] = total; const P = Float32Array.from(pos);
   const nAt = (f) => (off[cl(f + 1, 0, NF)] - off[cl(f, 0, NF - 1)]) / 2;
-  return { NF, fps, R, r, cx, cy, gen, born, tLleno, eventos: ev, nMax,
-   n: (f) => nAt(cl(f, 0, NF - 1)), x: (f, i) => P[off[cl(f, 0, NF - 1)] + 2 * i], y: (f, i) => P[off[cl(f, 0, NF - 1)] + 2 * i + 1] };
+  return { NF, fps, R, r: rMin, r0, rad, cx, cy, gen, born, tLleno, eventos: ev, nMax,
+   n: (f) => nAt(cl(f, 0, NF - 1)), x: (f, i) => P[off[cl(f, 0, NF - 1)] + 2 * i], y: (f, i) => P[off[cl(f, 0, NF - 1)] + 2 * i + 1], radio: (f, i) => rad(genF[cl(f, 0, NF - 1)][i] ?? 0) };
  };
 
  // =====================================================================================================

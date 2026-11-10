@@ -9,7 +9,7 @@ window.TIEMPOS = {
  "tFrase": 30.0,
  "fuente": "Sezonov, Joseleau-Petit y D'Ari (2007), «Escherichia coli physiology in Luria-Bertani broth», Journal of Bacteriology 189(23): 8746-8749",
  "param": {
-  "tDiv": 2.3,
-  "nMax": 620.0
+  "tDiv": 3.2,
+  "nMax": 600.0
  }
 };

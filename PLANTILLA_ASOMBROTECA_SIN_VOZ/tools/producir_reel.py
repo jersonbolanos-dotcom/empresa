@@ -226,6 +226,7 @@ def p_qc(P, a):
         ('Determinismo (simulación precalculada incluida)', 'OK' if det else 'FALLO', det is True),
         ('Zona segura IG (texto en 220 ≤ y ≤ 1450, x ≤ 940)', 'sin datos' if tx is None else (f'{len(tx["fuera"])} textos fuera' + (': ' + ', '.join(f'{f["tipo"]} t={f["t"]} {f["motivo"]}' for f in tx['fuera'][:5]) if tx['fuera'] else '')), tx is not None and not tx['fuera']),
         ('Texto mínimo (solo pregunta, contador, frase y marca)', 'sin datos' if tx is None else 'tipos: ' + ', '.join(f'{k} (máx. {tx["max"].get(k, 0)} a la vez)' for k in sorted(tx['tipos'])), tx is not None and set(tx['tipos']) <= PERM and all(v <= 1 for v in tx['max'].values())),
+        ('Pregunta y frase nunca juntas (empalme limpio)', 'sin datos' if tx is None else f'{tx.get("juntas", 0)} muestras con las dos', tx is not None and tx.get('juntas', 0) == 0),
         ('Pregunta ≤ 6 palabras en el fotograma 0 · contador visible', f'«{tl["pregunta"]}» ({np_} palabras)' + ('' if tx is None else f' · fotograma 0: {"sí" if tx["pregunta0"] else "NO"} · contador: {"sí" if tx["contador0"] else "NO"}'), np_ <= 6 and tx is not None and tx['pregunta0'] and tx['contador0']),
         ('Una sola frase final con el dato · fuente', f'«{tl["frase"]}» ({nf_} palabras) a {tl["tFrase"]:.1f} s · fuente: {"sí" if fu else "FALTA"}', nf_ <= 14 and tx is not None and tx['fraseFinal'] and fu),
         ('Marca de agua «ASOMBROTECA» todo el vídeo', 'sin datos' if tx is None else f'{tx["marca"]}/{tx["muestras"]} muestras', tx is not None and tx['marca'] == tx['muestras']),
