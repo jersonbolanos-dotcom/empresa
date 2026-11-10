@@ -41,7 +41,8 @@
   R.chico(ctx, `dentro ${P.fmtN(den)} · total ${P.fmtN(k)}`, 80, 1382, { px: 32, font: 'IBM Plex Mono', fw: 600, align: 'left', col: 'rgba(220,225,255,0.8)', kind: 'formula', alpha: a });
   // contador: la estimación (las cifras que ya coinciden con π se encienden)
   const v = k ? S.pi(k) : 0, s = fmt(v), ref = '3,1416'; let ok = 0; while (ok < s.length && s[ok] === ref[ok]) ok++;
-  R.contador(ctx, t, k ? s : '?', { x: 540, y: 1252, px: 112, glow: ok >= 4 ? '120,255,170' : '79,227,255' });
+  R.contador(ctx, t, k && seca < 0.8 ? s : '?', {   // al secarse la lluvia vuelve a «?», junto con la pregunta del empalme
+   x: 540, y: 1252, px: 112, glow: ok >= 4 ? '120,255,170' : '79,227,255' });
   R.pregunta(ctx, t, { y: 300, px: 70 }); R.frase(ctx, t, { y: 300, px: 58 });
  }
 

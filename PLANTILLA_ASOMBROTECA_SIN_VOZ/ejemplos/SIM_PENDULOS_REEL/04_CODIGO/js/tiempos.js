@@ -10,6 +10,6 @@ window.TIEMPOS = {
  "fuente": "Periodo del péndulo T = 2π√(L/g) (Huygens, 1673, Horologium Oscillatorium); onda de péndulos: Berg, R. E. (1991), «Pendulum waves: A demonstration of wave motion using pendula», American Journal of Physics 59(2): 186-187",
  "param": {
   "gamma": 34.0,
-  "K": 14.0
+  "K": 36.0
  }
 };

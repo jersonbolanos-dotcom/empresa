@@ -1,11 +1,11 @@
 # REEL DE SIMULACIÓN · formato «incendio» · el fuego se propaga de árbol en árbol (percolación) y se topa con dos cortafuegos
 DURACION 40
 MUSICA no
-SEMILLA 51
+SEMILLA 244
 PREGUNTA 3.6 | ¿Se quemará / todo el bosque?
 FRASE 35.4 | Por debajo del *59 %* de árboles, el fuego ya no cruza el bosque.
-FUENTE Umbral de percolación de sitios en la red cuadrada p_c = 0,592746 (Newman y Ziff, 2000, Physical Review Letters 85: 4104); Stauffer y Aharony (1994), Introduction to Percolation Theory, Taylor & Francis
-# densidad del bosque y fracción de árboles que se cortan en las franjas de cortafuegos
-PARAM densidad 0.70
-PARAM corte 0.55
-PARAM tFuego 33.5
+FUENTE Umbral de percolación de sitios en la red cuadrada p_c = 0,59274621 (Newman y Ziff, 2000, Physical Review Letters 85: 4104); Stauffer y Aharony (1994), Introduction to Percolation Theory, Taylor & Francis
+# densidad del bosque y árboles que quedan en cada cortafuegos (uno por encima del umbral de 59 %, otro por debajo)
+PARAM densidad 0.86
+PARAM queda1 0.66
+PARAM queda2 0.44
