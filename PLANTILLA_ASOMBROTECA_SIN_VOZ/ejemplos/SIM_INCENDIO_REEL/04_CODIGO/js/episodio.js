@@ -67,9 +67,9 @@
  // ---------- 3 · SONIDO ----------
  const CH = []; for (let t = 0; t < T_APAGA; t += 0.25) CH.push(t);
  function sound(k) {
-  R.asmr(k, S.orden.map((i, q) => ({ t: S.tIgn[i], p: 14 + (TONO[i] * 8), v: 0.3 + 0.4 * TONO[i], pan: ((i % CO) / CO - 0.5) * 1.2 })), { voz: 'tic', maxBin: 2, bin: 1 / 40, dens: 60, gain: 0.7 });
+  R.asmr(k, S.orden.map((i, q) => ({ t: S.tIgn[i], p: 14 + (TONO[i] * 8), v: 0.3 + 0.4 * TONO[i], pan: ((i % CO) / CO - 0.5) * 1.2 })), { voz: 'tic', maxBin: 2, bin: 1 / 40, dens: 60, gain: 0.4 });
   // rugido del fuego: ruido grave cuyo volumen sigue al número de árboles que arden (calculado de la simulación)
-  for (const t of CH) { const b = cuantos(t) - cuantos(t - S.arde); if (b <= 0) continue; k.noise(t, { dur: 0.32, color: 'brown', filter: 'lowpass', f: 500 + Math.min(900, b * 4), gain: Math.min(0.11, 0.012 * Math.sqrt(b)), a: 0.06 }); R.EV.push(t); }
+  for (const t of CH) { const b = cuantos(t) - cuantos(t - S.arde); if (b <= 0) continue; k.noise(t, { dur: 0.32, color: 'brown', filter: 'lowpass', f: 500 + Math.min(900, b * 4), gain: Math.min(0.28, 0.03 * Math.sqrt(b)), a: 0.06 }); R.EV.push(t); }
   k.noise(T_APAGA, { dur: 1.4, color: 'pink', filter: 'highpass', f: [[0, 2500], [1.4, 5000]], gain: 0.05, a: 0.2 }); R.EV.push(T_APAGA);
   R.asmr(k, Array.from({ length: 12 }, (_, q) => ({ t: T_BROTE + q * 0.14, p: 10 + q, v: 0.5 })), { voz: 'gota', maxBin: 1, bin: 0.1, gain: 0.6 });
  }

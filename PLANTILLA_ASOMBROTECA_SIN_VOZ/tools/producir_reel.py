@@ -111,7 +111,7 @@ def p_render(P, a):
         Lo = sonoridad(out)
         if not Lo or (Lo['TP'] or -9) <= -1.0:
             break
-        tmp = mez + '.tmp.wav'; sh(['ffmpeg', '-v', 'error', '-y', '-i', mez, '-af', f'alimiter=limit={lim}:level=false:attack=0.5:release=50,volume={-14 - (sonoridad(mez) or {"I": -14})["I"]:.2f}dB', '-c:a', 'pcm_f32le', tmp]); os.replace(tmp, mez)
+        tmp = mez + '.tmp.wav'; sh(['ffmpeg', '-v', 'error', '-y', '-i', mez, '-af', f'volume={-14 - (sonoridad(mez) or {"I": -14})["I"]:.2f}dB,alimiter=limit={lim}:level=false:attack=0.5:release=50', '-c:a', 'pcm_f32le', tmp]); os.replace(tmp, mez)
         tv = out + '.tmp.mp4'; sh(['ffmpeg', '-v', 'error', '-y', '-i', out, '-i', mez, '-map', '0:v', '-map', '1:a', '-c:v', 'copy', '-c:a', 'aac', '-b:a', '192k', '-ar', '48000', '-movflags', '+faststart', '-t', str(D), tv]); os.replace(tv, out)
     shutil.rmtree(FR, ignore_errors=True)
     print(f'Vídeo: {out} ({os.path.getsize(out) / 1e6:.1f} MB, {D:.2f} s)')
