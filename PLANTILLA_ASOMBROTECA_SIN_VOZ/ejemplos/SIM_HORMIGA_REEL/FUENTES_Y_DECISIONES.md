@@ -25,6 +25,6 @@ Formato: `hormiga` · Plantilla Asombroteca SIN_VOZ 2.3 · 35 s.
 - **Sonido**:
   - un tic por paso (más agudo en casilla vacía, más grave en llena), con el control de densidad de `R.asmr`;
   - en la autopista, una gota cada 104 pasos (el ritmo del ciclo).
-  - Cierre (v2.3.1): un acorde suave (`R.cierre`) entra con la frase final y se desvanece antes del empalme.
+  - Cierre (v2.3.1): un acorde suave (`R.cierre`) entra con la frase final, se sostiene y se desvanece hasta el último fotograma.
   - Sin música.
 - **Nada flota**: la hormiga camina sobre el tablero de baldosas y las casillas están en él.

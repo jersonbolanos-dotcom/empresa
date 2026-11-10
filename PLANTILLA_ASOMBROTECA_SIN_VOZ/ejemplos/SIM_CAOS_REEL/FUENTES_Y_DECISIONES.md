@@ -22,6 +22,6 @@ Formato: `caos` · Plantilla Asombroteca SIN_VOZ 2.3 · 34 s.
 - **Sonido**:
   - un zumbido por péndulo que sigue la velocidad de su brazo de abajo (el rosa, una quinta más agudo);
   - una campana suave cuando se separan.
-  - Cierre (v2.3.1): un acorde suave (`R.cierre`) entra con la frase final y se desvanece antes del empalme.
+  - Cierre (v2.3.1): un acorde suave (`R.cierre`) entra con la frase final, se sostiene y se desvanece hasta el último fotograma.
   - Sin música.
 - **Nada flota**: los dos cuelgan del mismo eje, atornillado al tablero.

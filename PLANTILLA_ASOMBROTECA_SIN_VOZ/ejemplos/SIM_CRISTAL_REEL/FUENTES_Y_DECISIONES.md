@@ -19,5 +19,5 @@ Formato: `cristal` · Plantilla Asombroteca SIN_VOZ 2.3 · 32 s.
 - **Color**: según el orden de llegada, del cian al magenta.
 - **Final**: una onda de luz recorre las ramas del centro hacia fuera, para que la imagen no se quede quieta. Luego el cúmulo se apaga hasta el núcleo para empalmar.
 - **Contador**: partículas pegadas, con «partículas» debajo (tipo `unidad`).
-- **Sonido**: una nota de cristal por partícula, más aguda cuanto más lejos del centro, con el control de densidad de `R.asmr`. Cierre (v2.3.1): un acorde suave (`R.cierre`) entra con la frase final y se desvanece antes del empalme. Sin música.
+- **Sonido**: una nota de cristal por partícula, más aguda cuanto más lejos del centro, con el control de densidad de `R.asmr`. Cierre (v2.3.1): un acorde suave (`R.cierre`) entra con la frase final, se sostiene y se desvanece hasta el último fotograma. Sin música.
 - **Nada flota**: todo ocurre sobre la placa; las partículas caminan por ella y se pegan al cúmulo.
