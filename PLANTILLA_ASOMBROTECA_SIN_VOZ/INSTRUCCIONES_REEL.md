@@ -1,4 +1,4 @@
-# Instrucciones · motor de simulación (`motor/sim.js`) y montaje (`motor/reel.js`) · SIN_VOZ 2.2
+# Instrucciones · motor de simulación (`motor/sim.js`) y montaje (`motor/reel.js`) · SIN_VOZ 2.3
 
 Orden de carga en `index.src.html`: `lib/harness.js` (H), `lib/sound.js` (SOUND), `js/tiempos.js`, `motor/plantilla.js`, `motor/sim.js`, `motor/reel.js` y `js/episodio.js`.
 
@@ -33,6 +33,9 @@ Todas corren una vez al cargar, con paso fijo (`fps × sub`, por defecto 30 × 8
 | `SIM.incendio(cfg)` (v2.2) | `cols, rows, densidad(c, r)`, `corte(c, r, rng)` (árbol cortado → tocón), `focos [[c, r]…]`, `dMin, dMax` (retraso de contagio entre vecinos), `arde` (s), `seed` | `arbol` (0 vacío, 1 árbol, 2 tocón), `tIgn[i]`, `orden` (de ignición), `tFin`, `escala(k)` (multiplica los tiempos; Dijkstra es lineal) |
 | `SIM.montecarlo(cfg)` (v2.2) | `n, seed` | `x, y` en [-1, 1], `dentro`, `acum`, `pi(k)` = 4 · dentro / total con los k primeros |
 | `SIM.pendulos(cfg)` (v2.2) | `n (15), gamma, K, g, theta0, extra` | `T[k] = gamma/(K+k)`, `L[k] = g(T/2π)²`, `theta(k, t)`, `oscilaciones(k, t)`, `cruces [{ t, n, sentido }]` (pasos por la vertical) |
+| `SIM.hormiga(cfg)` (v2.3) | `pasos, W` (lado de la rejilla) | `px, py, dir` por paso, `celda[k]`, `celdas`, `estado(j, K)`, `primero(j)`, `ultimo(j, K)`, `caja(K)` (casillas tocadas), `autopista` (paso en que empieza el ciclo de 104) |
+| `SIM.dla(cfg)` (v2.3) | `n, G, seed, r0` (la primera sale de ahí y camina sin saltos, para verla), `cola` | `x, y, r` de cada partícula pegada, `rMax[i]`, `camino0` (todo el camino de la primera), `cola[i]` (sus últimos pasos) |
+| `SIM.pendulo2(cfg)` (v2.3) | `th1, th2, w1, w2, L1, L2, m1, m2, g, delta, dur, fps, sub` | Dos péndulos dobles A y B (B con `delta` rad más en el 2.º brazo): `A.t1, A.t2, A.w2`, ídem B, `sep(f)`, `tSep(umbral)`, `energia` |
 | `SIM.grid(cell, W, H)` · `SIM.resample(pts, N)` | Rejilla espacial para choques · remuestreo por longitud de arco con Catmull-Rom | |
 
 Ajustes conocidos (comprobados en Chromium):
@@ -40,6 +43,9 @@ Ajustes conocidos (comprobados en Chromium):
 - **Galton**: `e 0,5`, `fric 0,7`, `drag 1,5` y `pegR 8` con `dx 46` dan σ ≈ 2,3 casillas y curtosis ≈ 3, como una normal.
 - **Incendio**: bosque al 86 %, cortafuegos de 8 columnas que conservan 66 % (el fuego cruza) y 42 % (se detiene): pasa en 177 de 400 semillas; la 244 llega a la última columna. Para quitar el tiempo muerto final, remapea `tIgn` de forma monótona (ver el ejemplo).
 - **Montecarlo**: `seed 403` con 40.000 puntos termina en 3,1416 exacto.
+- **Hormiga**: la autopista empieza en el paso 9.976; la cámara del ejemplo encuadra `caja(K)` mirando 1 s adelante.
+- **Cristal (DLA)**: `seed 5`, `n 6000`, `r0 30`: la primera camina 2.679 pasos; radio final ≈ 143.
+- **Caos**: con los dos brazos a `th0 1,76` y `delta 1e-6`, la separación clara (> 30 %) llega a los 15,4 s (en Chromium; es caótico: ajusta siempre en el navegador).
 - **Péndulos**: `gamma 34`, `K 36` (proporción de longitudes 1,9 : 1, como los aparatos clásicos); vista 3D con una cámara fija (`pr(x, y, z)` en el ejemplo).
 
 **Importante**: ajusta los `PARAM` con `node tools/sim_info.js 04_CODIGO/index.html`. Calcula en el mismo navegador que el render; Node puede dar otro resultado en una simulación caótica.

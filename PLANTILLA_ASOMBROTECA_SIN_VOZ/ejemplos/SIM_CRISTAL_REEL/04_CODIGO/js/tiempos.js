@@ -10,7 +10,7 @@ window.TIEMPOS = {
  "fuente": "Witten, T. A. y Sander, L. M. (1981), «Diffusion-limited aggregation, a kinetic critical phenomenon», Physical Review Letters 47: 1400-1403; Niemeyer, L., Pietronero, L. y Wiesmann, H. J. (1984), «Fractal dimension of dielectric breakdown», Physical Review Letters 52: 1033-1036",
  "param": {
   "n": 6000.0,
-  "lento": 2.5,
+  "lento": 1.3,
   "A": 4.0
  }
 };

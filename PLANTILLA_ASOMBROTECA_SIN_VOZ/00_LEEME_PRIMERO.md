@@ -1,4 +1,4 @@
-# PLANTILLA ASOMBROTECA SIN VOZ 2.2 · Léeme primero
+# PLANTILLA ASOMBROTECA SIN VOZ 2.3 · Léeme primero
 
 Reels verticales **sin narración** del tipo «oddly satisfying» o simulación: **un solo proceso físico continuo que escala**. Ejemplos: bolas que se multiplican en un círculo, miles de bolitas que forman una campana o círculos que giran y dibujan un animal. Cada simulación esconde un dato de ciencia real, que se revela al final con una sola frase.
 
@@ -31,7 +31,7 @@ Formato fijo:
 ## Hacer un reel
 
 ```
-python3 PLANTILLA_ASOMBROTECA_SIN_VOZ/tools/nuevo_reel.py MI_REEL --formato rebote|galton|fourier|incendio|montecarlo|pendulos
+python3 PLANTILLA_ASOMBROTECA_SIN_VOZ/tools/nuevo_reel.py MI_REEL --formato rebote|galton|fourier|incendio|montecarlo|pendulos|hormiga|cristal|caos
 #   edita MI_REEL_REEL/03_GUION/tiempos.txt (pregunta, frase, fuente, duración, PARAM) y 04_CODIGO/js/episodio.js
 python3 PLANTILLA_ASOMBROTECA_SIN_VOZ/tools/producir_reel.py MI_REEL_REEL build
 node PLANTILLA_ASOMBROTECA_SIN_VOZ/tools/sim_info.js MI_REEL_REEL/04_CODIGO/index.html          # ajustar PARAM (en el navegador)
@@ -59,7 +59,7 @@ PARAM tDiv 3.2
 - La frase entra en su instante y se va antes del empalme, así que nunca coincide con la pregunta.
 - Las palabras entre `*asteriscos*` salen en amarillo y ` / ` fuerza un salto de línea.
 
-## Los 6 formatos (con su ejemplo en `ejemplos/`)
+## Los 9 formatos (con su ejemplo en `ejemplos/`)
 
 | `--formato` | Proceso | Contador | Final incierto → empalme | Ejemplo y dato |
 |---|---|---|---|---|
@@ -69,6 +69,9 @@ PARAM tDiv 3.2
 | `incendio` (v2.2) | Bosque visto desde arriba; el fuego salta de árbol en árbol (percolación). Dos cortafuegos iguales: uno con 66 % de árboles (el fuego lo cruza) y otro con 42 % (lo detiene), con su % en una etiqueta | % quemado (+ «quemado») | ¿Se quemará todo? (el fuego tantea el segundo cortafuegos) → el bosque rebrota | `SIM_INCENDIO_REEL` · por debajo del 59 % de árboles el fuego no cruza (Newman y Ziff, 2000) |
 | `montecarlo` (v2.2) | Lluvia de 40.000 puntos al azar sobre un cuadrado con su círculo inscrito; dentro azul, fuera rosa; fórmula pequeña con los recuentos | Estimación de π | La cifra oscila hasta el final → la lluvia se seca y vuelve a «?» | `SIM_MONTECARLO_REEL` · con puntos al azar se calcula π (Metropolis y Ulam, 1949) |
 | `pendulos` (v2.2) | Onda de péndulos clásica en 3D: 15 péndulos colgados en V de una barra, de longitudes calculadas; serpiente, ondas y caos aparente | Segundos | ¿Volverán a alinearse? (a los 34 s) → siguen y empalman | `SIM_PENDULOS_REEL` · el ritmo de un péndulo solo depende de su longitud (Huygens, 1673; Berg, 1991) |
+| `hormiga` (v2.3) | Hormiga de Langton sobre un tablero: 2 reglas dibujadas en grande; paso a paso 2,5 s, luego acelera; la cámara encuadra siempre todo | Pasos (+ «pasos») | ¿Qué construirá? (caos hasta el paso ~10.000) → las casillas se apagan | `SIM_HORMIGA_REEL` · tras 10.000 pasos de caos construye una autopista (Langton, 1986) |
+| `cristal` (v2.3) | Agregación limitada por difusión en una placa: la primera partícula camina sola (1,3 s) y luego llegan miles con su estela; la cámara se aleja | Partículas (+ «partículas») | ¿Qué forma crecerá? → onda de luz y el cúmulo se apaga | `SIM_CRISTAL_REEL` · ramas como las de un rayo (Witten y Sander, 1981; Niemeyer et al., 1984) |
+| `caos` (v2.3) | Dos péndulos dobles (celeste y rosa) del mismo eje, con una millonésima de diferencia; barrita logarítmica de la diferencia | Segundos | ¿Seguirán juntos? (se separan a los ~15 s) → vuelven a la salida | `SIM_CAOS_REEL` · una millonésima basta para cambiarlo todo (Lorenz, 1963; Shinbrot et al., 1992) |
 
 ## QC (`producir_reel.py qc` → `07_QC/QC.md`)
 
@@ -100,11 +103,11 @@ Cuando todo pasa, escribe **TODO CORRECTO**.
 |---|---|
 | `PROMPT_NUEVO_REEL.md` | Prompt corto de copiar y pegar para pedir un reel nuevo. |
 | `INSTRUCCIONES_REEL.md` | Firmas de `SIM.*` y `R.*` y cómo escribir `episodio.js`. |
-| `motor/sim.js` | Simulaciones precalculadas y deterministas: `SIM.rebote`, `SIM.galton`, `SIM.fourier`, `SIM.incendio`, `SIM.montecarlo`, `SIM.pendulos` y utilidades. |
+| `motor/sim.js` | Simulaciones precalculadas y deterministas: `SIM.rebote`, `SIM.galton`, `SIM.fourier`, `SIM.incendio`, `SIM.montecarlo`, `SIM.pendulos`, `SIM.hormiga`, `SIM.dla`, `SIM.pendulo2` y utilidades. |
 | `motor/reel.js` | Montaje (fondo, pregunta, contador, frase, marca de agua, bucle) y sonido ASMR desde los eventos (`R.asmr`). |
 | `motor/plantilla.js`, `lib/`, `fonts/` | Motor v1.28 sin cambios (se usan `H`, `SOUND`, `P.glow` y `P.fmtN`). |
 | `tools/` | `nuevo_reel.py`, `producir_reel.py`, `tiempos.py`, `sim_info.js`, `textos.js` (QC de textos), `build.py`, `render.js`, `audio.js`, `frames.js`, `sheet.py`, `determinismo.js`. |
-| `ejemplos/` | Los 6 reels de ejemplo (código, MP4 y QC). |
+| `ejemplos/` | Los 9 reels de ejemplo (código, MP4 y QC). |
 | `V1/` | Respaldo de la versión 1.0. |
 | `INSTRUCCIONES_PLANTILLA.md`, `GUIA_ESTILOS.md`, `catalogo/` | Referencia heredada de los bloques `P.*` y `FX.*` (lo que habla de voz no se aplica aquí). |
 

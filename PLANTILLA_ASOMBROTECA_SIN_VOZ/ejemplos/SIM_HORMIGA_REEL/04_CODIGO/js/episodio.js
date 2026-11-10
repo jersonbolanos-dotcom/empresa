@@ -13,7 +13,8 @@
  // ---------- 1 · RELOJ DE PASOS: lento → acelera (exponencial) → autopista a ritmo fijo ----------
  const T1 = TL.param.lento ?? 2.5, TA = TL.param.tAutopista ?? 21.5, RIT = TL.param.ritmo ?? 300, V0 = 5, T_FIN = D - 2.6;
  const KA = 9976;   // paso en que empieza la autopista (se comprueba abajo con la simulación)
- const DT = 1 / 600, rate = (t, b) => (t < T1 ? V0 : t < TA ? V0 * Math.exp(b * (t - T1)) : t < TA + 1.5 ? lerp(V0 * Math.exp(b * (TA - T1)), RIT, E.inOut(cl((t - TA) / 1.5))) : RIT);
+ const V1 = 40, DT = 1 / 600, ex = (t, b) => V1 * Math.exp(b * (t - T1 - 1));   // tras el paso a paso: rampa de 5 a 40 pasos/s en 1 s y luego exponencial
+ const rate = (t, b) => (t < T1 ? V0 : t < T1 + 1 ? lerp(V0, V1, (t - T1) * (t - T1)) : t < TA ? ex(t, b) : t < TA + 1.5 ? lerp(ex(TA, b), RIT, E.inOut(cl((t - TA) / 1.5))) : RIT);
  const integra = (b, hasta) => { let K = 0; for (let t = 0; t < hasta; t += DT) K += rate(t, b) * DT; return K; };
  let bl = 0.05, bh = 1; for (let q = 0; q < 60; q++) { const m = (bl + bh) / 2; if (integra(m, TA) < KA) bl = m; else bh = m; } const B = (bl + bh) / 2;
  const NS = Math.ceil(D / DT) + 2, KT = new Float64Array(NS); for (let i = 1; i < NS; i++) KT[i] = KT[i - 1] + (i * DT < T_FIN ? rate((i - 1) * DT, B) * DT : 0);
@@ -23,7 +24,7 @@
  window.HORMIGA_INFO = { autopista: S.autopista, pasos: NK, b: B, tAut: tK(S.autopista) };
 
  // ---------- 2 · CÁMARA: encuadra todas las casillas tocadas (mira 1 s adelante), suavizada y precalculada ----------
- const BOX = { x0: 130, y0: 420, x1: 950, y1: 1215 }, AREA = { x0: 175, y0: 455, x1: 905, y1: 1180 };   // tablero y zona útil (dentro de la zona segura)
+ const BOX = { x0: 130, y0: 410, x1: 950, y1: 1120 }, AREA = { x0: 175, y0: 445, x1: 905, y1: 1085 };   // tablero y zona útil (dentro de la zona segura)
  const fit = (c) => Math.min(46, (AREA.x1 - AREA.x0) / (c[2] - c[0] + 7), (AREA.y1 - AREA.y0) / (c[3] - c[1] + 7));
  const NF = Math.round(D * 30) + 1, CAM = []; { let s = null, cx = 0, cy = 0;
   for (let f = 0; f < NF; f++) { const t = f / 30, ca = S.caja(Kt(t) + 1), cb = S.caja(Kt(Math.min(T_FIN, t + 1.0)) + 1), st = fit(cb), mx = (cb[0] + cb[2] + 1) / 2, my = (cb[1] + cb[3] + 1) / 2;
@@ -54,13 +55,14 @@
   const X = sx(ax), Y = sy(ay), z = Math.max(16, sc * 0.95); P.glow(ctx, X, Y, z * 1.8, '255,255,255', 0.5);
   ctx.save(); ctx.translate(X, Y); ctx.rotate(dd * Math.PI / 2); ctx.fillStyle = '#ffffff'; ctx.beginPath(); ctx.moveTo(0, -z * 0.55); ctx.lineTo(z * 0.42, z * 0.4); ctx.lineTo(0, z * 0.18); ctx.lineTo(-z * 0.42, z * 0.4); ctx.closePath(); ctx.fill(); ctx.restore();
   ctx.restore();
-  // las dos reglas, dibujadas: casilla vacía → gira a la derecha · casilla llena → gira a la izquierda
-  ctx.save(); ctx.globalAlpha = 1 - 0.6 * fin; const regla = (x0, llena) => { const y0 = 1276, c = 62; ctx.fillStyle = llena ? 'hsl(260,90%,60%)' : '#10142a'; ctx.strokeStyle = 'rgba(200,210,255,0.7)'; ctx.lineWidth = 2; ctx.fillRect(x0, y0, c, c); ctx.strokeRect(x0, y0, c, c);
-   ctx.strokeStyle = '#ffd54a'; ctx.lineWidth = 4; ctx.lineCap = 'round'; const s = llena ? -1 : 1; ctx.beginPath(); ctx.moveTo(x0 + c / 2, y0 + c - 6); ctx.lineTo(x0 + c / 2, y0 + c / 2); ctx.quadraticCurveTo(x0 + c / 2, y0 + 12, x0 + c / 2 + s * 26, y0 + 12); ctx.stroke();
-   ctx.beginPath(); ctx.moveTo(x0 + c / 2 + s * 36, y0 + 12); ctx.lineTo(x0 + c / 2 + s * 22, y0 + 3); ctx.lineTo(x0 + c / 2 + s * 22, y0 + 21); ctx.closePath(); ctx.fillStyle = '#ffd54a'; ctx.fill(); };
-  regla(175, false); regla(300, true); ctx.restore();
-  R.contador(ctx, t, Math.round(K * (1 - sm(D - 1.4, D - 0.75, t))), { x: 680, y: 1308, px: 96, glow: '160,140,255' });
-  R.chico(ctx, 'pasos', 680, 1370, { px: 32, col: 'rgba(200,190,255,0.9)', kind: 'unidad' });
+  // las dos reglas, grandes: casilla vacía (blanca, con borde) → gira a la derecha · casilla de color → gira a la izquierda
+  ctx.save(); ctx.globalAlpha = 1 - 0.6 * fin; const regla = (x0, llena) => { const y0 = 1150, c = 150, m = x0 + c / 2, s = llena ? -1 : 1;
+   ctx.fillStyle = llena ? 'hsl(300,90%,58%)' : '#f4f6ff'; ctx.beginPath(); ctx.roundRect(x0, y0, c, c, 14); ctx.fill(); ctx.strokeStyle = 'rgba(255,255,255,0.9)'; ctx.lineWidth = 4; ctx.stroke();
+   ctx.strokeStyle = llena ? '#ffffff' : '#1b1f3a'; ctx.lineWidth = 12; ctx.lineCap = 'round'; ctx.beginPath(); ctx.moveTo(m, y0 + c - 22); ctx.lineTo(m, y0 + c / 2); ctx.quadraticCurveTo(m, y0 + 34, m + s * 34, y0 + 34); ctx.stroke();
+   ctx.fillStyle = ctx.strokeStyle; ctx.beginPath(); ctx.moveTo(m + s * 64, y0 + 34); ctx.lineTo(m + s * 30, y0 + 10); ctx.lineTo(m + s * 30, y0 + 58); ctx.closePath(); ctx.fill(); };
+  regla(150, false); regla(330, true); ctx.restore();
+  R.contador(ctx, t, Math.round(K * (1 - sm(D - 1.4, D - 0.75, t))), { x: 720, y: 1215, px: 96, glow: '160,140,255' });
+  R.chico(ctx, 'pasos', 720, 1278, { px: 32, col: 'rgba(200,190,255,0.9)', kind: 'unidad' });
   R.pregunta(ctx, t, { y: 300, px: 72 }); R.frase(ctx, t, { y: 300, px: 50 });
  }
 
