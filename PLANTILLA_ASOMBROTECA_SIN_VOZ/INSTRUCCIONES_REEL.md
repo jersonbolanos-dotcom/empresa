@@ -1,4 +1,4 @@
-# Instrucciones · motor de simulación (`motor/sim.js`) y montaje (`motor/reel.js`) · SIN_VOZ 2.3
+# Instrucciones · motor de simulación (`motor/sim.js`) y montaje (`motor/reel.js`) · SIN_VOZ 2.4
 
 Orden de carga en `index.src.html`: `lib/harness.js` (H), `lib/sound.js` (SOUND), `js/tiempos.js`, `motor/plantilla.js`, `motor/sim.js`, `motor/reel.js` y `js/episodio.js`.
 
@@ -36,6 +36,9 @@ Todas corren una vez al cargar, con paso fijo (`fps × sub`, por defecto 30 × 8
 | `SIM.hormiga(cfg)` (v2.3) | `pasos, W` (lado de la rejilla) | `px, py, dir` por paso, `celda[k]`, `celdas`, `estado(j, K)`, `primero(j)`, `ultimo(j, K)`, `caja(K)` (casillas tocadas), `autopista` (paso en que empieza el ciclo de 104) |
 | `SIM.dla(cfg)` (v2.3) | `n, G, seed, r0` (la primera sale de ahí y camina sin saltos, para verla), `cola` | `x, y, r` de cada partícula pegada, `rMax[i]`, `camino0` (todo el camino de la primera), `cola[i]` (sus últimos pasos) |
 | `SIM.pendulo2(cfg)` (v2.3) | `th1, th2, w1, w2, L1, L2, m1, m2, g, delta, dur, fps, sub` | Dos péndulos dobles A y B (B con `delta` rad más en el 2.º brazo): `A.t1, A.t2, A.w2`, ídem B, `sep(f)`, `tSep(umbral)`, `energia` |
+| `SIM.boids(cfg)` (v2.4) | `n, dur, seed, caja [x0,x1,y0,y1,z0,z1], rv, rs, vMin, vMax, wS, wA, wC, wB, vecinos, margen, anillo, halcon {t0,t1,v,rHuida,wH}, percha {t,x,y,z,w}` | `pos` (fotograma·n·3), `hal` (halcón), `giros[f]` (fracción que gira bruscamente) |
+| `SIM.grayscott(cfg)` (v2.4) | `W, H, F, k, Du, Dv, NF, pasos(f), semillas, seed, umbral, areaMin` | `v` (Uint8 por fotograma) y `manchas[f]` (grupos conectados) |
+| `SIM.mandel` (v2.4) | `nucleo(cr, ci, p)` (Newton), `tamano(cr, ci, p)` (tamaño y giro de la minicopia), `periodo(cr, ci, pMax)` | Para encontrar minicopias y encuadrarlas como el conjunto entero |
 | `SIM.grid(cell, W, H)` · `SIM.resample(pts, N)` | Rejilla espacial para choques · remuestreo por longitud de arco con Catmull-Rom | |
 
 Ajustes conocidos (comprobados en Chromium):
@@ -46,6 +49,9 @@ Ajustes conocidos (comprobados en Chromium):
 - **Hormiga**: la autopista empieza en el paso 9.976; la cámara del ejemplo encuadra `caja(K)` mirando 1 s adelante.
 - **Cristal (DLA)**: `seed 5`, `n 6000`, `r0 30`: la primera camina 2.679 pasos; radio final ≈ 143.
 - **Caos**: con los dos brazos a `th0 1,76` y `delta 1e-6`, la separación clara (> 30 %) llega a los 15,4 s (en Chromium; es caótico: ajusta siempre en el navegador).
+- **Bandada**: `rv 4`, `rs 2`, `wS 30`, `wA 3`, `wC 5`, `vecinos 8`, `margen 0,3` con 2.400 pájaros: nube con RMS de 12-19 unidades (~19 s de cálculo con 3.000; usa ≤ 2.400 para no pasar de 60 s de carga).
+- **Turing**: `F 0,030`, `k 0,062`, rejilla 140 × 146, 8 semillas, 7,5 pasos/fotograma: piel llena hacia los 20 s.
+- **Mandelbrot**: minicopia de periodo 507 cerca de −0,7436439 + 0,1318262 i (×37 millones); más profundo, el cálculo por píxel se dispara.
 - **Péndulos**: `gamma 34`, `K 36` (proporción de longitudes 1,9 : 1, como los aparatos clásicos); vista 3D con una cámara fija (`pr(x, y, z)` en el ejemplo).
 
 **Importante**: ajusta los `PARAM` con `node tools/sim_info.js 04_CODIGO/index.html`. Calcula en el mismo navegador que el render; Node puede dar otro resultado en una simulación caótica.
@@ -78,7 +84,7 @@ La simulación se calcula en su propio tiempo `s`. El vídeo la recorre con un r
 |---|---|
 | Una sola escena | `ffmpeg scdet` (umbral 14): 0 cortes |
 | Movimiento continuo | Diferencia media entre fotogramas cada 0,5 s > 0,15/255, sin congelados > 1 s ni negros |
-| Fondo oscuro | Luminancia media < 45/255 |
+| Fondo oscuro | Luminancia media < 45/255 (con `FONDO atardecer` en `tiempos.txt`, v2.4: cielo claro con figuras oscuras, de 60 a 180) |
 | Sonido de la simulación | Arranques de la pista de efectos (subidas de envolvente de 5 ms) que coinciden ±25 ms con un evento (`window.eventos()`): ≥ 95 % |
 | Texto mínimo | `tools/textos.js` cada 0,1 s: `pregunta`, `contador`, `frase` y `marca` (uno de cada), `etiqueta` (≤ 2), `eje`, `formula` y `unidad` (≤ 1), dentro de la zona segura; pregunta y frase nunca juntas (también durante el empalme) |
 | Marca de agua | Presente en el 100 % de las muestras |

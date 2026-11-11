@@ -45,7 +45,13 @@
  // ---------- 3 · DIBUJO ----------
  function draw(ctx, t) {
   if (!window.__SAFE_QC) ctx.drawImage(fractal(t), 0, 0);   // (el QC de textos solo mira dónde están los textos: no calcula el fractal)
-  R.contador(ctx, t, fmtA(aumento(t)), { x: 540, y: 1345, px: 92, glow: '255,120,200', maxW: 820 });
+  // franjas oscuras suaves detrás de los textos (se leen sobre las zonas brillantes)
+  const franja = (y0, y1, a) => { if (a <= 0.01) return; const g = ctx.createLinearGradient(0, y0, 0, y1); g.addColorStop(0, 'rgba(0,0,0,0)'); g.addColorStop(0.3, `rgba(0,0,0,${0.6 * a})`); g.addColorStop(0.7, `rgba(0,0,0,${0.6 * a})`); g.addColorStop(1, 'rgba(0,0,0,0)'); ctx.fillStyle = g; ctx.fillRect(0, y0, 1080, y1 - y0); };
+  const aTxt = Math.max(1 - sm(TL.tPregunta - 0.2, TL.tPregunta + 0.5, t), sm(TL.tFrase - 0.3, TL.tFrase + 0.3, t) * (1 - sm(D - R.LOOP - 0.5, D - R.LOOP - 0.1, t)));
+  franja(200, 430, aTxt);
+  // el contador se apaga del todo ANTES del empalme (así «×34 millones» nunca se encima con el «×1» del inicio)
+  const aC = 1 - sm(D - R.LOOP - 0.55, D - R.LOOP - 0.05, t); franja(1255, 1440, aC);
+  if (aC > 0.01) { ctx.save(); ctx.globalAlpha = aC; R.contador(ctx, t, fmtA(aumento(t)), { x: 540, y: 1345, px: 92, glow: '255,120,200', maxW: 820 }); ctx.restore(); }
   R.pregunta(ctx, t, { y: 300, px: 72 }); R.frase(ctx, t, { y: 300, px: 52 });
  }
 

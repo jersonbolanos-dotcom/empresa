@@ -7,7 +7,7 @@ Rellena las dos líneas de arriba y pega todo en Claude Code, junto con la carpe
 **Dato de ciencia que esconde:** _________________ (p. ej., «la desintegración radiactiva sigue una semivida»)
 **Formato:** rebote · galton · fourier (o «propón uno nuevo» → se añade a `motor/sim.js`)
 
-Hazme un reel SIN VOZ de simulación con `PLANTILLA_ASOMBROTECA_SIN_VOZ` (v2.3). Lee primero `00_LEEME_PRIMERO.md`, `INSTRUCCIONES_REEL.md` y el ejemplo del formato en `ejemplos/`.
+Hazme un reel SIN VOZ de simulación con `PLANTILLA_ASOMBROTECA_SIN_VOZ` (v2.4). Lee primero `00_LEEME_PRIMERO.md`, `INSTRUCCIONES_REEL.md` y el ejemplo del formato en `ejemplos/`.
 
 1. Antes de programar, enséñame un plan corto. Debe incluir:
    - el proceso físico (único, continuo y que escala);

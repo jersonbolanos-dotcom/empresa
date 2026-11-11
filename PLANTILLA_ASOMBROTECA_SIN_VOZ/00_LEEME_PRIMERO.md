@@ -1,4 +1,4 @@
-# PLANTILLA ASOMBROTECA SIN VOZ 2.3 · Léeme primero
+# PLANTILLA ASOMBROTECA SIN VOZ 2.4 · Léeme primero
 
 Reels verticales **sin narración** del tipo «oddly satisfying» o simulación: **un solo proceso físico continuo que escala**. Ejemplos: bolas que se multiplican en un círculo, miles de bolitas que forman una campana o círculos que giran y dibujan un animal. Cada simulación esconde un dato de ciencia real, que se revela al final con una sola frase.
 
@@ -23,7 +23,7 @@ Formato fijo:
    - Además, como mucho **1-2 etiquetas** de 1-3 palabras y, si hacen falta, números de ejes o una fórmula pequeña.
 3 bis. **El contexto lo da la IMAGEN, no el texto**: placa de Petri y bacilos que se parten, con un reloj de 20 min por generación; flechitas ← → de la bola que se sigue y números bajo las casillas; plano cartesiano con cadenas x/y y la fórmula. Si hace falta, cámara lenta (la física no cambia) y zoom encuadrado dentro de la zona segura.
 4. **El sonido sale de la simulación**: cada choque o evento suena, con un tono que cambia según la velocidad o la cantidad (estilo ASMR). Música muy baja o ninguna.
-5. **Fondo oscuro y limpio**, con colores vivos en los objetos.
+5. **Fondo oscuro y limpio**, con colores vivos en los objetos (excepción: `FONDO atardecer`, cielo claro con figuras oscuras).
 6. **Final incierto** hasta el último segundo, y empalme con el inicio.
 7. **Dato real con su fuente** en `FUENTES_Y_DECISIONES.md`.
 8. **Nada flota**: lo que cae se apoya o sale por una abertura. Se revisa a ojo en la hoja de contacto.
@@ -31,7 +31,7 @@ Formato fijo:
 ## Hacer un reel
 
 ```
-python3 PLANTILLA_ASOMBROTECA_SIN_VOZ/tools/nuevo_reel.py MI_REEL --formato rebote|galton|fourier|incendio|montecarlo|pendulos|hormiga|cristal|caos
+python3 PLANTILLA_ASOMBROTECA_SIN_VOZ/tools/nuevo_reel.py MI_REEL --formato rebote|galton|fourier|incendio|montecarlo|pendulos|hormiga|cristal|caos|bandada|turing|mandelbrot
 #   edita MI_REEL_REEL/03_GUION/tiempos.txt (pregunta, frase, fuente, duración, PARAM) y 04_CODIGO/js/episodio.js
 python3 PLANTILLA_ASOMBROTECA_SIN_VOZ/tools/producir_reel.py MI_REEL_REEL build
 node PLANTILLA_ASOMBROTECA_SIN_VOZ/tools/sim_info.js MI_REEL_REEL/04_CODIGO/index.html          # ajustar PARAM (en el navegador)
@@ -48,6 +48,7 @@ Tras mirar `07_QC/hoja_contacto.jpg`, escribe `07_QC/revision_visual.txt` con `n
 ```
 DURACION 35
 MUSICA no                      # no · muy_baja
+FONDO oscuro                   # oscuro · atardecer (v2.4)
 SEMILLA 7
 PREGUNTA 3.6 | ¿Llenarán el círculo antes del final?
 FRASE 30.0 | Una *E. coli* puede dividirse cada 20 minutos.
@@ -59,7 +60,7 @@ PARAM tDiv 3.2
 - La frase entra en su instante y se va antes del empalme, así que nunca coincide con la pregunta.
 - Las palabras entre `*asteriscos*` salen en amarillo y ` / ` fuerza un salto de línea.
 
-## Los 9 formatos (con su ejemplo en `ejemplos/`)
+## Los 12 formatos (con su ejemplo en `ejemplos/`)
 
 | `--formato` | Proceso | Contador | Final incierto → empalme | Ejemplo y dato |
 |---|---|---|---|---|
@@ -72,6 +73,9 @@ PARAM tDiv 3.2
 | `hormiga` (v2.3) | Hormiga de Langton sobre un tablero: 2 reglas dibujadas en grande; paso a paso 2,5 s, luego acelera; la cámara encuadra siempre todo | Pasos (+ «pasos») | ¿Qué construirá? (caos hasta el paso ~10.000) → las casillas se apagan | `SIM_HORMIGA_REEL` · tras 10.000 pasos de caos construye una autopista (Langton, 1986) |
 | `cristal` (v2.3) | Agregación limitada por difusión en una placa: la primera partícula camina sola (1,3 s) y luego llegan miles con su estela; la cámara se aleja | Partículas (+ «partículas») | ¿Qué forma crecerá? → onda de luz y el cúmulo se apaga | `SIM_CRISTAL_REEL` · ramas como las de un rayo (Witten y Sander, 1981; Niemeyer et al., 1984) |
 | `caos` (v2.3) | Dos péndulos dobles (celeste y rosa) del mismo eje, con una millonésima de diferencia; barrita logarítmica de la diferencia | Segundos | ¿Seguirán juntos? (se separan a los ~15 s) → vuelven a la salida | `SIM_CAOS_REEL` · una millonésima basta para cambiarlo todo (Lorenz, 1963; Shinbrot et al., 1992) |
+| `bandada` (v2.4) | Murmuración de estorninos: boids 3D con 3 reglas sobre un cielo de atardecer (`FONDO atardecer`); un halcón la atraviesa y la abre en ondas; al final bajan a los árboles | Pájaros (+ «pájaros») | ¿Quién la guía? → se posan y el cielo queda vacío | `SIM_BANDADA_REEL` · nadie la guía: 3 reglas (Reynolds, 1987; Ballerini et al., 2008) |
+| `turing` (v2.4) | Reacción-difusión de Gray-Scott sobre un trozo de piel: manchas que nacen, se parten y se acomodan | Manchas (+ «manchas») | ¿Quién las pinta? → la piel vuelve a quedar lisa | `SIM_TURING_REEL` · Turing (1952) explicó cómo pueden formarse |
+| `mandelbrot` (v2.4) | Zoom continuo hasta una minicopia encuadrada como el conjunto entero (empalma solo) | Aumento (×1 … ×37 millones) | ¿Dónde termina? → vuelve a empezar | `SIM_MANDELBROT_REEL` · nunca termina: z² + c (Mandelbrot, 1980) |
 
 ## QC (`producir_reel.py qc` → `07_QC/QC.md`)
 
@@ -103,11 +107,11 @@ Cuando todo pasa, escribe **TODO CORRECTO**.
 |---|---|
 | `PROMPT_NUEVO_REEL.md` | Prompt corto de copiar y pegar para pedir un reel nuevo. |
 | `INSTRUCCIONES_REEL.md` | Firmas de `SIM.*` y `R.*` y cómo escribir `episodio.js`. |
-| `motor/sim.js` | Simulaciones precalculadas y deterministas: `SIM.rebote`, `SIM.galton`, `SIM.fourier`, `SIM.incendio`, `SIM.montecarlo`, `SIM.pendulos`, `SIM.hormiga`, `SIM.dla`, `SIM.pendulo2` y utilidades. |
+| `motor/sim.js` | Simulaciones precalculadas y deterministas: `SIM.rebote`, `SIM.galton`, `SIM.fourier`, `SIM.incendio`, `SIM.montecarlo`, `SIM.pendulos`, `SIM.hormiga`, `SIM.dla`, `SIM.pendulo2`, `SIM.boids`, `SIM.grayscott`, `SIM.mandel` y utilidades. |
 | `motor/reel.js` | Montaje (fondo, pregunta, contador, frase, marca de agua, bucle) y sonido ASMR desde los eventos (`R.asmr`). |
 | `motor/plantilla.js`, `lib/`, `fonts/` | Motor v1.28 sin cambios (se usan `H`, `SOUND`, `P.glow` y `P.fmtN`). |
 | `tools/` | `nuevo_reel.py`, `producir_reel.py`, `tiempos.py`, `sim_info.js`, `textos.js` (QC de textos), `build.py`, `render.js`, `audio.js`, `frames.js`, `sheet.py`, `determinismo.js`. |
-| `ejemplos/` | Los 9 reels de ejemplo (código, MP4 y QC). |
+| `ejemplos/` | Los 12 reels de ejemplo (código, MP4 y QC). |
 | `V1/` | Respaldo de la versión 1.0. |
 | `INSTRUCCIONES_PLANTILLA.md`, `GUIA_ESTILOS.md`, `catalogo/` | Referencia heredada de los bloques `P.*` y `FX.*` (lo que habla de voz no se aplica aquí). |
 

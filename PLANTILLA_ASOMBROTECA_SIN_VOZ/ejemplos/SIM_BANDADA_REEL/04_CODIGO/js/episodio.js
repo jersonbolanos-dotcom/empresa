@@ -33,9 +33,15 @@
   for (let i = 0; i < N; i++) { const o = (f * N + i) * 3, q = (fp * N + i) * 3, z = S.pos[o + 2], X = sx(S.pos[o], z), Y = sy(S.pos[o + 1], z); if (Y > YH + 40) continue;
    const k = FOC / (z + DC), dx = X - sx(S.pos[q], S.pos[q + 2]), dy = Y - sy(S.pos[q + 1], S.pos[q + 2]), m = Math.hypot(dx, dy) || 1, L = 0.35 * k;
    ctx.lineWidth = Math.max(1.6, 0.22 * k); ctx.beginPath(); ctx.moveTo(X - dx / m * L, Y - dy / m * L); ctx.lineTo(X + dx / m * L, Y + dy / m * L); ctx.stroke(); }
-  // el halcón: silueta más grande con aleteo
-  const h = 3 * f; if (!isNaN(S.hal[h])) { const z = S.hal[h + 2], X = sx(S.hal[h], z), Y = sy(S.hal[h + 1], z), k = FOC / (z + DC) * 2.2, a = Math.sin(t * 16) * 0.5;
-   ctx.fillStyle = '#140a14'; ctx.beginPath(); ctx.moveTo(X - 2.2 * k, Y - a * k); ctx.quadraticCurveTo(X - 0.8 * k, Y - 0.5 * k, X, Y); ctx.quadraticCurveTo(X + 0.8 * k, Y - 0.5 * k, X + 2.2 * k, Y - a * k); ctx.quadraticCurveTo(X + 0.8 * k, Y + 0.25 * k, X, Y + 0.45 * k); ctx.quadraticCurveTo(X - 0.8 * k, Y + 0.25 * k, X - 2.2 * k, Y - a * k); ctx.fill(); }
+  // el halcón: silueta grande y reconocible (alas abiertas en punta, cabeza y cola en abanico), orientada según su vuelo, con aleteo leve
+  const h = 3 * f; if (!isNaN(S.hal[h])) { const z = S.hal[h + 2], X = sx(S.hal[h], z), Y = sy(S.hal[h + 1], z), hp = 3 * Math.max(0, f - 1);
+   const ang = isNaN(S.hal[hp]) ? 0 : Math.atan2(Y - sy(S.hal[hp + 1], S.hal[hp + 2]), X - sx(S.hal[hp], S.hal[hp + 2])), sc = 1.15 * FOC / (z + DC) / (FOC / DC), fl = Math.sin(t * 9) * 0.18;
+   ctx.save(); ctx.translate(X, Y); ctx.rotate(ang); ctx.scale(sc, sc); ctx.fillStyle = '#120812'; ctx.beginPath();
+   ctx.moveTo(34, 0); ctx.quadraticCurveTo(28, -6, 16, -6);                                   // cabeza y pico
+   ctx.lineTo(4, -10); ctx.quadraticCurveTo(-6, -40, -26, -78 * (1 - fl)); ctx.quadraticCurveTo(-16, -40, -18, -10);   // ala izquierda (en punta)
+   ctx.lineTo(-34, -9); ctx.lineTo(-52, -16); ctx.lineTo(-54, 0); ctx.lineTo(-52, 16); ctx.lineTo(-34, 9);              // cola en abanico
+   ctx.lineTo(-18, 10); ctx.quadraticCurveTo(-16, 40, -26, 78 * (1 - fl)); ctx.quadraticCurveTo(-6, 40, 4, 10);          // ala derecha
+   ctx.lineTo(16, 6); ctx.quadraticCurveTo(28, 6, 34, 0); ctx.fill(); ctx.restore(); }
   // árboles (la percha) y suelo: silueta oscura sobre la que acaba la bandada
   ctx.fillStyle = '#120a14'; ctx.fillRect(0, YH, 1080, 1920 - YH); ctx.beginPath(); ctx.moveTo(0, YH + 20);
   for (const a of ARB) { ctx.ellipse(a.x, YH + 10, a.w, a.h, 0, Math.PI, 0); } ctx.lineTo(1080, YH + 20); ctx.fill();
