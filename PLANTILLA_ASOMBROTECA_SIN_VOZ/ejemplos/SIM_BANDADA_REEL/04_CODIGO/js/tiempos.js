@@ -11,7 +11,7 @@ window.TIEMPOS = {
  "param": {
   "n": 2400.0,
   "tHalcon": 17.0,
-  "tPercha": 33.0
+  "tPercha": 34.2
  },
  "fondo": "atardecer"
 };

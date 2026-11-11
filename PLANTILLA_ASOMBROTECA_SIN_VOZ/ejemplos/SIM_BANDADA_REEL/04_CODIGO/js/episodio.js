@@ -60,11 +60,12 @@
  const EVA = []; for (let f = 0; f < S.NF - 1 && f / 30 < D - 1; f++) { const v = enCielo[f] / N, g = Math.min(1, (0.3 + 0.7 * Math.sqrt(v)) * (0.45 + 2.5 * S.giros[f])); if (g > 0.03) EVA.push({ t: f / 30, g }); }
  const T_PASO = TH + 2.5;
  function sound(k) {
-  for (const e of EVA) { k.noise(e.t, { dur: 0.14, color: 'pink', filter: 'bandpass', f: 1400 + 1600 * e.g, q: 0.8, gain: 0.05 * e.g, a: 0.004 }); R.EV.push(e.t); }   // rumor de alas
+  for (const e of EVA) { k.noise(e.t, { dur: 0.14, color: 'pink', filter: 'bandpass', f: 1400 + 1600 * e.g, q: 0.8, gain: 0.05 * e.g * (1 + 2.5 * (1 - sm(2.5, 5, e.t))), a: 0.004 }); R.EV.push(e.t); }   // rumor de alas (más presente mientras llega la bandada)
+  for (const t0 of [0.02, 1.2]) { k.noise(t0, { dur: 1.3, color: 'pink', filter: 'bandpass', f: [[0, 700], [1.3, 2200]], q: 0.9, gain: 0.07, a: 0.004 }); R.EV.push(t0); }   // soplo de alas de los que llegan
   k.noise(TH, { dur: 1.2, color: 'pink', filter: 'bandpass', f: [[0, 600], [1.2, 2600]], q: 1.2, gain: 0.12, a: 0.004 }); k.noise(T_PASO, { dur: 1.0, color: 'white', filter: 'bandpass', f: [[0, 3000], [1, 900]], q: 1, gain: 0.1, a: 0.004 });   // halcón
   R.cierre(k);
  }
- const EP = R.make({ draw, sound, eventos: () => EVA.map((e) => e.t).concat([TH, T_PASO, TL.tFrase]), fondo: { c0: '#1a1020' } });
+ const EP = R.make({ draw, sound, eventos: () => EVA.map((e) => e.t).concat([0.02, 1.2, TH, T_PASO, TL.tFrase]), fondo: { c0: '#1a1020' } });
  window.EPISODIO = { explainer: EP.explainer, init: async () => {}, DURATION: EP.DURATION, eventos: EP.eventos, sim: S };
  window.scoreSound = EP.scoreSound; window.scoreMusic = EP.scoreMusic;
 })();
