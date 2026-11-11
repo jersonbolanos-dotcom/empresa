@@ -1,10 +1,10 @@
 # REEL DE SIMULACIÓN · formato «turing» · reacción-difusión de Gray-Scott: sobre una piel lisa aparecen solas manchas que crecen,
 # se parten en dos y se acomodan
-DURACION 28
+DURACION 30
 MUSICA no
 SEMILLA 3
-PREGUNTA 3.6 | ¿Quién pinta / estas manchas?
-FRASE 22.0 | Alan Turing explicó en 1952 cómo pueden / formarse solas las manchas de los animales.
+PREGUNTA 4.8 | ¿Quién pinta / estas manchas?
+FRASE 23.0 | Alan Turing explicó en 1952 cómo pueden / formarse solas las manchas de los animales.
 FUENTE Turing, A. M. (1952), «The chemical basis of morphogenesis», Philosophical Transactions of the Royal Society of London B 237: 37-72; modelo de Gray-Scott: Pearson, J. E. (1993), «Complex patterns in a simple system», Science 261: 189-192
 # alimentación F y retirada k del modelo de Gray-Scott · semillas iniciales · pasos de simulación por fotograma
 PARAM F 0.030

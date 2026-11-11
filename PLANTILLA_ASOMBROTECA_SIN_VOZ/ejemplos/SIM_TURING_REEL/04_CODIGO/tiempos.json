@@ -1,11 +1,11 @@
 {
- "duracion": 28.0,
+ "duracion": 30.0,
  "musica": "no",
  "semilla": 3,
  "pregunta": "¿Quién pinta / estas manchas?",
- "tPregunta": 3.6,
+ "tPregunta": 4.8,
  "frase": "Alan Turing explicó en 1952 cómo pueden / formarse solas las manchas de los animales.",
- "tFrase": 22.0,
+ "tFrase": 23.0,
  "fuente": "Turing, A. M. (1952), «The chemical basis of morphogenesis», Philosophical Transactions of the Royal Society of London B 237: 37-72; modelo de Gray-Scott: Pearson, J. E. (1993), «Complex patterns in a simple system», Science 261: 189-192",
  "param": {
   "F": 0.03,

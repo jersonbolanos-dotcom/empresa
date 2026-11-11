@@ -57,6 +57,7 @@
 
  // ---------- 4 · SONIDO: una nota en cada duplicación del aumento, una campana en cada ×10 y el acorde de cierre ----------
  const EVD = [], EVC = []; for (let k = 1; k * Math.LN2 < LZ; k++) EVD.push({ t: D * k * Math.LN2 / LZ, p: 4 + (k % 12), v: 0.5 }); for (let m = 1; m * Math.LN10 < LZ; m++) EVC.push({ t: D * m * Math.LN10 / LZ, p: 3, v: 0.8 });
+ EVC.unshift({ t: 0.02, p: 3, v: 0.8 }); EVD.unshift({ t: 0.02, p: 4, v: 0.5 }, { t: 0.8, p: 6, v: 0.45 });   // arranque: campana y notas desde el fotograma 0
  function sound(k) { R.asmr(k, EVD, { voz: 'cristal', maxBin: 1, bin: 0.05, gain: 0.8 }); R.asmr(k, EVC, { voz: 'campana', maxBin: 1, bin: 0.05, gain: 0.6 }); R.cierre(k); }
  const EP = R.make({ draw, sound, eventos: () => EVD.concat(EVC).map((e) => e.t).concat([TL.tFrase]) });
  window.EPISODIO = { explainer: EP.explainer, init: async () => {}, DURATION: EP.DURATION, eventos: EP.eventos };
