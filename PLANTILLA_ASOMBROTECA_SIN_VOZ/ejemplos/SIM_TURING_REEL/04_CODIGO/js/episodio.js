@@ -32,9 +32,9 @@
  const PATAS_LEJOS = [PATA(395, 330, 440, 412, 405, 500, 410, 588, 432, 84), PATA(690, 350, 688, 435, 690, 518, 688, 588, 710, 64)];   // del otro lado (más oscuras)
  const PATAS_CERCA = [PATA(360, 330, 372, 418, 305, 502, 296, 588, 318, 92), PATA(728, 350, 752, 435, 772, 515, 786, 586, 812, 68)];    // trasera estirada atrás, delantera adelantada
  const COLA_C = [[322, 286, 30], [282, 302, 26], [236, 334, 22], [204, 390, 19], [190, 452, 16], [196, 510, 14], [214, 546, 12], [242, 560, 11], [264, 548, 10], [272, 526, 9]];
- const cola = (t) => { const th = 0.13 * Math.sin(t * 1.25) + 0.05 * Math.sin(t * 2.9), [bx, by] = COLA_C[0];   // la cola se balancea despacio (más en la punta)
+ const cola = (t) => { const th = 0.24 * Math.sin(t * 1.4) + 0.07 * Math.sin(t * 3.1), [bx, by] = COLA_C[0];   // la cola se balancea despacio (más en la punta)
   return linea(COLA_C.map(([x, y, w], i) => { const a = th * Math.pow(i / (COLA_C.length - 1), 1.4), c = Math.cos(a), sn = Math.sin(a), dx = x - bx, dy = y - by; return [bx + dx * c - dy * sn, by + dx * sn + dy * c, w]; })); };
- const tronco = (t) => { const r = 4.5 * Math.sin(TAU * t / 2.8); return TRONCO.map(([x, y]) => [x, y + (y > 340 && x > 520 && x < 800 ? r * Math.sin(Math.PI * (x - 520) / 280) : 0)]); };   // respira: el pecho sube y baja
+ const tronco = (t) => { const r = 7.5 * Math.sin(TAU * t / 2.4); return TRONCO.map(([x, y]) => [x, y + (y > 340 && x > 520 && x < 800 ? r * Math.sin(Math.PI * (x - 520) / 280) : 0)]); };   // respira: el pecho sube y baja
 
  const LX = (x) => 80 + (x - 180) * 1.15, LY = (y) => 1150 - (600 - y) * 1.15, SUELO = LY(600);
  const camino = (ctx, pts) => { const q = pts.map(([x, y]) => [LX(x), LY(y)]), n = q.length, m = (a, b) => [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2];
@@ -62,7 +62,8 @@
   // la piel en su recuadro; desde 17,6 s pierde la luz de estudio y sus bordes se difuminan (al alejarse no queda ningún borde)
   const fe = Math.max(sm(T_Z0 - 1.4, T_Z0, t), e > 0 ? 1 : 0) * (1 - sm(T_B1 - 0.2, T_B1 + 0.6, t)), fx = piel_difusa(t, fe);
   if (e < 0.001) { ctx.save(); ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'high'; ctx.drawImage(fx, X0, Y0, AW, AH); ctx.restore(); } else {
-   const z = Math.exp(lerp(Math.log(Z0), 0, e)), cs = [lerp(CW[0], LC[0], e), lerp(CW[1], LC[1], e)], wc = [lerp(PC[0], LC[0], e), lerp(PC[1], LC[1], e)];
+   const z = Math.exp(lerp(Math.log(Z0), 0, e)) * (1 + 0.06 * sm(T_Z1, T_B0, t) * e),   // con el leopardo entero, la cámara se acerca muy despacio
+    cs = [lerp(CW[0], LC[0], e), lerp(CW[1], LC[1], e)], wc = [lerp(PC[0], LC[0], e), lerp(PC[1], LC[1], e)];
    const patG = ctx.createPattern(cv, 'repeat'); patG.setTransform(new DOMMatrix().translate(PC[0] - WW / 2, PC[1] - WH / 2).scale(WW / GW, WH / GH));          // manchas grandes (tronco)
    const patP = ctx.createPattern(cv, 'repeat'); patP.setTransform(new DOMMatrix().translate(PC[0], PC[1]).scale(0.45 * WW / GW, 0.45 * WH / GH));              // manchas pequeñas (patas, cabeza, cola)
    ctx.save(); ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'high'; ctx.translate(cs[0], cs[1]); ctx.scale(z, z); ctx.translate(-wc[0], -wc[1]);

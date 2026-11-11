@@ -57,7 +57,7 @@
 
  // ---------- 4 · SONIDO ----------
  // rumor de alas desde el fotograma 0: un grano por fotograma, más fuerte cuantos más pájaros hay en el cielo y cuantos más giran
- const EVA = []; for (let f = 0; f < S.NF - 1 && f / 30 < D - 1; f++) { const v = enCielo[f] / N, g = Math.min(1, Math.sqrt(v) * (0.35 + 2.5 * S.giros[f])); if (g > 0.03) EVA.push({ t: f / 30, g }); }
+ const EVA = []; for (let f = 0; f < S.NF - 1 && f / 30 < D - 1; f++) { const v = enCielo[f] / N, g = Math.min(1, (0.3 + 0.7 * Math.sqrt(v)) * (0.45 + 2.5 * S.giros[f])); if (g > 0.03) EVA.push({ t: f / 30, g }); }
  const T_PASO = TH + 2.5;
  function sound(k) {
   for (const e of EVA) { k.noise(e.t, { dur: 0.14, color: 'pink', filter: 'bandpass', f: 1400 + 1600 * e.g, q: 0.8, gain: 0.05 * e.g, a: 0.004 }); R.EV.push(e.t); }   // rumor de alas

@@ -10,4 +10,4 @@ FUENTE Reynolds, C. W. (1987), «Flocks, herds and schools: A distributed behavi
 # pájaros · instante en que entra el halcón · instante en que bajan a la percha
 PARAM n 2400
 PARAM tHalcon 17
-PARAM tPercha 33
+PARAM tPercha 34.2
