@@ -5,6 +5,7 @@
 # Formato de 03_GUION/tiempos.txt («#» = comentario):
 #   DURACION 35                         25-45 s (se redondea a fotogramas enteros, 30 fps)
 #   MUSICA no                           no · muy_baja
+#   FONDO oscuro                        oscuro (por defecto) · atardecer (v2.4: cielo claro de atardecer con figuras oscuras; el QC lo mide aparte)
 #   SEMILLA 7                           semilla de H.rng para la simulación
 #   PREGUNTA 3.5 | ¿Llenarán el círculo antes del final?     (fin en s | texto ≤ 6 palabras; está en pantalla desde el fotograma 0)
 #   FRASE 31 | Una *E. coli* puede duplicarse cada 20 minutos.  (inicio en s | la ÚNICA frase que revela el dato; ≤ 14 palabras)
@@ -20,7 +21,7 @@ def palabras(s):
 
 
 def leer(path):
-    d = {'duracion': None, 'musica': 'no', 'semilla': 1, 'pregunta': '', 'tPregunta': 3.5, 'frase': '', 'tFrase': None, 'fuente': '', 'param': {}}
+    d = {'duracion': None, 'musica': 'no', 'semilla': 1, 'pregunta': '', 'tPregunta': 3.5, 'frase': '', 'tFrase': None, 'fuente': '', 'param': {}, 'fondo': 'oscuro'}
     err, avisos = [], []
     for n, raw in enumerate(open(path, encoding='utf-8'), 1):
         s = raw.strip()
@@ -37,6 +38,10 @@ def leer(path):
                 d['musica'] = v.split()[0].lower()
                 if d['musica'] not in ('no', 'muy_baja'):
                     err.append(f'línea {n}: MUSICA debe ser «no» o «muy_baja»')
+            elif k == 'FONDO':
+                d['fondo'] = v.split()[0].lower()
+                if d['fondo'] not in ('oscuro', 'atardecer'):
+                    err.append(f'línea {n}: FONDO debe ser «oscuro» o «atardecer»')
             elif k == 'SEMILLA':
                 d['semilla'] = int(v.split()[0])
             elif k in ('PREGUNTA', 'FRASE'):

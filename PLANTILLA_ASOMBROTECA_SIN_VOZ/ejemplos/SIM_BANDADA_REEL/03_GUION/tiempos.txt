@@ -1,0 +1,13 @@
+# REEL DE SIMULACIÓN · formato «bandada» · murmuración de estorninos (boids 3D, Reynolds 1987): miles de pájaros con 3 reglas
+# forman una nube que se estira y se enrolla; un halcón la atraviesa y la abre en ondas; al final bajan a dormir a los árboles
+DURACION 38
+MUSICA no
+FONDO atardecer
+SEMILLA 2
+PREGUNTA 3.6 | ¿Quién guía / a esta bandada?
+FRASE 30.5 | Nadie la guía: / cada pájaro sigue solo *3 reglas*.
+FUENTE Reynolds, C. W. (1987), «Flocks, herds and schools: A distributed behavioral model», Computer Graphics 21(4): 25-34; Ballerini, M. et al. (2008), «Interaction ruling animal collective behavior depends on topological rather than metric distance», PNAS 105: 1232-1237
+# pájaros · instante en que entra el halcón · instante en que bajan a la percha
+PARAM n 2400
+PARAM tHalcon 17
+PARAM tPercha 33

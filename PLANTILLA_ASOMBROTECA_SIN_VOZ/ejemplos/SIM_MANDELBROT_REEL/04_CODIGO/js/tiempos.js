@@ -1,0 +1,17 @@
+// Generado por tools/tiempos.py desde 03_GUION/tiempos.txt — no editar a mano.
+window.TIEMPOS = {
+ "duracion": 40.0,
+ "musica": "no",
+ "semilla": 1,
+ "pregunta": "¿Dónde termina / esta figura?",
+ "tPregunta": 3.6,
+ "frase": "Nunca termina: toda esta figura / sale de una sola fórmula, *z² + c*.",
+ "tFrase": 33.0,
+ "fuente": "Mandelbrot, B. B. (1980), «Fractal aspects of the iteration of z → λz(1−z) for complex λ and z», Annals of the New York Academy of Sciences 357: 249-259",
+ "param": {
+  "periodo": 507.0,
+  "cr": -0.7436438945754713,
+  "ci": 0.13182616477548956
+ },
+ "fondo": "oscuro"
+};

@@ -253,5 +253,99 @@
   return { NF, fps, A, B, L1, L2, sep, tSep, energia };
  };
 
+ // =====================================================================================================
+ // 10 · BANDADA, BOIDS 3D (v2.4; Reynolds 1987): cada pájaro sigue 3 reglas con sus vecinos (radio `rv`): separación, alineación y
+ // cohesión. Además: límites suaves del cielo (no salirse de la caja), huida de un halcón (`halcon`) y, desde `tPercha`, bajada a la
+ // percha (los árboles). cfg = { n, dur, fps (30), sub (2), seed, caja: [x0, x1, y0, y1, z0, z1], rv, rs, vMin, vMax, wS, wA, wC, wB,
+ //   vecinos (máx. que mira cada uno, 10), margen (0,2), anillo ([k0, k1]: de dónde llegan, en semiejes de la caja), halcon: { t0, t1, v, rHuida, wH }, percha: { t, x, y, z, w } } → { n, NF, pos (Float32 NF·n·3), hal (Float32 NF·3, NaN si no está),
+ //   giros (Float32 NF: fracción de pájaros que giran bruscamente en cada fotograma) }
+ // =====================================================================================================
+ SIM.boids = (cfg) => { const n = cfg.n, fps = cfg.fps || 30, sub = cfg.sub || 2, dt = 1 / (fps * sub), NF = Math.round(cfg.dur * fps) + 1, rng = H.rng(cfg.seed ?? 1);
+  const [X0, X1, Y0, Y1, Z0, Z1] = cfg.caja, rv = cfg.rv ?? 4, rs = cfg.rs ?? 1.3, vMin = cfg.vMin ?? 8, vMax = cfg.vMax ?? 15;
+  const wS = cfg.wS ?? 30, wA = cfg.wA ?? 2.2, wC = cfg.wC ?? 1.2, wB = cfg.wB ?? 6, MV = cfg.vecinos ?? 10, MB = cfg.margen ?? 0.2;   // vecinos que mira cada pájaro (los estorninos reales, ~7: Ballerini 2008)
+  const P = new Float32Array(n * 3), V = new Float32Array(n * 3), pos = new Float32Array(NF * n * 3), hal = new Float32Array(NF * 3).fill(NaN), giros = new Float32Array(NF);
+  // salida: repartidos en un anillo justo fuera de la caja, volando hacia dentro (van llegando)
+  for (let i = 0; i < n; i++) { const a = rng() * Math.PI * 2, cx = (X0 + X1) / 2, cy = (Y0 + Y1) / 2, rx = (X1 - X0) / 2, ry = (Y1 - Y0) / 2, k = (cfg.anillo ? cfg.anillo[0] + rng() * (cfg.anillo[1] - cfg.anillo[0]) : 0.85 + rng() * 0.6);
+   P[3 * i] = cx + Math.cos(a) * rx * k; P[3 * i + 1] = cy + Math.sin(a) * ry * k; P[3 * i + 2] = Z0 + rng() * (Z1 - Z0);
+   const tx = cx + (rng() - 0.5) * rx * 0.6 - P[3 * i], ty = cy + (rng() - 0.5) * ry * 0.6 - P[3 * i + 1], m = Math.hypot(tx, ty) || 1, sp = vMin + rng() * (vMax - vMin);
+   V[3 * i] = tx / m * sp; V[3 * i + 1] = ty / m * sp; V[3 * i + 2] = (rng() - 0.5) * 2; }
+  const cs = rv, gx = (x) => Math.floor(x / cs), key = (a, b, c) => ((a * 73856093) ^ (b * 19349663) ^ (c * 83492791)) & 0xffff;
+  const head = new Int32Array(65536), next = new Int32Array(n), HV = cfg.halcon, hp = [NaN, NaN, NaN], hv = [0, 0, 0];
+  for (let f = 0; f < NF; f++) { const t = f / fps;
+   pos.set(P, f * n * 3); if (!isNaN(hp[0])) hal.set(hp, f * 3);
+   let giro = 0;
+   for (let s = 0; s < sub; s++) { const tt = t + s * dt;
+    // halcón: entra en t0 por la izquierda, persigue el centro de la bandada y sigue de largo hasta t1
+    if (HV) { if (tt >= HV.t0 && tt <= HV.t1) { if (isNaN(hp[0])) { hp[0] = X0 - 15; hp[1] = (Y0 + Y1) * 0.62; hp[2] = (Z0 + Z1) / 2; }
+      if (tt < (HV.t0 + HV.t1) / 2) { let mx = 0, my = 0, mz = 0; for (let i = 0; i < n; i += 7) { mx += P[3 * i]; my += P[3 * i + 1]; mz += P[3 * i + 2]; } const c = Math.ceil(n / 7); mx /= c; my /= c; mz /= c;
+       const dx = mx - hp[0], dy = my - hp[1], dz = mz - hp[2], m = Math.hypot(dx, dy, dz) || 1; hv[0] = dx / m * HV.v; hv[1] = dy / m * HV.v; hv[2] = dz / m * HV.v; }
+      hp[0] += hv[0] * dt; hp[1] += hv[1] * dt; hp[2] += hv[2] * dt; } else if (tt > HV.t1) { hp[0] = hp[1] = hp[2] = NaN; } }
+    head.fill(-1); for (let i = 0; i < n; i++) { const h = key(gx(P[3 * i]), gx(P[3 * i + 1]), gx(P[3 * i + 2])); next[i] = head[h]; head[h] = i; }
+    const PS = cfg.percha, wp = PS && tt > PS.t ? Math.min(1, (tt - PS.t) / 1.5) * PS.w : 0;
+    for (let i = 0; i < n; i++) { const x = P[3 * i], y = P[3 * i + 1], z = P[3 * i + 2], vx = V[3 * i], vy = V[3 * i + 1], vz = V[3 * i + 2];
+     let sx = 0, sy = 0, sz = 0, ax = 0, ay = 0, az = 0, cx = 0, cy = 0, cz = 0, nn = 0; const a0 = gx(x), b0 = gx(y), c0 = gx(z);
+     for (let da = -1; da <= 1; da++) for (let db = -1; db <= 1; db++) for (let dc = -1; dc <= 1; dc++) { for (let j = head[key(a0 + da, b0 + db, c0 + dc)]; j >= 0; j = next[j]) { if (j === i) continue;
+       const dx = P[3 * j] - x, dy = P[3 * j + 1] - y, dz = P[3 * j + 2] - z, d2 = dx * dx + dy * dy + dz * dz; if (d2 > rv * rv) continue;
+       if (d2 < rs * rs) { const w = 1 / Math.max(0.05, d2); sx -= dx * w; sy -= dy * w; sz -= dz * w; }            // separación: con TODOS los muy cercanos
+       if (nn < MV) { nn++; ax += V[3 * j]; ay += V[3 * j + 1]; az += V[3 * j + 2]; cx += dx; cy += dy; cz += dz; } } }   // alineación y cohesión: con unos pocos vecinos
+     let fx = 0, fy = 0, fz = 0;
+     if (nn) { fx += wS * sx + wA * (ax / nn - vx) + wC * cx / nn; fy += wS * sy + wA * (ay / nn - vy) + wC * cy / nn; fz += wS * sz + wA * (az / nn - vz) + wC * cz / nn; }   // las 3 reglas
+     // límites suaves del cielo
+     const bnd = (p, lo, hi) => { const m = (hi - lo) * MB; return p < lo + m ? (lo + m - p) : p > hi - m ? (hi - m - p) : 0; }; fx += wB * bnd(x, X0, X1); fy += wB * bnd(y, Y0, Y1) * (wp ? 0 : 1); fz += wB * bnd(z, Z0, Z1);
+     // huida del halcón
+     if (!isNaN(hp[0])) { const dx = x - hp[0], dy = y - hp[1], dz = z - hp[2], d = Math.hypot(dx, dy, dz); if (d < HV.rHuida) { const w = HV.wH * (1 - d / HV.rHuida) / Math.max(0.5, d); fx += dx * w; fy += dy * w; fz += dz * w; } }
+     // bajada a la percha (al final)
+     if (wp) { fx += (PS.x - x) * wp * 0.15; fy += (PS.y - y) * wp; fz += (PS.z - z) * wp * 0.15; }
+     let nx = vx + fx * dt, ny = vy + fy * dt, nz = vz + fz * dt, sp = Math.hypot(nx, ny, nz) || 1, cl = Math.min(vMax * (wp ? 1.6 : 1), Math.max(vMin, sp));
+     nx *= cl / sp; ny *= cl / sp; nz *= cl / sp;
+     if (s === 0) { const c = (vx * nx + vy * ny + vz * nz) / ((Math.hypot(vx, vy, vz) || 1) * cl); if (c < 0.9985) giro++; }
+     V[3 * i] = nx; V[3 * i + 1] = ny; V[3 * i + 2] = nz; }
+    for (let i = 0; i < n * 3; i++) P[i] += V[i] * dt; }
+   giros[f] = giro / n; }
+  return { n, NF, fps, pos, hal, giros };
+ };
+
+ // =====================================================================================================
+ // 11 · REACCIÓN-DIFUSIÓN DE GRAY-SCOTT (v2.4; Pearson 1993): u + 2v → 3v, con alimentación F y retirada k. Rejilla periódica W × H,
+ // Du, Dv (por celda), paso dt = 1. Semillas pequeñas de v sobre una «piel» lisa (u = 1) con ruido mínimo (H.rng).
+ // cfg = { W, H, F, k, Du, Dv, pasos (por fotograma, función del fotograma), NF, semillas, seed } → { W, H, NF, v (Uint8 NF·W·H: v·255·2),
+ //   manchas (Int32 NF: grupos conectados con v > umbral) }
+ // =====================================================================================================
+ SIM.grayscott = (cfg) => { const W = cfg.W, Hh = cfg.H, N = W * Hh, rng = H.rng(cfg.seed ?? 1), NF = cfg.NF;
+  let u = new Float32Array(N).fill(1), v = new Float32Array(N), u2 = new Float32Array(N), v2 = new Float32Array(N); const F = cfg.F, k = cfg.k, Du = cfg.Du ?? 0.2, Dv = cfg.Dv ?? 0.1;
+  for (let i = 0; i < N; i++) { u[i] = 1 - rng() * 0.02; v[i] = rng() * 0.02; }
+  for (let q = 0; q < (cfg.semillas ?? 30); q++) { const cx = (rng() * W) | 0, cy = (rng() * Hh) | 0, r = 2 + ((rng() * 2) | 0); for (let y = -r; y <= r; y++) for (let x = -r; x <= r; x++) { if (x * x + y * y > r * r) continue; const i = ((cy + y + Hh) % Hh) * W + (cx + x + W) % W; u[i] = 0.5; v[i] = 0.25 + rng() * 0.05; } }
+  const out = new Uint8Array(NF * N), manchas = new Int32Array(NF), lab = new Int32Array(N), stack = new Int32Array(N), UM = cfg.umbral ?? 0.18;
+  const cuenta = (off) => { lab.fill(0); let c = 0; const m = Math.round(UM * 510);
+   for (let i = 0; i < N; i++) { if (lab[i] || out[off + i] < m) continue; c++; let sp = 0, area = 0; stack[sp++] = i; lab[i] = c;
+    while (sp) { const j = stack[--sp]; area++; const x = j % W, y = (j / W) | 0; const nb = [y * W + (x + 1) % W, y * W + (x - 1 + W) % W, ((y + 1) % Hh) * W + x, ((y - 1 + Hh) % Hh) * W + x];
+     for (const q of nb) if (!lab[q] && out[off + q] >= m) { lab[q] = c; stack[sp++] = q; } }
+    if (area < (cfg.areaMin ?? 6)) c--; } return c; };
+  for (let f = 0; f < NF; f++) { const np = cfg.pasos(f);
+   for (let s = 0; s < np; s++) {
+    for (let y = 0; y < Hh; y++) { const yu = ((y - 1 + Hh) % Hh) * W, yd = ((y + 1) % Hh) * W, yc = y * W;
+     for (let x = 0; x < W; x++) { const xl = (x - 1 + W) % W, xr = (x + 1) % W, i = yc + x;
+      const lu = u[yc + xl] + u[yc + xr] + u[yu + x] + u[yd + x] - 4 * u[i], lv = v[yc + xl] + v[yc + xr] + v[yu + x] + v[yd + x] - 4 * v[i], uvv = u[i] * v[i] * v[i];
+      u2[i] = u[i] + Du * lu - uvv + F * (1 - u[i]); v2[i] = v[i] + Dv * lv + uvv - (F + k) * v[i]; } }
+    let tmp = u; u = u2; u2 = tmp; tmp = v; v = v2; v2 = tmp; }
+   const off = f * N; for (let i = 0; i < N; i++) out[off + i] = Math.max(0, Math.min(255, v[i] * 510)); manchas[f] = cuenta(off); }
+  return { W, H: Hh, NF, v: out, manchas };
+ };
+
+ // =====================================================================================================
+ // 12 · MANDELBROT (v2.4): z → z² + c. Núcleo de la componente de periodo p más cercana a c0 (Newton) y su tamaño y giro respecto al
+ // conjunto entero (s = 1 / (β·λ²), Munafo). Y `iter(cx, cy, maxIt)` con escape continuo y detección de órbitas periódicas.
+ // =====================================================================================================
+ SIM.mandel = {
+  nucleo: (cr, ci, p, it = 60) => { for (let q = 0; q < it; q++) { let zr = 0, zi = 0, dr = 0, di = 0;
+    for (let j = 0; j < p; j++) { const ndr = 2 * (zr * dr - zi * di) + 1, ndi = 2 * (zr * di + zi * dr); dr = ndr; di = ndi; const nzr = zr * zr - zi * zi + cr; zi = 2 * zr * zi + ci; zr = nzr; }
+    const m = dr * dr + di * di; if (!m) break; const sr = (zr * dr + zi * di) / m, si = (zi * dr - zr * di) / m; cr -= sr; ci -= si; if (Math.hypot(sr, si) < 1e-17) break; } return [cr, ci]; },
+  tamano: (cr, ci, p) => { let zr = 0, zi = 0, lr = 1, li = 0, br = 1, bi = 0;
+   for (let j = 1; j < p; j++) { const nzr = zr * zr - zi * zi + cr; zi = 2 * zr * zi + ci; zr = nzr; const nlr = 2 * (zr * lr - zi * li), nli = 2 * (zr * li + zi * lr); lr = nlr; li = nli;
+    const m = lr * lr + li * li; br += lr / m; bi -= li / m; }
+   const l2r = lr * lr - li * li, l2i = 2 * lr * li, dr = br * l2r - bi * l2i, di = br * l2i + bi * l2r, m = dr * dr + di * di; return [dr / m, -di / m]; },
+  periodo: (cr, ci, pMax) => { let zr = 0, zi = 0, best = 1, bm = Infinity; for (let j = 1; j <= pMax; j++) { const nzr = zr * zr - zi * zi + cr; zi = 2 * zr * zi + ci; zr = nzr; const m = zr * zr + zi * zi; if (m > 4) break; if (m < bm) { bm = m; best = j; } } return best; },
+ };
+
  root.SIM = SIM;
 })(typeof window !== 'undefined' ? window : globalThis);

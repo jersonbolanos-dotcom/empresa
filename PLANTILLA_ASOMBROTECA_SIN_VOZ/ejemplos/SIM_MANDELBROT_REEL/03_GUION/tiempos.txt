@@ -1,0 +1,12 @@
+# REEL DE SIMULACIÓN · formato «mandelbrot» · zoom continuo (velocidad constante en escala logarítmica) por el valle de los caballitos
+# de mar hasta una minicopia de periodo 507 que queda encuadrada como el conjunto entero: el final empalma con el inicio
+DURACION 40
+MUSICA no
+SEMILLA 1
+PREGUNTA 3.6 | ¿Dónde termina / esta figura?
+FRASE 33.0 | Nunca termina: toda esta figura / sale de una sola fórmula, *z² + c*.
+FUENTE Mandelbrot, B. B. (1980), «Fractal aspects of the iteration of z → λz(1−z) for complex λ and z», Annals of the New York Academy of Sciences 357: 249-259
+# minicopia: periodo y punto de partida de Newton (cerca del valle de los caballitos de mar)
+PARAM periodo 507
+PARAM cr -0.74364389457547131
+PARAM ci 0.13182616477548956
