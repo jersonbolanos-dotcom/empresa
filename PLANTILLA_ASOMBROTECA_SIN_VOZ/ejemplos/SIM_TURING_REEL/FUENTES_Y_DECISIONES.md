@@ -1,6 +1,6 @@
 # Fuentes y decisiones · ¿Quién pinta estas manchas?
 
-Formato: `turing` · Plantilla Asombroteca SIN_VOZ 2.4 · 28 s.
+Formato: `turing` · Plantilla Asombroteca SIN_VOZ 2.4.1 · 30 s (versión anterior en `V1/`).
 
 ## Dato que revela la frase final
 
@@ -16,10 +16,18 @@ Formato: `turing` · Plantilla Asombroteca SIN_VOZ 2.4 · 28 s.
   - 8 semillas sobre una piel lisa con ruido mínimo (`H.rng(3)`).
 - **Ritmo** (sin tiempo muerto):
   - 7,5 pasos por fotograma: las manchas crecen, se parten en dos y llenan la piel hacia los 20 s (8 → 40 → 86 → 100);
-  - la frase sale a los 22 s;
-  - el vídeo dura 28 s.
+  - la pregunta queda al menos 4,5 s en pantalla;
+  - entre los 19 y los 22,4 s la cámara se aleja y revela que la piel es el lomo de un leopardo;
+  - la frase sale a los 23 s, con el leopardo entero;
+  - el vídeo dura 30 s.
 - **Contador**: manchas contadas de verdad en cada fotograma (grupos conectados de celdas con v > 0,18).
 - **Aspecto**: color arena con el borde de cada mancha oscuro y el centro más claro, como las del leopardo. Luz de estudio que se mueve despacio (la imagen nunca se congela). La piel es un parche iluminado sobre fondo oscuro.
-- **Bucle**: al final la piel vuelve a quedar lisa.
-- **Sonido**: una gota por cada mancha nueva (cuando aparece o se parte en dos) y el acorde de cierre con la frase. Sin música.
+- **Leopardo** (silueta original, de perfil, caminando):
+  - cuerpo largo con la espalda algo arqueada, patas largas y delgadas (una delantera adelantada), cabeza redondeada con hocico corto, orejas pequeñas y cuello marcado, cola larga que cae y se curva hacia arriba;
+  - vientre y parte baja de las patas más claros;
+  - lleva el MISMO patrón de la simulación (la rejilla es periódica, así que se repite sin costuras): manchas grandes en el tronco y pequeñas en patas, cabeza y cola;
+  - antes de alejarse, el trozo de piel pierde sus bordes y se funde con el lomo, sin recuadro;
+  - mueve la cola despacio y respira (el pecho sube y baja), así que no queda congelado.
+- **Bucle**: la cámara vuelve a acercarse al lomo y la piel vuelve a quedar lisa.
+- **Sonido**: desde el fotograma 0, una gota por cada una de las 8 semillas; después, una gota por cada mancha nueva (cuando aparece o se parte en dos) y el acorde de cierre con la frase. Sin música.
 - **Nada flota**: las manchas están en la piel.

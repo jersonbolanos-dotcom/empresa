@@ -31,7 +31,11 @@
  const PATA = (hx, hy, kx, ky, ax, ay, px, py, fx, w0) => linea([[hx, hy, w0], [kx, ky, w0 * 0.62], [ax, ay, w0 * 0.4], [px, py, w0 * 0.33], [fx, 597, w0 * 0.26]]);
  const PATAS_LEJOS = [PATA(395, 330, 440, 412, 405, 500, 410, 588, 432, 84), PATA(690, 350, 688, 435, 690, 518, 688, 588, 710, 64)];   // del otro lado (más oscuras)
  const PATAS_CERCA = [PATA(360, 330, 372, 418, 305, 502, 296, 588, 318, 92), PATA(728, 350, 752, 435, 772, 515, 786, 586, 812, 68)];    // trasera estirada atrás, delantera adelantada
- const COLA = linea([[322, 286, 30], [282, 302, 26], [236, 334, 22], [204, 390, 19], [190, 452, 16], [196, 510, 14], [214, 546, 12], [242, 560, 11], [264, 548, 10], [272, 526, 9]]);
+ const COLA_C = [[322, 286, 30], [282, 302, 26], [236, 334, 22], [204, 390, 19], [190, 452, 16], [196, 510, 14], [214, 546, 12], [242, 560, 11], [264, 548, 10], [272, 526, 9]];
+ const cola = (t) => { const th = 0.13 * Math.sin(t * 1.25) + 0.05 * Math.sin(t * 2.9), [bx, by] = COLA_C[0];   // la cola se balancea despacio (más en la punta)
+  return linea(COLA_C.map(([x, y, w], i) => { const a = th * Math.pow(i / (COLA_C.length - 1), 1.4), c = Math.cos(a), sn = Math.sin(a), dx = x - bx, dy = y - by; return [bx + dx * c - dy * sn, by + dx * sn + dy * c, w]; })); };
+ const tronco = (t) => { const r = 4.5 * Math.sin(TAU * t / 2.8); return TRONCO.map(([x, y]) => [x, y + (y > 340 && x > 520 && x < 800 ? r * Math.sin(Math.PI * (x - 520) / 280) : 0)]); };   // respira: el pecho sube y baja
+
  const LX = (x) => 80 + (x - 180) * 1.15, LY = (y) => 1150 - (600 - y) * 1.15, SUELO = LY(600);
  const camino = (ctx, pts) => { const q = pts.map(([x, y]) => [LX(x), LY(y)]), n = q.length, m = (a, b) => [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2];
   ctx.beginPath(); let p = m(q[n - 1], q[0]); ctx.moveTo(p[0], p[1]); for (let i = 0; i < n; i++) { const c = q[i], e = m(q[i], q[(i + 1) % n]); ctx.quadraticCurveTo(c[0], c[1], e[0], e[1]); } ctx.closePath(); };
@@ -39,16 +43,25 @@
  const T_Z0 = 19.0, T_Z1 = 22.4, T_B0 = D - 3.6, T_B1 = D - 1.4;   // se aleja antes de la frase y vuelve a acercarse para el empalme
  const zoomE = (t) => E.inOut(cl((t - T_Z0) / (T_Z1 - T_Z0))) * (1 - E.inOut(cl((t - T_B0) / (T_B1 - T_B0))));
 
+ // piel con bordes que se difuminan: fe = 0 → recuadro redondeado con luz de estudio; fe = 1 → mancha de piel sin bordes ni luz
+ const FX = document.createElement('canvas'); FX.width = AW; FX.height = AH; const fxc = FX.getContext('2d');
+ const piel_difusa = (t, fe) => { fxc.setTransform(1, 0, 0, 1, 0, 0); fxc.globalCompositeOperation = 'source-over'; fxc.clearRect(0, 0, AW, AH);
+  fxc.save(); fxc.beginPath(); fxc.roundRect(0, 0, AW, AH, 46); fxc.clip(); fxc.imageSmoothingEnabled = true; fxc.imageSmoothingQuality = 'high'; fxc.drawImage(cv, 0, 0, AW, AH);
+  const va = 1 - fe; if (va > 0.01) { const lx = AW / 2 + 120 * Math.sin(t * 0.21), ly = AH * (0.45 + 0.08 * Math.cos(t * 0.17)), g = fxc.createRadialGradient(lx, ly, 60, lx, ly, AW * 0.72);
+   g.addColorStop(0, 'rgba(0,0,0,0)'); g.addColorStop(0.6, `rgba(0,0,0,${0.25 * va})`); g.addColorStop(1, `rgba(0,0,0,${0.85 * va})`); fxc.fillStyle = g; fxc.fillRect(0, 0, AW, AH); }
+  fxc.restore();
+  if (fe > 0.01) { fxc.globalCompositeOperation = 'destination-in'; const R0 = AW * lerp(0.75, 0.18, fe), R1 = AW * lerp(0.76, 0.52, fe), m = fxc.createRadialGradient(AW / 2, AH / 2, R0, AW / 2, AH / 2, R1);
+   m.addColorStop(0, 'rgba(0,0,0,1)'); m.addColorStop(1, 'rgba(0,0,0,0)'); fxc.fillStyle = m; fxc.fillRect(0, 0, AW, AH); fxc.globalCompositeOperation = 'source-over'; }
+  return FX; };
+
  function draw(ctx, t) {
   const f = Math.min(NF - 1, Math.round(t * 30)), off = f * GW * GH, fin = 1 - sm(D - 2.6, D - 0.9, t), d = img.data;   // al final la piel vuelve a quedar lisa
   for (let i = 0; i < GW * GH; i++) { const j = Math.round(S.v[off + i] * fin), o = 4 * i; d[o] = LUT[3 * j]; d[o + 1] = LUT[3 * j + 1]; d[o + 2] = LUT[3 * j + 2]; d[o + 3] = 255; }
   c2.putImageData(img, 0, 0);
   const e = zoomE(t);
-  if (e < 0.001) {   // trozo de piel con luz de estudio (como hasta ahora)
-   ctx.save(); ctx.beginPath(); ctx.roundRect(X0, Y0, AW, AH, 46); ctx.clip(); ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'high'; ctx.drawImage(cv, X0, Y0, AW, AH);
-   const lx = 540 + 120 * Math.sin(t * 0.21), ly = Y0 + AH * (0.45 + 0.08 * Math.cos(t * 0.17)), g = ctx.createRadialGradient(lx, ly, 60, lx, ly, AW * 0.72); g.addColorStop(0, 'rgba(0,0,0,0)'); g.addColorStop(0.6, 'rgba(0,0,0,0.25)'); g.addColorStop(1, 'rgba(0,0,0,0.85)');
-   ctx.fillStyle = g; ctx.fillRect(X0, Y0, AW, AH); ctx.restore();
-  } else {
+  // la piel en su recuadro; desde 17,6 s pierde la luz de estudio y sus bordes se difuminan (al alejarse no queda ningún borde)
+  const fe = Math.max(sm(T_Z0 - 1.4, T_Z0, t), e > 0 ? 1 : 0) * (1 - sm(T_B1 - 0.2, T_B1 + 0.6, t)), fx = piel_difusa(t, fe);
+  if (e < 0.001) { ctx.save(); ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'high'; ctx.drawImage(fx, X0, Y0, AW, AH); ctx.restore(); } else {
    const z = Math.exp(lerp(Math.log(Z0), 0, e)), cs = [lerp(CW[0], LC[0], e), lerp(CW[1], LC[1], e)], wc = [lerp(PC[0], LC[0], e), lerp(PC[1], LC[1], e)];
    const patG = ctx.createPattern(cv, 'repeat'); patG.setTransform(new DOMMatrix().translate(PC[0] - WW / 2, PC[1] - WH / 2).scale(WW / GW, WH / GH));          // manchas grandes (tronco)
    const patP = ctx.createPattern(cv, 'repeat'); patP.setTransform(new DOMMatrix().translate(PC[0], PC[1]).scale(0.45 * WW / GW, 0.45 * WH / GH));              // manchas pequeñas (patas, cabeza, cola)
@@ -58,19 +71,23 @@
    const claro = (pts, y0, y1, a) => { ctx.save(); camino(ctx, pts); ctx.clip(); const g = ctx.createLinearGradient(0, LY(y0), 0, LY(y1)); g.addColorStop(0, 'rgba(255,238,205,0)'); g.addColorStop(1, `rgba(255,238,205,${a})`); ctx.fillStyle = g; ctx.fillRect(-300, LY(y0), 1700, LY(y1) - LY(y0) + 40); ctx.restore(); };
    const pieza = (pts, pat, osc) => { camino(ctx, pts); ctx.fillStyle = pat; ctx.fill(); if (osc) { ctx.fillStyle = `rgba(25,12,0,${osc})`; ctx.fill(); } };
    for (const pt of PATAS_LEJOS) { pieza(pt, patP, 0.4); claro(pt, 480, 600, 0.25); }
+   const COLA = cola(t), TR = tronco(t);
    pieza(COLA, patP, 0);
    for (const pt of PATAS_CERCA) { pieza(pt, patP, 0); claro(pt, 470, 600, 0.3); camino(ctx, pt); ctx.strokeStyle = 'rgba(30,15,5,0.55)'; ctx.lineWidth = 2.2 / z; ctx.stroke(); }   // su contorno queda debajo del cuerpo
-   pieza(TRONCO, patG, 0);
-   ctx.save(); camino(ctx, TRONCO); ctx.clip(); ctx.fillStyle = patP; for (let q = 0; q < 8; q++) { ctx.globalAlpha = (q + 1) / 8; ctx.fillRect(LX(800 + q * 8), LY(180), LX(1000) - LX(800 + q * 8), LY(340) - LY(180)); } ctx.globalAlpha = 1; ctx.restore();   // cabeza y cuello: manchas pequeñas (transición gradual)
-   claro(TRONCO, 330, 410, 0.55);   // vientre más claro
-   ctx.save(); camino(ctx, TRONCO); ctx.clip(); const gs = ctx.createLinearGradient(0, LY(240), 0, LY(300)); gs.addColorStop(0, 'rgba(60,30,0,0.25)'); gs.addColorStop(1, 'rgba(60,30,0,0)'); ctx.fillStyle = gs; ctx.fillRect(-300, LY(200), 1700, 200); ctx.restore();   // lomo algo más oscuro
-   ctx.strokeStyle = 'rgba(30,15,5,0.55)'; ctx.lineWidth = 2.2 / z; for (const pt of [TRONCO, COLA]) { camino(ctx, pt); ctx.stroke(); }
+   pieza(TR, patG, 0);
+   ctx.save(); camino(ctx, TR); ctx.clip(); ctx.fillStyle = patP; for (let q = 0; q < 8; q++) { ctx.globalAlpha = (q + 1) / 8; ctx.fillRect(LX(800 + q * 8), LY(180), LX(1000) - LX(800 + q * 8), LY(340) - LY(180)); } ctx.globalAlpha = 1; ctx.restore();   // cabeza y cuello: manchas pequeñas (transición gradual)
+   claro(TR, 330, 410, 0.55);   // vientre más claro
+   ctx.save(); camino(ctx, TR); ctx.clip(); const gs = ctx.createLinearGradient(0, LY(240), 0, LY(300)); gs.addColorStop(0, 'rgba(60,30,0,0.25)'); gs.addColorStop(1, 'rgba(60,30,0,0)'); ctx.fillStyle = gs; ctx.fillRect(-300, LY(200), 1700, 200); ctx.restore();   // lomo algo más oscuro
+   ctx.strokeStyle = 'rgba(30,15,5,0.55)'; ctx.lineWidth = 2.2 / z; for (const pt of [TR, COLA]) { camino(ctx, pt); ctx.stroke(); }
    // ojo, nariz, boca y oreja
    ctx.fillStyle = '#1a0e05'; ctx.beginPath(); ctx.ellipse(LX(935), LY(256), 9, 5, -0.2, 0, TAU); ctx.fill(); ctx.fillStyle = '#e8c070'; ctx.beginPath(); ctx.arc(LX(933), LY(255), 2.8, 0, TAU); ctx.fill();
    ctx.fillStyle = '#2a1608'; ctx.beginPath(); ctx.ellipse(LX(971), LY(272), 7, 5, 0, 0, TAU); ctx.fill(); ctx.strokeStyle = '#2a1608'; ctx.lineWidth = 2.4 / z; ctx.beginPath(); ctx.moveTo(LX(970), LY(277)); ctx.quadraticCurveTo(LX(964), LY(290), LX(948), LY(294)); ctx.stroke();
    ctx.beginPath(); ctx.moveTo(LX(895), LY(206)); ctx.lineTo(LX(887), LY(218)); ctx.lineTo(LX(900), LY(217)); ctx.closePath(); ctx.fillStyle = '#2a1608'; ctx.fill();
    // el trozo de piel inicial se funde con el lomo al empezar a alejarse
-   const pa = 1 - sm(0, 0.22, e); if (pa > 0.01) { ctx.globalAlpha = pa; ctx.save(); ctx.beginPath(); ctx.roundRect(PC[0] - WW / 2, PC[1] - WH / 2, WW, WH, 46 / Z0); ctx.clip(); ctx.drawImage(cv, PC[0] - WW / 2, PC[1] - WH / 2, WW, WH); ctx.restore(); ctx.globalAlpha = 1; }
+   // la misma piel difusa se funde con el lomo (mismo patrón): sobre el cuerpo se va despacio; fuera del cuerpo, enseguida (sin halo)
+   const pa = 1 - sm(0, 0.45, e), po = 1 - sm(0, 0.12, e);
+   if (po > 0.01) { ctx.globalAlpha = po; ctx.drawImage(fx, PC[0] - WW / 2, PC[1] - WH / 2, WW, WH); ctx.globalAlpha = 1; }
+   if (pa > 0.01) { ctx.save(); camino(ctx, TR); ctx.clip(); ctx.globalAlpha = pa; ctx.drawImage(fx, PC[0] - WW / 2, PC[1] - WH / 2, WW, WH); ctx.restore(); }
    ctx.restore();
   }
   R.contador(ctx, t, Math.round(S.manchas[f] * fin), { x: 540, y: 1325, px: 96, glow: '255,170,80' });

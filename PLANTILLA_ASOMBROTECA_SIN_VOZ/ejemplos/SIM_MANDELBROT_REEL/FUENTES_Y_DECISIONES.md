@@ -25,5 +25,5 @@ Formato: `mandelbrot` · Plantilla Asombroteca SIN_VOZ 2.4 · 40 s.
 - **Textos**:
   - franjas oscuras suaves detrás de la pregunta, la frase y el contador;
   - el contador (×1 … ×37 millones) se apaga del todo antes del empalme, para no encimarse con el «×1» del inicio.
-- **Sonido**: una nota de cristal cada vez que el aumento se duplica (cada vez más aguda), una campana en cada ×10 y el acorde de cierre. Sin música.
+- **Sonido**: una campana y dos notas desde el fotograma 0; después, una nota de cristal cada vez que el aumento se duplica (cada vez más aguda), una campana en cada ×10 y el acorde de cierre. Sin música.
 - **QC**: el control de textos (`textos.js`) no calcula el fractal: solo registra dónde se dibujan los textos.
