@@ -1,5 +1,19 @@
-# Guía de estilos y guion · PLANTILLA ASOMBROTECA v1.27
+# Guía de estilos y guion · PLANTILLA ASOMBROTECA v1.29
 
+> **v1.29 · Ahorro de créditos y crecimiento (mandan sobre todo lo demás, junto con las v1.27):**
+> 1. **Una sola generación de voz por vídeo.** En ElevenLabs se pide UNA toma (`generations_count: 1`), nunca dos. El guion completo cabe en ≤ 1.300 caracteres (≈ 45-70 s). Si una pausa queda corta, se alarga con `[PAUSA x]`; si una palabra sale mal, se regenera solo ese tramo corto, nunca el audio entero.
+> 2. **Tres ganchos en el mismo audio.** Los 3 ganchos van al principio del MISMO guion, separados por silencios, y se generan en esa única toma (≈ 200-300 créditos extra en total). En `tramos.txt` se marcan como `[GANCHO A]`, `[GANCHO B]` y `[GANCHO C]`. `producir.py NOMBRE variantes` monta 3 MP4: cada uno con su gancho + el mismo cuerpo. La voz sigue intacta: solo se eligen tramos, nunca se edita una muestra.
+> 3. **Variante sin gastar créditos.** Si no hay créditos para ganchos hablados, se hacen 3 variantes VISUALES con el mismo audio: cambia la imagen, el movimiento y la frase grande en pantalla de los primeros 2 s.
+> 4. **Probar antes de publicar.** Las 3 variantes se suben a Instagram como «Reel de prueba» (solo lo ven no seguidores). A las 24 h, la que más gente retuvo en los primeros 3 s se comparte al perfil y se sube a Facebook, YouTube y TikTok.
+> 5. **Sonido desde el fotograma 0 y hasta el último.** Nunca hay más de 0,5 s de silencio al principio ni más de 1 s al final: un efecto o un acorde de cierre suave acompaña la última imagen.
+> 6. **Pantalla llena.** El protagonista ocupa al menos el 60 % del ancho de la zona segura. Nada de media pantalla vacía.
+> 7. **Nada encimado.** En transiciones y finales, un texto o contador desaparece del todo antes de que entre otro. Nada de flechas o elementos cortados en los bordes.
+> 8. **Datos a prueba de comentarios.** Cada cifra se comprueba en 2 fuentes, y los contadores cuadran con la suma de lo que muestran. Cuidado doble con deportes, récords y fechas: el público los conoce.
+> 9. **Temas que se comparten.** Vida diaria (móvil, comida, cuerpo, viajes, casa) y desmentir un mito («Tu móvil NO…», «Esto NO es…»). Si un formato funcionó en el canal, se repite con otro tema.
+> 10. **Portada fija.** Cada vídeo entrega `07_OUTPUT/portada.jpg` (1080×1920): fondo oscuro, 2-4 palabras gigantes con UNA en rojo y una etiqueta amarilla pequeña. Siempre la misma maqueta, para que el perfil se vea como una marca.
+> 11. **Textos de publicación.** Cada vídeo entrega `07_OUTPUT/PUBLICAR.md` con título y descripción para YouTube, Facebook, Instagram y TikTok. El gancho va como pregunta y NUNCA se da la respuesta. Se pide comentar, nunca «dale like» ni «comparte si…» (Meta lo castiga). De 3 a 5 hashtags.
+> 12. **Personas reales.** Sin fotos sin licencia: se dibujan con rasgos reconocibles (peinado, barba, número), sin copiar ninguna foto.
+>
 > **v1.27 · Reglas para más visualizaciones (mandan sobre todo lo demás):**
 > 1. **Zona segura de Instagram:** texto importante solo en 220 ≤ y ≤ 1450 y x ≤ 940. Subtítulos arriba (estilo `ios`, capY 330-520), una palabra clave por frase.
 > 2. **Gancho (0-2 s):** nada de «Imagina», «En el año…», «Antes de…». Contradicción, cifra imposible o algo en juego, en segunda persona. Movimiento desde el fotograma 0. Se proponen 3 ganchos y el usuario elige antes del guion.

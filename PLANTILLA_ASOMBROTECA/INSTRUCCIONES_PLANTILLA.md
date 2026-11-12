@@ -848,3 +848,48 @@ Cinco horas después…
 
 Ancla los tiempos del episodio con `wa('palabra', n)` o `wt(tramo, 'palabra')`: se desplazan solos al añadir o quitar pausas.
 
+## v1.29 · Ahorro de créditos y crecimiento (una toma, 3 ganchos, portada, PUBLICAR.md)
+
+### ElevenLabs: una sola generación
+- `creative_generate_speech` se llama **SIEMPRE con `generations_count: 1`**. Nunca dos tomas.
+- Modelo Eleven v4, voz Dan (`9F4C8ztpNUmXkdDDbz3J`). Pausas con `[short pause]`, «…» y `[long pause]` (una vez en el cuerpo).
+- El guion completo, **ganchos incluidos**, no pasa de **1.300 caracteres** (≈ 45-70 s). Se le dice al usuario el número de caracteres ANTES de generar.
+- Nunca se regenera el audio entero: pausa corta → `[PAUSA x]` en `tramos.txt`; palabra mal dicha → se regenera solo ese tramo corto (avisando antes de su número de caracteres).
+
+### Tres ganchos en el mismo audio
+Guion para ElevenLabs: `Gancho A… [short pause] … Gancho B… [short pause] … Gancho C… [short pause] … Cuerpo…`. En `03_GUION/tramos.txt`:
+
+```
+[GANCHO A] Tu cuerpo no está cansado.
+[GANCHO B] Mil botellas, y una está envenenada.
+[GANCHO C] Esto NO es lo que crees.
+Primera línea del cuerpo…
+…
+```
+
+| Elemento | Qué hace |
+|---|---|
+| `[GANCHO A/B/C] texto` | Tramo(s) de cada gancho. Todos antes del cuerpo; un gancho puede ocupar varias líneas seguidas con la misma letra. Errores: gancho después del cuerpo, sin texto, líneas de una letra no seguidas, etiqueta mal escrita, `[PAUSA]` entre ganchos, sin cuerpo |
+| `alinear.py` | `alineacion.json` (audio completo, con `ganchos` y `cuerpo_desde`) y además `alineacion_A/B/C.json`: el gancho elegido + el cuerpo, con los tiempos desplazados. Cada uno lleva `gancho`, `montaje` (trozos del original `{de, a}` y silencios `{silencio}` de las `[PAUSA x]` del cuerpo) y `s0`/`e0` por tramo. Los silencios entre ganchos no pasan a ninguna variante; entre el gancho y el cuerpo queda el silencio original que había tras el último gancho |
+| `montar_voz.py voz alineacion_X.json voz_X.wav` | Junta los trozos del original sin tocar ninguna muestra (WAV float) → `05_AUDIO/voz_A/B/C.wav`. `producir.py alinear` lo hace solo, y también `datos_X.js` y `06_SUBTITULOS/subtitulos_X.srt` |
+| `build.py --gancho X` | Usa `js/datos_X.js` y `voz_X.wav` y define `window.GANCHO = 'X'` antes de los datos. Con ganchos y sin `--gancho`, la A. Sin ganchos, igual que la v1.28 (mismo `index.html`) |
+| `window.GANCHO` | En `episodio.js`: `const GANCHO = window.GANCHO \|\| 'A';` y los primeros 2 s dependen de él (imagen, movimiento y frase grande propios) |
+| `producir.py NOMBRE variantes` | Para cada gancho: render + QC → `07_OUTPUT/VARIANTE_A.mp4`, `_B`, `_C` y `07_QC/QC_A.md`, `qc_tecnico_A.txt`, `hoja_contacto_A.jpg`… Sin ganchos, igual que `todo` |
+| `--gancho X` | En `build`, `prueba` (→ `07_QC/prueba_X.jpg`), `render` y `qc`, elige la variante (por defecto la A) |
+| QC «Voz intacta» | En cada variante, md5 de las muestras de cada tramo frente al mismo tramo del original («7/7 tramos idénticos») |
+
+Sin créditos para ganchos hablados: 3 variantes **visuales** con el mismo audio (cambia lo que se ve en los primeros 2 s con una constante y `--salida VARIANTE_X.mp4`).
+
+### QC nuevo
+| Control | Criterio |
+|---|---|
+| Silencio inicial / final | < −50 dB pegado al principio ≤ 0,5 s y al final ≤ 1 s; si no, ✘ |
+| Nada encimado | Dos textos o contadores distintos (subtítulo, etiqueta, cifra, aviso, título, marca) visibles a la vez que se cruzan > 20 % de la caja menor → ✘. Las palabras de un mismo subtítulo no cuentan entre sí. Lo mide `zona_segura.js` (`encimados`) |
+| Pantalla llena | ≈ cada 0,5 s, ancho que ocupa el dibujo (bordes, sin las cajas de texto) dentro de la zona segura 0-940 × 220-1450. Menos del 60 % durante más de 3 s seguidos → **aviso** (no ✘) con los tramos (`llena.avisos`) |
+
+### Portada fija
+`python3 PLANTILLA_ASOMBROTECA/tools/producir.py NOMBRE portada "TEXTO" "PALABRA_ROJA" "ETIQUETA" [--t 12.5] [--gancho B]` → `07_OUTPUT/portada.jpg` (1080×1920, `tools/portada.js`):
+fotograma del vídeo (por defecto al 40 % de su duración) desenfocado y oscurecido, 2-4 palabras gigantes en Nunito 900 (una por línea, la `PALABRA_ROJA` en rojo, el resto en blanco), etiqueta amarilla pequeña encima y la marca discreta debajo, todo en la zona segura. La maqueta no se cambia.
+
+### PUBLICAR.md
+`nuevo_proyecto.py` copia `tools/plantillas_proyecto/PUBLICAR.md` a `07_OUTPUT/PUBLICAR.md`. Se rellena por vídeo: título y descripción para YouTube (con `#shorts`), Facebook, Instagram y TikTok; gancho como pregunta sin respuesta, invitación a comentar (nunca «dale like» ni «comparte si…»), 3-5 hashtags.

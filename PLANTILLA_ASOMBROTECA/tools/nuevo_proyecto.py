@@ -5,7 +5,7 @@
 #                                                          [--voz ruta/voz.mp3] [--destino carpeta]
 # Crea <destino>/<NOMBRE>_PROYECTO/ (por defecto junto a la carpeta de la plantilla) con:
 #   01_ENTRADA/{audio,referencias_originales}  03_GUION/tramos.txt  04_CODIGO/{index.src.html, js/episodio.js, js/fotos.js}
-#   05_AUDIO  06_SUBTITULOS  07_OUTPUT  07_QC  README.md  FUENTES_Y_DECISIONES.md  CREDITOS_IMAGENES.md
+#   05_AUDIO  06_SUBTITULOS  07_OUTPUT/PUBLICAR.md  07_QC  README.md  FUENTES_Y_DECISIONES.md  CREDITOS_IMAGENES.md
 # Las rutas a la plantilla se calculan solas, así que el proyecto funciona esté donde esté.
 import argparse, os, re, shutil, sys, unicodedata
 
@@ -58,10 +58,12 @@ def main():
     copia('README.md', 'README.md')
     copia('FUENTES_Y_DECISIONES.md', 'FUENTES_Y_DECISIONES.md')
     copia('CREDITOS_IMAGENES.md', 'CREDITOS_IMAGENES.md')
+    copia('PUBLICAR.md', '07_OUTPUT/PUBLICAR.md')   # v1.29: textos de publicación por red
     open(os.path.join(carpeta, '04_CODIGO/js/fotos.js'), 'w', encoding='utf-8').write(
         '// Imágenes documentales en base64 (ver CREDITOS_IMAGENES.md): window.FOTOS = { clave: "data:image/jpeg;base64,…" }\nwindow.FOTOS = {};\n')
     open(os.path.join(carpeta, '03_GUION/tramos.txt'), 'w', encoding='utf-8').write(
         '# Una línea por tramo de voz (entre pausas largas), en orden. Cifras con su forma hablada: 1945,|milnovecientoscuarentaycinco\n'
+        '# v1.29: ganchos de la misma toma al principio: «[GANCHO A] texto», «[GANCHO B] texto», «[GANCHO C] texto» → producir.py … variantes\n'
         '# Genera un borrador con: python3 PLANTILLA_ASOMBROTECA/tools/producir.py <proyecto> voz\n')
     if a.voz:
         shutil.copy2(a.voz, os.path.join(carpeta, '01_ENTRADA/audio', os.path.basename(a.voz)))

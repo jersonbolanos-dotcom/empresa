@@ -39,11 +39,29 @@ if TRAMOS:
     # siguiente (posproducción: los tramos de voz no se tocan). Un «[PAUSA …]» mal escrito, fuera de rango o dentro de una línea
     # de texto es un ERROR (no se ignora). El resto de etiquetas entre corchetes se siguen quitando.
     PAUSA_OK = re.compile(r'^\s*\[\s*pausa\s+([0-9]+(?:[.,][0-9]+)?)\s*s?\s*\]\s*$', re.I)
-    SEGS, PAUSAS_POST = [], []
+    # v1.29: «[GANCHO A|B|C] texto» marca los tramos de cada gancho grabado en la MISMA toma; van todos antes del cuerpo.
+    # Un gancho puede ocupar varias líneas seguidas con la misma letra. Sin ganchos, todo funciona como en la v1.28.
+    GANCHO_OK = re.compile(r'^\s*\[\s*gancho\s+([abc])\s*\]\s*(.*)$', re.I)
+    SEGS, PAUSAS_POST, GANCHOS = [], [], {}
+    _cuerpo, _ultima = False, None
     for n, l in enumerate(open(TRAMOS, encoding='utf-8'), 1):
         if not l.strip() or l.startswith('#'):
             continue
+        g = GANCHO_OK.match(l)
+        if g:
+            letra, t = g.group(1).upper(), _tag(g.group(2))
+            if _cuerpo:
+                sys.exit(f'ERROR tramos.txt línea {n}: los [GANCHO …] deben ir TODOS antes del cuerpo')
+            if not t:
+                sys.exit(f'ERROR tramos.txt línea {n}: [GANCHO {letra}] sin texto')
+            if letra in GANCHOS and _ultima != letra:
+                sys.exit(f'ERROR tramos.txt línea {n}: las líneas del [GANCHO {letra}] deben ir seguidas')
+            GANCHOS.setdefault(letra, []).append(len(SEGS)); SEGS.append(t); _ultima = letra; continue
+        if re.search(r'\[\s*gancho\b', l, re.I):
+            sys.exit(f'ERROR tramos.txt línea {n}: «{l.strip()}» — escribe [GANCHO A], [GANCHO B] o [GANCHO C] al principio de la línea, seguido del texto')
         m = PAUSA_OK.match(l)
+        if m and GANCHOS and not _cuerpo:
+            sys.exit(f'ERROR tramos.txt línea {n}: no se puede poner [PAUSA] entre los ganchos ni justo antes del cuerpo')
         if m:
             x = float(m.group(1).replace(',', '.'))
             if not 0.3 <= x <= 1.0:
@@ -55,7 +73,9 @@ if TRAMOS:
             sys.exit(f'ERROR tramos.txt línea {n}: «{l.strip()}» — [PAUSA x] debe ir sola en su línea, con x entre 0.3 y 1.0')
         t = _tag(l)
         if t:
-            SEGS.append(t)
+            SEGS.append(t); _cuerpo = True
+    if GANCHOS and not _cuerpo:
+        sys.exit('ERROR tramos.txt: hay [GANCHO …] pero falta el cuerpo del guion')
     if PAUSAS_POST and PAUSAS_POST[-1][0] >= len(SEGS) - 1:
         sys.exit('ERROR tramos.txt: una [PAUSA] no puede ir después del último tramo de voz')
 
@@ -137,6 +157,7 @@ for si, ((a, b), seg) in enumerate(zip(speech, SEGS)):
         result.append({"w": shown, "s": round(times[i], 3), "e": round(times[i + 1], 3), "seg": si})
 
 segs = [{"i": i, "s": round(a, 3), "e": round(b, 3), "text": re.sub(r"(\S+)\|\S+", r"\1", SEGS[i])} for i, (a, b) in enumerate(speech)]
+ORIG_WORDS = [dict(r) for r in result]   # v1.29: copia en el tiempo ORIGINAL de la voz (antes de las pausas de posproducción)
 # v1.28 · pausas de posproducción: silencio insertado en el centro del hueco entre el tramo k y el k+1; todo lo que sigue se desplaza
 PP = globals().get('PAUSAS_POST', [])
 extra = {}
@@ -160,6 +181,58 @@ for r in result:
     r["w"] = r["w"]
 json.dump({"duration": round(DUR + total, 6) if pausas_post else DUR, "speech_end": round(speech[-1][1] + total, 3), "segments": segs, "words": result,
            "method": "silencedetect + reparto silábico; sin ASR", **extra}, open(OUT, "w"), ensure_ascii=False, indent=1)
+
+# ---- v1.29 · una alineación por variante de gancho: el gancho elegido + el cuerpo, con los tiempos desplazados ----
+GN = globals().get('GANCHOS', {})
+if GN:
+    import os
+    cuerpo = max(i for v in GN.values() for i in v) + 1
+    ult = cuerpo - 1
+    cola = lambda k: min(0.06, max(0.0, (speech[k + 1][0] - speech[k][1]) / 2))   # deja salir la cola de la voz
+    c0 = round(speech[ult][1] + cola(ult), 3)   # el cuerpo arranca donde acaba el último gancho: su silencio original
+    pp_orig = [(p["t"], p["dur"], p["tras_tramo"]) for p in pausas_post]
+    resumen = {}
+    for L in sorted(GN):
+        idx = GN[L]; h0 = round(max(0.0, speech[idx[0]][0] - 0.05), 3); h1 = round(speech[idx[-1]][1] + cola(idx[-1]), 3)
+        trozos = [[h0, h1], [c0, round(DUR, 6)]] if h1 < c0 - 1e-6 else [[h0, round(DUR, 6)]]
+        # montaje en el tiempo original: copiar [de, a] tal cual o insertar silencio exacto (pausas de posproducción del cuerpo)
+        montaje = []
+        for de, a in trozos:
+            cur = de
+            for t, d, _ in pp_orig:
+                if de < t < a:
+                    montaje += [{"de": cur, "a": t}, {"silencio": d}]; cur = t
+            montaje.append({"de": cur, "a": a})
+        def mapa(t, montaje=montaje):
+            off = 0.0
+            for m in montaje:
+                if "silencio" in m:
+                    off += m["silencio"]; continue
+                if m["de"] - 1e-6 <= t <= m["a"] + 1e-6:
+                    return round(off + t - m["de"], 3)
+                off += m["a"] - m["de"]
+            return round(off, 3)
+        total = sum(m.get("silencio", 0) + (m["a"] - m["de"] if "de" in m else 0) for m in montaje)
+        keep = idx + list(range(cuerpo, len(SEGS))); nuevo = {o: n for n, o in enumerate(keep)}
+        vw = []
+        for r in ORIG_WORDS:
+            if r["seg"] in nuevo:
+                q = {"w": r["w"], "s": mapa(r["s"]), "e": mapa(r["e"]), "seg": nuevo[r["seg"]]}
+                vw.append(q)
+        for t, d, k in pp_orig:   # marca de pausa en la primera palabra tras cada pausa de posproducción
+            f = next(q for q in vw if q["seg"] == nuevo[k + 1]); f["pausa"] = round(f.get("pausa", 0) + d, 3)
+        vs = [{"i": nuevo[i], "s": mapa(speech[i][0]), "e": mapa(speech[i][1]), "s0": round(speech[i][0], 3), "e0": round(speech[i][1], 3),
+               "text": re.sub(r"(\S+)\|\S+", r"\1", SEGS[i])} for i in keep]
+        base, ext = os.path.splitext(OUT)
+        json.dump({"duration": round(total, 6), "speech_end": mapa(speech[-1][1]), "segments": vs, "words": vw, "gancho": L,
+                   "montaje": montaje, "duracion_original": round(DUR, 6),
+                   "pausas_post": [{"tras_tramo": nuevo[k], "t": t, "t_montado": mapa(t) + 0, "dur": d} for t, d, k in pp_orig],
+                   "method": "silencedetect + reparto silábico; sin ASR · variante de gancho (v1.29)"},
+                  open(f"{base}_{L}{ext}", "w"), ensure_ascii=False, indent=1)
+        resumen[L] = round(total, 2)
+    d = json.load(open(OUT)); d["ganchos"] = {L: GN[L] for L in sorted(GN)}; d["cuerpo_desde"] = cuerpo
+    json.dump(d, open(OUT, "w"), ensure_ascii=False, indent=1)
+    print("variantes de gancho:", ", ".join(f"{L} = {v} s" for L, v in resumen.items()))
 if pausas_post:
     print("pausas de posproducción:", ", ".join(f"{p['dur']} s tras el tramo {p['tras_tramo']}" for p in pausas_post))
 print(len(result), "palabras;", len(segs), "tramos")

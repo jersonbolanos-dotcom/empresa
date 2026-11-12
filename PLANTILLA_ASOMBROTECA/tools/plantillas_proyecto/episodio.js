@@ -21,6 +21,8 @@
 
  // ---------- 1 · TIEMPOS CLAVE (palabras de TU voz donde pasa algo) ----------
  // Ejemplo: const Tk = { pregunta: wt(0, 'por'), llave: wt(3, 'llave'), cifra: wt(5, 'cien') };
+ // v1.29 · variante de gancho: 'A', 'B' o 'C' (build.py la define con [GANCHO …] en tramos.txt). Haz que los primeros 2 s dependan de ella.
+ const GANCHO = window.GANCHO || 'A';
  const N = A.segments.length;
  const texto = (i) => A.words.filter((w) => w.seg === i).map((w) => w.w).join(' ');
 

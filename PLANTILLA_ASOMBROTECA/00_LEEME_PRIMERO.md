@@ -78,6 +78,7 @@ Detalles y capturas en `GUIA_ESTILOS.md` y `catalogo/catalogo_v126.jpg`.
 - Cierre: «Envíaselo a ese amigo que…» con `P.ctaShare`; nunca «Sigue a Asombroteca».
 - El QC de `producir.py` comprueba todo esto.
 - v1.28: para alargar una pausa sin tocar la voz, línea `[PAUSA x]` (0.3–1.0 s) en `03_GUION/tramos.txt`; el QC compara la huella de cada tramo de voz.
+- v1.29: UNA toma de voz (`generations_count: 1`, ≤ 1.300 caracteres) con 3 ganchos `[GANCHO A/B/C]` → `producir.py NOMBRE variantes` (VARIANTE_A/B/C.mp4); `producir.py NOMBRE portada …` → `portada.jpg`; `07_OUTPUT/PUBLICAR.md`; QC de silencios en los bordes, textos encimados y pantalla llena.
 
 ## Reglas que no se negocian
 

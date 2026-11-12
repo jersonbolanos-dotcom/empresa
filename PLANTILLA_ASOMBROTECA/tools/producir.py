@@ -11,7 +11,11 @@
 #   qc        control técnico (formato, decodificación, negros, congelados, silencios, sonoridad, md5 voz, determinismo,
 #             hoja de contacto) → 07_QC/qc_tecnico.txt, 07_QC/QC.md, 07_QC/hoja_contacto.jpg
 #   todo      build + render + qc          limpiar   borra index.html y temporales
+#   variantes (v1.29) con [GANCHO A/B/C] en tramos.txt: render + qc de cada variante → 07_OUTPUT/VARIANTE_A.mp4, _B, _C
+#             (QC en 07_QC/QC_A.md…). Sin ganchos hace lo mismo que «todo».
+#   portada   (v1.29) portada "TEXTO" "PALABRA_ROJA" "ETIQUETA" → 07_OUTPUT/portada.jpg 1080×1920 (fondo: fotograma del vídeo)
 # Opciones: --cola 1.0 (segundos tras la voz) · --workers 6 · --salida NOMBRE.mp4 · --trabajo DIR (temporales; por defecto /tmp)
+#           --gancho A|B|C (v1.29: variante para build/prueba/render/qc; con ganchos, por defecto la A) · --t 12.5 (fotograma de la portada)
 import argparse, glob, hashlib, json, math, os, re, shutil, subprocess, sys, tempfile
 
 RAIZ = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -46,8 +50,36 @@ def voz_montada(P):
     return f if pp and os.path.exists(f) else None
 
 
-def voz_usada(P):
+def voz_usada(P, a=None):
+    G = gancho(P, a) if a else None
+    if G:
+        return os.path.join(P, '05_AUDIO', f'voz_{G}.wav')   # v1.29: la deja build.py (tramos del original, sin tocar)
     return voz_montada(P) or voz(P)
+
+
+def ganchos(P):
+    f = os.path.join(P, '04_CODIGO', 'alineacion.json')
+    try:
+        return json.load(open(f, encoding='utf-8')).get('ganchos') or {} if os.path.exists(f) else {}
+    except Exception:
+        return {}
+
+
+def gancho(P, a):
+    # v1.29: variante activa (None si el proyecto no tiene [GANCHO …])
+    gn = ganchos(P); g = (getattr(a, 'gancho', None) or '').upper() or None
+    if g and g not in gn:
+        sys.exit(f'No hay [GANCHO {g}] en este proyecto' + (f' (hay: {", ".join(sorted(gn))})' if gn else ' (tramos.txt sin ganchos)'))
+    return g or (('A' if 'A' in gn else sorted(gn)[0]) if gn else None)
+
+
+def alin(P, a=None):
+    G = gancho(P, a) if a else None
+    return os.path.join(P, '04_CODIGO', f'alineacion_{G}.json' if G else 'alineacion.json')
+
+
+def suf(P, a):
+    G = gancho(P, a); return f'_{G}' if G else ''
 
 
 def md5(f):
@@ -95,7 +127,7 @@ def p_alinear(P, a):
         sys.exit('Falta el paso «voz».')
     D = open(os.path.join(C, 'duracion.txt')).read().strip() if os.path.exists(os.path.join(C, 'duracion.txt')) else str(dur_audio(voz(P)))
     sh(['python3', '-I', os.path.join(T, 'alinear.py'), 'sil_major.txt', 'sil_minor.txt', D, 'alineacion.json', '../03_GUION/tramos.txt'], cwd=C)
-    os.makedirs(os.path.join(C, 'js'), exist_ok=True)
+    os.makedirs(os.path.join(C, 'js'), exist_ok=True); os.makedirs(os.path.join(P, '06_SUBTITULOS'), exist_ok=True)
     sh(['python3', '-I', os.path.join(T, 'subtitulos.py'), 'alineacion.json', '../06_SUBTITULOS/subtitulos.srt', 'js/datos.js'], cwd=C)
     d = json.load(open(os.path.join(C, 'alineacion.json')))
     mont = os.path.join(P, '05_AUDIO', 'voz_montada.wav')
@@ -104,6 +136,13 @@ def p_alinear(P, a):
         sh(['python3', '-I', os.path.join(T, 'montar_voz.py'), voz(P), os.path.join(C, 'alineacion.json'), mont])
     elif os.path.exists(mont):
         os.remove(mont)   # ya no hay pausas de posproducción: se usa la voz original
+    # v1.29 · una alineación, unos subtítulos y una voz por variante de gancho
+    for L in sorted(d.get('ganchos') or {}):
+        os.makedirs(os.path.join(P, '05_AUDIO'), exist_ok=True)
+        sh(['python3', '-I', os.path.join(T, 'subtitulos.py'), f'alineacion_{L}.json', f'../06_SUBTITULOS/subtitulos_{L}.srt', f'js/datos_{L}.js'], cwd=C)
+        sh(['python3', '-I', os.path.join(T, 'montar_voz.py'), voz(P), os.path.join(C, f'alineacion_{L}.json'), os.path.join(P, '05_AUDIO', f'voz_{L}.wav')])
+        dv = json.load(open(os.path.join(C, f'alineacion_{L}.json')))
+        print(f'  variante {L}: «{dv["segments"][0]["text"]}» + cuerpo → {dv["duration"]:.2f} s')
     print(f'Alineado: {len(d["segments"])} tramos, {len(d["words"])} palabras, voz {d["duration"]:.2f} s' + (f' (con {len(d["pausas_post"])} pausas de posproducción)' if d.get('pausas_post') else ''))
 
 
@@ -111,11 +150,12 @@ def p_build(P, a):
     C = os.path.join(P, '04_CODIGO')
     if not os.path.exists(os.path.join(C, 'js', 'datos.js')):
         sys.exit('Falta js/datos.js: ejecuta «voz» y «alinear».')
-    sh(['python3', '-I', os.path.join(T, 'build.py')], cwd=C)
+    G = gancho(P, a)
+    sh(['python3', '-I', os.path.join(T, 'build.py')] + (['--gancho', G] if G else []), cwd=C)
 
 
 def duracion(P, a):
-    d = json.load(open(os.path.join(P, '04_CODIGO', 'alineacion.json')))
+    d = json.load(open(alin(P, a)))
     return round(d['duration'] + a.cola, 3)
 
 
@@ -124,14 +164,14 @@ def p_prueba(P, a):
     ts = a.extra or ['1', '5', '10', '20']
     sh(['node', os.path.join(T, 'frames.js'), 'index.html', W] + ts, cwd=C)
     pngs = sorted(glob.glob(os.path.join(W, '*.png')))
-    out = os.path.join(P, '07_QC', 'prueba.jpg')
+    out = os.path.join(P, '07_QC', f'prueba{suf(P, a)}.jpg')
     sh(['python3', '-I', os.path.join(T, 'sheet.py'), out, str(min(6, len(pngs)))] + pngs)
     shutil.rmtree(W, ignore_errors=True)
     print(f'Hoja de prueba: {out}')
 
 
-def pausas(P, mn=0.4, mx=1.6):
-    f = os.path.join(P, '04_CODIGO', 'alineacion.json')
+def pausas(P, mn=0.4, mx=1.6, a=None):
+    f = alin(P, a)
     if not os.path.exists(f):
         return []
     ws = json.load(open(f))['words']
@@ -141,6 +181,8 @@ def pausas(P, mn=0.4, mx=1.6):
 def nombre_final(P, a):
     if a.salida:
         return a.salida
+    if gancho(P, a):
+        return f'VARIANTE_{gancho(P, a)}.mp4'   # v1.29
     n = os.path.basename(os.path.abspath(P)).replace('_PROYECTO', '')
     return n + '_FINAL.mp4'
 
@@ -155,13 +197,13 @@ def p_render(P, a):
     shutil.copy2(os.path.join(AU, 'music.wav'), os.path.join(A5, 'musica_original.wav'))
     shutil.copy2(os.path.join(AU, 'sfx.wav'), os.path.join(A5, 'efectos_sonido.wav'))
     mez = os.path.join(A5, 'mezcla_final.wav')
-    PZ = pausas(P); duck = ('+'.join(f'between(t,{x - 0.05:.2f},{y + 0.1:.2f})' for x, y in PZ) if PZ else '0')
+    PZ = pausas(P, a=a); duck = ('+'.join(f'between(t,{x - 0.05:.2f},{y + 0.1:.2f})' for x, y in PZ) if PZ else '0')
     # v1.27: durante cada pausa dramática la música baja a ~40 % (la animación casi se para y entra FX.pausa)
     fc = ('[0:a]aresample=48000,aformat=channel_layouts=stereo,apad[v];[v]asplit[v1][v2];'
           f"[1:a]volume=4dB,volume='if({duck},0.4,1)':eval=frame[m];"
           '[m][v2]sidechaincompress=threshold=0.03:ratio=6:attack=20:release=400[md];[2:a]volume=-1dB[s];'
           f'[v1][md][s]amix=inputs=3:normalize=0,volume=7.4dB,alimiter=limit=0.8:level=false,afade=t=out:st={D - 0.8:.3f}:d=0.8,atrim=0:{D}[o]')
-    sh(['ffmpeg', '-v', 'error', '-y', '-i', voz_usada(P), '-i', os.path.join(A5, 'musica_original.wav'), '-i', os.path.join(A5, 'efectos_sonido.wav'),
+    sh(['ffmpeg', '-v', 'error', '-y', '-i', voz_usada(P, a), '-i', os.path.join(A5, 'musica_original.wav'), '-i', os.path.join(A5, 'efectos_sonido.wav'),
         '-filter_complex', fc, '-map', '[o]', '-ar', '48000', mez])
     # corrección automática de sonoridad a −14 LUFS (solo ganancia; el limitador ya fija el pico)
     # (techo de −2 dBFS de muestra tras la ganancia: deja margen para los picos entre muestras y el AAC → ≤ −1 dBTP)
@@ -189,8 +231,10 @@ def sonoridad(f):
 
 
 def p_qc(P, a):
-    O = os.path.join(P, '07_OUTPUT'); Q = os.path.join(P, '07_QC'); os.makedirs(Q, exist_ok=True)
+    O = os.path.join(P, '07_OUTPUT'); Q = os.path.join(P, '07_QC'); os.makedirs(Q, exist_ok=True); G = gancho(P, a); sf = suf(P, a)
     out = os.path.join(O, nombre_final(P, a))
+    if G and not os.path.exists(out):
+        sys.exit(f'No existe {out}: ejecuta «render --gancho {G}» o «variantes».')
     if not os.path.exists(out):
         mp4 = sorted(glob.glob(os.path.join(O, '*.mp4')))
         if not mp4:
@@ -208,13 +252,16 @@ def p_qc(P, a):
         vm = md5(voz(P)) == open(ref).read().split()[0]
     # v1.28: con pausas de posproducción, además, cada tramo de la voz montada debe ser idéntico (md5 de muestras) al original
     vt = None; C = os.path.join(P, '04_CODIGO')
-    if voz_montada(P) and os.path.exists(os.path.join(C, 'alineacion.json')):
+    if G:   # v1.29: cada tramo de la variante (gancho + cuerpo) idéntico al original
+        sys.path.insert(0, T); import montar_voz
+        vt = montar_voz.tramos_identicos_variante(voz(P), voz_usada(P, a), alin(P, a))
+    elif voz_montada(P) and os.path.exists(os.path.join(C, 'alineacion.json')):
         sys.path.insert(0, T); import montar_voz
         vt = montar_voz.tramos_identicos(voz(P), voz_montada(P), os.path.join(C, 'alineacion.json'))
     det = None
     if os.path.exists(os.path.join(C, 'index.html')):
         r = subprocess.run(['node', os.path.join(T, 'determinismo.js'), 'index.html'], cwd=C, capture_output=True, text=True); det = 'DETERMINISMO OK' in r.stdout
-    sh(['ffmpeg', '-v', 'error', '-y', '-i', out, '-vf', f'fps=1/{max(1.0, dur / 20):.3f},scale=216:384,tile=10x2', '-frames:v', '1', os.path.join(Q, 'hoja_contacto.jpg')])
+    sh(['ffmpeg', '-v', 'error', '-y', '-i', out, '-vf', f'fps=1/{max(1.0, dur / 20):.3f},scale=216:384,tile=10x2', '-frames:v', '1', os.path.join(Q, f'hoja_contacto{sf}.jpg')])
     # v1.27 · zona segura de Instagram, etiquetas a la vez, título fijo
     zs = None
     if os.path.exists(os.path.join(C, 'index.html')):
@@ -224,13 +271,13 @@ def p_qc(P, a):
         except Exception:
             zs = None
     # v1.27 · gancho, cierre y pausas (desde la alineación)
-    al = os.path.join(C, 'alineacion.json'); gancho = cierre = None; npz = len(pausas(P))
+    al = alin(P, a); gch = cierre = None; npz = len(pausas(P, a=a))
     if os.path.exists(al):
         ws = json.load(open(al))['words']; txt0 = ' '.join(w['w'] for w in ws[:6]).lower(); ult = ' '.join(w['w'] for w in ws if w['seg'] == ws[-1]['seg']).lower(); todo = ' '.join(w['w'] for w in ws).lower()
-        gancho = not re.match(r'^[¡¿]?\s*(imagina|en el año|en \d{3,4}|antes de|hace mucho|había una vez|hace \d+ años)', txt0)
+        gch = not re.match(r'^[¡¿]?\s*(imagina|en el año|en \d{3,4}|antes de|hace mucho|había una vez|hace \d+ años)', txt0)
         cierre = bool(re.search(r'env[ií]a', ult)) and not re.search(r'\b(sigue a|s[ií]guenos|s[ií]gueme)\b', todo)
     # v1.27 · ninguna etiqueta de interpretación ([short pause]…) ni <break/> en los subtítulos
-    etq = None; dj = os.path.join(C, 'js', 'datos.js')
+    etq = None; dj = os.path.join(C, 'js', f'datos{sf}.js')
     if os.path.exists(dj):
         etq = sorted(set(re.findall(r'\[[^\]"]*\]|<[^>"]*>', open(dj, encoding='utf-8').read())))
     # v1.27 · movimiento desde el fotograma 0 (ni negro ni quieto)
@@ -240,6 +287,9 @@ def p_qc(P, a):
     g0, g1 = gris(0), gris(0.5); mov = None
     if g0 and g1 and len(g0) == len(g1):
         lum = sum(g0) / len(g0); dif = sum(abs(x - y) for x, y in zip(g0, g1)) / len(g0); mov = lum > 12 and dif > 1.0
+    # v1.29 · sonido de punta a punta: silencio (−50 dB) al principio ≤ 0,5 s y al final ≤ 1 s
+    s_ini, s_fin = silencios_borde(out, dur)
+    enc = None if zs is None else zs.get('encimados'); ll = None if zs is None else zs.get('llena')
     ok = lambda c: '✔' if c else '✘'
     filas = [
         ('Formato', f'{vs["codec_name"]} {vs["width"]}×{vs["height"]} {vs["r_frame_rate"]} · {au[0]["codec_name"] + " " + au[0]["sample_rate"] + " Hz" if au else "SIN AUDIO"}', vs['width'] == 1080 and vs['height'] == 1920 and vs['r_frame_rate'] == '30/1' and bool(au)),
@@ -254,18 +304,82 @@ def p_qc(P, a):
         ('Zona segura IG (texto en 220 ≤ y ≤ 1450, x ≤ 940)', ('sin datos' if zs is None else (f'{len(zs["fuera"])} textos fuera' + (': ' + ', '.join(f'{f["tipo"]} t={f["t"]} {f["motivo"]}' for f in zs['fuera'][:6]) if zs['fuera'] else ''))), zs is not None and not zs['fuera']),
         ('Pantalla limpia (≤ 2 etiquetas a la vez, sin título fijo)', 'sin datos' if zs is None else f'máx. {zs["maxEtiquetas"]} etiquetas · {"con" if zs["titulos"] else "sin"} título', zs is not None and zs['maxEtiquetas'] <= 2 and not zs['titulos']),
         ('Pausas dramáticas (0,4-1,6 s; objetivo 3-4)', f'{npz}' + ('' if 3 <= npz <= 6 else ' · AVISO: fuera del objetivo'), True),
-        ('Gancho sin frase de contexto', 'sin alineación' if gancho is None else ('correcto' if gancho else 'EMPIEZA CON CONTEXTO (Imagina / En el año / Antes de…)'), gancho is not False),
+        ('Silencio inicial ≤ 0,5 s / final ≤ 1 s (−50 dB)', f'{s_ini:.2f} s / {s_fin:.2f} s', s_ini <= 0.5 and s_fin <= 1.0),
+        ('Nada encimado (dos textos o contadores en la misma zona)', 'sin datos' if enc is None else (f'{len(enc)} encimados' + (': ' + ', '.join(f'{e["a"]}+{e["b"]} t={e["t"]}' for e in enc[:6]) if enc else '')), enc is not None and not enc),
+        ('Pantalla llena (contenido ≥ 60 % del ancho seguro; aviso si < 60 % más de 3 s)', 'sin datos' if not ll else (f'mínimo {ll["minimo"]} %' + (' · AVISO en ' + ', '.join(f'{x0}-{x1} s ({pc} %)' for x0, x1, pc in ll['avisos'][:5]) if ll['avisos'] else ' · correcto')), True),
+        ('Gancho sin frase de contexto' + (f' (variante {G})' if G else ''), 'sin alineación' if gch is None else ('correcto' if gch else 'EMPIEZA CON CONTEXTO (Imagina / En el año / Antes de…)'), gch is not False),
         ('Cierre «Envíaselo a ese amigo…» (sin «Sigue a…»)', 'sin alineación' if cierre is None else ('correcto' if cierre else 'FALTA o hay «Sigue a…»'), cierre is not False),
         ('Subtítulos sin etiquetas [ ] ni < >', 'sin datos' if etq is None else ('limpios' if not etq else 'ETIQUETAS: ' + ', '.join(etq[:5])), etq is None or not etq),
         ('Movimiento desde el fotograma 0', 'sin datos' if mov is None else ('sí' if mov else 'NEGRO o QUIETO al empezar'), mov is not False),
     ]
     txt = '\n'.join(f'{k}: {v} {ok(c)}' for k, v, c in filas)
-    open(os.path.join(Q, 'qc_tecnico.txt'), 'w').write(f'Archivo: {out}\n{txt}\n')
+    open(os.path.join(Q, f'qc_tecnico{sf}.txt'), 'w').write(f'Archivo: {out}\n{txt}\n')
     md = [f'# QC · {os.path.basename(out)}', '', '| Control | Resultado | |', '|---|---|---|'] + [f'| {k} | {v} | {ok(c)} |' for k, v, c in filas]
-    md += ['', 'Pausas cortas: los silencios de 0,4-1,6 s no cuentan como error (el control de silencios solo falla a partir de 1 s por debajo de −50 dB, y la música sigue sonando, más baja).', 'Hoja de contacto: `hoja_contacto.jpg`. Revisión visual (rellenar): textos legibles, nada flota, datos con fuente en FUENTES_Y_DECISIONES.md.']
-    open(os.path.join(Q, 'QC.md'), 'w').write('\n'.join(md) + '\n')
+    md += ['', f'Pausas cortas: los silencios de 0,4-1,6 s no cuentan como error (el control de silencios solo falla a partir de 1 s por debajo de −50 dB, y la música sigue sonando, más baja).', f'Hoja de contacto: `hoja_contacto{sf}.jpg`. Revisión visual (rellenar): textos legibles, nada flota, datos con fuente en FUENTES_Y_DECISIONES.md.']
+    open(os.path.join(Q, f'QC{sf}.md'), 'w').write('\n'.join(md) + '\n')
     print(txt)
-    print('QC: ' + ('TODO CORRECTO' if all(c for _, _, c in filas) else 'HAY PUNTOS A REVISAR'))
+    bien = all(c for _, _, c in filas)
+    print('QC' + (f' variante {G}' if G else '') + ': ' + ('TODO CORRECTO' if bien else 'HAY PUNTOS A REVISAR'))
+    return bien
+
+
+def silencios_borde(out, dur):
+    # v1.29: segundos de silencio (< −50 dB) pegados al principio y al final del vídeo
+    r = subprocess.run(['ffmpeg', '-hide_banner', '-i', out, '-af', 'silencedetect=n=-50dB:d=0.05', '-vn', '-f', 'null', '-'], capture_output=True, text=True).stderr
+    ev = re.findall(r'silence_(start|end): (-?[\d.]+)', r); ini = fin = 0.0; abierto = None
+    for k, v in ev:
+        v = float(v)
+        if k == 'start':
+            abierto = v
+        else:
+            if abierto is not None and abierto <= 0.02:
+                ini = v
+            if v >= dur - 0.05 and abierto is not None:
+                fin = dur - abierto
+            abierto = None
+    if abierto is not None:
+        fin = max(fin, dur - abierto)
+        if abierto <= 0.02:
+            ini = dur
+    return ini, fin
+
+
+def p_variantes(P, a):
+    gn = ganchos(P)
+    if not gn:
+        print('Este proyecto no tiene [GANCHO …] en tramos.txt: se produce un solo vídeo (como «todo»).')
+        p_render(P, a); p_qc(P, a); return
+    res = {}
+    for L in sorted(gn):
+        print(f'==== variante {L}'); a.gancho = L; a.salida = None
+        p_render(P, a); res[L] = p_qc(P, a)
+    a.gancho = None
+    print('Variantes: ' + ' · '.join(f'VARIANTE_{L}.mp4 {"TODO CORRECTO" if ok else "HAY PUNTOS A REVISAR (07_QC/QC_" + L + ".md)"}' for L, ok in res.items()))
+
+
+def p_portada(P, a):
+    if len(a.extra) < 3:
+        sys.exit('Uso: producir.py PROYECTO portada "TEXTO" "PALABRA_ROJA" "ETIQUETA"   (2-4 palabras; la roja debe ser una de ellas)')
+    texto, roja, etq = a.extra[:3]; ws = texto.split()
+    norm = lambda s: re.sub(r'[^0-9a-zñ]', '', s.lower().translate(str.maketrans('áéíóúü', 'aeiouu')))
+    if not 2 <= len(ws) <= 4:
+        sys.exit(f'La portada lleva de 2 a 4 palabras gigantes (hay {len(ws)}).')
+    if sum(norm(w) == norm(roja) for w in ws) != 1:
+        sys.exit(f'«{roja}» debe ser UNA de las palabras de «{texto}».')
+    O = os.path.join(P, '07_OUTPUT'); mp4 = [os.path.join(O, nombre_final(P, a))] + sorted(glob.glob(os.path.join(O, '*.mp4')))
+    mp4 = next((f for f in mp4 if os.path.exists(f)), None)
+    if not mp4:
+        sys.exit('No hay vídeo en 07_OUTPUT/ para sacar el fondo: ejecuta antes «render» o «variantes».')
+    t = a.t if a.t is not None else round(dur_audio(mp4) * 0.4, 2); W = trabajo(P, a); f = os.path.join(W, 'fondo_portada.jpg')
+    sh(['ffmpeg', '-v', 'error', '-y', '-ss', str(t), '-i', mp4, '-frames:v', '1', '-q:v', '2', f])
+    marca = 'ASOMBROTECA'
+    try:
+        m = re.search(r"marca\s*:\s*'([^']+)'", open(os.path.join(P, '04_CODIGO', 'js', 'episodio.js'), encoding='utf-8').read()); marca = m.group(1) if m else marca
+    except Exception:
+        pass
+    out = os.path.join(O, 'portada.jpg')
+    sh(['node', os.path.join(T, 'portada.js'), f, out, texto, roja, etq, marca])
+    print(f'Portada: {out} (fondo: {os.path.basename(mp4)} en t = {t} s)')
 
 
 def p_limpiar(P, a):
@@ -278,14 +392,15 @@ def p_limpiar(P, a):
 
 def main():
     ap = argparse.ArgumentParser(description='Produce un vídeo de la plantilla.')
-    ap.add_argument('proyecto'); ap.add_argument('paso', choices=['voz', 'alinear', 'build', 'prueba', 'render', 'qc', 'todo', 'limpiar'])
+    ap.add_argument('proyecto'); ap.add_argument('paso', choices=['voz', 'alinear', 'build', 'prueba', 'render', 'qc', 'todo', 'variantes', 'portada', 'limpiar'])
     ap.add_argument('extra', nargs='*', help='instantes (s) para «prueba»')
     ap.add_argument('--cola', type=float, default=1.0); ap.add_argument('--workers', type=int, default=6)
     ap.add_argument('--salida', default=None); ap.add_argument('--trabajo', default=None)
+    ap.add_argument('--gancho', default=None, help='variante A, B o C (v1.29)'); ap.add_argument('--t', type=float, default=None, help='instante del fondo de la portada')
     a = ap.parse_args(); P = os.path.abspath(a.proyecto)
     if not os.path.isdir(os.path.join(P, '04_CODIGO')):
         sys.exit(f'No parece un proyecto (falta 04_CODIGO): {P}')
-    pasos = {'voz': [p_voz], 'alinear': [p_alinear], 'build': [p_build], 'prueba': [p_prueba], 'render': [p_render], 'qc': [p_qc], 'todo': [p_render, p_qc], 'limpiar': [p_limpiar]}
+    pasos = {'voz': [p_voz], 'alinear': [p_alinear], 'build': [p_build], 'prueba': [p_prueba], 'render': [p_render], 'qc': [p_qc], 'todo': [p_render, p_qc], 'variantes': [p_variantes], 'portada': [p_portada], 'limpiar': [p_limpiar]}
     for f in pasos[a.paso]:
         print(f'== {f.__name__[2:]}')
         f(P, a)
