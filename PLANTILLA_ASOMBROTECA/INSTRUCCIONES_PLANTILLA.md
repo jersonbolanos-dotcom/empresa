@@ -918,3 +918,4 @@ python3 PLANTILLA_ASOMBROTECA/tools/producir.py MITO_CAP4_TEMA_PROYECTO portada 
 En `episodio.js`: `const tV = wt(SEG, 'medias.') - 0.05; P.veredicto(ctx, t, tV, 'A MEDIAS');` y en `sfx(k)`: `FX.veredicto(k, tV, 'A MEDIAS');`.
 Por defecto el sello va centrado en la zona segura (x = 480, ancho 760) para que el rebote no se salga de x ≤ 940.
 
+**Bloque v1.31 · `P.mano(ctx, x, y, s, { ang, skin, izq })`**: mano plana que señala con el índice (palma, índice extendido con uña, pulgar a un lado, tres dedos doblados, muñeca). `(x, y)` = punta del índice; `s` = ancho del dedo (≈ 60-80 px); `ang` = giro (0 = hacia arriba, −0,45 = viene de abajo a la derecha); `izq` = mano izquierda. En el cierre: `P.ctaShare(…, { mano: true })`.

@@ -3076,6 +3076,22 @@
  // (índice + palma + nudillos de los dedos flexionados + pulgar) rellenada de una vez —sin costuras entre piezas—, con volumen por
  // sombreado interior, pliegues de las falanges, uña visible solo como un filo dentro de la punta y la palma que sale del cuadro.
  // (cx, tipY) = centro de la yema; fw = ancho del dedo en px (≈ 17 mm; la tarjeta mide 11 × 15 mm a la misma escala). o: { skin, card, cardRot, glow, ang }
+ // v1.31 · P.mano(ctx, x, y, s, { ang, skin, izq }) — mano plana de verdad que SEÑALA con el índice: punta del índice en (x, y),
+ //   s = ancho del dedo; ang = giro (0 = apunta hacia arriba; + = a la derecha); palma, índice extendido con su uña, pulgar a un
+ //   lado y los otros tres dedos doblados; izq = mano izquierda (espejo). Proporciones naturales: índice ≈ 3,4 s, palma ≈ 3,3 × 3,6 s.
+ P.mano = (ctx, x, y, s, o = {}) => { const sk = o.skin || '#e0a67f', sh = H.rgba(H.mix(sk, '#3a1e10', 0.22)), ln = H.rgba(H.mix(sk, '#3a1e10', 0.45)), lt = H.rgba(H.mix(sk, '#ffffff', 0.35)), u = s;
+  ctx.save(); ctx.translate(x, y); ctx.rotate(o.ang || 0); if (o.izq) ctx.scale(-1, 1); ctx.lineJoin = 'round'; ctx.lineCap = 'round';
+  const rr = (x0, y0, w, h, r, f) => { ctx.beginPath(); ctx.roundRect(x0, y0, w, h, r); ctx.fillStyle = f; ctx.fill(); };
+  ctx.save(); ctx.translate(u * 0.18, u * 0.3); ctx.globalAlpha *= 0.28; rr(-0.5 * u, 0, u * 3.2, u * 9.5, u * 0.9, '#000'); ctx.restore();   // sombra
+  rr(0.05 * u, 5.9 * u, 2.3 * u, 4.2 * u, 0.6 * u, sk);                                     // muñeca / antebrazo
+  rr(-0.62 * u, 2.7 * u, 3.3 * u, 3.6 * u, 1.05 * u, sk);                                   // palma
+  for (let k = 0; k < 3; k++) { const cx = 0.95 * u + k * 0.78 * u; rr(cx - 0.38 * u, 2.45 * u, 0.76 * u, 1.35 * u, 0.38 * u, k % 2 ? sk : sh); ctx.strokeStyle = ln; ctx.lineWidth = u * 0.07; ctx.beginPath(); ctx.moveTo(cx - 0.24 * u, 3.35 * u); ctx.quadraticCurveTo(cx, 3.5 * u, cx + 0.24 * u, 3.35 * u); ctx.stroke(); }   // dedos doblados (nudillos)
+  ctx.save(); ctx.translate(-0.45 * u, 4.6 * u); ctx.rotate(-0.75); rr(-0.42 * u, -2.2 * u, 0.86 * u, 2.6 * u, 0.43 * u, sh); rr(-0.36 * u, -2.15 * u, 0.74 * u, 2.4 * u, 0.37 * u, sk); rr(-0.24 * u, -2.05 * u, 0.48 * u, 0.6 * u, 0.2 * u, lt); ctx.restore();   // pulgar a un lado
+  rr(-0.5 * u, 0, u, 3.4 * u, 0.5 * u, sk);                                                 // índice extendido
+  rr(-0.33 * u, 0.14 * u, 0.66 * u, 0.78 * u, 0.3 * u, lt);                                 // uña
+  ctx.strokeStyle = ln; ctx.lineWidth = u * 0.07; for (const yy of [1.35, 2.3]) { ctx.beginPath(); ctx.moveTo(-0.28 * u, yy * u); ctx.quadraticCurveTo(0, (yy + 0.1) * u, 0.28 * u, yy * u); ctx.stroke(); }
+  ctx.strokeStyle = sh; ctx.lineWidth = u * 0.09; ctx.beginPath(); ctx.moveTo(0.5 * u, 3.2 * u); ctx.lineTo(0.5 * u, 2.6 * u); ctx.stroke();   // pliegue índice-palma
+  ctx.restore(); };
  let HAND_RIM = null;
  P.fingertip = (ctx, cx, tipY, fw, t, o = {}) => { const sk = o.skin || '#d29a76', dk = H.rgba(H.mix(sk, '#3a1e10', 0.3)), dk2 = H.rgba(H.mix(sk, '#3a1e10', 0.5)), lt = H.rgba(H.mix(sk, '#fff1e6', 0.3)), mm = fw / 17, an = o.ang ?? 0.42, L = fw * 4.4;
   const hp = new Path2D();
@@ -5122,7 +5138,7 @@
   if (geo) { const a0 = geo.avatar(sel), A1 = [a0[0] + 540, a0[1] + cy], B1 = [geo.button[0] + 540, geo.button[1] + cy], f = (q) => E.inOut(win(q, 0.45, tap1)), g = E.inOut(win(tt, tap1 + 0.25, tap2)), press = Math.max(1 - Math.abs(tt - tap1) / 0.12, 1 - Math.abs(tt - tap2) / 0.12, 0), fw = h * 0.062;
    const X = tt < tap1 ? lerp(760, A1[0], f(tt)) : lerp(A1[0], B1[0], g), Y = (tt < tap1 ? lerp(HH + 260, A1[1], f(tt)) : lerp(A1[1], B1[1], g)) + press * 6;
    for (const [q, p] of [[tap1, A1], [tap2, B1]]) { const r = win(tt, q, q + 0.45); if (r > 0 && r < 1) { ctx.strokeStyle = `rgba(255,255,255,${0.6 * (1 - r)})`; ctx.lineWidth = 4; ctx.beginPath(); ctx.arc(p[0], p[1], 20 + 60 * r, 0, TAU); ctx.stroke(); } }
-   P.fingertip(ctx, X, Y, fw, t, { ang: 0.32, card: false, skin: o.skin }); }
+   if (o.mano) P.mano(ctx, X, Y, fw * 0.95, { ang: 0.32, skin: o.skin }); else P.fingertip(ctx, X, Y, fw, t, { ang: 0.32, card: false, skin: o.skin }); }   // v1.31: o.mano = mano plana completa
   ctx.restore(); };
 
  // ---- ETIQUETA con líneas guía (píldora oscura, texto blanco; 1-2 guías discontinuas hasta los objetos) ----

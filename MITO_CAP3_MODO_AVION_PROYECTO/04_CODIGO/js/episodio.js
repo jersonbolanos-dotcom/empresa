@@ -94,7 +94,7 @@
      if (n === 'wifi') icWifi(c, cx, cy - 22, 90); else if (n === 'avion') P.icon(c, 'avion', cx, cy, 90, { mode: 'flat', col: on ? INK : '#e6edf5' }); else P.icon(c, n === 'linterna' ? 'bombilla' : 'luna', cx, cy, 80, { mode: 'flat', col: '#e6edf5' }); });
     const q = sm(1.6, 1.9, t); if (q > 0) { c.save(); c.globalAlpha *= q; c.strokeStyle = '#cfd8e3'; c.lineWidth = 10; c.strokeRect(-150, 300, 240, 110); c.fillStyle = '#5fd38d'; c.fillRect(-144, 306, 72, 98); c.fillStyle = '#cfd8e3'; c.fillRect(90, 330, 16, 50); txt(c, '?', 180, 355, 140, GO, { w: 900, f: 'Fredoka' }); c.restore(); } } });
    // dedo
-   const fx = lerp(860, 668, R(0.1, 0.75, t)), fy = lerp(1300, 610, R(0.1, 0.75, t)) + tap * 10; ctx.save(); ctx.translate(fx, fy); ctx.rotate(-0.45); ctx.fillStyle = 'rgba(0,0,0,0.25)'; ctx.beginPath(); ctx.roundRect(-34, 10, 78, 520, 39); ctx.fill(); ctx.fillStyle = '#d9a07a'; ctx.beginPath(); ctx.roundRect(-39, 0, 78, 520, 39); ctx.fill(); ctx.beginPath(); ctx.ellipse(40, 470, 150, 130, 0, 0, TAU); ctx.fill(); ctx.fillStyle = '#f2cdb2'; ctx.beginPath(); ctx.roundRect(-24, 10, 48, 54, 20); ctx.fill(); ctx.strokeStyle = 'rgba(120,70,40,0.4)'; ctx.lineWidth = 4; for (const yy of [150, 280]) { ctx.beginPath(); ctx.moveTo(-22, yy); ctx.quadraticCurveTo(0, yy + 8, 22, yy); ctx.stroke(); } ctx.restore(); if (t > 0.75 && t < 1.1) P.glow(ctx, 658, 636, 120, '255,200,69', 0.6 * (1 - (t - 0.75) / 0.35));
+   const fx = lerp(860, 668, R(0.1, 0.75, t)), fy = lerp(1300, 610, R(0.1, 0.75, t)) + tap * 10; P.mano(ctx, fx, fy, 70, { ang: -0.45 }); if (t > 0.75 && t < 1.1) P.glow(ctx, 658, 636, 120, '255,200,69', 0.6 * (1 - (t - 0.75) / 0.35));
    // cable que entra por abajo con chispa
    const cyy = lerp(1800, 1580, plug); ctx.strokeStyle = '#e9edf3'; ctx.lineWidth = 18; ctx.beginPath(); ctx.moveTo(540, HH); ctx.lineTo(540, cyy); ctx.stroke(); ctx.fillStyle = '#c9d1dc'; ctx.fillRect(522, cyy - 50, 36, 50); if (plug > 0.95 && t < 2.2) P.glow(ctx, 540, 1578, 90, '62,230,255', 0.8 * (1 - (t - 1.6) / 0.6));
   } else if (GANCHO === 'B') {
@@ -103,19 +103,29 @@
    ctx.save(); ctx.translate(540, 980); ctx.scale(z, z); ctx.translate(-540, -980);
    celular(ctx, 540, 1080, 400, t, { bat: 0.5 + 0.1 * Math.sin(t), pantalla: '#0b1a2a' }); ctx.strokeStyle = '#e9edf3'; ctx.lineWidth = 14; ctx.beginPath(); ctx.moveTo(540, 1490); ctx.lineTo(540, HH); ctx.stroke();
    P.glow(ctx, 540, 980, 260, '255,200,69', 0.5 + 0.2 * Math.sin(t * 6)); P.icon(ctx, 'avion', 540, 980, 300, { mode: 'flat', col: GO });
-   if (op > 0) { ctx.save(); ctx.translate(570, 1000); ctx.fillStyle = '#05080c'; ctx.beginPath(); ctx.roundRect(-46, -30, 92, 60 * op, 6); ctx.fill(); ctx.strokeStyle = RD; ctx.lineWidth = 4; ctx.stroke(); ctx.fillStyle = '#9aa3b2'; ctx.save(); ctx.translate(-46, -30); ctx.rotate(-1.1 * op); ctx.fillRect(0, -4, 92, 8); ctx.restore(); ctx.strokeStyle = 'rgba(5,8,12,0.9)'; ctx.lineWidth = 4; ctx.beginPath(); ctx.moveTo(-60, -60); ctx.lineTo(-30, -30); ctx.lineTo(-48, 10); ctx.stroke(); ctx.restore(); }
+   if (op > 0) { ctx.save(); ctx.translate(575, 1000); const Rg = H.rng(23); ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+    for (let k = 0; k < 9; k++) { const ang = (k / 9) * TAU + Rg() * 0.5, L = (90 + Rg() * 120) * op; let px = 0, py = 0; ctx.beginPath(); ctx.moveTo(0, 0); for (let q = 1; q <= 4; q++) { px = Math.cos(ang + (Rg() - 0.5) * 0.5) * L * q / 4; py = Math.sin(ang + (Rg() - 0.5) * 0.5) * L * q / 4; ctx.lineTo(px, py); }
+     ctx.strokeStyle = 'rgba(20,14,0,0.85)'; ctx.lineWidth = 7; ctx.stroke(); ctx.strokeStyle = 'rgba(255,255,255,0.9)'; ctx.lineWidth = 2.5; ctx.stroke(); }
+    for (let r = 1; r <= 2; r++) { ctx.beginPath(); for (let k = 0; k <= 12; k++) { const a = k / 12 * TAU, rr = (36 * r + Rg() * 14) * op; k ? ctx.lineTo(Math.cos(a) * rr, Math.sin(a) * rr) : ctx.moveTo(Math.cos(a) * rr, Math.sin(a) * rr); } ctx.closePath(); ctx.strokeStyle = 'rgba(255,255,255,0.75)'; ctx.lineWidth = 2; ctx.stroke(); }
+    P.glow(ctx, 0, 0, 90 * op, '255,255,255', 0.5 * op); for (let k = 0; k < 6; k++) { const a = Rg() * TAU, d = (60 + Rg() * 140) * cl((t - (Tk.g0e - 0.7)) / 0.5); ctx.fillStyle = `rgba(255,220,120,${0.9 * (1 - cl((t - (Tk.g0e - 0.7)) / 0.8))})`; ctx.beginPath(); ctx.moveTo(Math.cos(a) * d, Math.sin(a) * d); ctx.lineTo(Math.cos(a) * d + 10, Math.sin(a) * d + 16); ctx.lineTo(Math.cos(a) * d - 8, Math.sin(a) * d + 12); ctx.closePath(); ctx.fill(); }
+    ctx.restore(); }
    ctx.restore();
   } else {
    // de noche: el celular boca abajo en la mesa de noche lanza ondas buscando una torre lejana
    const g = ctx.createLinearGradient(0, 0, 0, 1200); g.addColorStop(0, '#05070d'); g.addColorStop(1, '#101828'); ctx.fillStyle = g; ctx.fillRect(0, 0, W, 1200); for (let k = 0; k < 60; k++) { const R2 = H.rng(k + 3); ctx.fillStyle = `rgba(255,255,255,${0.3 + 0.5 * R2()})`; ctx.fillRect(R2() * W, R2() * 1000, 2, 2); }
    torre(ctx, 900, 1100, 260, t, 0.9); ctx.fillStyle = '#3b2b22'; ctx.fillRect(140, 1290, 800, 40); ctx.fillStyle = '#2a1f19'; ctx.fillRect(170, 1330, 30, 300); ctx.fillRect(880, 1330, 30, 300);
-   ctx.fillStyle = '#1b2029'; ctx.beginPath(); ctx.roundRect(330, 1240, 420, 50, 18); ctx.fill(); ctx.fillStyle = 'rgba(0,0,0,0.4)'; ctx.fillRect(330, 1288, 420, 6);
-   ondas(ctx, 540, 1250, t, { n: 5, r0: 80, rm: 640, vel: 1.1, arco: [Math.PI * 1.05, Math.PI * 1.95] });
+   { const pw = 620, x0 = 540 - pw / 2, yT = 1170, yB = 1285, sk = 70;   // celular tumbado, en perspectiva, pantalla hacia arriba
+    ctx.fillStyle = 'rgba(0,0,0,0.45)'; ctx.beginPath(); ctx.ellipse(540, 1290, pw * 0.55, 18, 0, 0, TAU); ctx.fill();
+    ctx.fillStyle = '#2a303c'; ctx.beginPath(); ctx.moveTo(x0, yB); ctx.lineTo(x0 + pw, yB); ctx.lineTo(x0 + pw, yB + 18); ctx.lineTo(x0, yB + 18); ctx.closePath(); ctx.fill();   // canto
+    const quad = (m, f) => { ctx.beginPath(); ctx.moveTo(x0 + sk + m, yT + m * 0.4); ctx.lineTo(x0 + pw - sk - m, yT + m * 0.4); ctx.lineTo(x0 + pw - m, yB - m * 0.4); ctx.lineTo(x0 + m, yB - m * 0.4); ctx.closePath(); ctx.fillStyle = f; ctx.fill(); };
+    quad(0, '#1b2029'); const pul = 0.6 + 0.4 * Math.sin(t * 3); quad(10, '#0b1622'); ctx.save(); ctx.strokeStyle = `rgba(62,230,255,${0.7 * pul})`; ctx.lineWidth = 5; ctx.shadowColor = '#3ee6ff'; ctx.shadowBlur = 24; ctx.beginPath(); ctx.moveTo(x0 + sk + 10, yT + 4); ctx.lineTo(x0 + pw - sk - 10, yT + 4); ctx.lineTo(x0 + pw - 10, yB - 4); ctx.lineTo(x0 + 10, yB - 4); ctx.closePath(); ctx.stroke(); ctx.restore();
+    ctx.fillStyle = `rgba(62,230,255,${0.25 * pul})`; ctx.beginPath(); ctx.roundRect(470, yT + 40, 140, 26, 10); ctx.fill(); ctx.fillStyle = '#05080c'; ctx.beginPath(); ctx.roundRect(510, yT + 8, 60, 10, 5); ctx.fill(); }
+   ondas(ctx, 540, 1200, t, { n: 5, r0: 110, rm: 680, vel: 1.1, arco: [Math.PI * 1.05, Math.PI * 1.95] });
    const nb = 1 + Math.floor((Math.sin(t * 5) * 0.5 + 0.5) * 3); icRed(ctx, 540, 900, 140, 1, nb);
   }
  }, sfx(k) {
   if (GANCHO === 'A') { FX.toque(k, 0.78); k.play('blip', 0.82, { f: 900, gain: 0.3 }); k.play('click', 1.55, { gain: 0.4 }); FX.chispa(k, 1.6, 0.3); FX.aparece(k, 1.7, 520); }
-  else if (GANCHO === 'B') { k.play('riser', 0.2, { dur: 1.2, gain: 0.25, minor: true }); k.play('error', Tk.g0e - 0.7, { f: 'A3', gain: 0.3 }); k.play('thud', Tk.g0e - 0.6, { f: 90, gain: 0.35 }); }
+  else if (GANCHO === 'B') { k.play('riser', 0.2, { dur: 1.2, gain: 0.25, minor: true }); FX.rotura ? FX.rotura(k, Tk.g0e - 0.7) : k.play('error', Tk.g0e - 0.7, { f: 'A3', gain: 0.3 }); k.play('thud', Tk.g0e - 0.68, { f: 90, gain: 0.35 }); }
   else { for (let i = 0; i < 4; i++) k.play('blip', 0.1 + i * 0.5, { f: 700 + i * 80, gain: 0.18 }); FX.senal ? FX.senal(k, 0.2) : null; }
  } });
 
@@ -178,8 +188,8 @@
   rows.forEach(([ic, sp, col], i) => { const y = 860 + i * 260, f = cl(u * sp / 0.98); ctx.fillStyle = '#1b2230'; ctx.beginPath(); ctx.roundRect(X0, y - 60, X1 - X0, 120, 24); ctx.fill(); ctx.strokeStyle = '#4a5670'; ctx.lineWidth = 5; ctx.stroke(); ctx.fillStyle = col; ctx.beginPath(); ctx.roundRect(X0 + 8, y - 52, (X1 - X0 - 16) * f, 104, 18); ctx.fill(); ctx.save(); ctx.beginPath(); ctx.roundRect(X0 + 8, y - 52, (X1 - X0 - 16) * f, 104, 18); ctx.clip(); ctx.fillStyle = 'rgba(255,255,255,0.22)'; for (let sx = X0 - 120 + (t * 90) % 60; sx < X1; sx += 60) { ctx.beginPath(); ctx.moveTo(sx, y + 52); ctx.lineTo(sx + 30, y + 52); ctx.lineTo(sx + 130, y - 52); ctx.lineTo(sx + 100, y - 52); ctx.closePath(); ctx.fill(); } ctx.restore(); ctx.fillStyle = '#cfd8e3'; ctx.fillRect(X1 + 6, y - 24, 16, 48);
    if (ic === 'avion') P.icon(ctx, 'avion', X0 - 70, y, 80, { mode: 'flat', col: GO }); else icRed(ctx, X0 - 70, y - 10, 80, 1, 4); });
   if (gap > 0) { const xA = X0 + 8 + (X1 - X0 - 16), xN = X0 + 8 + (X1 - X0 - 16) * cl(0.94 / 0.98); ctx.save(); ctx.globalAlpha *= gap; ctx.strokeStyle = '#fff'; ctx.lineWidth = 6; ctx.setLineDash([12, 10]); ctx.beginPath(); ctx.moveTo(xN, 780); ctx.lineTo(xN, 1210); ctx.moveTo(xA, 780); ctx.lineTo(xA, 1210); ctx.stroke(); ctx.setLineDash([]); ctx.restore(); }
-  P.tag(ctx, 'UNOS MINUTOS', 860, 1290, t, Tk.minutos - 0.1, Tk.veredicto - 0.35, { mono: true, col: '#fff' }); P.tag(ctx, '+1 HORA', 540, 680, t, Tk.hora - 0.3, Tk.veredicto - 0.35, { mono: true, col: CY });
- }, sfx(k) { FX.aparece(k, Tk.pruebas, 520); FX.tictac(k, Tk.pruebas + 0.3, 6, 0.4); FX.etiqueta(k, Tk.minutos - 0.1); FX.etiqueta(k, Tk.hora - 0.3); } });
+  P.tag(ctx, 'UNOS MINUTOS', 520, 1310, t, Tk.minutos - 0.1, Tk.veredicto - 0.35, { mono: true, col: '#fff', px: 72 }); P.tag(ctx, '+1 HORA', 520, 690, t, Tk.pruebas + 0.4, Tk.veredicto - 0.35, { mono: true, col: CY, px: 72 });
+ }, sfx(k) { FX.aparece(k, Tk.pruebas, 520); FX.tictac(k, Tk.pruebas + 0.3, 6, 0.4); FX.etiqueta(k, Tk.minutos - 0.1); FX.etiqueta(k, Tk.pruebas + 0.4); } });
 
  // ---------- 9 · VEREDICTO: A MEDIAS (sello de la serie) ----------
  B.push({ t0: Tk.veredicto - 0.35, t1: B0.b16, in: { type: 'fade', d: 0.3 }, draw(ctx, t) {
@@ -195,13 +205,13 @@
   // izquierda: manguera fina + agujero grande (mala señal) → la fuga pesa más
   const bL = balde(ctx, 280, 1420, 0.62, t, { nivel: 0.45, agujeros: [{ a: 1, r: 1.8, icS: 1.2 }, { a: 1, icono: false }, { a: 1, icono: false }] }); manguera(ctx, 280, bL.top, 0.62, t, 1, { sx: 60, sy: 760, ancho: 0.3 });
   // derecha: manguera enorme → los agujeros casi no se notan
-  ctx.save(); ctx.globalAlpha *= 0.35 + 0.65 * der; const bR = balde(ctx, 800, 1420, 0.62, t, { nivel: 0.8, agujeros: [{ a: 1, icono: false, r: 0.7 }, { a: 1, icono: false, r: 0.7 }, { a: 1, icono: false, r: 0.7 }] }); manguera(ctx, 800, bR.top, 0.62, t, 1, { sx: 1040, sy: 760, ancho: 2.2 }); ctx.restore();
-  P.tag(ctx, 'CARGADOR LENTO', 280, 680, t, Tk.lento - 0.3, B0.b18, { mono: true, col: RD }); P.tag(ctx, 'RÁPIDO', 800, 680, t, Tk.rapido - 0.1, B0.b18, { mono: true, col: CY });
+  ctx.save(); const bR = balde(ctx, 800, 1420, 0.62, t, { nivel: 0.8, agujeros: [{ a: 1, icono: false, r: 0.7 }, { a: 1, icono: false, r: 0.7 }, { a: 1, icono: false, r: 0.7 }] }); manguera(ctx, 800, bR.top, 0.62, t, 1, { sx: 1040, sy: 760, ancho: 2.2 }); ctx.restore();
+  P.tag(ctx, 'CARGADOR LENTO', 280, 680, t, Tk.lento - 0.3, B0.b18, { mono: true, col: RD }); P.tag(ctx, 'CARGADOR RÁPIDO', 780, 680, t, Tk.rapido - 0.1, B0.b18, { mono: true, col: CY });
  }, sfx(k) { FX.etiqueta(k, Tk.lento - 0.3); FX.etiqueta(k, Tk.rapido - 0.1); } });
 
  // ---------- 11 · CIERRE: «Envíaselo a ese amigo…» ----------
  B.push({ t0: B0.b18, t1: DURATION, in: { type: 'zoom', d: 0.4, x: 540, y: 960 }, draw(ctx, t) {
-  fondo(ctx, t); P.ctaShare(ctx, t, B0.b18 + 0.1, DURATION + 1, { preview: (c, x, y, w, h) => P.mini(c, x, y, w, h, (cc) => { P.fondo(cc, t); mesa(cc); balde(cc, 540, 1420, 0.9, t, { nivel: 0.6, agujeros: [{ a: 1 }, { a: 1 }, { a: 1 }] }); P.veredicto(cc, t, -10, 'A MEDIAS', { y: 760, w: 760 }); }), names: ['Mateo', 'Valentina', 'Santiago', 'Camila'] });
+  fondo(ctx, t); P.ctaShare(ctx, t, B0.b18 + 0.1, DURATION + 1, { preview: (c, x, y, w, h) => P.mini(c, x, y, w, h, (cc) => { P.fondo(cc, t); mesa(cc); balde(cc, 540, 1420, 0.9, t, { nivel: 0.6, agujeros: [{ a: 1 }, { a: 1 }, { a: 1 }] }); P.veredicto(cc, t, -10, 'A MEDIAS', { y: 760, w: 760 }); }), names: ['Mateo', 'Valentina', 'Santiago', 'Camila'], mano: true });
   P.marca(ctx, t, T.end + 0.95);
  }, sfx(k) { FX.compartir(k, B0.b18 + 0.1); FX.fin(k, T.end + 0.3); } });
 

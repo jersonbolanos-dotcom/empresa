@@ -39,4 +39,7 @@ dentro del recorte 3:4 (y 240-1680).
 ## Capítulos
 | Cap. | Pregunta | Veredicto | Proyecto |
 |---|---|---|---|
-| 3 | ¿En modo avión carga más rápido el celular? | A MEDIAS | `MITO_CAP3_MODO_AVION_PROYECTO` |
+| 3 | ¿En modo avión carga más rápido el celular? | A MEDIAS | `MITO_CAP3_MODO_AVION_PROYECTO` (portada: `"¿CARGA MÁS RÁPIDO / EN MODO AVIÓN?" "AVIÓN?" 12.8 --gancho A --bajar 200`) |
+
+## Mano
+Para señalar en pantalla, usa `P.mano(ctx, x, y, s, { ang })` (v1.31) y en el cierre `P.ctaShare(…, { mano: true })`.
