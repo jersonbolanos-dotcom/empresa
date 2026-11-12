@@ -3109,16 +3109,27 @@
   if (pose === 'senalar' || pose === 'tocar') {
    const k = pose === 'tocar' ? 0.9 : 1, by = 3.55 * u * k;
    const ind = cap(0, by + 0.7 * u, 0, by + 0.7 * u, u, u * 0.84);
-   const dob = [[1.15, 0.12, 0.98], [2.15, 0.22, 0.92], [3.05, 0.32, 0.78]].map(([dx, a, w]) => cap(dx * u, by + 0.75 * u, a, 1.95 * u, w * u, w * 0.94 * u));
-   const pul = cap(-0.3 * u, 6.35 * u, -0.36, 2.95 * u, u * 1.12, u * 0.92);
-   const pa = palma(-0.6 * u, by - 0.1 * u, 3.45 * u, 8.3 * u), mu = muneca(-0.05 * u, 3.15 * u, 7.0 * u, 0.45 * u, 2.8 * u, 11.2 * u);
-   pieza([mu, pa, pul, ...dob, ind], [-1.6 * u, -0.2 * u, 3.8 * u, 11 * u], () => {
-    for (const f of dob) { brillo(f.tx, f.ty + u * 0.12, f.w1 * 0.3, f.w1 * 0.2, f.a, 0.26); }
-    pliegue(0.62 * u, by + 0.05 * u, 0.62 * u, by + 0.75 * u, 0.32); pliegue(1.66 * u, by + 0.15 * u, 1.7 * u, by + 0.95 * u, 0.32); pliegue(2.62 * u, by + 0.3 * u, 2.68 * u, by + 1.05 * u, 0.32);   // separación suave entre dedos doblados
-    for (const f of dob) { ctx.strokeStyle = 'rgba(90,45,20,0.4)'; ctx.lineWidth = u * 0.05; ctx.beginPath(); ctx.arc(f.tx - f.dx * u * 0.15, f.ty - f.dy * u * 0.15, f.w1 * 0.34, f.a + Math.PI * 0.18, f.a + Math.PI * 0.82); ctx.stroke(); }
-    arruga(ind, 0.33); arruga(ind, 0.55); una(ind); brillo(ind.bx, by + u * 0.35, u * 0.3, u * 0.2, 0, 0.18);
-    pliegue(-0.05 * u, 5.0 * u, 0.55 * u, 6.3 * u, 0.22, 0.06); arruga(pul, 0.55); una(pul);   // el pulgar se separa de la palma solo por un pliegue suave
-    for (let q = 0; q < 3; q++) pliegue((0.9 + q * 0.85) * u, by + 1.4 * u, (1.0 + q * 0.85) * u, 6.8 * u, 0.1, 0.07);   // tendones del dorso
+   // dedos doblados COMPLETOS (corazón, anular, meñique), del mismo grosor que el índice: la primera falange sube desde la fila de
+   // nudillos hasta el segundo nudillo (doblado), y la segunda falange vuelve hacia la palma por delante
+   const D = [[1.02, 0.97, 1.75, 0.06], [2.0, 0.93, 1.55, 0.14], [2.9, 0.8, 1.15, 0.24]].map(([dx, w, L, a]) => ({ f: cap(dx * u, by + 0.95 * u, a, L * u + 0.95 * u, w * u, w * 0.96 * u), w: w * u }));
+   const pul = cap(-0.42 * u, by + 2.05 * u, 0.72, 2.75 * u, u * 1.08, u * 0.9);   // pulgar: nace del borde de la palma y se apoya sobre el corazón doblado
+   const pa = palma(-0.6 * u, by - 0.1 * u, 3.4 * u, 8.2 * u), mu = muneca(-0.35 * u, 3.3 * u, 6.0 * u, 0.65 * u, 2.6 * u, 11.2 * u);
+   pieza([mu, pa, ...D.map((d) => d.f), ind, pul], [-1.6 * u, -0.2 * u, 3.8 * u, 11 * u], () => {
+    // fila de nudillos (índice y los tres doblados)
+    brillo(0, by + 0.55 * u, u * 0.34, u * 0.22, 0, 0.24); for (const d of D) brillo(d.f.bx, by + 0.6 * u, d.w * 0.34, d.w * 0.22, d.f.a, 0.24);
+    for (const d of D) { const f = d.f, tx = f.tx, ty = f.ty;
+     // segundo nudillo (doblado): brillo y arco
+     brillo(tx, ty + d.w * 0.05, d.w * 0.32, d.w * 0.22, f.a, 0.3);
+     // segunda falange doblada hacia la palma: vista por delante, algo más oscura y con su yema abajo
+     const sp = cap(tx - f.dx * d.w * 0.05, ty + d.w * 0.18, Math.PI + f.a, Math.min(f.L * 0.58, 1.05 * u + d.w * 0.2), d.w * 0.86, d.w * 0.8);
+     ctx.fillStyle = 'rgba(120,60,30,0.16)'; ctx.fill(sp.p); ctx.strokeStyle = 'rgba(90,45,20,0.38)'; ctx.lineWidth = u * 0.05; ctx.stroke(sp.p);
+     ctx.strokeStyle = 'rgba(90,45,20,0.4)'; ctx.beginPath(); ctx.arc(tx, ty + d.w * 0.12, d.w * 0.4, f.a + Math.PI * 0.15, f.a + Math.PI * 0.85); ctx.stroke();   // pliegue del segundo nudillo
+     arruga(sp, 0.55); }
+    pliegue(0.52 * u, by - 0.1 * u, 0.52 * u, by + 0.75 * u, 0.32); pliegue(1.52 * u, by - 0.2 * u, 1.55 * u, by + 0.75 * u, 0.32); pliegue(2.47 * u, by + 0.1 * u, 2.5 * u, by + 0.85 * u, 0.32);   // separación suave entre dedos
+    arruga(ind, 0.33); arruga(ind, 0.55); una(ind);
+    // pulgar apoyado: su borde se marca solo donde pisa los dedos doblados, con su uña
+    ctx.save(); ctx.fillStyle = 'rgba(255,255,255,0.08)'; ctx.fill(pul.p); ctx.strokeStyle = 'rgba(90,45,20,0.42)'; ctx.lineWidth = u * 0.06; ctx.stroke(pul.p); ctx.restore(); arruga(pul, 0.55); una(pul);
+    for (let q = 0; q < 3; q++) pliegue((0.85 + q * 0.8) * u, by + 2.6 * u, (0.95 + q * 0.75) * u, 6.9 * u, 0.1, 0.07);   // tendones del dorso
    });
    if (pose === 'tocar') { const q = ((o.t ?? 0) * 1.5) % 1; ctx.strokeStyle = `rgba(255,255,255,${0.75 * (1 - q)})`; ctx.lineWidth = u * 0.08; ctx.beginPath(); ctx.arc(0, -u * 0.05, u * (0.5 + q * 1.2), 0, Math.PI * 2); ctx.stroke(); }
   } else if (pose === 'abierta') {
