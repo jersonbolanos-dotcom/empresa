@@ -1,0 +1,23 @@
+# ¿Mito o verdad? Cap. 3 · voz ElevenLabs Eleven v4, Dan (una toma, 930 caracteres). 21 tramos de voz.
+[GANCHO A] Pones el modo avión para que cargue más rápido.
+[GANCHO B] El truco del modo avión tiene trampa.
+[GANCHO C] Tu celular busca antena aunque no lo uses.
+¿Mito o verdad?
+Piensa en tu batería como un balde,
+y en el cargador como la manguera que lo llena.
+Pero el balde tiene agujeros:
+la red móvil, el wifi y el bluetooth|blutuz gastan energía todo el tiempo.
+El modo avión…
+tapa esos agujeros.
+Y si tienes poca señal, el agujero crece:
+tu celular grita más fuerte para que la antena lo escuche.
+Entonces, ¿carga más rápido?
+Sí…
+pero los agujeros son pequeños, y la manguera es enorme.
+En las pruebas publicadas, la diferencia fue de solo unos minutos, en cargas de más de una hora.
+[PAUSA 0.6]
+Veredicto:
+a medias.
+Puede notarse un poco más con mala señal o con un cargador lento.
+Con uno rápido, casi nada.
+Envíaselo a ese amigo que pone el modo avión cada vez que enchufa el celular.

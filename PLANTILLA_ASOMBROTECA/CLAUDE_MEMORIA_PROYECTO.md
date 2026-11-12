@@ -4,7 +4,7 @@ Canal de videos verticales explicativos. El usuario manda audio de narración + 
 con resumen en español. Responder siempre en español.
 
 ## Leer primero (en este orden)
-1. `PLANTILLA_ASOMBROTECA/SUPERPROMPT_PLANTILLA_ASOMBROTECA.md` — reglas y «REGLAS APRENDIDAS» (1–119; las 99–119 de la v1.27–v1.30 mandan sobre todo lo anterior).
+1. `PLANTILLA_ASOMBROTECA/SUPERPROMPT_PLANTILLA_ASOMBROTECA.md` — reglas y «REGLAS APRENDIDAS» (1–120; las 99–120 de la v1.27–v1.31 mandan sobre todo lo anterior).
 2. `PLANTILLA_ASOMBROTECA/INSTRUCCIONES_PLANTILLA.md` — todos los bloques `P.*` y FX disponibles por versión.
    `PLANTILLA_ASOMBROTECA/GUIA_ESTILOS.md` — fórmula de guion viral, 8 estilos y bloques v1.26 (personajes, móvil, HUD, mapas, 3D).
 3. `PLANTILLA_ASOMBROTECA/CAMBIOS_PLANTILLA.md` — versión actual de la plantilla.
@@ -19,6 +19,7 @@ con resumen en español. Responder siempre en español.
 - v1.28 · Pausas en posproducción: línea `[PAUSA x]` (0.3–1.0 s) sola en `tramos.txt` → silencio exacto entre tramos (`05_AUDIO/voz_montada.wav`), tiempos desplazados; fuera de rango = ERROR. QC «Voz intacta» por md5 de cada tramo. QC avisa si dura < 45 s.
 - v1.29 · Ahorro de créditos y crecimiento: ElevenLabs con `generations_count: 1` y guion ≤ 1.300 caracteres (avisar del número ANTES de generar); 3 ganchos en la MISMA toma marcados `[GANCHO A/B/C] texto` en `tramos.txt` → `producir.py NOMBRE variantes` → `07_OUTPUT/VARIANTE_A/B/C.mp4` (voz por tramos del original, md5 por tramo); `window.GANCHO` en `episodio.js` para la imagen de los primeros 2 s; QC: silencio inicial ≤ 0,5 s y final ≤ 1 s, nada encimado (✘), pantalla llena ≥ 60 % (aviso); `producir.py NOMBRE portada "TEXTO" "ROJA" "ETIQUETA"` → `portada.jpg`; `07_OUTPUT/PUBLICAR.md` (gancho como pregunta sin respuesta, pedir comentar, 3-5 hashtags); datos en 2 fuentes; personas reales dibujadas, sin fotos.
 - v1.30 · Portada estándar: fotograma NÍTIDO del vídeo (sin subtítulos) en un segundo exacto (`producir.py NOMBRE portada "L1 / L2" "ROJA" "ETIQUETA" SEGUNDO [--gancho X] [--bajar PX]`), texto arriba en dos líneas con borde oscuro (una roja), etiqueta amarilla, centrado en x = 540 y dentro del recorte 3:4 (y 240-1680).
+- v1.31 · Series: `series/serie_mito_verdad/` («¿MITO O VERDAD?»: sello `P.veredicto` + `FX.veredicto`, portada fija con la pregunta en 2 líneas y la palabra clave en rojo, PUBLICAR de la serie). Crear capítulos con `nuevo_proyecto.py --serie serie_mito_verdad --capitulo N`.
 - Sin logos; solo un «ASOMBROTECA» pequeño al final con `P.marca`.
 - Datos verificados con fuentes en `FUENTES_Y_DECISIONES.md`.
 - Determinismo: `H.rng`, nunca `Math.random`. No modificar `H` ni `SOUND`.

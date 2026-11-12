@@ -11,14 +11,15 @@
 // (normalmente lo llama: producir.py PROYECTO portada "TEXTO" "PALABRA_ROJA" "ETIQUETA" SEGUNDO [--gancho X] [--bajar 300])
 const { chromium } = require('playwright'); const path = require('path'); const fs = require('fs');
 (async () => {
- const [fondo, salida, texto, roja, etiqueta, marca = 'ASOMBROTECA', focoS = '540', bloque = 'arriba', bajarS = '0'] = process.argv.slice(2);
+ const [fondo, salida, texto, roja, etiqueta, marca = 'ASOMBROTECA', focoS = '540', bloque = 'arriba', bajarS = '0', modoRoja = 'linea', tam = 'desigual'] = process.argv.slice(2);
+ // v1.31 (series): modoRoja 'palabra' = solo la palabra clave en rojo (no toda su línea) · tam 'igual' = las dos líneas del mismo tamaño (una pregunta)
  const css = fs.readFileSync(path.join(__dirname, '..', 'fonts', 'fuentes.css'), 'utf8');
  const img = 'data:image/jpeg;base64,' + fs.readFileSync(fondo).toString('base64');
  const b = await chromium.launch(); const p = await b.newPage({ viewport: { width: 1080, height: 1920 } });
  await p.setContent(`<!doctype html><html><head><meta charset="utf-8"><style>${css} body{margin:0;background:#000}</style></head><body><canvas id="c" width="1080" height="1920"></canvas>
   <span style="font:900 20px Nunito">a</span><span style="font:800 20px Nunito">a</span></body></html>`);
  await p.evaluate(() => document.fonts.ready);
- const res = await p.evaluate(async ({ img, texto, roja, etiqueta, marca, foco, bloque, bajar }) => {
+ const res = await p.evaluate(async ({ img, texto, roja, etiqueta, marca, foco, bloque, bajar, modoRoja, tam }) => {
   const c = document.getElementById('c'), ctx = c.getContext('2d'); await document.fonts.load('900 100px Nunito'); await document.fonts.load('800 40px Nunito');
   const im = new Image(); im.src = img; await im.decode();
   const nrm = (s) => s.normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^\p{L}\p{N}]/gu, '').toUpperCase();
@@ -34,7 +35,8 @@ const { chromium } = require('playwright'); const path = require('path'); const 
   const lines = (texto.includes('/') ? texto.split('/') : texto.trim().split(/\s+/)).map((s) => s.trim().toUpperCase()).filter(Boolean);
   const esRoja = (l) => l.split(/\s+/).some((w) => nrm(w) === nrm(roja));
   const fit = (l, cap) => { let px = cap; ctx.font = `900 ${px}px Nunito`; while (px > 60 && ctx.measureText(l).width > MAXW) { px -= 4; ctx.font = `900 ${px}px Nunito`; } return px; };
-  let L = lines.map((l) => ({ s: l, r: esRoja(l), px: fit(l, esRoja(l) ? (arriba ? 250 : 330) : (arriba ? 150 : 190)) }));
+  let L = lines.map((l) => ({ s: l, r: esRoja(l), px: fit(l, tam === 'igual' ? (arriba ? 175 : 210) : esRoja(l) ? (arriba ? 250 : 330) : (arriba ? 150 : 190)) }));
+  if (tam === 'igual') { const m = Math.min(...L.map((q) => q.px)); L = L.map((q) => ({ ...q, px: m })); }
   const LH = 1.14, ET = 76, gap = 30, MG = 70, alto = () => ET + gap + L.reduce((a, q) => a + q.px * LH, 0) + MG;
   while (alto() > (arriba ? 620 : bloque === 'abajo' ? 640 : Y1 - Y0 - 80)) L = L.map((q) => ({ ...q, px: q.px * 0.95 }));
   const cyB = bloque === 'abajo' ? 1360 : 960; let y = arriba ? Y0 + 40 + ET / 2 : Math.min(Y1 - 40 - alto(), cyB - alto() / 2) + ET / 2;
@@ -45,12 +47,14 @@ const { chromium } = require('playwright'); const path = require('path'); const 
   ctx.textBaseline = 'alphabetic'; ctx.lineJoin = 'round';
   for (const q of L) { ctx.font = `900 ${q.px}px Nunito`; const by = y + q.px * 0.86;
    ctx.shadowColor = 'rgba(0,0,0,0.8)'; ctx.shadowBlur = 26; ctx.shadowOffsetY = 6; ctx.lineWidth = q.px * 0.13; ctx.strokeStyle = '#0a0612'; ctx.strokeText(q.s, X, by);
-   ctx.shadowBlur = 0; ctx.shadowOffsetY = 0; ctx.fillStyle = q.r ? '#FF2D2D' : '#FFFFFF'; ctx.fillText(q.s, X, by); const m = ctx.measureText(q.s).width; caja[0] = Math.min(caja[0], X - m / 2 - q.px * 0.065); caja[2] = Math.max(caja[2], X + m / 2 + q.px * 0.065); y += q.px * LH; }
+   ctx.shadowBlur = 0; ctx.shadowOffsetY = 0;
+   if (modoRoja === 'palabra') { const ws = q.s.split(' '), sp = ctx.measureText(' ').width, tot = ctx.measureText(q.s).width; let xx = X - tot / 2; ctx.textAlign = 'left'; for (const w2 of ws) { ctx.fillStyle = nrm(w2) === nrm(roja) ? '#FF2D2D' : '#FFFFFF'; ctx.fillText(w2, xx, by); xx += ctx.measureText(w2).width + sp; } ctx.textAlign = 'center'; }
+   else { ctx.fillStyle = q.r ? '#FF2D2D' : '#FFFFFF'; ctx.fillText(q.s, X, by); } const m = ctx.measureText(q.s).width; caja[0] = Math.min(caja[0], X - m / 2 - q.px * 0.065); caja[2] = Math.max(caja[2], X + m / 2 + q.px * 0.065); y += q.px * LH; }
   caja[3] = y;
   // marca discreta (abajo en la maqueta v1.30; debajo del texto en la v1.29)
   ctx.font = '800 34px Nunito'; ctx.letterSpacing = '6px'; ctx.textBaseline = 'middle'; const my = arriba ? Y1 - 50 : Math.min(Y1 - 30, y + 40);
   ctx.lineWidth = 6; ctx.strokeStyle = 'rgba(0,0,0,0.6)'; ctx.strokeText(marca.toUpperCase(), X + 3, my); ctx.fillStyle = 'rgba(255,255,255,0.85)'; ctx.fillText(marca.toUpperCase(), X + 3, my); caja[3] = Math.max(caja[3], my + 20);
-  return { url: c.toDataURL('image/jpeg', 0.93), caja: caja.map(Math.round) }; }, { img, texto, roja, etiqueta, marca, foco: Number(focoS), bloque, bajar: Number(bajarS) });
+  return { url: c.toDataURL('image/jpeg', 0.93), caja: caja.map(Math.round) }; }, { img, texto, roja, etiqueta, marca, foco: Number(focoS), bloque, bajar: Number(bajarS), modoRoja, tam });
  fs.writeFileSync(salida, Buffer.from(res.url.split(',')[1], 'base64'));
  const [x0, y0, x1, y1] = res.caja, dentro = y0 >= 240 && y1 <= 1680 && x0 >= 0 && x1 <= 1080, centro = Math.abs((x0 + x1) / 2 - 540) <= 4;
  console.log(`portada: ${salida} · texto en x ${x0}-${x1} (centro ${Math.round((x0 + x1) / 2)}), y ${y0}-${y1} · recorte 3:4 (y 240-1680): ${dentro ? 'dentro' : 'FUERA'}`); await b.close();

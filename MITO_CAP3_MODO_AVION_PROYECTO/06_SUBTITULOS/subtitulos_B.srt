@@ -1,0 +1,154 @@
+1
+00:00:00,050 --> 00:00:01,095
+El truco del modo
+
+2
+00:00:01,095 --> 00:00:02,491
+avión tiene trampa.
+
+3
+00:00:02,683 --> 00:00:04,142
+¿Mito o verdad?
+
+4
+00:00:04,373 --> 00:00:05,457
+Piensa en tu batería
+
+5
+00:00:05,457 --> 00:00:06,389
+como un balde,
+
+6
+00:00:06,389 --> 00:00:07,538
+y en el cargador como
+
+7
+00:00:07,538 --> 00:00:08,979
+la manguera
+que lo llena.
+
+8
+00:00:09,008 --> 00:00:10,951
+Pero el balde
+tiene agujeros:
+
+9
+00:00:10,951 --> 00:00:11,718
+la red móvil,
+
+10
+00:00:11,718 --> 00:00:13,060
+el wifi y el bluetooth
+
+11
+00:00:13,060 --> 00:00:15,418
+gastan energía
+todo el tiempo.
+
+12
+00:00:15,502 --> 00:00:16,654
+El modo avión…
+
+13
+00:00:16,726 --> 00:00:18,268
+tapa esos agujeros.
+
+14
+00:00:18,323 --> 00:00:19,590
+Y si tienes poca señal,
+
+15
+00:00:19,590 --> 00:00:21,015
+el agujero crece:
+
+16
+00:00:21,015 --> 00:00:22,619
+tu celular grita
+más fuerte para
+
+17
+00:00:22,619 --> 00:00:24,282
+que la antena
+lo escuche.
+
+18
+00:00:24,371 --> 00:00:26,459
+Entonces, ¿carga
+más rápido?
+
+19
+00:00:26,459 --> 00:00:27,220
+Sí…
+
+20
+00:00:27,316 --> 00:00:29,090
+pero los agujeros
+son pequeños,
+
+21
+00:00:29,090 --> 00:00:31,140
+y la manguera es enorme.
+
+22
+00:00:31,153 --> 00:00:32,420
+En las pruebas
+publicadas,
+
+23
+00:00:32,420 --> 00:00:33,550
+la diferencia fue de
+
+24
+00:00:33,550 --> 00:00:34,680
+solo unos minutos,
+
+25
+00:00:34,680 --> 00:00:35,527
+en cargas de más
+
+26
+00:00:35,527 --> 00:00:36,725
+de una hora.
+
+27
+00:00:37,656 --> 00:00:38,707
+Veredicto:
+
+28
+00:00:38,800 --> 00:00:39,801
+a medias.
+
+29
+00:00:39,846 --> 00:00:41,283
+Puede notarse
+un poco más
+
+30
+00:00:41,283 --> 00:00:42,240
+con mala señal o
+
+31
+00:00:42,240 --> 00:00:43,708
+con un cargador lento.
+
+32
+00:00:43,736 --> 00:00:44,627
+Con uno rápido,
+
+33
+00:00:44,627 --> 00:00:45,723
+casi nada.
+
+34
+00:00:45,757 --> 00:00:47,339
+Envíaselo a
+ese amigo que
+
+35
+00:00:47,339 --> 00:00:48,550
+pone el modo avión cada
+
+36
+00:00:48,550 --> 00:00:49,790
+vez que enchufa
+el celular.

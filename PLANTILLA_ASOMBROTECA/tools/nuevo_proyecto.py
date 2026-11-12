@@ -35,6 +35,8 @@ def main():
     ap.add_argument('--marca', default='ASOMBROTECA', help='nombre del canal que aparece al final')
     ap.add_argument('--voz', default=None, help='archivo de voz (mp3/wav/m4a) que se copia a 01_ENTRADA/audio/')
     ap.add_argument('--destino', default=os.path.dirname(RAIZ), help='carpeta donde crear el proyecto')
+    ap.add_argument('--serie', default=None, help='formato de serie de PLANTILLA_ASOMBROTECA/series/ (v1.31), p. ej. serie_mito_verdad')
+    ap.add_argument('--capitulo', default='', help='número de capítulo de la serie')
     a = ap.parse_args()
     nombre = slug(a.nombre)
     carpeta = os.path.join(os.path.abspath(a.destino), nombre + '_PROYECTO')
@@ -59,6 +61,18 @@ def main():
     copia('FUENTES_Y_DECISIONES.md', 'FUENTES_Y_DECISIONES.md')
     copia('CREDITOS_IMAGENES.md', 'CREDITOS_IMAGENES.md')
     copia('PUBLICAR.md', '07_OUTPUT/PUBLICAR.md')   # v1.29: textos de publicación por red
+    if a.serie:   # v1.31: formato de serie (sello del veredicto, portada fija, PUBLICAR de la serie)
+        SD = os.path.join(RAIZ, 'series', a.serie)
+        if not os.path.isdir(SD):
+            sys.exit(f'No existe la serie {a.serie} en {os.path.join(RAIZ, "series")}')
+        src = os.path.join(carpeta, '04_CODIGO', 'index.src.html'); h = open(src, encoding='utf-8').read()
+        h = h.replace(f'<!-- @inline-js {rel}/motor/plantilla.js -->', f'<!-- @inline-js {rel}/motor/plantilla.js -->\n<!-- @inline-js {rel}/series/{a.serie}/serie.js -->')
+        open(src, 'w', encoding='utf-8').write(h)
+        shutil.copy2(os.path.join(SD, 'serie.json'), os.path.join(carpeta, 'SERIE.json'))
+        if os.path.exists(os.path.join(SD, 'PUBLICAR.md')):
+            t = open(os.path.join(SD, 'PUBLICAR.md'), encoding='utf-8').read().replace('{{TITULO}}', titulo).replace('{{CAPITULO}}', a.capitulo or '?')
+            open(os.path.join(carpeta, '07_OUTPUT', 'PUBLICAR.md'), 'w', encoding='utf-8').write(t)
+        print(f'  serie: {a.serie} (serie.js incrustado, SERIE.json, PUBLICAR.md de la serie)')
     open(os.path.join(carpeta, '04_CODIGO/js/fotos.js'), 'w', encoding='utf-8').write(
         '// Imágenes documentales en base64 (ver CREDITOS_IMAGENES.md): window.FOTOS = { clave: "data:image/jpeg;base64,…" }\nwindow.FOTOS = {};\n')
     open(os.path.join(carpeta, '03_GUION/tramos.txt'), 'w', encoding='utf-8').write(

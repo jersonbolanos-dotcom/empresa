@@ -902,3 +902,19 @@ Las maquetas de la v1.29 (texto centrado o abajo sobre fondo desenfocado) siguen
 
 ### PUBLICAR.md
 `nuevo_proyecto.py` copia `tools/plantillas_proyecto/PUBLICAR.md` a `07_OUTPUT/PUBLICAR.md`. Se rellena por vídeo: título y descripción para YouTube (con `#shorts`), Facebook, Instagram y TikTok; gancho como pregunta sin respuesta, invitación a comentar (nunca «dale like» ni «comparte si…»), 3-5 hashtags.
+
+## v1.31 · Formatos de serie (`series/`)
+
+Un formato de serie fija lo que se repite en todos los capítulos: bloques propios, portada, PUBLICAR.md y estructura del guion.
+
+| Serie | Carpeta | Qué trae |
+|---|---|---|
+| «¿MITO O VERDAD?» | `series/serie_mito_verdad/` | `P.veredicto` + `FX.veredicto` (sello MITO / VERDAD / A MEDIAS que cae con su golpe), `P.serieTitulo`, portada fija (etiqueta «¿MITO O VERDAD?», la pregunta en 2 líneas con la palabra clave en rojo, fotograma nítido, maqueta v1.30), `PUBLICAR.md` de la serie y `LEEME.md` con la estructura del guion |
+
+```
+python3 PLANTILLA_ASOMBROTECA/tools/nuevo_proyecto.py MITO_CAP4_TEMA --serie serie_mito_verdad --capitulo 4 --estilo tecno --voz AUDIO
+python3 PLANTILLA_ASOMBROTECA/tools/producir.py MITO_CAP4_TEMA_PROYECTO portada "¿PREGUNTA LÍNEA 1 / LÍNEA 2?" "CLAVE" SEGUNDO [--gancho A] [--bajar 200]
+```
+En `episodio.js`: `const tV = wt(SEG, 'medias.') - 0.05; P.veredicto(ctx, t, tV, 'A MEDIAS');` y en `sfx(k)`: `FX.veredicto(k, tV, 'A MEDIAS');`.
+Por defecto el sello va centrado en la zona segura (x = 480, ancho 760) para que el rebote no se salga de x ≤ 940.
+

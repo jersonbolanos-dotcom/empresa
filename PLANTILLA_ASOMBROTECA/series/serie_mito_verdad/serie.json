@@ -1,0 +1,10 @@
+{
+ "id": "serie_mito_verdad",
+ "nombre": "¿MITO O VERDAD?",
+ "tema": "Cosas que todos hacemos con el celular",
+ "capitulos": 6,
+ "portada": { "etiqueta": "¿MITO O VERDAD?", "bloque": "arriba", "lineas": 2, "roja": "palabra", "tam": "igual" },
+ "veredictos": ["MITO", "VERDAD", "A MEDIAS"],
+ "estilo_recomendado": "tecno",
+ "hashtags_fijos": ["#mitooverdad"]
+}

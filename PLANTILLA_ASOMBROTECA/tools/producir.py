@@ -361,8 +361,13 @@ def p_variantes(P, a):
 
 
 def p_portada(P, a):
+    # v1.31: en un proyecto de serie (SERIE.json), la etiqueta es SIEMPRE la de la serie y no se pasa
+    sj = os.path.join(P, 'SERIE.json'); serie = json.load(open(sj, encoding='utf-8')) if os.path.exists(sj) else None
+    if serie:
+        a.extra = a.extra[:2] + [serie['portada']['etiqueta']] + a.extra[2:]
+        a.bloque = serie['portada'].get('bloque', a.bloque)
     if len(a.extra) < 3:
-        sys.exit('Uso: producir.py PROYECTO portada "TEXTO" "PALABRA_ROJA" "ETIQUETA"   (2-4 palabras; la roja debe ser una de ellas)')
+        sys.exit('Uso: producir.py PROYECTO portada "TEXTO" "PALABRA_ROJA" "ETIQUETA" [SEGUNDO]   (en una serie: "TEXTO" "PALABRA_ROJA" [SEGUNDO])')
     texto, roja, etq = a.extra[:3]; ws = texto.replace('/', ' ').split()
     if len(a.extra) >= 4:   # v1.30: segundo exacto del fotograma de fondo como 4.º argumento
         try:
@@ -370,8 +375,8 @@ def p_portada(P, a):
         except ValueError:
             sys.exit(f'El 4.º argumento de «portada» es el segundo del fotograma (p. ej. 2.4), no «{a.extra[3]}».')
     norm = lambda s: re.sub(r'[^0-9a-zñ]', '', s.lower().translate(str.maketrans('áéíóúü', 'aeiouu')))
-    if not 2 <= len(ws) <= 4:
-        sys.exit(f'La portada lleva de 2 a 4 palabras gigantes (hay {len(ws)}).')
+    if not 2 <= len(ws) <= (8 if serie else 4):
+        sys.exit(f'La portada lleva de 2 a 4 palabras gigantes (en una serie, la pregunta en 2 líneas, hasta 8) (hay {len(ws)}).')
     if sum(norm(w) == norm(roja) for w in ws) != 1:
         sys.exit(f'«{roja}» debe ser UNA de las palabras de «{texto}».')
     O = os.path.join(P, '07_OUTPUT'); mp4 = [os.path.join(O, nombre_final(P, a))] + sorted(glob.glob(os.path.join(O, '*.mp4')))
@@ -398,7 +403,8 @@ def p_portada(P, a):
     except Exception:
         pass
     out = os.path.join(O, 'portada.jpg')
-    sh(['node', os.path.join(T, 'portada.js'), f, out, texto, roja, etq, marca, str(a.foco), a.bloque, str(a.bajar)])
+    pr = (serie or {}).get('portada', {})
+    sh(['node', os.path.join(T, 'portada.js'), f, out, texto, roja, etq, marca, str(a.foco), a.bloque, str(a.bajar), pr.get('roja', 'linea'), pr.get('tam', 'desigual')])
     print(f'Portada: {out} (fondo: episodio{" variante " + gancho(P, a) if gancho(P, a) else ""} en t = {t} s)')
 
 
