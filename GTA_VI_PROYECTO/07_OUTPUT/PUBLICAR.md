@@ -1,33 +1,38 @@
 # Publicar · 13 años esperando GTA VI
 
-> v1.29 · Reglas: el gancho va como **pregunta** y **NUNCA** se da la respuesta. Se pide **comentar** (una pregunta concreta),
-> nunca «dale like», «comparte si…» ni «sígueme» (Meta lo castiga). De **3 a 5 hashtags**. Sin enlaces en la descripción.
-> Primero, las 3 variantes como «Reel de prueba» en Instagram; a las 24 h, la que más retuvo en los primeros 3 s va al perfil y a las demás redes.
+> Primero: sube VARIANTE_A, VARIANTE_B y VARIANTE_C a Instagram como **«Reel de prueba»** (solo los ven no seguidores).
+> A las 24 h, la que más gente retuvo en los primeros 3 s se comparte al perfil y se sube a Facebook, YouTube y TikTok.
+> Portada: `portada.jpg`. Reglas: el gancho va como pregunta y nunca se da la respuesta; se pide comentar, nunca «dale like» ni «comparte si…».
+> Ojo: sale el 19 de noviembre. Publica antes de esa fecha.
 
-Variante elegida: [A | B | C] · Portada: `portada.jpg`
+| Variante | Gancho (primeros 2 s) |
+|---|---|
+| A | «Llevas trece años esperando un videojuego.» |
+| B | «Noventa millones vieron este tráiler en un solo día.» |
+| C | «Cambiaste de consola dos veces esperando esto.» |
 
 ## YouTube Shorts
-**Título** (≤ 70 caracteres, pregunta sin respuesta):
-[¿…?] #shorts
+**Título:**
+¿Por qué GTA VI tardó 13 años en llegar? #shorts
 
 **Descripción:**
-[Gancho en una frase, sin desvelar la respuesta.]
-[Pregunta para comentar: «¿Tú qué…? Te leo en comentarios.»]
-#shorts #[tema] #[tema] #[tema]
+Cambiaste de consola, de colegio, quizá de ciudad… y GTA VI seguía sin salir. ¿Qué hay detrás de tanta espera?
+¿Cuántos años tenías tú cuando salió GTA V? Te leo en comentarios.
+#shorts #gta6 #gtavi #videojuegos
 
 ## Facebook (Reels)
 **Texto:**
-[Gancho como pregunta, 1-2 frases.]
-[Pregunta para comentar.]
-#[tema] #[tema] #[tema]
+¿Por qué un videojuego tarda 13 años en hacerse?
+La respuesta no es la que piensas. ¿Tú cuántos años tenías cuando salió GTA V? Cuéntamelo en comentarios.
+#gta6 #gtavi #videojuegos
 
 ## Instagram (Reels)
-**Texto** (la primera línea es la que se ve: gancho como pregunta):
-[¿…?]
-[1 frase de contexto sin dar la respuesta.]
-[Pregunta para comentar.]
-#[tema] #[tema] #[tema] #[tema]
+**Texto:**
+¿Cuántos años tenías tú cuando salió GTA V?
+Desde entonces cambiaste de consola dos veces… y GTA VI todavía no había llegado. ¿Por qué tardó tanto?
+Escríbelo en comentarios antes de verlo.
+#gta6 #gtavi #videojuegos #vicecity
 
 ## TikTok
-**Texto** (≤ 150 caracteres):
-[¿…?] [Pregunta para comentar.] #[tema] #[tema] #[tema]
+**Texto:**
+¿Por qué GTA VI tardó 13 años? ¿Tú cuántos años tenías con GTA V? 👇 #gta6 #gtavi #videojuegos

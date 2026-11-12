@@ -887,16 +887,18 @@ Sin créditos para ganchos hablados: 3 variantes **visuales** con el mismo audio
 | Nada encimado | Dos textos o contadores distintos (subtítulo, etiqueta, cifra, aviso, título, marca) visibles a la vez que se cruzan > 20 % de la caja menor → ✘. Las palabras de un mismo subtítulo no cuentan entre sí. Lo mide `zona_segura.js` (`encimados`) |
 | Pantalla llena | ≈ cada 0,5 s, ancho que ocupa el dibujo (bordes, sin las cajas de texto) dentro de la zona segura 0-940 × 220-1450. Menos del 60 % durante más de 3 s seguidos → **aviso** (no ✘) con los tramos (`llena.avisos`) |
 
-### Portada fija
-`python3 PLANTILLA_ASOMBROTECA/tools/producir.py NOMBRE portada "LÍNEA 1 / LÍNEA 2" "PALABRA_ROJA" "ETIQUETA" [--t 12.5] [--gancho B] [--foco 330] [--bloque abajo]` → `07_OUTPUT/portada.jpg` (1080×1920, `tools/portada.js`).
+### Portada fija (maqueta estándar v1.30)
+`python3 PLANTILLA_ASOMBROTECA/tools/producir.py NOMBRE portada "LÍNEA 1 / LÍNEA 2" "PALABRA_ROJA" "ETIQUETA" SEGUNDO [--gancho A] [--bajar 280]` → `07_OUTPUT/portada.jpg` (1080×1920, `tools/portada.js`). Ejemplo: `… portada "13 AÑOS / ESPERANDO" "13" "GTA VI" 2.6 --gancho A --bajar 280`.
 
-| Elemento | Maqueta (no se cambia) |
+| Elemento | Maqueta (la misma en todos los vídeos) |
 |---|---|
-| Fondo | Fotograma del episodio en el instante `--t` (por defecto, el 40 % del MP4), dibujado **sin subtítulos**, desenfocado 5 px y oscurecido. `--foco X` centra en la portada la x del fotograma (p. ej. la cara del protagonista) |
-| Texto | 2-4 palabras en Nunito 900, **centradas en x = 540**. «/» separa las líneas; sin «/», una palabra por línea. Cada línea toma su tamaño: la que lleva la `PALABRA_ROJA` es la más grande y va en rojo; el resto en blanco |
-| Etiqueta | Píldora amarilla pequeña encima del texto |
-| Marca | Discreta, debajo del texto |
-| Posición | `--bloque centro` (por defecto) o `abajo` (texto en la mitad baja, deja ver una cara arriba). Todo dentro del **recorte 3:4 de la cuadrícula del perfil: 240 ≤ y ≤ 1680**; `portada.js` lo comprueba y falla si algo se sale |
+| Fondo | Fotograma **NÍTIDO** del propio vídeo en el `SEGUNDO` exacto (4.º argumento, o `--t`), dibujado desde el episodio **sin subtítulos**; nada de desenfoque. Elige un instante con la escena principal bien visible. `--gancho X` elige la variante; `--bajar PX` baja el fotograma para dejar cielo libre al texto (la franja de arriba se rellena con el borde superior del fotograma) |
+| Texto | Corto, en dos líneas **arriba de la escena**: la línea con la `PALABRA_ROJA` en rojo y más grande, la otra en blanco; Nunito 900 con **borde oscuro** y sombra para leerse sobre la imagen. «/» separa las líneas |
+| Etiqueta | Píldora amarilla pequeña encima del texto (el nombre o el tema) |
+| Marca | Discreta, abajo, dentro del recorte |
+| Posición | Todo **centrado en x = 540** y dentro del **recorte 3:4 del perfil (240 ≤ y ≤ 1680)**; `portada.js` falla si algo se sale o se descentra |
+
+Las maquetas de la v1.29 (texto centrado o abajo sobre fondo desenfocado) siguen disponibles con `--bloque centro|abajo`, solo para rehacer portadas antiguas.
 
 ### PUBLICAR.md
 `nuevo_proyecto.py` copia `tools/plantillas_proyecto/PUBLICAR.md` a `07_OUTPUT/PUBLICAR.md`. Se rellena por vídeo: título y descripción para YouTube (con `#shorts`), Facebook, Instagram y TikTok; gancho como pregunta sin respuesta, invitación a comentar (nunca «dale like» ni «comparte si…»), 3-5 hashtags.

@@ -49,7 +49,8 @@ CÓMO TRABAJAR
    MP4, con sonido desde el fotograma 0 (≤ 0,5 s de silencio inicial) y ≤ 1 s de silencio final.
 8. Entrega en 07_OUTPUT/:
    - los MP4 (VARIANTE_A, VARIANTE_B, VARIANTE_C o FINAL);
-   - portada.jpg 1080×1920: fondo oscuro, 2-4 palabras gigantes con UNA en rojo y etiqueta amarilla pequeña;
+   - portada.jpg 1080×1920 (maqueta v1.30): fotograma NÍTIDO del vídeo con la escena principal, texto corto en dos líneas
+     arriba (una en rojo) con borde oscuro, etiqueta amarilla pequeña, centrado en x = 540 y dentro del recorte 3:4 (y 240-1680);
    - PUBLICAR.md: título y descripción para YouTube, Facebook, Instagram y TikTok. Gancho como pregunta SIN dar la
      respuesta, invitación a comentar (nunca «dale like» ni «comparte si…»), 3-5 hashtags;
    - FUENTES_Y_DECISIONES.md con las 2 fuentes de cada dato.

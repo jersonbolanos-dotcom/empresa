@@ -1,10 +1,25 @@
 # Fuentes y decisiones · 13 años esperando GTA VI
 
-## Datos verificados
-| Dato en el vídeo | Fuente (enlace) |
-|---|---|
-| … | … |
+Comprobado el 12 de noviembre de 2026. Regla v1.29: cada dato, en 2 fuentes; nada de rumores como hechos.
 
-## Decisiones de representación
-- Escalas comprimidas → rótulo «DISTANCIAS ESQUEMÁTICAS» / «NO A ESCALA».
-- Recreaciones → rótulo «RECREACIÓN» / «ILUSTRATIVO».
+## Datos verificados
+
+| Dato en el vídeo | Fuente 1 | Fuente 2 |
+|---|---|---|
+| GTA VI sale el **19 de noviembre de 2026** (reafirmado por Take-Two el 9-11-2026) | [Take-Two Interactive · Form 8-K, resultados del 2.º trimestre del año fiscal 2027 (SEC)](https://www.sec.gov/Archives/edgar/data/0000946581/000162828026072175/ttwo2q27earningsrelease.htm) | [Stocktitan · la fecha se mantiene](https://www.stocktitan.net/articles/gta-6-release-date-take-two-holiday-sales-2026) · [TechRadar](https://www.techradar.com/gaming/gta-6-is-locked-in-for-november-19-2026-according-to-take-two-interactive-despite-delay-rumors-and-marketing-starts-soon) |
+| GTA V salió en **2013** (17-9-2013) → 13 años de espera; «si tenías 10, hoy tienes 23» (cálculo) | [Game Informer · Grand Theft Auto V](https://gameinformer.com/product/grand-theft-auto-v) | [GTA Base · Grand Theft Auto V](https://www.gtabase.com/grand-theft-auto-v) |
+| GTA V salió en **tres generaciones de consolas**: PS3/360 (17-9-2013), PS4/One (18-11-2014), PS5/Series (15-3-2022) | [Game Informer · GTA V llega a PS5 y Xbox Series](https://www.gameinformer.com/2021/05/17/grand-theft-auto-v-comes-to-ps5-and-xbox-series-xs-in-november) | [MP1st · fechas de PC, PS4 y Xbox One](https://mp1st.com/news/grand-theft-auto-v-gets-pc-ps4-xbox-one-release-date) · [Sportskeeda · fechas de todos los GTA](https://sportskeeda.com/gta/release-dates-every-gta-game-date) |
+| Leonida, estado inventado inspirado en Florida, con **Vice City** como gran ciudad | [GamesRadar · el mapa de GTA VI](https://gamesradar.com/games/grand-theft-auto/gta-6-map-returns-to-vice-city-and-explores-the-riches-of-the-florida-lite-state-of-leonida-malt-liquor-painkillers-and-truck-stop-energy-drinks) | [The National Desk](https://thenationaldesk.com/news/offbeat/rockstar-games-grand-theft-auto-vi-brings-series-back-florida-inspired-vice-city-leonida-everglades-miami-florida-keys-wetland-video-game-xbox-playstation-jason-duval-lucia-caminos) |
+| «Miles de personas en **varios países**» (sin cifra): estudios de Rockstar en Reino Unido, EE. UU., Canadá, India y Australia | [Wikipedia · Rockstar Games (vía Wikiwand)](https://wikiwand.com/en/Rockstar_Games) | [Game Rant · los estudios de Rockstar](https://gamerant.com/rockstar-games-studios-explained/) |
+| Primer tráiler (**diciembre de 2023**): **90 millones** de visitas en YouTube en 24 h (90,4 millones); récord Guinness de presentación de videojuego más vista en YouTube en 24 h | [Push Square](https://pushsquare.com/news/2023/12/gta-6-trailer-pulls-90-million-views-in-24-hours-sets-new-world-records) | [TechCrunch](https://techcrunch.com/2023/12/05/grand-theft-auto-vi-trailer-breaks-mrbeasts-record-for-most-youtube-views-in-24-hours/) |
+| **Retrasado dos veces** (de otoño de 2025 al 26-5-2026 y de ahí al 19-11-2026), «para pulirlo» | [VGC](https://www.videogameschronicle.com/news/grand-theft-auto-6-has-been-delayed-again-to-the-end-of-2026/) | [TweakTown](https://www.tweaktown.com/news/108727/rockstar-officially-delays-gta-6-again-will-now-release-on-november-19-2026/index.html) |
+
+## Decisiones
+
+- **Sin rumores.** No se da el tamaño del equipo en cifras: Rockstar no lo publica y los «~5.900 desarrolladores» que circulan son estimaciones de terceros ([Revelio Labs](https://www.reveliolabs.com/companies/rockstar-games/employees), [GameGPU](https://en.gamegpu.com/news/igry/grand-theft-auto-vi-sozdayut-bolee-5900-razrabotchikov-rockstar-games-po-vsemu-miru)); la voz dice «miles de personas en varios países». No se usa el presupuesto (solo hay estimaciones). No se usa el dato de 475 millones del tráiler 2 (cifra multiplataforma de Rockstar, no comparable).
+- **«90 millones»** redondea a la baja los 90,4 millones del récord; el contador del vídeo termina exactamente en 90.000.000.
+- **«Ningún juego se había presentado ante tanta gente en YouTube»** = definición del récord Guinness (presentación de videojuego más vista en YouTube en 24 h).
+- **Sin material de Rockstar/GTA.** Nada de capturas, logos, personajes ni arte oficial: ciudad de neón, palmeras, autos, mandos y consolas son dibujos genéricos (las consolas y mandos no imitan marcas ni símbolos). El nombre «GTA VI» solo aparece como texto. Los móviles del gancho B muestran un atardecer genérico (se evitó un triángulo de «play» que recordaba a un logo).
+- **Mapas reales.** Florida (silueta real, para «inspirado en Florida») y el mundo: Natural Earth (dominio público), Mercator para Florida y equirrectangular para el mundo. «LEONIDA» y «VICE CITY» rotulan el estado inventado y su ciudad sobre la Florida real (Vice City, inspirada en Miami). Pines = estudios de Rockstar; el de **India** se sitúa en el centro del país porque las fuentes no confirman su ciudad.
+- **Calendarios.** «OTOÑO 2025» y «26 MAYO 2026» son las fechas anunciadas y retrasadas; «19 NOVIEMBRE 2026» con el sello «CONFIRMADO» (Take-Two, 9-11-2026).
+- **Voz.** ElevenLabs Eleven v4, voz Dan, UNA toma con los 3 ganchos (1.082 caracteres, 67,6 s). «GTA cinco / GTA seis» en la voz; «GTA V / GTA VI» en los subtítulos. Pausas de posproducción sin tocar la voz: `[PAUSA 0.4]` antes de «no llegaba» y `[PAUSA 0.6]` antes de «Ahora sí tiene fecha» (la `[long pause]` dio 0,63 s).

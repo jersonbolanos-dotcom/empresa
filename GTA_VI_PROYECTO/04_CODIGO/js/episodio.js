@@ -20,6 +20,7 @@
   retrasaron: wt(16, 'retrasaron'), veces: wt(16, 'veces…'), pulirlo: wt(17, 'pulirlo.'),
   fecha: wt(18, 'fecha:'), d19: wt(19, '19'), noviembre: wt(19, 'noviembre'), y2026: wt(19, '2026.'), trece: S(20), vuelves: wt(21, 'vuelves'), city: wt(21, 'City.'), envia: S(22),
  };
+ const tB90 = GANCHO === 'B' ? wt(0, 'en') : 0;   // gancho B: «…en un solo día» (solo existe en esa variante)
  const PINK = '#ff3fa4', CYAN = '#36e6ff', GOLD = '#FFC845', VIO = '#8b5cff', SKIN = '#c98b62', HAIR = '#2a1a10';
  const R = (a, b, t) => E.out(win(t, a, b));
 
@@ -121,7 +122,7 @@
    hojaCal(ctx, 540, 860, 420, 380, u >= 0.98 ? '19 NOV' : 'AÑO', String(y), { bigPx: 0.36 });
   } else if (GANCHO === 'B') {
    // contador 0 → 90.000.000 y una cuadrícula de pantallas que se encienden en rosa
-   fondo(ctx, t); const u = E.out(win(t, 0, Math.max(0.8, Tk.g0e - 0.1))), n = 90000000 * u, cols = 6, rows = 4;
+   fondo(ctx, t); const u = E.out(win(t, 0, tB90)), n = u >= 1 ? 90000000 : 90000000 * u, cols = 6, rows = 4;
    for (let i = 0; i < cols * rows; i++) { const c = i % cols, r = Math.floor(i / cols), x = 120 + c * 168, y = 920 + r * 150, th = H.rng(i + 3)(); movil(ctx, x, y, 92, 136, cl((u * 1.05 - th) * 8), t, i); }
    P.statBig(ctx, fmtMil(n), 540, 700, t, 0, null, { px: 130, sub: 'VISITAS EN 1 DÍA', col: GOLD });
   } else {
@@ -133,7 +134,7 @@
   }
  }, sfx(k) {
   if (GANCHO === 'A') { for (let i = 0; i < 12; i++) FX.pasarPagina(k, 0.05 + i * Math.max(0.06, (Tk.g0e - 0.3) / 12)); FX.revelar(k, Tk.g0e - 0.2); }
-  else if (GANCHO === 'B') { FX.contador(k, 0, Math.max(0.8, Tk.g0e - 0.1), 0, 90); for (let i = 0; i < 6; i++) k.play('blip', 0.1 + i * 0.3, { gain: 0.2, f: 600 + i * 50 }); }
+  else if (GANCHO === 'B') { FX.contador(k, 0, tB90, 0, 90); FX.aparece(k, tB90, 760); for (let i = 0; i < 6; i++) k.play('blip', 0.1 + i * 0.3, { gain: 0.2, f: 600 + i * 50 }); }
   else { for (let i = 0; i < 3; i++) k.play('thud', 0.15 + i * (Tk.g0e - 0.45) / 3 + 0.3, { f: 120, gain: 0.45 }); FX.toque(k, 0.05); }
  } });
 
@@ -200,14 +201,14 @@
 
  // ---------- 8 · el primer tráiler (diciembre de 2023): 90 millones en 24 horas · récord en YouTube ----------
  B.push({ t0: B0.b12, t1: B0.b16, in: { type: 'zoom', d: 0.4, x: 540, y: 1000 }, draw(ctx, t) {
-  fondo(ctx, t); const u = E.out(win(t, Tk.n90 - 0.3, Tk.h24 + 0.4)), cols = 6, rows = 4, rec = sm(Tk.ningun - 0.1, Tk.ningun + 0.3, t);
+  fondo(ctx, t); const u = E.out(win(t, Tk.n90 - 0.3, Tk.h24 + 0.3)), cols = 6, rows = 4, rec = sm(Tk.ningun - 0.1, Tk.ningun + 0.3, t);
   hojaCal(ctx, 250, 760, 260, 240, 'DIC', '2023', { bigPx: 0.32, col: PINK }); P.glow(ctx, 760, 760, 200, '255,63,164', 0.3 * R(Tk.trailer - 0.2, Tk.trailer + 0.3, t));
   if (t > Tk.trailer - 0.2) { ctx.save(); ctx.globalAlpha *= R(Tk.trailer - 0.2, Tk.trailer + 0.3, t); ctx.fillStyle = '#121026'; ctx.beginPath(); ctx.roundRect(600, 660, 320, 200, 18); ctx.fill(); ctx.fillStyle = PINK; ctx.beginPath(); ctx.moveTo(735, 715); ctx.lineTo(805, 760); ctx.lineTo(735, 805); ctx.closePath(); ctx.fill(); ctx.restore(); }
   for (let i = 0; i < cols * rows; i++) { const c = i % cols, r = Math.floor(i / cols), x = 120 + c * 168, y = 1110 + r * 100, th = H.rng(i + 3)(); movil(ctx, x, y, 80, 88, cl((u * 1.05 - th) * 8), t, i); }
   if (rec > 0) { ctx.save(); ctx.globalAlpha *= rec; ctx.fillStyle = 'rgba(8,4,20,0.7)'; ctx.fillRect(0, 940, W, 520); ctx.restore(); P.icon(ctx, 'trofeo', 540, 1160, 300 * E.out(rec), { mode: 'flat', col: GOLD }); }
-  P.statBig(ctx, fmtMil(90000000 * u), 540, 940 - 0, t, Tk.n90 - 0.3, Tk.ningun - 0.15, { px: 120, sub: 'VISITAS · 24 H', col: GOLD });
+  P.statBig(ctx, u >= 1 ? '90.000.000' : fmtMil(90000000 * u), 540, 940, t, Tk.n90 - 0.3, Tk.ningun - 0.15, { px: 120, sub: 'VISITAS · 24 H', col: GOLD });
   P.tag(ctx, 'RÉCORD EN YOUTUBE', 540, 1400, t, Tk.ningun + 0.1, B0.b16, { mono: true, col: GOLD });
- }, sfx(k) { FX.aparece(k, B0.b12 + 0.1, 600); FX.toque(k, Tk.trailer - 0.2); FX.contador(k, Tk.n90 - 0.3, Tk.h24 + 0.4, 0, 90); FX.descubrir(k, Tk.ningun); FX.etiqueta(k, Tk.ningun + 0.1); } });
+ }, sfx(k) { FX.aparece(k, B0.b12 + 0.1, 600); FX.toque(k, Tk.trailer - 0.2); FX.contador(k, Tk.n90 - 0.3, Tk.h24 + 0.3, 0, 90); FX.aparece(k, Tk.h24 + 0.3, 760); FX.descubrir(k, Tk.ningun); FX.etiqueta(k, Tk.ningun + 0.1); } });
 
  // ---------- 9 · lo retrasaron dos veces… para pulirlo ----------
  B.push({ t0: B0.b16, t1: B0.b18, in: { type: 'fade', d: 0.3 }, draw(ctx, t) {
@@ -217,10 +218,11 @@
    if (c2 > 0) { hojaCal(ctx, 780, 1060, 360, 330, '26 MAYO', '2026', { bigPx: 0.32, rot: 0.05 }); tacha(ctx, 620, 920, 940, 1210, win(t, Tk.veces - 0.1, Tk.veces + 0.25)); }
    ctx.restore(); }
   if (pu > 0) { ctx.save(); ctx.globalAlpha *= pu; cielo(ctx, t, { hz: 1300, sol: false }); ctiudadBloques(ctx, t, 1);
-   const pq = win(t, Tk.pulirlo - 0.1, B0.b18 + 0.2), px = lerp(160, 920, pq), py = 900 + Math.sin(pq * 18) * 60; ctx.fillStyle = '#f4f2fb'; ctx.beginPath(); ctx.roundRect(px - 60, py - 40, 120, 80, 14); ctx.fill(); ctx.fillStyle = 'rgba(54,230,255,0.4)'; ctx.fillRect(px - 60, py - 10, 120, 12);
-   const Rr = H.rng(5); for (let k = 0; k < 24; k++) { const sx = 120 + Rr() * 840, sy = 760 + Rr() * 520; if (sx > px) continue; const tw = Math.max(0, Math.sin(t * 6 + k)); ctx.fillStyle = `rgba(255,255,255,${tw})`; ctx.beginPath(); ctx.moveTo(sx, sy - 14 * tw); ctx.lineTo(sx + 4, sy); ctx.lineTo(sx, sy + 14 * tw); ctx.lineTo(sx - 4, sy); ctx.closePath(); ctx.fill(); }
+   const pq = E.inOut(win(t, Tk.pulirlo - 0.25, B0.b18 + 0.1)), bx = lerp(-300, 1380, pq);
+   ctx.save(); ctx.globalCompositeOperation = 'lighter'; ctx.translate(bx, 1000); ctx.rotate(0.35); const gb = ctx.createLinearGradient(-170, 0, 170, 0); gb.addColorStop(0, 'rgba(255,255,255,0)'); gb.addColorStop(0.45, 'rgba(255,230,250,0.55)'); gb.addColorStop(0.5, 'rgba(255,255,255,0.9)'); gb.addColorStop(0.55, 'rgba(200,250,255,0.55)'); gb.addColorStop(1, 'rgba(255,255,255,0)'); ctx.fillStyle = gb; ctx.fillRect(-170, -900, 340, 1800); ctx.restore();
+   const Rr = H.rng(5); for (let k = 0; k < 46; k++) { const sx = 60 + Rr() * 960, sy = 700 + Rr() * 640, dl = sx - (bx - (sy - 1000) * 0.36), ap = Math.exp(-(dl * dl) / (2 * 120 * 120)) * (0.6 + 0.4 * Math.sin(t * 9 + k)); if (ap < 0.05) continue; const r = 10 + 26 * ap; ctx.save(); ctx.globalCompositeOperation = 'lighter'; ctx.fillStyle = `rgba(255,255,255,${ap})`; ctx.beginPath(); ctx.moveTo(sx, sy - r); ctx.lineTo(sx + r * 0.22, sy); ctx.lineTo(sx, sy + r); ctx.lineTo(sx - r * 0.22, sy); ctx.closePath(); ctx.fill(); ctx.beginPath(); ctx.moveTo(sx - r, sy); ctx.lineTo(sx, sy + r * 0.22); ctx.lineTo(sx + r, sy); ctx.lineTo(sx, sy - r * 0.22); ctx.closePath(); ctx.fill(); P.glow(ctx, sx, sy, r * 2, '255,220,250', 0.5 * ap); ctx.restore(); }
    ctx.restore(); }
- }, sfx(k) { FX.aparece(k, B0.b16 + 0.1, 520); FX.tachado(k, Tk.retrasaron - 0.1); FX.aparece(k, Tk.retrasaron, 560); FX.tachado(k, Tk.veces - 0.1); k.play('sparkle', Tk.pulirlo - 0.1, { gain: 0.3 }); } });
+ }, sfx(k) { FX.aparece(k, B0.b16 + 0.1, 520); FX.tachado(k, Tk.retrasaron - 0.1); FX.aparece(k, Tk.retrasaron, 560); FX.tachado(k, Tk.veces - 0.1); k.play('whoosh', Tk.pulirlo - 0.25, { dur: 1.2, top: 3000, gain: 0.35, minor: true }); k.play('sparkle', Tk.pulirlo, { gain: 0.35 }); k.play('sparkle', Tk.pulirlo + 0.5, { gain: 0.25, minor: true }); } });
 
  // ---------- 10 · Ahora sí tiene fecha: 19 de noviembre de 2026 ----------
  B.push({ t0: B0.b18, t1: B0.b20, in: { type: 'zoom', d: 0.4, x: 540, y: 1000 }, draw(ctx, t) {

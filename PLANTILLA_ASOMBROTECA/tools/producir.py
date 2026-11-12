@@ -13,8 +13,10 @@
 #   todo      build + render + qc          limpiar   borra index.html y temporales
 #   variantes (v1.29) con [GANCHO A/B/C] en tramos.txt: render + qc de cada variante → 07_OUTPUT/VARIANTE_A.mp4, _B, _C
 #             (QC en 07_QC/QC_A.md…). Sin ganchos hace lo mismo que «todo».
-#   portada   (v1.29) portada "TEXTO" "PALABRA_ROJA" "ETIQUETA" → 07_OUTPUT/portada.jpg 1080×1920 (fondo: fotograma del vídeo)
-#             «/» separa líneas («LE LLAMABAN / LLORÓN»); --t instante · --foco x centrada · --bloque centro|abajo
+#   portada   (v1.30) portada "TEXTO" "PALABRA_ROJA" "ETIQUETA" [SEGUNDO] → 07_OUTPUT/portada.jpg 1080×1920. Maqueta fija: fotograma
+#             NÍTIDO del episodio (sin subtítulos) en el SEGUNDO exacto dado (o --t), texto arriba en dos líneas con borde oscuro,
+#             etiqueta amarilla, centrado en x = 540 y dentro del recorte 3:4 (y 240-1680). «/» separa líneas («13 AÑOS / ESPERANDO»).
+#             --gancho X (variante del fotograma) · --bajar PX (baja el fotograma para dejar cielo al texto) · --foco X · --bloque
 # Opciones: --cola 1.0 (segundos tras la voz) · --workers 6 · --salida NOMBRE.mp4 · --trabajo DIR (temporales; por defecto /tmp)
 #           --gancho A|B|C (v1.29: variante para build/prueba/render/qc; con ganchos, por defecto la A) · --t 12.5 (fotograma de la portada)
 import argparse, glob, hashlib, json, math, os, re, shutil, subprocess, sys, tempfile
@@ -362,6 +364,11 @@ def p_portada(P, a):
     if len(a.extra) < 3:
         sys.exit('Uso: producir.py PROYECTO portada "TEXTO" "PALABRA_ROJA" "ETIQUETA"   (2-4 palabras; la roja debe ser una de ellas)')
     texto, roja, etq = a.extra[:3]; ws = texto.replace('/', ' ').split()
+    if len(a.extra) >= 4:   # v1.30: segundo exacto del fotograma de fondo como 4.º argumento
+        try:
+            a.t = float(a.extra[3].replace(',', '.'))
+        except ValueError:
+            sys.exit(f'El 4.º argumento de «portada» es el segundo del fotograma (p. ej. 2.4), no «{a.extra[3]}».')
     norm = lambda s: re.sub(r'[^0-9a-zñ]', '', s.lower().translate(str.maketrans('áéíóúü', 'aeiouu')))
     if not 2 <= len(ws) <= 4:
         sys.exit(f'La portada lleva de 2 a 4 palabras gigantes (hay {len(ws)}).')
@@ -391,7 +398,7 @@ def p_portada(P, a):
     except Exception:
         pass
     out = os.path.join(O, 'portada.jpg')
-    sh(['node', os.path.join(T, 'portada.js'), f, out, texto, roja, etq, marca, str(a.foco), a.bloque])
+    sh(['node', os.path.join(T, 'portada.js'), f, out, texto, roja, etq, marca, str(a.foco), a.bloque, str(a.bajar)])
     print(f'Portada: {out} (fondo: episodio{" variante " + gancho(P, a) if gancho(P, a) else ""} en t = {t} s)')
 
 
@@ -410,7 +417,8 @@ def main():
     ap.add_argument('--cola', type=float, default=1.0); ap.add_argument('--workers', type=int, default=6)
     ap.add_argument('--salida', default=None); ap.add_argument('--trabajo', default=None)
     ap.add_argument('--gancho', default=None, help='variante A, B o C (v1.29)'); ap.add_argument('--t', type=float, default=None, help='instante del fondo de la portada')
-    ap.add_argument('--foco', type=float, default=540, help='portada: x del fotograma que queda centrada'); ap.add_argument('--bloque', default='centro', choices=['centro', 'abajo'], help='portada: posición del texto')
+    ap.add_argument('--foco', type=float, default=540, help='portada: x del fotograma que queda centrada'); ap.add_argument('--bloque', default='arriba', choices=['arriba', 'centro', 'abajo'], help='portada: posición del texto (arriba = maqueta v1.30)')
+    ap.add_argument('--bajar', type=int, default=0, help='portada: px que se baja el fotograma para dejar cielo al texto')
     a = ap.parse_args(); P = os.path.abspath(a.proyecto)
     if not os.path.isdir(os.path.join(P, '04_CODIGO')):
         sys.exit(f'No parece un proyecto (falta 04_CODIGO): {P}')
