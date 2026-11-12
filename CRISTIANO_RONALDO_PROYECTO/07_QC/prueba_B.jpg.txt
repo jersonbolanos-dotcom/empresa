@@ -1,4 +1,0 @@
-file '/tmp/plantilla_CRISTIANO_RONALDO_PROYECTO/prueba_n8s_60l3/t_000.30.png'
-file '/tmp/plantilla_CRISTIANO_RONALDO_PROYECTO/prueba_n8s_60l3/t_001.00.png'
-file '/tmp/plantilla_CRISTIANO_RONALDO_PROYECTO/prueba_n8s_60l3/t_002.00.png'
-file '/tmp/plantilla_CRISTIANO_RONALDO_PROYECTO/prueba_n8s_60l3/t_003.40.png'

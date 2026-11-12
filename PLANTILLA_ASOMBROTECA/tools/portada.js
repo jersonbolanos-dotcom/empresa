@@ -33,7 +33,8 @@ const { chromium } = require('playwright'); const path = require('path'); const 
   const esRoja = (l) => l.split(/\s+/).some((w) => nrm(w) === nrm(roja));
   const fit = (l, cap) => { let px = cap; ctx.font = `900 ${px}px Nunito`; while (px > 60 && ctx.measureText(l).width > MAXW) { px -= 4; ctx.font = `900 ${px}px Nunito`; } return px; };
   let L = lines.map((l) => ({ s: l, r: esRoja(l), px: fit(l, esRoja(l) ? 330 : 190) }));
-  const ET = 76, gap = 34, MG = 70; let alto = () => ET + gap + L.reduce((a, q) => a + q.px * 0.98, 0) + MG;
+  const ET = 76, gap = 34, MG = 70; const LH = 1.14;   // interlineado: deja sitio a las tildes de mayúsculas (Ó, Á…) sin tocar la línea de arriba
+  let alto = () => ET + gap + L.reduce((a, q) => a + q.px * LH, 0) + MG;
   while (alto() > (bloque === 'abajo' ? 640 : Y1 - Y0 - 80)) L = L.map((q) => ({ ...q, px: q.px * 0.95 }));
   let y = Math.min(Y1 - 40 - alto(), cyB - alto() / 2) + ET / 2;
   // etiqueta amarilla pequeña
@@ -41,9 +42,9 @@ const { chromium } = require('playwright'); const path = require('path'); const 
   ctx.fillStyle = '#FFD23F'; ctx.beginPath(); ctx.roundRect(X - tw / 2 - 30, y - ET / 2, tw + 60, ET, 16); ctx.fill(); ctx.fillStyle = '#111111'; ctx.fillText(et, X, y + 2);
   const caja = [X - tw / 2 - 30, y - ET / 2, X + tw / 2 + 30, y + ET / 2]; y += ET / 2 + gap;
   ctx.textBaseline = 'alphabetic'; ctx.lineJoin = 'round';
-  for (const q of L) { ctx.font = `900 ${q.px}px Nunito`; const by = y + q.px * 0.8;
+  for (const q of L) { ctx.font = `900 ${q.px}px Nunito`; const by = y + q.px * 0.86;
    ctx.shadowColor = 'rgba(0,0,0,0.75)'; ctx.shadowBlur = 30; ctx.shadowOffsetY = 8; ctx.lineWidth = q.px * 0.09; ctx.strokeStyle = '#000'; ctx.strokeText(q.s, X, by);
-   ctx.shadowBlur = 0; ctx.shadowOffsetY = 0; ctx.fillStyle = q.r ? '#FF2D2D' : '#FFFFFF'; ctx.fillText(q.s, X, by); const m = ctx.measureText(q.s).width; caja[0] = Math.min(caja[0], X - m / 2); caja[2] = Math.max(caja[2], X + m / 2); y += q.px * 0.98; }
+   ctx.shadowBlur = 0; ctx.shadowOffsetY = 0; ctx.fillStyle = q.r ? '#FF2D2D' : '#FFFFFF'; ctx.fillText(q.s, X, by); const m = ctx.measureText(q.s).width; caja[0] = Math.min(caja[0], X - m / 2); caja[2] = Math.max(caja[2], X + m / 2); y += q.px * LH; }
   ctx.font = '800 34px Nunito'; ctx.fillStyle = 'rgba(255,255,255,0.78)'; ctx.letterSpacing = '6px'; ctx.textBaseline = 'middle'; const my = Math.min(Y1 - 30, y + 40); ctx.fillText(marca.toUpperCase(), X + 3, my); caja[3] = my + 20;
   return { url: c.toDataURL('image/jpeg', 0.93), caja: caja.map(Math.round) }; }, { img, texto, roja, etiqueta, marca, foco: Number(focoS), bloque });
  fs.writeFileSync(salida, Buffer.from(res.url.split(',')[1], 'base64'));

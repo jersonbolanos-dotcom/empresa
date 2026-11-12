@@ -226,19 +226,33 @@
  }, sfx(k) { k.play('whoosh', Tk.debil, { dur: 0.5, gain: 0.3, minor: true }); k.noise(S(5) - 0.35, { dur: 0.6, color: 'white', filter: 'highpass', f: 3000, gain: 0.03, a: 0.2, minor: true }); k.noise(Tk.rabia - 0.1, { dur: 1.4, color: 'brown', filter: 'lowpass', f: [[0, 300], [0.6, 1400], [1.4, 500]], gain: 0.12, a: 0.2 }); k.play('thud', Tk.rabia, { f: 70, gain: 0.5 }); } });
 
  // ---------- 4 · A los 12, de Madeira a Lisboa, sin su familia ----------
- const MAD = [250, 1300], LIS = [770, 860];
- const mapa = (ctx, t) => { const g = ctx.createLinearGradient(0, 600, 0, HH); g.addColorStop(0, '#0b2140'); g.addColorStop(1, '#06111f'); ctx.fillStyle = g; ctx.fillRect(0, 0, W, HH); P.bokeh(ctx, t, { n: 10, a: 0.08 });
-  ctx.fillStyle = '#2a3348'; ctx.strokeStyle = '#4f5d7a'; ctx.lineWidth = 3; ctx.beginPath(); [[700, 620], [1080, 600], [1080, 1290], [830, 1260], [790, 1190], [770, 1080], [742, 960], [752, 890], [716, 830], [694, 720]].forEach((p, i) => (i ? ctx.lineTo(...p) : ctx.moveTo(...p))); ctx.closePath(); ctx.fill(); ctx.stroke();
-  ctx.strokeStyle = 'rgba(150,170,210,0.35)'; ctx.setLineDash([10, 10]); ctx.beginPath(); ctx.moveTo(880, 620); ctx.lineTo(860, 760); ctx.lineTo(900, 900); ctx.lineTo(880, 1060); ctx.lineTo(905, 1265); ctx.stroke(); ctx.setLineDash([]);
-  ctx.fillStyle = '#3a4560'; ctx.beginPath(); ctx.ellipse(MAD[0], MAD[1], 62, 22, -0.15, 0, TAU); ctx.fill(); ctx.stroke();
-  for (const [p, c] of [[MAD, '255,93,115'], [LIS, '255,200,69']]) { P.glow(ctx, p[0], p[1], 70, c, 0.6); ctx.fillStyle = `rgb(${c})`; ctx.beginPath(); ctx.arc(p[0], p[1], 12, 0, TAU); ctx.fill(); } };
+ // ---- MAPA REAL (Natural Earth 1:10m, dominio público; js/mapa_real.js) en proyección de Mercator ----
+ const NE = window.MAPA_NE || {}, GEO = { madeira: [-16.908, 32.650], lisboa: [-9.139, 38.722] };   // Funchal y Lisboa (lon, lat)
+ const MERC = (lat) => Math.log(Math.tan(Math.PI / 4 + lat * Math.PI / 360));
+ const proy = (cx, cy, esc, lonC = -13.0, latC = 35.7) => (lon, lat) => [cx + (lon - lonC) * Math.PI / 180 * esc, cy - (MERC(lat) - MERC(latC)) * esc];
+ // ortodrómica (camino real más corto) entre dos puntos, u ∈ [0, 1]
+ const gc = (a, b, u) => { const r = Math.PI / 180, v = (q) => [Math.cos(q[1] * r) * Math.cos(q[0] * r), Math.cos(q[1] * r) * Math.sin(q[0] * r), Math.sin(q[1] * r)], A2 = v(a), B2 = v(b), d = Math.acos(A2[0] * B2[0] + A2[1] * B2[1] + A2[2] * B2[2]), s1 = Math.sin((1 - u) * d) / Math.sin(d), s2 = Math.sin(u * d) / Math.sin(d), p = A2.map((x, k) => s1 * x + s2 * B2[k]); return [Math.atan2(p[1], p[0]) / r, Math.asin(p[2]) / r]; };
+ const mapaReal = (ctx, t, P2, o = {}) => { ctx.save(); if (o.clip) { ctx.beginPath(); ctx.roundRect(...o.clip, 22); ctx.clip(); }
+  const g = ctx.createLinearGradient(0, 600, 0, HH); g.addColorStop(0, '#0d2a4d'); g.addColorStop(1, '#071629'); ctx.fillStyle = g; ctx.fillRect(0, 0, W, HH);
+  ctx.strokeStyle = 'rgba(140,180,230,0.10)'; ctx.lineWidth = 2; for (let lo = -24; lo <= 0; lo += 2) { ctx.beginPath(); for (let la = 26; la <= 46; la += 1) { const q = P2(lo, la); la === 26 ? ctx.moveTo(...q) : ctx.lineTo(...q); } ctx.stroke(); } for (let la = 26; la <= 46; la += 2) { ctx.beginPath(); for (let lo = -24; lo <= 0; lo += 1) { const q = P2(lo, la); lo === -24 ? ctx.moveTo(...q) : ctx.lineTo(...q); } ctx.stroke(); }
+  for (const [pais, anillos] of Object.entries(NE)) { const pt = pais === 'Portugal'; ctx.fillStyle = pt ? '#34455f' : '#28344a'; ctx.strokeStyle = pt ? '#9fb6d9' : '#6d7f9f'; ctx.lineWidth = o.lw || 3; ctx.lineJoin = 'round';
+   for (const r of anillos) { ctx.beginPath(); r.forEach(([lo, la], k) => { const q = P2(lo, la); k ? ctx.lineTo(...q) : ctx.moveTo(...q); }); ctx.closePath(); ctx.fill(); ctx.stroke(); } }
+  for (const [k, c] of [['madeira', '255,93,115'], ['lisboa', '255,200,69']]) { const q = P2(...GEO[k]); P.glow(ctx, q[0], q[1], (o.dot || 12) * 6, c, 0.6); ctx.fillStyle = `rgb(${c})`; ctx.beginPath(); ctx.arc(q[0], q[1], o.dot || 12, 0, TAU); ctx.fill(); ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 3; ctx.stroke(); }
+  ctx.restore(); };
+ // trayecto (ortodrómica) dibujado hasta u, con el avión en la punta
+ const trayecto = (ctx, P2, a, b, u, o = {}) => { if (u <= 0) return null; ctx.save(); ctx.strokeStyle = o.col || GOLD; ctx.lineWidth = o.lw || 6; ctx.setLineDash(o.dash || [18, 14]); ctx.lineCap = 'round'; ctx.beginPath(); for (let k = 0; k <= 40; k++) { const q = P2(...gc(a, b, u * k / 40)); k ? ctx.lineTo(...q) : ctx.moveTo(...q); } ctx.stroke(); ctx.restore();
+  const p = P2(...gc(a, b, u)), p2 = P2(...gc(a, b, Math.min(1, u + 0.01))), p0 = P2(...gc(a, b, Math.max(0, u - 0.01))); const ang = Math.atan2(p2[1] - p0[1], p2[0] - p0[0]);
+  if (o.avion !== false) { ctx.save(); ctx.translate(p[0], p[1]); ctx.rotate(ang + Math.PI / 4); P.icon(ctx, 'avion', 0, 0, o.av || 120, { mode: 'flat', col: '#ffffff' }); ctx.restore(); } return p; };
+ const PM = proy(540, 1040, 4200);   // escena del vuelo: Funchal ≈ (254, 1305), Lisboa ≈ (823, 761)
  B.push({ t0: Tk.doce - 0.1, t1: B0.b7, in: { type: 'iris', d: 0.35, x: 540, y: 1000 }, draw(ctx, t) {
-  mapa(ctx, t); const fl = E.inOut(win(t, Tk.doce + 0.2, Tk.lisboa + 0.2)), c = [520, 820], bz = (u) => [(1 - u) ** 2 * MAD[0] + 2 * (1 - u) * u * c[0] + u * u * LIS[0], (1 - u) ** 2 * MAD[1] + 2 * (1 - u) * u * c[1] + u * u * LIS[1]];
-  ctx.save(); ctx.strokeStyle = GOLD; ctx.lineWidth = 6; ctx.setLineDash([18, 14]); ctx.beginPath(); for (let k = 0; k <= 40; k++) { const p = bz(fl * k / 40); k ? ctx.lineTo(...p) : ctx.moveTo(...p); } ctx.stroke(); ctx.restore();
-  const p = bz(fl), p2 = bz(Math.min(1, fl + 0.02)); ctx.save(); ctx.translate(p[0], p[1]); ctx.rotate(Math.atan2(p2[1] - p[1], p2[0] - p[0]) + Math.PI / 4); P.icon(ctx, 'avion', 0, 0, 120, { mode: 'flat', col: '#ffffff' }); ctx.restore();
+  mapaReal(ctx, t, PM); const fl = E.inOut(win(t, Tk.doce + 0.2, Tk.lisboa + 0.2)), mad = PM(...GEO.madeira), lis = PM(...GEO.lisboa);
+  // rótulo cartográfico del océano y distancia real (ortodrómica Funchal–Lisboa ≈ 973 km; aeropuertos 965 km)
+  ctx.save(); ctx.globalAlpha *= sm(Tk.doce, Tk.doce + 0.4, t); ctx.font = 'italic 600 36px "Fraunces"'; ctx.fillStyle = 'rgba(170,200,240,0.75)'; ctx.textAlign = 'center'; ctx.letterSpacing = '8px'; ctx.fillText('OCÉANO', 250, 990); ctx.fillText('ATLÁNTICO', 250, 1040);
+  const dk = sm(Tk.lisboa - 0.1, Tk.lisboa + 0.3, t); if (dk > 0) { const m = PM(...gc(GEO.madeira, GEO.lisboa, 0.5)); ctx.globalAlpha = dk; ctx.letterSpacing = '0px'; ctx.font = '800 40px Nunito'; ctx.fillStyle = GOLD; ctx.textAlign = 'left'; ctx.fillText('≈ 970 km', m[0] + 34, m[1] + 40); } ctx.restore();
+  trayecto(ctx, PM, GEO.madeira, GEO.lisboa, fl);
   P.statBig(ctx, '12', 300, 760, t, Tk.doce - 0.1, Tk.familia - 0.1, { px: 150, sub: 'AÑOS', col: GOLD });
-  P.tag(ctx, 'MADEIRA', MAD[0], MAD[1] + 90, t, Tk.doce + 0.1, B0.b7, { mono: true }); P.tag(ctx, 'LISBOA', LIS[0] - 40, LIS[1] + 110, t, Tk.lisboa, B0.b7, { mono: true, col: GOLD });
-  const fam = sm(Tk.familia - 0.3, Tk.familia, t); if (fam > 0) { ctx.save(); ctx.globalAlpha *= fam; for (let k = 0; k < 3; k++) P.avatar(ctx, 150 + k * 110, 1090, 46, 40 + k, { bg: '#2a3348' }); ctx.strokeStyle = '#ff5d73'; ctx.lineWidth = 12; ctx.lineCap = 'round'; const x2 = win(t, Tk.familia, Tk.familia + 0.3); ctx.beginPath(); ctx.moveTo(90, 1040); ctx.lineTo(lerp(90, 430, x2), lerp(1040, 1140, x2)); ctx.stroke(); ctx.restore(); }
+  P.tag(ctx, 'MADEIRA', mad[0], mad[1] + 80, t, Tk.doce + 0.1, B0.b7, { mono: true }); P.tag(ctx, 'LISBOA', lis[0] - 30, lis[1] - 80, t, Tk.lisboa, B0.b7, { mono: true, col: GOLD });
+  const fam = sm(Tk.familia - 0.3, Tk.familia, t); if (fam > 0) { ctx.save(); ctx.globalAlpha *= fam; for (let k = 0; k < 3; k++) P.avatar(ctx, 64 + k * 78, 1170, 36, 40 + k, { bg: '#2a3348' }); ctx.strokeStyle = '#ff5d73'; ctx.lineWidth = 12; ctx.lineCap = 'round'; const x2 = win(t, Tk.familia, Tk.familia + 0.3); ctx.beginPath(); ctx.moveTo(24, 1135); ctx.lineTo(lerp(24, 256, x2), lerp(1135, 1205, x2)); ctx.stroke(); ctx.restore(); }
  }, sfx(k) { k.play('whoosh', Tk.doce + 0.2, { dur: 1.4, gain: 0.35, minor: true }); FX.aparece(k, Tk.doce - 0.1, 620); FX.etiqueta(k, Tk.lisboa); FX.tachado(k, Tk.familia); } });
 
  // ---------- 5 · Lloró muchos días… pero no volvió ----------
@@ -248,11 +262,15 @@
   ctx.fillStyle = '#0f2346'; ctx.strokeStyle = '#3a4a6e'; ctx.lineWidth = 14; ctx.beginPath(); ctx.roundRect(560, 640, 380, 480, 16); ctx.fill(); ctx.stroke(); ctx.beginPath(); ctx.moveTo(750, 640); ctx.lineTo(750, 1120); ctx.moveTo(560, 880); ctx.lineTo(940, 880); ctx.stroke();
   P.icon(ctx, 'luna', 850, 730, 90, { mode: 'flat', col: '#f4e7b0' }); const Rr = H.rng(4); ctx.strokeStyle = 'rgba(160,200,255,0.5)'; ctx.lineWidth = 3; for (let k = 0; k < 40; k++) { const q = (t * 1.6 + Rr()) % 1, xx = 575 + Rr() * 350; ctx.beginPath(); ctx.moveTo(xx, 650 + q * 460); ctx.lineTo(xx - 6, 680 + q * 460); ctx.stroke(); }
   // calendario que pasa hojas
-  calendario(ctx, 120, 660, 260, 250, t, Tk.lloro, Tk.dias + 0.6);
+  { const ca = 1 - sm(Tk.pero - 0.3, Tk.pero, t); if (ca > 0) { ctx.save(); ctx.globalAlpha *= ca; calendario(ctx, 120, 660, 260, 250, t, Tk.lloro, Tk.dias + 0.6); ctx.restore(); } }
   // maleta y niño
-  ctx.fillStyle = '#6b3f22'; ctx.beginPath(); ctx.roundRect(200, 1240, 200, 170, 14); ctx.fill(); ctx.fillStyle = '#4a2a15'; ctx.fillRect(270, 1215, 60, 28); ctx.fillStyle = 'rgba(0,0,0,0.35)'; ctx.beginPath(); ctx.ellipse(300, 1414, 120, 14, 0, 0, TAU); ctx.fill();
+  ctx.fillStyle = '#6b3f22'; ctx.beginPath(); ctx.roundRect(200, 1270, 200, 140, 14); ctx.fill(); ctx.fillStyle = '#4a2a15'; ctx.fillRect(270, 1248, 60, 24); ctx.fillStyle = 'rgba(0,0,0,0.35)'; ctx.beginPath(); ctx.ellipse(300, 1414, 120, 14, 0, 0, TAU); ctx.fill();
   const no = sm(Tk.pero - 0.1, Tk.pero + 0.3, t); jugador(ctx, 600, 1420, 760, t, { kid: true, thin: 0.75, shirt: '#3d7fd9', mood: no > 0.5 ? 'rabia' : 'llora', tears: 1 - no, pose: 'stand' });
-  if (no > 0) { ctx.save(); ctx.globalAlpha *= no; ctx.fillStyle = 'rgba(10,14,30,0.75)'; ctx.beginPath(); ctx.roundRect(100, 980, 300, 150, 20); ctx.fill(); P.icon(ctx, 'avion', 150, 1055, 80, { mode: 'flat', col: '#c9d3e6' }); txt(ctx, 'MADEIRA', 296, 1055, 34, '#c9d3e6', { w: 800 }); const x2 = win(t, Tk.volvio - 0.2, Tk.volvio + 0.1); ctx.strokeStyle = '#ff5d73'; ctx.lineWidth = 14; ctx.lineCap = 'round'; ctx.beginPath(); ctx.moveTo(120, 995); ctx.lineTo(lerp(120, 380, x2), lerp(995, 1115, x2)); if (x2 > 0.5) { ctx.moveTo(380, 995); ctx.lineTo(lerp(380, 120, (x2 - 0.5) * 2), lerp(995, 1115, (x2 - 0.5) * 2)); } ctx.stroke(); ctx.restore(); }
+  if (no > 0) { ctx.save(); ctx.globalAlpha *= no; const R0 = [70, 650, 400, 300], PI2 = proy(R0[0] + R0[2] / 2, R0[1] + R0[3] / 2, 1550);
+   mapaReal(ctx, t, PI2, { clip: R0, lw: 2, dot: 7 }); ctx.strokeStyle = '#4f5d7a'; ctx.lineWidth = 6; ctx.beginPath(); ctx.roundRect(...R0, 22); ctx.stroke();
+   ctx.save(); ctx.beginPath(); ctx.roundRect(...R0, 22); ctx.clip(); trayecto(ctx, PI2, GEO.lisboa, GEO.madeira, E.inOut(win(t, Tk.pero, Tk.volvio - 0.2)), { lw: 4, dash: [10, 9], col: '#c9d3e6', av: 64 }); ctx.restore();
+   P.tag(ctx, 'VOLVER A MADEIRA', R0[0] + R0[2] / 2, R0[1] + R0[3] + 48, t, Tk.pero, B0.b9, { mono: true });
+   const x2 = win(t, Tk.volvio - 0.2, Tk.volvio + 0.1); ctx.strokeStyle = '#ff5d73'; ctx.lineWidth = 16; ctx.lineCap = 'round'; ctx.beginPath(); ctx.moveTo(100, 680); ctx.lineTo(lerp(100, 440, x2), lerp(680, 920, x2)); if (x2 > 0.5) { ctx.moveTo(440, 680); ctx.lineTo(lerp(440, 100, (x2 - 0.5) * 2), lerp(680, 920, (x2 - 0.5) * 2)); } ctx.stroke(); ctx.restore(); }
  }, sfx(k) { k.noise(B0.b7, { dur: 2.5, color: 'pink', filter: 'bandpass', f: 3000, q: 0.7, gain: 0.03, a: 0.4 }); FX.pasarPagina(k, Tk.lloro + 0.2); FX.pasarPagina(k, Tk.dias); FX.aparece(k, Tk.pero, 420); FX.tachado(k, Tk.volvio - 0.2); } });
 
  // ---------- 6 · el más flaco → se escapaba al gimnasio a hacer pesas ----------
