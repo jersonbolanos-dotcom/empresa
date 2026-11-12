@@ -15,14 +15,14 @@
  const Tk = {
   g0e: Se(0), g1: S(1), g1e: Se(1),
   perdia: wt(2, 'perdía.'), balon: wt(3, 'balón,'), debil: wt(4, 'debilidad…'), rabia: wt(5, 'rabia.'),
-  lisboa: wt(6, 'Lisboa,'), familia: wt(6, 'familia.'), lloro: wt(7, 'Lloró'), dias: wt(7, 'días…'), pero: wt(8, 'pero'), volvio: wt(8, 'volvió.'),
+  doce: wt(6, '12'), lisboa: wt(6, 'Lisboa,'), familia: wt(6, 'familia.'), lloro: wt(7, 'Lloró'), dias: wt(7, 'días…'), pero: wt(8, 'pero'), volvio: wt(8, 'volvió.'),
   flaco: wt(9, 'flaco,'), gimnasio: wt(9, 'gimnasio'), pesas: wt(9, 'pesas.'),
   quince: wt(10, '15,'), corazon: wt(10, 'corazón'), rapido: wt(10, 'rápido.'), taqui: S(11),
   laser: wt(12, 'láser'), manana: wt(12, 'mañana…'), tarde: wt(13, 'tarde'), casa: wt(13, 'casa.'), pocos: wt(14, 'pocos'), entrenar: wt(14, 'entrenar.'),
   secreto: wt(15, 'secreto'), truco: wt(15, 'truco.'), alcancia: wt(16, 'alcancía.'),
   moneda: wt(17, 'moneda:'), entreno: wt(18, 'entrenamiento'), comida: wt(18, 'comida'), noche: wt(18, 'noche'), sueno: wt(18, 'sueño.'),
   ciclos: wt(19, 'ciclos'), noventa: wt(19, '90'), cinco: wt(19, 'cinco'),
-  anos41: wt(20, '41'), marcando: wt(20, 'marcando.'), van: wt(21, 'van'), g985: wt(21, '985'), oficiales: wt(21, 'oficiales.'),
+  anos41: wt(20, '41'), marcando: wt(20, 'marcando.'), van: wt(21, 'van'), g985: wt(21, '985'), goles: wt(21, 'goles'), oficiales: wt(21, 'oficiales.'),
   talento: wt(22, 'talento'), campo: wt(22, 'campo.'), alc2: wt(23, 'alcancía'), veinte: wt(23, '20'), envia: S(24),
  };
  const RED = '#e0263a', GRN = '#1f8a4c', GOLD = '#FFC845', SKIN = '#c98b62', HAIR = '#22140b', TEAR = '#8fd3ff', ECG = '#3dff8a';
@@ -66,12 +66,14 @@
   if (pose === 'run') { const s = Math.sin(ph); arms = [[-0.6 * s, 1.1], [0.6 * s, 1.1]]; }
   if (pose === 'siuu') { const q = cl(u * 1.2); arms = [[lerp(2.6, 0.95, q), 0], [lerp(2.6, 0.95, q), 0]]; }
   if (pose === 'cry') arms = [[0.1, 0.05], [0.1, 0.05]];
+  if (pose === 'puños') { const tb = Math.sin(t * 40) * 0.02 * (o.tension ?? 1); arms = [[0.3 + tb, 0.55], [0.3 - tb, 0.55]]; }
   const La = h * (kid ? 0.32 : 0.34);
-  if (pose === 'lift') { const rep = 0.5 - 0.5 * Math.cos(t * 3.2), by = shY - h * lerp(0.02, 0.2, rep), bx = sw * 1.25;
+  if (pose === 'lift') { const rep = o.repT0 != null ? 0.5 + 0.5 * Math.cos((t - o.repT0) * 3.2) : 0.5 - 0.5 * Math.cos(t * 3.2), by = shY - h * lerp(0.02, 0.2, rep), bx = sw * 1.25;
    for (const sg of [-1, 1]) { ctx.lineCap = 'round'; ctx.strokeStyle = SKIN; ctx.lineWidth = aw; ctx.beginPath(); ctx.moveTo(x + sg * sw * 0.95, shY + h * 0.02); ctx.lineTo(x + sg * (sw + h * 0.06), lerp(shY + h * 0.08, shY - h * 0.06, rep)); ctx.lineTo(x + sg * bx, by); ctx.stroke(); ctx.strokeStyle = shirt; ctx.lineWidth = aw * 1.25; ctx.beginPath(); ctx.moveTo(x + sg * sw * 0.95, shY + h * 0.02); ctx.lineTo(lerp(x + sg * sw * 0.95, x + sg * (sw + h * 0.06), 0.45), lerp(shY + h * 0.02, lerp(shY + h * 0.08, shY - h * 0.06, rep), 0.45)); ctx.stroke(); }
    ctx.strokeStyle = '#c9ced8'; ctx.lineWidth = h * 0.018; ctx.beginPath(); ctx.moveTo(x - h * 0.42, by); ctx.lineTo(x + h * 0.42, by); ctx.stroke();
    for (const sg of [-1, 1]) for (let k = 0; k < 2; k++) { ctx.fillStyle = k ? '#3a3f4b' : '#262a33'; const px = x + sg * (h * 0.33 + k * h * 0.045); ctx.beginPath(); ctx.roundRect(px - h * 0.02, by - h * (0.11 - k * 0.02), h * 0.04, h * (0.22 - k * 0.04), 6); ctx.fill(); } }
-  else for (const [i, sg] of [[0, -1], [1, 1]]) { const [a1, a2] = arms[i]; limb(x + sg * sw * 0.95, shY + h * 0.02, sg * a1, sg * a2, La, aw, shirt, SKIN, 0.32); }
+  else for (const [i, sg] of [[0, -1], [1, 1]]) { const [a1, a2] = arms[i]; const f = limb(x + sg * sw * 0.95, shY + h * 0.02, sg * a1, sg * a2, La, aw, shirt, SKIN, 0.32);
+   if (pose === 'puños') { ctx.fillStyle = SKIN; ctx.beginPath(); ctx.arc(f[0], f[1], aw * 1.05, 0, TAU); ctx.fill(); ctx.strokeStyle = 'rgba(90,40,20,0.55)'; ctx.lineWidth = aw * 0.14; for (let q = -1; q <= 1; q++) { ctx.beginPath(); ctx.moveTo(f[0] - aw * 0.6, f[1] + q * aw * 0.38); ctx.lineTo(f[0] + aw * 0.6, f[1] + q * aw * 0.38); ctx.stroke(); } } }
   // cuello y cabeza
   ctx.fillStyle = SKIN; ctx.fillRect(x - r * 0.35, shY - r * 0.55, r * 0.7, r * 0.6);
   const [cx, cy0] = hc, cy = cy0 + (pose === 'siuu' ? -r * 0.1 : 0), tilt = pose === 'siuu' ? -0.12 * cl(u) : 0;
@@ -100,6 +102,11 @@
    for (const sg of [-1, 1]) { const x0 = cx + sg * ex, y0 = ey + r * 0.13; ctx.beginPath(); ctx.moveTo(x0, y0); ctx.quadraticCurveTo(x0 + sg * r * 0.06, y0 + r * 0.3, x0 + sg * r * 0.02, y0 + r * 0.6); ctx.stroke();
     for (let k = 0; k < 2; k++) { const q = (t * 1.3 + k * 0.5 + (sg > 0 ? 0.25 : 0)) % 1; ctx.fillStyle = TEAR; ctx.beginPath(); ctx.ellipse(x0 + sg * r * 0.02, y0 + r * 0.62 + q * r * 2.2, r * 0.07, r * 0.1, 0, 0, TAU); ctx.globalAlpha = tr * (1 - q); ctx.fill(); ctx.globalAlpha = tr; } }
    ctx.restore(); }
+  // fuego en los ojos (o.fuego 0…1) y vapor de las lágrimas que se evaporan (o.vapor 0…1)
+  const fu = o.fuego || 0; if (fu > 0) { for (const sg of [-1, 1]) { const fx = cx + sg * ex, fy = ey; P.glow(ctx, fx, fy, r * 0.9, '255,140,40', 0.9 * fu);
+    for (let k = 0; k < 3; k++) { const ph = (t * 3 + k / 3 + (sg > 0 ? 0.5 : 0)) % 1, fl = r * (0.35 + 0.25 * Math.sin(t * 17 + k * 2)) * fu; ctx.save(); ctx.globalAlpha *= fu * (1 - ph); ctx.fillStyle = k ? '#ffb347' : '#ff5d3c'; ctx.beginPath(); ctx.moveTo(fx - r * 0.1, fy - r * 0.05); ctx.quadraticCurveTo(fx + sg * r * 0.05 + Math.sin(t * 9 + k) * r * 0.08, fy - fl - ph * r * 0.5, fx + r * 0.1, fy - r * 0.05); ctx.fill(); ctx.restore(); }
+    ctx.fillStyle = `rgba(255,${180 + 60 * fu | 0},90,${fu})`; ctx.beginPath(); ctx.arc(fx, fy + r * 0.01, r * 0.075, 0, TAU); ctx.fill(); } }
+  const va = o.vapor || 0; if (va > 0) { ctx.save(); ctx.lineCap = 'round'; for (const sg of [-1, 1]) for (let k = 0; k < 3; k++) { const q = (t * 0.9 + k / 3) % 1, x0 = cx + sg * ex + Math.sin(t * 4 + k) * r * 0.1, y0 = ey + r * 0.5 - q * r * 2.2; ctx.strokeStyle = `rgba(230,240,255,${0.55 * va * Math.sin(Math.PI * q)})`; ctx.lineWidth = r * 0.12; ctx.beginPath(); ctx.moveTo(x0, y0 + r * 0.3); ctx.quadraticCurveTo(x0 + sg * r * 0.25, y0 + r * 0.15, x0, y0); ctx.quadraticCurveTo(x0 - sg * r * 0.25, y0 - r * 0.15, x0, y0 - r * 0.3); ctx.stroke(); } ctx.restore(); }
   ctx.restore();
   return { head: [cx, cy0 + jy], r };
  };
@@ -211,12 +218,12 @@
  }, sfx(k) { FX.etiqueta(k, S(2) + 0.2); k.play('blip', Tk.perdia, { gain: 0.25 }); k.play('thud', Tk.balon - 0.6, { f: 130, gain: 0.35 }); k.play('thud', Tk.balon + 0.6, { f: 120, gain: 0.3 }); } });
 
  // ---------- 3 · Y no era debilidad… era rabia (las lágrimas se evaporan, la mirada arde) ----------
- B.push({ t0: B0.b4, t1: B0.b6, in: { type: 'zoom', d: 0.4, x: 300, y: 900 }, draw(ctx, t) {
-  P.fondo(ctx, t); const rb = sm(Tk.rabia - 0.15, Tk.rabia + 0.25, t);
+ B.push({ t0: B0.b4, t1: Tk.doce - 0.1, in: { type: 'zoom', d: 0.4, x: 300, y: 900 }, draw(ctx, t) {
+  P.fondo(ctx, t); const rb = sm(Tk.rabia - 0.15, Tk.rabia + 0.25, t), seca = sm(S(5) - 0.35, Tk.rabia + 0.1, t);
   P.glow(ctx, 540, 1000, 620, rb > 0 ? '255,93,60' : '120,160,255', 0.25 + 0.25 * rb);
   if (rb > 0) { const Rr = H.rng(12); for (let k = 0; k < 40; k++) { const q = (t * 0.6 + Rr()) % 1, xx = 200 + Rr() * 680; ctx.fillStyle = `rgba(255,${120 + Rr() * 100 | 0},60,${rb * (1 - q) * 0.8})`; ctx.beginPath(); ctx.arc(xx + Math.sin(t * 3 + k) * 20, 1500 - q * 900, 4 + Rr() * 8, 0, TAU); ctx.fill(); } }
-  jugador(ctx, 540, 1800, 1180, t, { kid: true, thin: 0.8, shirt: '#3d7fd9', mood: rb > 0.5 ? 'rabia' : 'llora', tears: 1 - rb, pose: 'stand' });
- }, sfx(k) { k.play('whoosh', Tk.debil, { dur: 0.5, gain: 0.3, minor: true }); k.noise(Tk.rabia - 0.1, { dur: 1.4, color: 'brown', filter: 'lowpass', f: [[0, 300], [0.6, 1400], [1.4, 500]], gain: 0.12, a: 0.2 }); k.play('thud', Tk.rabia, { f: 70, gain: 0.5 }); } });
+  jugador(ctx, 540, 1800, 1180, t, { kid: true, thin: 0.8, shirt: '#3d7fd9', mood: seca > 0.5 ? 'rabia' : 'llora', tears: 1 - seca, vapor: seca * (1 - sm(Tk.rabia + 0.4, Tk.rabia + 0.9, t)), fuego: rb, pose: rb > 0.05 ? 'puños' : 'stand', tension: rb });
+ }, sfx(k) { k.play('whoosh', Tk.debil, { dur: 0.5, gain: 0.3, minor: true }); k.noise(S(5) - 0.35, { dur: 0.6, color: 'white', filter: 'highpass', f: 3000, gain: 0.03, a: 0.2, minor: true }); k.noise(Tk.rabia - 0.1, { dur: 1.4, color: 'brown', filter: 'lowpass', f: [[0, 300], [0.6, 1400], [1.4, 500]], gain: 0.12, a: 0.2 }); k.play('thud', Tk.rabia, { f: 70, gain: 0.5 }); } });
 
  // ---------- 4 · A los 12, de Madeira a Lisboa, sin su familia ----------
  const MAD = [250, 1300], LIS = [770, 860];
@@ -225,14 +232,14 @@
   ctx.strokeStyle = 'rgba(150,170,210,0.35)'; ctx.setLineDash([10, 10]); ctx.beginPath(); ctx.moveTo(880, 620); ctx.lineTo(860, 760); ctx.lineTo(900, 900); ctx.lineTo(880, 1060); ctx.lineTo(905, 1265); ctx.stroke(); ctx.setLineDash([]);
   ctx.fillStyle = '#3a4560'; ctx.beginPath(); ctx.ellipse(MAD[0], MAD[1], 62, 22, -0.15, 0, TAU); ctx.fill(); ctx.stroke();
   for (const [p, c] of [[MAD, '255,93,115'], [LIS, '255,200,69']]) { P.glow(ctx, p[0], p[1], 70, c, 0.6); ctx.fillStyle = `rgb(${c})`; ctx.beginPath(); ctx.arc(p[0], p[1], 12, 0, TAU); ctx.fill(); } };
- B.push({ t0: B0.b6, t1: B0.b7, in: { type: 'iris', d: 0.4, x: 540, y: 1000 }, draw(ctx, t) {
-  mapa(ctx, t); const fl = E.inOut(win(t, S(6) + 0.3, Tk.lisboa + 0.2)), c = [520, 820], bz = (u) => [(1 - u) ** 2 * MAD[0] + 2 * (1 - u) * u * c[0] + u * u * LIS[0], (1 - u) ** 2 * MAD[1] + 2 * (1 - u) * u * c[1] + u * u * LIS[1]];
+ B.push({ t0: Tk.doce - 0.1, t1: B0.b7, in: { type: 'iris', d: 0.35, x: 540, y: 1000 }, draw(ctx, t) {
+  mapa(ctx, t); const fl = E.inOut(win(t, Tk.doce + 0.2, Tk.lisboa + 0.2)), c = [520, 820], bz = (u) => [(1 - u) ** 2 * MAD[0] + 2 * (1 - u) * u * c[0] + u * u * LIS[0], (1 - u) ** 2 * MAD[1] + 2 * (1 - u) * u * c[1] + u * u * LIS[1]];
   ctx.save(); ctx.strokeStyle = GOLD; ctx.lineWidth = 6; ctx.setLineDash([18, 14]); ctx.beginPath(); for (let k = 0; k <= 40; k++) { const p = bz(fl * k / 40); k ? ctx.lineTo(...p) : ctx.moveTo(...p); } ctx.stroke(); ctx.restore();
   const p = bz(fl), p2 = bz(Math.min(1, fl + 0.02)); ctx.save(); ctx.translate(p[0], p[1]); ctx.rotate(Math.atan2(p2[1] - p[1], p2[0] - p[0]) + Math.PI / 4); P.icon(ctx, 'avion', 0, 0, 120, { mode: 'flat', col: '#ffffff' }); ctx.restore();
-  P.statBig(ctx, '12', 300, 760, t, S(6), Tk.familia - 0.1, { px: 150, sub: 'AÑOS', col: GOLD });
-  P.tag(ctx, 'MADEIRA', MAD[0], MAD[1] + 90, t, S(6) + 0.2, B0.b7, { mono: true }); P.tag(ctx, 'LISBOA', LIS[0] - 40, LIS[1] + 110, t, Tk.lisboa, B0.b7, { mono: true, col: GOLD });
+  P.statBig(ctx, '12', 300, 760, t, Tk.doce - 0.1, Tk.familia - 0.1, { px: 150, sub: 'AÑOS', col: GOLD });
+  P.tag(ctx, 'MADEIRA', MAD[0], MAD[1] + 90, t, Tk.doce + 0.1, B0.b7, { mono: true }); P.tag(ctx, 'LISBOA', LIS[0] - 40, LIS[1] + 110, t, Tk.lisboa, B0.b7, { mono: true, col: GOLD });
   const fam = sm(Tk.familia - 0.3, Tk.familia, t); if (fam > 0) { ctx.save(); ctx.globalAlpha *= fam; for (let k = 0; k < 3; k++) P.avatar(ctx, 150 + k * 110, 1090, 46, 40 + k, { bg: '#2a3348' }); ctx.strokeStyle = '#ff5d73'; ctx.lineWidth = 12; ctx.lineCap = 'round'; const x2 = win(t, Tk.familia, Tk.familia + 0.3); ctx.beginPath(); ctx.moveTo(90, 1040); ctx.lineTo(lerp(90, 430, x2), lerp(1040, 1140, x2)); ctx.stroke(); ctx.restore(); }
- }, sfx(k) { k.play('whoosh', S(6) + 0.3, { dur: 1.6, gain: 0.35, minor: true }); FX.aparece(k, S(6) + 0.05, 620); FX.etiqueta(k, Tk.lisboa); FX.tachado(k, Tk.familia); } });
+ }, sfx(k) { k.play('whoosh', Tk.doce + 0.2, { dur: 1.4, gain: 0.35, minor: true }); FX.aparece(k, Tk.doce - 0.1, 620); FX.etiqueta(k, Tk.lisboa); FX.tachado(k, Tk.familia); } });
 
  // ---------- 5 · Lloró muchos días… pero no volvió ----------
  B.push({ t0: B0.b7, t1: B0.b9, in: { type: 'fade', d: 0.35 }, draw(ctx, t) {
@@ -250,14 +257,14 @@
 
  // ---------- 6 · el más flaco → se escapaba al gimnasio a hacer pesas ----------
  B.push({ t0: B0.b9, t1: B0.b10, in: { type: 'slide', d: 0.35 }, draw(ctx, t) {
-  const gym = sm(Tk.gimnasio - 0.35, Tk.gimnasio, t);
+  const gym = sm(Tk.gimnasio - 0.12, Tk.gimnasio + 0.02, t);
   if (gym < 1) { ctx.save(); P.fondo(ctx, t); const fila = [[175, 1.3], [385, 1.35], [590, 0.62], [810, 1.3]]; for (const [i, [fx, th]] of fila.entries()) { if (th < 1) P.glow(ctx, fx, 1100, 260, '79,163,255', 0.35); jugador(ctx, fx, 1440, th < 1 ? 620 : 680, t, { kid: true, thin: th, shirt: th < 1 ? '#3d7fd9' : '#6a7385', mood: th < 1 ? 'serio' : 'feliz', sock: th < 1 ? '#e8edf5' : '#aab3c2' }); }
-   P.tag(ctx, 'EL MÁS FLACO', 590, 700, t, Tk.flaco - 0.2, Tk.gimnasio - 0.35, { mono: true, to: [[590, 780]] }); ctx.restore(); }
+   P.tag(ctx, 'EL MÁS FLACO', 590, 700, t, Tk.flaco - 0.2, Tk.gimnasio - 0.12, { mono: true, to: [[590, 780]] }); ctx.restore(); }
   if (gym > 0) { ctx.save(); ctx.globalAlpha *= gym; ctx.fillStyle = '#0b0d16'; ctx.fillRect(0, 0, W, HH); P.glow(ctx, 540, 640, 520, '255,240,200', 0.18);
    ctx.fillStyle = '#121a33'; ctx.beginPath(); ctx.roundRect(640, 640, 280, 240, 14); ctx.fill(); P.icon(ctx, 'luna', 780, 740, 90, { mode: 'flat', col: '#f4e7b0' });
    ctx.fillStyle = '#2a2f3d'; ctx.fillRect(0, 1430, W, HH - 1430); ctx.fillStyle = '#3a4152'; for (let k = 0; k < 9; k++) ctx.fillRect(k * 130, 1430, 120, 12);
-   jugador(ctx, 470, 1430, 780, t, { kid: true, thin: 0.72, shirt: '#3d7fd9', mood: 'rabia', pose: 'lift' }); ctx.restore(); }
- }, sfx(k) { for (let i = 0; i < 4; i++) FX.aparece(k, B0.b9 + 0.1 + i * 0.1, 460 + i * 50); FX.etiqueta(k, Tk.flaco - 0.2); k.play('whoosh', Tk.gimnasio - 0.35, { dur: 0.4, gain: 0.3, minor: true }); for (let i = 0; i < 2; i++) FX.metal ? FX.metal(k, Tk.pesas + i * 1.0) : k.play('thud', Tk.pesas + i, { f: 160, gain: 0.3 }); } });
+   jugador(ctx, 470, 1430, 780, t, { kid: true, thin: 0.72, shirt: '#3d7fd9', mood: 'rabia', pose: 'lift', repT0: Tk.gimnasio }); ctx.restore(); }
+ }, sfx(k) { for (let i = 0; i < 4; i++) FX.aparece(k, B0.b9 + 0.1 + i * 0.1, 460 + i * 50); FX.etiqueta(k, Tk.flaco - 0.2); k.play('whoosh', Tk.gimnasio - 0.15, { dur: 0.3, gain: 0.3, minor: true }); FX.metal(k, Tk.gimnasio); k.play('thud', Tk.gimnasio + 0.02, { f: 120, gain: 0.35 }); FX.metal(k, Tk.pesas + 0.4); } });
 
  // ---------- 7 · A los 15, el corazón se dispara: taquicardia ----------
  const faseCor = (tau) => faseLin(tau, 1.2, 3.6, Tk.corazon, Tk.rapido + 0.2);
@@ -291,21 +298,21 @@
 
  // ---------- 9 · No es un truco: es una alcancía ----------
  B.push({ t0: B0.b15, t1: B0.b17, in: { type: 'iris', d: 0.4, x: 540, y: 1000 }, draw(ctx, t) {
-  P.fondo(ctx, t); const ap = sm(Tk.alcancia - 0.3, Tk.alcancia, t);
-  if (ap < 1) { ctx.save(); ctx.globalAlpha *= 1 - ap; ctx.fillStyle = '#111'; ctx.beginPath(); ctx.ellipse(540, 1260, 300, 60, 0, 0, TAU); ctx.fill(); ctx.fillRect(330, 900, 420, 360); ctx.fillStyle = RED; ctx.fillRect(330, 1180, 420, 50); ctx.beginPath(); ctx.ellipse(540, 900, 210, 40, 0, 0, TAU); ctx.fillStyle = '#1d1d22'; ctx.fill();
+  P.fondo(ctx, t); const ap = sm(Tk.alcancia - 0.52, Tk.alcancia - 0.25, t), ha = 1 - sm(Tk.alcancia - 0.78, Tk.alcancia - 0.55, t);
+  if (ha > 0) { ctx.save(); ctx.globalAlpha *= ha; ctx.fillStyle = '#111'; ctx.beginPath(); ctx.ellipse(540, 1260, 300, 60, 0, 0, TAU); ctx.fill(); ctx.fillRect(330, 900, 420, 360); ctx.fillStyle = RED; ctx.fillRect(330, 1180, 420, 50); ctx.beginPath(); ctx.ellipse(540, 900, 210, 40, 0, 0, TAU); ctx.fillStyle = '#1d1d22'; ctx.fill();
    ctx.save(); ctx.translate(800, 980); ctx.rotate(-0.6 + Math.sin(t * 4) * 0.1); ctx.fillStyle = '#111'; ctx.fillRect(-14, -220, 28, 260); ctx.fillStyle = '#fff'; ctx.fillRect(-14, -220, 28, 50); ctx.restore();
    const Rr = H.rng(3); for (let k = 0; k < 14; k++) { const q = (t * 0.8 + Rr()) % 1; ctx.fillStyle = `rgba(255,220,120,${1 - q})`; ctx.beginPath(); ctx.arc(540 + (Rr() - 0.5) * 500, 880 - q * 260, 6, 0, TAU); ctx.fill(); }
    const x2 = win(t, Tk.truco - 0.1, Tk.truco + 0.25); if (x2 > 0) { ctx.strokeStyle = '#ff5d73'; ctx.lineWidth = 30; ctx.lineCap = 'round'; ctx.beginPath(); ctx.moveTo(300, 760); ctx.lineTo(lerp(300, 800, x2), lerp(760, 1320, x2)); if (x2 > 0.5) { ctx.moveTo(800, 760); ctx.lineTo(lerp(800, 300, (x2 - 0.5) * 2), lerp(760, 1320, (x2 - 0.5) * 2)); } ctx.stroke(); } ctx.restore(); }
   if (ap > 0) { P.glow(ctx, 540, 1060, 520, '255,200,69', 0.3 * ap); alcancia(ctx, 540, 1080, 290, t, { e: E.back ? E.back(ap) : E.out(ap) }); P.tag(ctx, 'ALCANCÍA', 540, 1460 - 40, t, Tk.alcancia + 0.2, B0.b17, { mono: true, col: GOLD }); }
- }, sfx(k) { k.play('sparkle', B0.b15 + 0.1, { gain: 0.25, minor: true }); FX.tachado(k, Tk.truco - 0.1); FX.revelar(k, Tk.alcancia - 0.35); FX.etiqueta(k, Tk.alcancia + 0.2); } });
+ }, sfx(k) { k.play('sparkle', B0.b15 + 0.1, { gain: 0.25, minor: true }); FX.tachado(k, Tk.truco - 0.1); FX.revelar(k, Tk.alcancia - 0.45); FX.etiqueta(k, Tk.alcancia + 0.2); } });
 
  // ---------- 10 · Cada día mete una moneda: entrenamiento extra, comida limpia, noche de sueño ----------
  const MON = [[Tk.moneda, null, null], [Tk.entreno, 'musculo', 'ENTRENAMIENTO'], [Tk.comida, 'hoja', 'COMIDA LIMPIA'], [Tk.noche, 'luna', 'SUEÑO']];
  B.push({ t0: B0.b17, t1: B0.b19, in: { type: 'fade', d: 0.25 }, draw(ctx, t) {
   P.fondo(ctx, t); const caidas = MON.filter((m) => t > m[0] + 0.55).length; let hit = -9; for (const m of MON) if (t > m[0] + 0.55) hit = m[0] + 0.55;
-  P.glow(ctx, 540, 1150, 520, '255,200,69', 0.12 + 0.07 * caidas); alcancia(ctx, 540, 1160, 270, t, { hit, fill: caidas / 4 });
-  MON.forEach(([t0, ic, lb], i) => { const q = win(t, t0, t0 + 0.55); if (q <= 0 || q >= 1) return; moneda(ctx, 540 + 40, lerp(640, 920, E.in(q)), 70, ic, t * 6); });
-  const cur = MON.slice(1).findIndex((m, i) => t >= m[0] && t < (MON[i + 2] ? MON[i + 2][0] : B0.b19)); if (cur >= 0) { const [t0, ic, lb] = MON[cur + 1], t1 = MON[cur + 2] ? MON[cur + 2][0] - 0.05 : B0.b19; P.tag(ctx, lb, 540, 1480 - 30, t, t0, t1, { mono: true, col: GOLD }); }
+  P.glow(ctx, 540, 1060, 520, '255,200,69', 0.12 + 0.07 * caidas); alcancia(ctx, 540, 1060, 260, t, { hit, fill: caidas / 4 });
+  MON.forEach(([t0, ic, lb], i) => { const q = win(t, t0, t0 + 0.55); if (q <= 0 || q >= 1) return; moneda(ctx, 540 + 40, lerp(620, 850, E.in(q)), 70, ic, t * 6); });
+  const cur = MON.slice(1).findIndex((m, i) => t >= m[0] && t < (MON[i + 2] ? MON[i + 2][0] : B0.b19)); if (cur >= 0) { const [t0, ic, lb] = MON[cur + 1], t1 = MON[cur + 2] ? MON[cur + 2][0] - 0.05 : B0.b19; P.tag(ctx, lb, 540, 1390, t, t0, t1, { mono: true, col: GOLD, px: 72 }); }
   for (let k = 0; k < caidas; k++) moneda(ctx, 180 + k * 90, 720, 34, null, 0);
  }, sfx(k) { for (const [t0] of MON) { k.play('whoosh', t0, { dur: 0.5, gain: 0.2, minor: true }); k.play('ding', t0 + 0.55, { f: 'E6', gain: 0.25 }); k.play('tick', t0 + 0.6, { gain: 0.3 }); } } });
 
@@ -323,22 +330,22 @@
  }, sfx(k) { FX.etiqueta(k, Tk.ciclos - 0.1); for (let i = 0; i < 5; i++) k.play('blip', Tk.noventa - 0.2 + i * (Tk.cinco + 0.4 - Tk.noventa) / 5, { gain: 0.25, f: 520 + i * 60 }); FX.aparece(k, Tk.cinco - 0.05, 700); } });
 
  // ---------- 12 · Con 41 años sigue marcando · 985 goles oficiales («Siuuu») ----------
- B.push({ t0: B0.b20, t1: B0.b22, in: { type: 'zoom', d: 0.45, x: 540, y: 1000 }, draw(ctx, t) {
+ B.push({ t0: B0.b20, t1: Tk.talento - 0.25, in: { type: 'zoom', d: 0.45, x: 540, y: 1000 }, draw(ctx, t) {
   estadio(ctx, t, { crowd: true }); const u = win(t, Tk.marcando - 0.7, Tk.marcando);
   P.glow(ctx, 540, 1100, 560, '255,200,69', 0.12 + 0.3 * sm(Tk.marcando - 0.1, Tk.marcando + 0.4, t));
   if (t > Tk.marcando) { const q = win(t, Tk.marcando, Tk.marcando + 0.8); ctx.save(); ctx.strokeStyle = `rgba(255,220,120,${0.6 * (1 - q)})`; ctx.lineWidth = 10; ctx.beginPath(); ctx.ellipse(540, 1470, 120 + 520 * q, 30 + 120 * q, 0, 0, TAU); ctx.stroke(); ctx.restore(); }
   jugador(ctx, 540, 1470, 760, t, { num: '7', mood: t > Tk.marcando - 0.1 ? 'grita' : 'serio', pose: t > Tk.marcando - 0.7 ? 'siuu' : 'stand', u });
-  P.hud(ctx, t, [{ label: 'Edad', from: 15, to: 41, t0: Tk.anos41 - 0.3, t1: Tk.anos41 + 0.5, y: 700, valuePx: 100, a: sm(Tk.anos41 - 0.5, Tk.anos41 - 0.3, t) }, { label: 'Goles oficiales', from: 900, to: 985, t0: Tk.van - 0.2, t1: Tk.oficiales, x: 'right', hi: true, y: 700, valuePx: 100, a: sm(Tk.van - 0.4, Tk.van - 0.2, t) }]);
- }, sfx(k) { FX.contador(k, Tk.anos41 - 0.3, Tk.anos41 + 0.5, 15, 41); k.play('whoosh', Tk.marcando - 0.7, { dur: 0.6, gain: 0.35, minor: true }); k.play('thud', Tk.marcando, { f: 80, gain: 0.55 }); k.noise(Tk.marcando, { dur: 2.2, color: 'pink', filter: 'lowpass', f: 1600, gain: 0.07, a: 0.15 }); FX.contador(k, Tk.van - 0.2, Tk.oficiales, 900, 985); } });
+  P.hud(ctx, t, [{ label: 'Edad', from: 15, to: 41, t0: Tk.anos41 - 0.3, t1: Tk.anos41 + 0.5, y: 700, valuePx: 100, a: sm(Tk.anos41 - 0.5, Tk.anos41 - 0.3, t) }, { label: 'Goles oficiales', from: 900, to: 985, t0: Tk.van - 0.2, t1: Tk.g985 + 0.8 * (Tk.goles - Tk.g985), x: 'right', hi: true, y: 700, valuePx: 100, a: sm(Tk.van - 0.4, Tk.van - 0.2, t) }]);
+ }, sfx(k) { FX.contador(k, Tk.anos41 - 0.3, Tk.anos41 + 0.5, 15, 41); k.play('whoosh', Tk.marcando - 0.7, { dur: 0.6, gain: 0.35, minor: true }); k.play('thud', Tk.marcando, { f: 80, gain: 0.55 }); k.noise(Tk.marcando, { dur: 2.2, color: 'pink', filter: 'lowpass', f: 1600, gain: 0.07, a: 0.15 }); FX.contador(k, Tk.van - 0.2, Tk.g985 + 0.8 * (Tk.goles - Tk.g985), 900, 985); } });
 
  // ---------- 13 · El talento te pone en el campo · la alcancía te mantiene 20 años ----------
- B.push({ t0: B0.b22, t1: B0.b24, in: { type: 'fade', d: 0.3 }, draw(ctx, t) {
-  estadio(ctx, t); const st = R(S(22), Tk.campo, t), al = sm(Tk.alc2 - 0.3, Tk.alc2, t);
+ B.push({ t0: Tk.talento - 0.25, t1: B0.b24, in: { type: 'fade', d: 0.25 }, draw(ctx, t) {
+  estadio(ctx, t); const st = R(Tk.talento - 0.2, Tk.campo, t), al = sm(Tk.alc2 - 0.3, Tk.alc2, t);
   const sa = 1 - al; if (sa > 0) { ctx.save(); ctx.globalAlpha *= sa; P.glow(ctx, 790, 800, 230, '255,212,71', 0.45); P.icon(ctx, 'estrella', 790, 800, 230, { mode: 'flat', col: GOLD }); ctx.strokeStyle = 'rgba(255,212,71,0.6)'; ctx.lineWidth = 6; ctx.setLineDash([14, 12]); ctx.beginPath(); ctx.moveTo(720, 880); ctx.quadraticCurveTo(560, 900, lerp(560, 470, st), 1000); ctx.stroke(); ctx.restore(); }
-  jugador(ctx, lerp(400, 300, al), 1450, lerp(560 + 180 * st, 600, al), t, { num: '7', mood: 'feliz', pose: 'stand', a: 0.4 + 0.6 * st });
+  jugador(ctx, lerp(400, 300, al), 1450, lerp(560 + 180 * st, 600, al), t, { num: '7', mood: 'feliz', pose: 'stand' });
   if (al > 0) { alcancia(ctx, 720, 1180, 230 * E.out(al), t, { fill: 1 }); }
   P.statBig(ctx, '20', 760, 760, t, Tk.veinte - 0.15, B0.b24, { px: 140, sub: 'AÑOS', col: GOLD });
- }, sfx(k) { FX.personaje(k, S(22) + 0.1); FX.revelar(k, Tk.alc2 - 0.35); FX.aparece(k, Tk.veinte - 0.15, 720); } });
+ }, sfx(k) { FX.personaje(k, Tk.talento); FX.revelar(k, Tk.alc2 - 0.35); FX.aparece(k, Tk.veinte - 0.15, 720); } });
 
  // ---------- 14 · CIERRE: «Envíaselo a ese amigo…» ----------
  B.push({ t0: B0.b24, t1: DURATION, in: { type: 'zoom', d: 0.4, x: 540, y: 960 }, draw(ctx, t) {

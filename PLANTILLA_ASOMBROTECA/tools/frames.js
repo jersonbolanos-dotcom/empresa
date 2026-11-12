@@ -10,7 +10,8 @@ const path = require('path'), fs = require('fs');
  const errs = [];
  page.on('pageerror', (e) => errs.push(String(e)));
  page.on('console', (m) => { if (m.type() === 'error') errs.push(m.text()); });
- await page.addInitScript(() => { window.__HEADLESS = true; });
+ const sinSubs = !!process.env.SIN_SUBTITULOS;   // v1.29: SIN_SUBTITULOS=1 → fotograma sin subtítulos (fondo de la portada)
+ await page.addInitScript((ss) => { window.__HEADLESS = true; if (ss) window.__SIN_SUBTITULOS = true; }, sinSubs);
  await page.goto('file://' + path.resolve(file));
  await page.waitForFunction(() => window.__ready === true, null, { timeout: 60000 });
  for (const t of ts) {

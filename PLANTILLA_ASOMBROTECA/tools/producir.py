@@ -14,6 +14,7 @@
 #   variantes (v1.29) con [GANCHO A/B/C] en tramos.txt: render + qc de cada variante → 07_OUTPUT/VARIANTE_A.mp4, _B, _C
 #             (QC en 07_QC/QC_A.md…). Sin ganchos hace lo mismo que «todo».
 #   portada   (v1.29) portada "TEXTO" "PALABRA_ROJA" "ETIQUETA" → 07_OUTPUT/portada.jpg 1080×1920 (fondo: fotograma del vídeo)
+#             «/» separa líneas («LE LLAMABAN / LLORÓN»); --t instante · --foco x centrada · --bloque centro|abajo
 # Opciones: --cola 1.0 (segundos tras la voz) · --workers 6 · --salida NOMBRE.mp4 · --trabajo DIR (temporales; por defecto /tmp)
 #           --gancho A|B|C (v1.29: variante para build/prueba/render/qc; con ganchos, por defecto la A) · --t 12.5 (fotograma de la portada)
 import argparse, glob, hashlib, json, math, os, re, shutil, subprocess, sys, tempfile
@@ -360,7 +361,7 @@ def p_variantes(P, a):
 def p_portada(P, a):
     if len(a.extra) < 3:
         sys.exit('Uso: producir.py PROYECTO portada "TEXTO" "PALABRA_ROJA" "ETIQUETA"   (2-4 palabras; la roja debe ser una de ellas)')
-    texto, roja, etq = a.extra[:3]; ws = texto.split()
+    texto, roja, etq = a.extra[:3]; ws = texto.replace('/', ' ').split()
     norm = lambda s: re.sub(r'[^0-9a-zñ]', '', s.lower().translate(str.maketrans('áéíóúü', 'aeiouu')))
     if not 2 <= len(ws) <= 4:
         sys.exit(f'La portada lleva de 2 a 4 palabras gigantes (hay {len(ws)}).')
@@ -368,18 +369,30 @@ def p_portada(P, a):
         sys.exit(f'«{roja}» debe ser UNA de las palabras de «{texto}».')
     O = os.path.join(P, '07_OUTPUT'); mp4 = [os.path.join(O, nombre_final(P, a))] + sorted(glob.glob(os.path.join(O, '*.mp4')))
     mp4 = next((f for f in mp4 if os.path.exists(f)), None)
-    if not mp4:
-        sys.exit('No hay vídeo en 07_OUTPUT/ para sacar el fondo: ejecuta antes «render» o «variantes».')
+    if not mp4 and a.t is None:
+        sys.exit('Sin vídeo en 07_OUTPUT/ hay que indicar el instante del fondo con --t (p. ej. --t 12.5).')
     t = a.t if a.t is not None else round(dur_audio(mp4) * 0.4, 2); W = trabajo(P, a); f = os.path.join(W, 'fondo_portada.jpg')
-    sh(['ffmpeg', '-v', 'error', '-y', '-ss', str(t), '-i', mp4, '-frames:v', '1', '-q:v', '2', f])
+    # el fondo se dibuja desde el episodio SIN subtítulos (el MP4 los lleva quemados); si no se puede, se toma del MP4
+    C = os.path.join(P, '04_CODIGO'); FD = tempfile.mkdtemp(prefix='portada_', dir=W)
+    try:
+        p_build(P, a)
+        subprocess.run(['node', os.path.join(T, 'frames.js'), 'index.html', FD, str(t)], cwd=C, check=True, capture_output=True, env={**os.environ, 'SIN_SUBTITULOS': '1'})
+        png = glob.glob(os.path.join(FD, '*.png'))[0]
+        sh(['ffmpeg', '-v', 'error', '-y', '-i', png, '-q:v', '2', f])
+    except Exception:
+        if not mp4:
+            sys.exit('No se pudo dibujar el fondo desde el episodio y no hay MP4.')
+        print('  (fondo tomado del MP4, con subtítulos)')
+        sh(['ffmpeg', '-v', 'error', '-y', '-ss', str(t), '-i', mp4, '-frames:v', '1', '-q:v', '2', f])
+    shutil.rmtree(FD, ignore_errors=True)
     marca = 'ASOMBROTECA'
     try:
         m = re.search(r"marca\s*:\s*'([^']+)'", open(os.path.join(P, '04_CODIGO', 'js', 'episodio.js'), encoding='utf-8').read()); marca = m.group(1) if m else marca
     except Exception:
         pass
     out = os.path.join(O, 'portada.jpg')
-    sh(['node', os.path.join(T, 'portada.js'), f, out, texto, roja, etq, marca])
-    print(f'Portada: {out} (fondo: {os.path.basename(mp4)} en t = {t} s)')
+    sh(['node', os.path.join(T, 'portada.js'), f, out, texto, roja, etq, marca, str(a.foco), a.bloque])
+    print(f'Portada: {out} (fondo: episodio{" variante " + gancho(P, a) if gancho(P, a) else ""} en t = {t} s)')
 
 
 def p_limpiar(P, a):
@@ -397,6 +410,7 @@ def main():
     ap.add_argument('--cola', type=float, default=1.0); ap.add_argument('--workers', type=int, default=6)
     ap.add_argument('--salida', default=None); ap.add_argument('--trabajo', default=None)
     ap.add_argument('--gancho', default=None, help='variante A, B o C (v1.29)'); ap.add_argument('--t', type=float, default=None, help='instante del fondo de la portada')
+    ap.add_argument('--foco', type=float, default=540, help='portada: x del fotograma que queda centrada'); ap.add_argument('--bloque', default='centro', choices=['centro', 'abajo'], help='portada: posición del texto')
     a = ap.parse_args(); P = os.path.abspath(a.proyecto)
     if not os.path.isdir(os.path.join(P, '04_CODIGO')):
         sys.exit(f'No parece un proyecto (falta 04_CODIGO): {P}')

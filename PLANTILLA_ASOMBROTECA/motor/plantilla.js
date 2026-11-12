@@ -5484,7 +5484,7 @@
    else drawBeat(ctx, b, tw);
    // acabado de la piel
    H.vignette(ctx, W, HH, SK.vignette, SK.vigCol);
-   captions(ctx, A, t, cfg);
+   if (!(typeof window !== 'undefined' && window.__SIN_SUBTITULOS)) captions(ctx, A, t, cfg);   // v1.29: fondo limpio para la portada
    if (SK.grain) H.grain(ctx, W, HH, SK.grain, 1 + Math.floor(t * 24), true);
   }
   // sonido: cada beat declara sus efectos; el motor añade las transiciones

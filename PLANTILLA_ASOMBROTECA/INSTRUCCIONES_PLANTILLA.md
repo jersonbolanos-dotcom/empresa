@@ -888,8 +888,15 @@ Sin créditos para ganchos hablados: 3 variantes **visuales** con el mismo audio
 | Pantalla llena | ≈ cada 0,5 s, ancho que ocupa el dibujo (bordes, sin las cajas de texto) dentro de la zona segura 0-940 × 220-1450. Menos del 60 % durante más de 3 s seguidos → **aviso** (no ✘) con los tramos (`llena.avisos`) |
 
 ### Portada fija
-`python3 PLANTILLA_ASOMBROTECA/tools/producir.py NOMBRE portada "TEXTO" "PALABRA_ROJA" "ETIQUETA" [--t 12.5] [--gancho B]` → `07_OUTPUT/portada.jpg` (1080×1920, `tools/portada.js`):
-fotograma del vídeo (por defecto al 40 % de su duración) desenfocado y oscurecido, 2-4 palabras gigantes en Nunito 900 (una por línea, la `PALABRA_ROJA` en rojo, el resto en blanco), etiqueta amarilla pequeña encima y la marca discreta debajo, todo en la zona segura. La maqueta no se cambia.
+`python3 PLANTILLA_ASOMBROTECA/tools/producir.py NOMBRE portada "LÍNEA 1 / LÍNEA 2" "PALABRA_ROJA" "ETIQUETA" [--t 12.5] [--gancho B] [--foco 330] [--bloque abajo]` → `07_OUTPUT/portada.jpg` (1080×1920, `tools/portada.js`).
+
+| Elemento | Maqueta (no se cambia) |
+|---|---|
+| Fondo | Fotograma del episodio en el instante `--t` (por defecto, el 40 % del MP4), dibujado **sin subtítulos**, desenfocado 5 px y oscurecido. `--foco X` centra en la portada la x del fotograma (p. ej. la cara del protagonista) |
+| Texto | 2-4 palabras en Nunito 900, **centradas en x = 540**. «/» separa las líneas; sin «/», una palabra por línea. Cada línea toma su tamaño: la que lleva la `PALABRA_ROJA` es la más grande y va en rojo; el resto en blanco |
+| Etiqueta | Píldora amarilla pequeña encima del texto |
+| Marca | Discreta, debajo del texto |
+| Posición | `--bloque centro` (por defecto) o `abajo` (texto en la mitad baja, deja ver una cara arriba). Todo dentro del **recorte 3:4 de la cuadrícula del perfil: 240 ≤ y ≤ 1680**; `portada.js` lo comprueba y falla si algo se sale |
 
 ### PUBLICAR.md
 `nuevo_proyecto.py` copia `tools/plantillas_proyecto/PUBLICAR.md` a `07_OUTPUT/PUBLICAR.md`. Se rellena por vídeo: título y descripción para YouTube (con `#shorts`), Facebook, Instagram y TikTok; gancho como pregunta sin respuesta, invitación a comentar (nunca «dale like» ni «comparte si…»), 3-5 hashtags.
