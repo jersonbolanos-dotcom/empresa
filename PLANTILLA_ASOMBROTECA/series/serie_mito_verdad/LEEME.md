@@ -30,16 +30,20 @@ como «cifra» (zona segura y encimados), así que no pongas otras etiquetas enc
 
 ## Portada fija de la serie
 ```
-python3 PLANTILLA_ASOMBROTECA/tools/producir.py PROYECTO portada "LÍNEA 1 / LÍNEA 2" "PALABRA_ROJA" SEGUNDO [--gancho X] [--bajar PX]
+python3 PLANTILLA_ASOMBROTECA/tools/producir.py PROYECTO portada "¿PREGUNTA LÍNEA 1 / LÍNEA 2?" "PALABRA_ROJA" SEGUNDO --gancho X [--escala 0.84] [--bajar PX]
 ```
-Con `SERIE.json` en el proyecto, la etiqueta amarilla es SIEMPRE «¿MITO O VERDAD?» (no se pasa) y la maqueta es la v1.30:
-fotograma NÍTIDO del vídeo, la pregunta del capítulo en 2 líneas arriba (la palabra clave en rojo), centrado en x = 540,
-dentro del recorte 3:4 (y 240-1680).
+Con `SERIE.json` en el proyecto, la etiqueta amarilla es SIEMPRE «¿MITO O VERDAD?» (no se pasa), la palabra clave va en rojo,
+las dos líneas tienen el mismo tamaño y la marca va ARRIBA, sobre la etiqueta, para que no tape la escena.
+
+**REGLA DEL FONDO (v1.32):** el fotograma es el **OBJETO COTIDIANO del capítulo en uso** (el celular, el cargador…), grande y
+centrado bajo el texto, NUNCA la metáfora (el balde solo no se entiende fuera del vídeo) ni el sello del veredicto (no se adelanta
+la respuesta). Suele estar en el gancho A. Si el objeto no cabe entero bajo el texto, `--escala` (< 1) reduce el fotograma (los
+bordes se funden con el fondo) y `--bajar` lo coloca debajo del texto; `portada.js` comprueba que todo quede dentro del 3:4.
 
 ## Capítulos
 | Cap. | Pregunta | Veredicto | Proyecto |
 |---|---|---|---|
-| 3 | ¿En modo avión carga más rápido el celular? | A MEDIAS | `MITO_CAP3_MODO_AVION_PROYECTO` (portada: `"¿CARGA MÁS RÁPIDO / EN MODO AVIÓN?" "AVIÓN?" 12.8 --gancho A --bajar 200`) |
+| 3 | ¿En modo avión carga más rápido el celular? | A MEDIAS | `MITO_CAP3_MODO_AVION_PROYECTO` (portada: `"¿CARGA MÁS RÁPIDO / EN MODO AVIÓN?" "AVIÓN?" 2.0 --gancho A --escala 0.84 --bajar 168` · celular con el dedo en el avión y la batería con «?») |
 
 ## Mano
 Para señalar en pantalla, usa `P.mano(ctx, x, y, s, { ang })` (v1.31) y en el cierre `P.ctaShare(…, { mano: true })`.

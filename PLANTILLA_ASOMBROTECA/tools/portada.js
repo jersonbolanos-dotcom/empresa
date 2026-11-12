@@ -11,7 +11,9 @@
 // (normalmente lo llama: producir.py PROYECTO portada "TEXTO" "PALABRA_ROJA" "ETIQUETA" SEGUNDO [--gancho X] [--bajar 300])
 const { chromium } = require('playwright'); const path = require('path'); const fs = require('fs');
 (async () => {
- const [fondo, salida, texto, roja, etiqueta, marca = 'ASOMBROTECA', focoS = '540', bloque = 'arriba', bajarS = '0', modoRoja = 'linea', tam = 'desigual'] = process.argv.slice(2);
+ const [fondo, salida, texto, roja, etiqueta, marca = 'ASOMBROTECA', focoS = '540', bloque = 'arriba', bajarS = '0', modoRoja = 'linea', tam = 'desigual', escalaS = '1', marcaPos = 'abajo'] = process.argv.slice(2);
+ // v1.32: escala (< 1 reduce el fotograma para que el objeto quepa entero bajo el texto; los lados se rellenan con el color del borde)
+ //        marcaPos 'arriba' = la marca sobre la etiqueta, para que no tape la escena
  // v1.31 (series): modoRoja 'palabra' = solo la palabra clave en rojo (no toda su línea) · tam 'igual' = las dos líneas del mismo tamaño (una pregunta)
  const css = fs.readFileSync(path.join(__dirname, '..', 'fonts', 'fuentes.css'), 'utf8');
  const img = 'data:image/jpeg;base64,' + fs.readFileSync(fondo).toString('base64');
@@ -19,17 +21,22 @@ const { chromium } = require('playwright'); const path = require('path'); const 
  await p.setContent(`<!doctype html><html><head><meta charset="utf-8"><style>${css} body{margin:0;background:#000}</style></head><body><canvas id="c" width="1080" height="1920"></canvas>
   <span style="font:900 20px Nunito">a</span><span style="font:800 20px Nunito">a</span></body></html>`);
  await p.evaluate(() => document.fonts.ready);
- const res = await p.evaluate(async ({ img, texto, roja, etiqueta, marca, foco, bloque, bajar, modoRoja, tam }) => {
+ const res = await p.evaluate(async ({ img, texto, roja, etiqueta, marca, foco, bloque, bajar, modoRoja, tam, escala, marcaPos }) => {
   const c = document.getElementById('c'), ctx = c.getContext('2d'); await document.fonts.load('900 100px Nunito'); await document.fonts.load('800 40px Nunito');
   const im = new Image(); im.src = img; await im.decode();
   const nrm = (s) => s.normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^\p{L}\p{N}]/gu, '').toUpperCase();
   const X = 540, MAXW = 920, Y0 = 240, Y1 = 1680;
   // fondo NÍTIDO: el fotograma a tamaño real (o ampliado solo si hay que centrar un foco); sin desenfoque
-  const k = Math.max(1080 / im.width, 1920 / im.height) * (foco === 540 ? 1 : 1.25), w = im.width * k, h = im.height * k;
+  const k = Math.max(1080 / im.width, 1920 / im.height) * (foco === 540 ? 1 : 1.25) * (escala || 1), w = im.width * k, h = im.height * k;
   let ox = 540 - foco * k * (im.width / 1080); ox = Math.min(0, Math.max(1080 - w, ox)); const oy = (1920 - h) / 2 + bajar;
   ctx.fillStyle = '#05060a'; ctx.fillRect(0, 0, 1080, 1920);
+  if (escala < 1) { const tc = document.createElement('canvas'); tc.width = 4; tc.height = 4; const tx = tc.getContext('2d'); tx.drawImage(im, 0, 0, 8, 8, 0, 0, 4, 4); const d = tx.getImageData(0, 0, 1, 1).data; ctx.fillStyle = `rgb(${d[0]},${d[1]},${d[2]})`; ctx.fillRect(0, 0, 1080, 1920); ox = (1080 - w) / 2; }
   if (bajar > 0) ctx.drawImage(im, 0, 0, im.width, 2, ox, 0, w, oy + 2);   // franja de arriba: el borde superior del fotograma, estirado
-  ctx.drawImage(im, ox, oy, w, h);
+  if (escala < 1) {   // v1.32: el fotograma reducido se funde con el fondo (bordes difuminados, sin marco visible)
+   const oc = document.createElement('canvas'); oc.width = Math.round(w); oc.height = Math.round(h); const ox2 = oc.getContext('2d'); ox2.drawImage(im, 0, 0, w, h); ox2.globalCompositeOperation = 'destination-in';
+   const F = 160; for (const [x0, y0, x1, y1] of [[0, 0, F, 0], [w, 0, w - F, 0], [0, 0, 0, F], [0, h, 0, h - F]]) { const g = ox2.createLinearGradient(x0, y0, x1, y1); g.addColorStop(0, 'rgba(0,0,0,0)'); g.addColorStop(1, 'rgba(0,0,0,1)'); ox2.fillStyle = g; ox2.fillRect(0, 0, w, h); }
+   ctx.drawImage(oc, ox, oy); }
+  else ctx.drawImage(im, ox, oy, w, h);
   const arriba = bloque === 'arriba';
   if (arriba) { const g = ctx.createLinearGradient(0, Y0, 0, Y0 + 640); g.addColorStop(0, 'rgba(0,0,0,0.45)'); g.addColorStop(1, 'rgba(0,0,0,0)'); ctx.fillStyle = g; ctx.fillRect(0, 0, 1080, Y0 + 640); }
   const lines = (texto.includes('/') ? texto.split('/') : texto.trim().split(/\s+/)).map((s) => s.trim().toUpperCase()).filter(Boolean);
@@ -37,9 +44,9 @@ const { chromium } = require('playwright'); const path = require('path'); const 
   const fit = (l, cap) => { let px = cap; ctx.font = `900 ${px}px Nunito`; while (px > 60 && ctx.measureText(l).width > MAXW) { px -= 4; ctx.font = `900 ${px}px Nunito`; } return px; };
   let L = lines.map((l) => ({ s: l, r: esRoja(l), px: fit(l, tam === 'igual' ? (arriba ? 175 : 210) : esRoja(l) ? (arriba ? 250 : 330) : (arriba ? 150 : 190)) }));
   if (tam === 'igual') { const m = Math.min(...L.map((q) => q.px)); L = L.map((q) => ({ ...q, px: m })); }
-  const LH = 1.14, ET = 76, gap = 30, MG = 70, alto = () => ET + gap + L.reduce((a, q) => a + q.px * LH, 0) + MG;
+  const LH = 1.14, MT = marcaPos === 'arriba' ? 56 : 0, ET = 76, gap = 30, MG = 70, alto = () => ET + gap + L.reduce((a, q) => a + q.px * LH, 0) + MG;
   while (alto() > (arriba ? 620 : bloque === 'abajo' ? 640 : Y1 - Y0 - 80)) L = L.map((q) => ({ ...q, px: q.px * 0.95 }));
-  const cyB = bloque === 'abajo' ? 1360 : 960; let y = arriba ? Y0 + 40 + ET / 2 : Math.min(Y1 - 40 - alto(), cyB - alto() / 2) + ET / 2;
+  const cyB = bloque === 'abajo' ? 1360 : 960; let y = arriba ? Y0 + 40 + MT + ET / 2 : Math.min(Y1 - 40 - alto(), cyB - alto() / 2) + ET / 2;
   // etiqueta amarilla pequeña
   ctx.font = '900 44px Nunito'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; const et = etiqueta.toUpperCase(), tw = ctx.measureText(et).width;
   ctx.shadowColor = 'rgba(0,0,0,0.5)'; ctx.shadowBlur = 16; ctx.fillStyle = '#FFD23F'; ctx.beginPath(); ctx.roundRect(X - tw / 2 - 30, y - ET / 2, tw + 60, ET, 16); ctx.fill(); ctx.shadowBlur = 0; ctx.fillStyle = '#111111'; ctx.fillText(et, X, y + 2);
@@ -52,9 +59,9 @@ const { chromium } = require('playwright'); const path = require('path'); const 
    else { ctx.fillStyle = q.r ? '#FF2D2D' : '#FFFFFF'; ctx.fillText(q.s, X, by); } const m = ctx.measureText(q.s).width; caja[0] = Math.min(caja[0], X - m / 2 - q.px * 0.065); caja[2] = Math.max(caja[2], X + m / 2 + q.px * 0.065); y += q.px * LH; }
   caja[3] = y;
   // marca discreta (abajo en la maqueta v1.30; debajo del texto en la v1.29)
-  ctx.font = '800 34px Nunito'; ctx.letterSpacing = '6px'; ctx.textBaseline = 'middle'; const my = arriba ? Y1 - 50 : Math.min(Y1 - 30, y + 40);
-  ctx.lineWidth = 6; ctx.strokeStyle = 'rgba(0,0,0,0.6)'; ctx.strokeText(marca.toUpperCase(), X + 3, my); ctx.fillStyle = 'rgba(255,255,255,0.85)'; ctx.fillText(marca.toUpperCase(), X + 3, my); caja[3] = Math.max(caja[3], my + 20);
-  return { url: c.toDataURL('image/jpeg', 0.93), caja: caja.map(Math.round) }; }, { img, texto, roja, etiqueta, marca, foco: Number(focoS), bloque, bajar: Number(bajarS), modoRoja, tam });
+  ctx.font = '800 34px Nunito'; ctx.letterSpacing = '6px'; ctx.textBaseline = 'middle'; const my = marcaPos === 'arriba' ? Y0 + 40 : arriba ? Y1 - 50 : Math.min(Y1 - 30, y + 40);
+  ctx.lineWidth = 6; ctx.strokeStyle = 'rgba(0,0,0,0.6)'; ctx.strokeText(marca.toUpperCase(), X + 3, my); ctx.fillStyle = 'rgba(255,255,255,0.85)'; ctx.fillText(marca.toUpperCase(), X + 3, my); caja[3] = Math.max(caja[3], my + 20); caja[1] = Math.min(caja[1], my - 20);
+  return { url: c.toDataURL('image/jpeg', 0.93), caja: caja.map(Math.round) }; }, { img, texto, roja, etiqueta, marca, foco: Number(focoS), bloque, bajar: Number(bajarS), modoRoja, tam, escala: Number(escalaS), marcaPos });
  fs.writeFileSync(salida, Buffer.from(res.url.split(',')[1], 'base64'));
  const [x0, y0, x1, y1] = res.caja, dentro = y0 >= 240 && y1 <= 1680 && x0 >= 0 && x1 <= 1080, centro = Math.abs((x0 + x1) / 2 - 540) <= 4;
  console.log(`portada: ${salida} · texto en x ${x0}-${x1} (centro ${Math.round((x0 + x1) / 2)}), y ${y0}-${y1} · recorte 3:4 (y 240-1680): ${dentro ? 'dentro' : 'FUERA'}`); await b.close();

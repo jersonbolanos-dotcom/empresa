@@ -919,3 +919,5 @@ En `episodio.js`: `const tV = wt(SEG, 'medias.') - 0.05; P.veredicto(ctx, t, tV,
 Por defecto el sello va centrado en la zona segura (x = 480, ancho 760) para que el rebote no se salga de x ≤ 940.
 
 **Bloque v1.31 · `P.mano(ctx, x, y, s, { ang, skin, izq })`**: mano plana que señala con el índice (palma, índice extendido con uña, pulgar a un lado, tres dedos doblados, muñeca). `(x, y)` = punta del índice; `s` = ancho del dedo (≈ 60-80 px); `ang` = giro (0 = hacia arriba, −0,45 = viene de abajo a la derecha); `izq` = mano izquierda. En el cierre: `P.ctaShare(…, { mano: true })`.
+
+**v1.32 · Portada:** `--escala 0.84` reduce el fotograma de fondo (bordes fundidos con el fondo) para que el objeto quepa entero bajo el texto; `--marca-pos arriba` pone la marca sobre la etiqueta (las series lo hacen solas). En las series, el fondo es el objeto cotidiano del capítulo, nunca la metáfora.

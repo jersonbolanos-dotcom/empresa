@@ -404,7 +404,7 @@ def p_portada(P, a):
         pass
     out = os.path.join(O, 'portada.jpg')
     pr = (serie or {}).get('portada', {})
-    sh(['node', os.path.join(T, 'portada.js'), f, out, texto, roja, etq, marca, str(a.foco), a.bloque, str(a.bajar), pr.get('roja', 'linea'), pr.get('tam', 'desigual')])
+    sh(['node', os.path.join(T, 'portada.js'), f, out, texto, roja, etq, marca, str(a.foco), a.bloque, str(a.bajar), pr.get('roja', 'linea'), pr.get('tam', 'desigual'), str(a.escala), pr.get('marca', a.marca_pos)])
     print(f'Portada: {out} (fondo: episodio{" variante " + gancho(P, a) if gancho(P, a) else ""} en t = {t} s)')
 
 
@@ -425,6 +425,8 @@ def main():
     ap.add_argument('--gancho', default=None, help='variante A, B o C (v1.29)'); ap.add_argument('--t', type=float, default=None, help='instante del fondo de la portada')
     ap.add_argument('--foco', type=float, default=540, help='portada: x del fotograma que queda centrada'); ap.add_argument('--bloque', default='arriba', choices=['arriba', 'centro', 'abajo'], help='portada: posición del texto (arriba = maqueta v1.30)')
     ap.add_argument('--bajar', type=int, default=0, help='portada: px que se baja el fotograma para dejar cielo al texto')
+    ap.add_argument('--escala', type=float, default=1.0, help='portada (v1.32): < 1 reduce el fotograma para que el objeto quepa entero bajo el texto')
+    ap.add_argument('--marca-pos', dest='marca_pos', default='abajo', choices=['abajo', 'arriba'], help='portada (v1.32): posición de la marca')
     a = ap.parse_args(); P = os.path.abspath(a.proyecto)
     if not os.path.isdir(os.path.join(P, '04_CODIGO')):
         sys.exit(f'No parece un proyecto (falta 04_CODIGO): {P}')
