@@ -1,0 +1,4 @@
+file '/tmp/plantilla_CRISTIANO_RONALDO_PROYECTO/prueba_7k3mhcgg/t_000.30.png'
+file '/tmp/plantilla_CRISTIANO_RONALDO_PROYECTO/prueba_7k3mhcgg/t_001.60.png'
+file '/tmp/plantilla_CRISTIANO_RONALDO_PROYECTO/prueba_7k3mhcgg/t_002.60.png'
+file '/tmp/plantilla_CRISTIANO_RONALDO_PROYECTO/prueba_7k3mhcgg/t_003.50.png'
