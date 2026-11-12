@@ -921,3 +921,17 @@ Por defecto el sello va centrado en la zona segura (x = 480, ancho 760) para que
 **Bloque v1.31 · `P.mano(ctx, x, y, s, { ang, skin, izq })`**: mano plana que señala con el índice (palma, índice extendido con uña, pulgar a un lado, tres dedos doblados, muñeca). `(x, y)` = punta del índice; `s` = ancho del dedo (≈ 60-80 px); `ang` = giro (0 = hacia arriba, −0,45 = viene de abajo a la derecha); `izq` = mano izquierda. En el cierre: `P.ctaShare(…, { mano: true })`.
 
 **v1.32 · Portada:** `--escala 0.84` reduce el fotograma de fondo (bordes fundidos con el fondo) para que el objeto quepa entero bajo el texto; `--marca-pos arriba` pone la marca sobre la etiqueta (las series lo hacen solas). En las series, el fondo es el objeto cotidiano del capítulo, nunca la metáfora.
+
+## v1.33 · Mano natural reutilizable (`P.mano`)
+
+`P.mano(ctx, x, y, s, { pose, ang, skin, izq, objeto, sombra, t })` — mano plana con volumen suave y proporciones reales. Úsala SIEMPRE que salga una mano (señalar, tocar una pantalla, sujetar un objeto, saludar); no dibujes manos a mano en los episodios.
+
+| Pose | Ancla (x, y) | Uso |
+|---|---|---|
+| `senalar` (por defecto) | punta del índice | señalar algo; los otros dedos doblados con nudillos y el pulgar recogido junto al índice |
+| `tocar` | punta del índice | tocar una pantalla o botón; pasa `t` para la onda de toque |
+| `abierta` | centro de la palma | mano abierta (saludar, «alto», mostrar) |
+| `sujetar` | centro del objeto | sujetar un cargador, un celular…: `objeto: (c) => { … }` dibuja el objeto entre la palma y los dedos, centrado en (0, 0) |
+
+`s` = ancho del índice (≈ 50-90 px; la mano mide ≈ 11 s de alto con la muñeca). `ang` = giro (0 = dedos hacia arriba; −0,45 = mano que entra desde abajo a la derecha). `izq: true` = mano izquierda. `skin` = tono base (por defecto `#e0a67f`; la luz y la sombra se calculan solas). `sombra: false` la quita. En el cierre: `P.ctaShare(…, { mano: true })`.
+

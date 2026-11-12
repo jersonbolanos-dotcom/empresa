@@ -46,4 +46,4 @@ bordes se funden con el fondo) y `--bajar` lo coloca debajo del texto; `portada.
 | 3 | ¿En modo avión carga más rápido el celular? | A MEDIAS | `MITO_CAP3_MODO_AVION_PROYECTO` (portada: `"¿CARGA MÁS RÁPIDO / EN MODO AVIÓN?" "AVIÓN?" 2.0 --gancho A --escala 0.84 --bajar 168` · celular con el dedo en el avión y la batería con «?») |
 
 ## Mano
-Para señalar en pantalla, usa `P.mano(ctx, x, y, s, { ang })` (v1.31) y en el cierre `P.ctaShare(…, { mano: true })`.
+Siempre `P.mano(ctx, x, y, s, { pose: 'senalar' | 'tocar' | 'abierta' | 'sujetar', ang })` (v1.33, mano natural) y en el cierre `P.ctaShare(…, { mano: true })`.
