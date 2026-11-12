@@ -3076,65 +3076,65 @@
  // (índice + palma + nudillos de los dedos flexionados + pulgar) rellenada de una vez —sin costuras entre piezas—, con volumen por
  // sombreado interior, pliegues de las falanges, uña visible solo como un filo dentro de la punta y la palma que sale del cuadro.
  // (cx, tipY) = centro de la yema; fw = ancho del dedo en px (≈ 17 mm; la tarjeta mide 11 × 15 mm a la misma escala). o: { skin, card, cardRot, glow, ang }
- // v1.32 · P.mano(ctx, x, y, s, { pose, ang, skin, izq, objeto, sombra }) — MANO NATURAL reutilizable, estilo plano con volumen suave.
- //   s = ancho del dedo índice (≈ 50-90 px). Dedos redondeados y de largos distintos (corazón > anular ≈ índice > meñique; pulgar
- //   corto y grueso), nudillos marcados, uñas, palma con curva, muñeca, sombra suave y luz ligera (más clara arriba-izquierda).
+ // v1.33 · P.mano(ctx, x, y, s, { pose, ang, skin, izq, objeto, sombra, t }) — MANO NATURAL de UNA SOLA PIEZA, estilo plano con volumen.
+ //   Dedos, palma, pulgar y muñeca forman UNA silueta continua (unión de formas en un solo Path2D): un único contorno exterior, sin
+ //   costuras entre dedos y palma (solo pliegues suaves), muñeca que se ensancha en curva hacia la palma, y la luz y la sombra pintadas
+ //   UNA vez sobre toda la mano. Dedos redondeados de largos naturales (corazón > anular ≈ índice > meñique; pulgar corto y grueso),
+ //   nudillos con brillo, pliegues y uñas.
+ //   s = ancho del dedo índice (≈ 50-90 px; la mano mide ≈ 11 s de alto con la muñeca).
  //   pose 'senalar' (por defecto) y 'tocar': punta del índice en (x, y), los demás dedos doblados y el pulgar recogido;
- //   pose 'abierta': (x, y) = centro de la palma, cinco dedos estirados y algo abiertos;
- //   pose 'sujetar': (x, y) = centro de lo que sujeta; o.objeto(ctx) dibuja el objeto ENTRE la palma y los dedos (p. ej. un cargador).
- //   ang = giro (0 = dedos hacia arriba; + = a la derecha) · izq = mano izquierda (espejo) · skin = color de piel base.
+ //   pose 'abierta': (x, y) = centro de la palma; pose 'sujetar': (x, y) = centro del objeto, que dibuja o.objeto(ctx) DETRÁS de la mano.
+ //   ang = giro (0 = dedos hacia arriba; + = a la derecha) · izq = mano izquierda · skin = tono base · sombra: false · t = tiempo (onda de 'tocar').
  P.mano = (ctx, x, y, s, o = {}) => { const u = s, pose = o.pose || 'senalar', sk = o.skin || '#e0a67f';
-  const C = (c, t) => H.rgba(H.mix(sk, c, t)), LT = C('#ffffff', 0.3), MD = C('#ffffff', 0.08), DK = C('#3a1e10', 0.2), DK2 = C('#3a1e10', 0.32), LN = C('#3a1e10', 0.5), NA = C('#ffffff', 0.55), NAB = C('#3a1e10', 0.28);
-  // cápsula ahusada: base (bx, by), ángulo a (0 = arriba), largo L, ancho en la base w0 y en la punta w1
-  const cap = (bx, by, a, L, w0, w1) => { const dx = Math.sin(a), dy = -Math.cos(a), nx = Math.cos(a), ny = Math.sin(a), tx = bx + dx * (L - w1 / 2), ty = by + dy * (L - w1 / 2), sa = Math.atan2(-ny, -nx);
-   ctx.beginPath(); ctx.moveTo(bx - nx * w0 / 2, by - ny * w0 / 2); ctx.lineTo(tx - nx * w1 / 2, ty - ny * w1 / 2); ctx.arc(tx, ty, w1 / 2, sa, sa + Math.PI); ctx.lineTo(bx + nx * w0 / 2, by + ny * w0 / 2); ctx.arc(bx, by, w0 / 2, sa + Math.PI, sa + 2 * Math.PI); ctx.closePath(); return [tx, ty, dx, dy, nx, ny]; };
-  const relleno = (x0, y0, x1, y1) => { const g = ctx.createLinearGradient(x0, y0, x1, y1); g.addColorStop(0, LT); g.addColorStop(0.45, MD); g.addColorStop(1, DK); return g; };
-  // dedo completo: piel con luz, nudillos (dos pliegues), uña (si se ve el dorso) y contorno suave
-  const dedo = (bx, by, a, L, w0, w1, q = {}) => { const [tx, ty, dx, dy, nx, ny] = cap(bx, by, a, L, w0, w1); ctx.fillStyle = relleno(bx - nx * w0, by - ny * w0, bx + nx * w0, by + ny * w0); ctx.fill(); ctx.strokeStyle = DK2; ctx.lineWidth = u * 0.05; ctx.stroke();
-   ctx.strokeStyle = LN; ctx.lineWidth = u * 0.055; ctx.lineCap = 'round'; for (const f of q.pliegues || [0.36, 0.62]) { const px = bx + dx * L * f, py = by + dy * L * f, w = lerp(w0, w1, f) * 0.32; ctx.beginPath(); ctx.moveTo(px - nx * w, py - ny * w); ctx.quadraticCurveTo(px + dx * u * 0.08, py + dy * u * 0.08, px + nx * w, py + ny * w); ctx.stroke(); }
-   if (q.una !== false) { const nwid = w1 * 0.62, nlen = Math.min(L * 0.24, w1 * 0.95), cx = tx - dx * nlen * 0.45, cy = ty - dy * nlen * 0.45; ctx.save(); ctx.translate(cx, cy); ctx.rotate(a); ctx.fillStyle = NA; ctx.strokeStyle = NAB; ctx.lineWidth = u * 0.04; ctx.beginPath(); ctx.roundRect(-nwid / 2, -nlen / 2, nwid, nlen, [nwid * 0.5, nwid * 0.5, nwid * 0.22, nwid * 0.22]); ctx.fill(); ctx.stroke(); ctx.fillStyle = 'rgba(255,255,255,0.35)'; ctx.beginPath(); ctx.ellipse(-nwid * 0.15, -nlen * 0.15, nwid * 0.14, nlen * 0.22, 0, 0, Math.PI * 2); ctx.fill(); ctx.restore(); }
-   if (q.nudillo) { ctx.fillStyle = 'rgba(255,255,255,0.22)'; ctx.beginPath(); ctx.ellipse(bx + dx * u * 0.15, by + dy * u * 0.15, w0 * 0.3, w0 * 0.2, a, 0, Math.PI * 2); ctx.fill(); } };
-  // dedo doblado visto por el dorso: nudillo marcado y la falange que baja hacia la palma
-  const doblado = (bx, by, a, w) => { cap(bx, by, a, u * 1.25, w, w * 0.94); ctx.fillStyle = relleno(bx - w, by - w, bx + w, by + w); ctx.fill(); ctx.strokeStyle = DK2; ctx.lineWidth = u * 0.05; ctx.stroke();
-   const dx = Math.sin(a), dy = -Math.cos(a); ctx.fillStyle = 'rgba(255,255,255,0.28)'; ctx.beginPath(); ctx.ellipse(bx + dx * u * 0.75, by + dy * u * 0.75, w * 0.28, w * 0.2, a, 0, Math.PI * 2); ctx.fill();
-   ctx.strokeStyle = LN; ctx.lineWidth = u * 0.055; ctx.beginPath(); ctx.arc(bx + dx * u * 0.55, by + dy * u * 0.55, w * 0.36, a + Math.PI * 0.15, a + Math.PI * 0.85); ctx.stroke(); };
-  // palma con curva (dorso), de y0 (base de los dedos) a y1 (muñeca)
-  const palma = (x0, y0, x1, y1, sesgo = 0.35) => { ctx.beginPath(); ctx.moveTo(x0, y0 + u * 0.3); ctx.quadraticCurveTo(x0 + (x1 - x0) * 0.5, y0 - u * 0.35, x1, y0 + u * sesgo); ctx.quadraticCurveTo(x1 + u * 0.35, (y0 + y1) * 0.5, x1 - u * 0.4, y1); ctx.lineTo(x0 + u * 0.75, y1); ctx.quadraticCurveTo(x0 - u * 0.25, (y0 + y1) * 0.62, x0, y0 + u * 0.3); ctx.closePath();
-   ctx.fillStyle = relleno(x0, y0, x1, y1); ctx.fill(); ctx.strokeStyle = DK2; ctx.lineWidth = u * 0.05; ctx.stroke(); ctx.strokeStyle = 'rgba(58,30,16,0.12)'; ctx.lineWidth = u * 0.07; for (let k = 0; k < 3; k++) { const xx = lerp(x0, x1, 0.3 + k * 0.22); ctx.beginPath(); ctx.moveTo(xx, y0 + u * 0.6); ctx.lineTo(xx + u * 0.1, y1 - u * 0.6); ctx.stroke(); } };
-  const muneca = (x0, x1, y0, y1) => { const g = ctx.createLinearGradient(x0, 0, x1, 0); g.addColorStop(0, DK); g.addColorStop(0.4, MD); g.addColorStop(1, DK2); ctx.fillStyle = g; ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(x1, y0); ctx.lineTo(x1 + u * 0.15, y1); ctx.lineTo(x0 - u * 0.1, y1); ctx.closePath(); ctx.fill(); };
+  const C = (c, t) => H.rgba(H.mix(sk, c, t)), LT = C('#ffffff', 0.3), DK = C('#3a1e10', 0.2), LN = C('#3a1e10', 0.5), ED = C('#3a1e10', 0.42), NA = C('#ffffff', 0.55), NAB = C('#3a1e10', 0.25);
+  // formas (Path2D) que se unen en una sola silueta; todas en el mismo sentido de giro para que la unión no deje huecos
+  const cap = (bx, by, a, L, w0, w1) => { const p2 = new Path2D(), dx = Math.sin(a), dy = -Math.cos(a), nx = Math.cos(a), ny = Math.sin(a), tx = bx + dx * (L - w1 / 2), ty = by + dy * (L - w1 / 2), sa = Math.atan2(-ny, -nx);
+   p2.moveTo(bx - nx * w0 / 2, by - ny * w0 / 2); p2.lineTo(tx - nx * w1 / 2, ty - ny * w1 / 2); p2.arc(tx, ty, w1 / 2, sa, sa + Math.PI); p2.lineTo(bx + nx * w0 / 2, by + ny * w0 / 2); p2.arc(bx, by, w0 / 2, sa + Math.PI, sa + 2 * Math.PI); p2.closePath(); return { p: p2, bx, by, a, L, w0, w1, tx, ty, dx, dy, nx, ny }; };
+  const palma = (x0, y0, x1, y1) => { const p2 = new Path2D(); p2.moveTo(x0, y0 + u * 0.3); p2.quadraticCurveTo(x0 + (x1 - x0) * 0.5, y0 - u * 0.35, x1, y0 + u * 0.35); p2.quadraticCurveTo(x1 + u * 0.35, (y0 + y1) * 0.5, x1 - u * 0.4, y1); p2.lineTo(x0 + u * 0.75, y1); p2.quadraticCurveTo(x0 - u * 0.25, (y0 + y1) * 0.62, x0, y0 + u * 0.3); p2.closePath(); return { p: p2 }; };
+  // muñeca: estrecha abajo y se ensancha en curva hasta fundirse con la palma (se solapa con ella: sin corte)
+  const muneca = (xl0, xr0, y0, xl1, xr1, y1) => { const p2 = new Path2D(), ym = (y0 + y1) / 2; p2.moveTo(xl0, y0); p2.lineTo(xr0, y0); p2.bezierCurveTo(xr0, ym, xr1 + u * 0.1, ym, xr1, y1); p2.lineTo(xl1, y1); p2.bezierCurveTo(xl1 - u * 0.1, ym, xl0, ym, xl0, y0); p2.closePath(); return { p: p2 }; };
+  // pliegue suave (línea corta, sin contorno)
+  const pliegue = (x0, y0, x1, y1, a = 0.35, w = 0.05) => { ctx.strokeStyle = `rgba(90,45,20,${a})`; ctx.lineWidth = u * w; ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(x1, y1); ctx.stroke(); };
+  const arruga = (f, q) => { const px = f.bx + f.dx * f.L * q, py = f.by + f.dy * f.L * q, w = (f.w0 + (f.w1 - f.w0) * q) * 0.3; ctx.strokeStyle = 'rgba(90,45,20,0.45)'; ctx.lineWidth = u * 0.05; ctx.beginPath(); ctx.moveTo(px - f.nx * w, py - f.ny * w); ctx.quadraticCurveTo(px + f.dx * u * 0.07, py + f.dy * u * 0.07, px + f.nx * w, py + f.ny * w); ctx.stroke(); };
+  const una = (f) => { const nw = f.w1 * 0.6, nl = Math.min(f.L * 0.22, f.w1 * 0.92), cx = f.tx - f.dx * nl * 0.42, cy = f.ty - f.dy * nl * 0.42; ctx.save(); ctx.translate(cx, cy); ctx.rotate(f.a); ctx.fillStyle = NA; ctx.strokeStyle = NAB; ctx.lineWidth = u * 0.035; ctx.beginPath(); ctx.roundRect(-nw / 2, -nl / 2, nw, nl, [nw * 0.5, nw * 0.5, nw * 0.2, nw * 0.2]); ctx.fill(); ctx.stroke(); ctx.fillStyle = 'rgba(255,255,255,0.4)'; ctx.beginPath(); ctx.ellipse(-nw * 0.14, -nl * 0.12, nw * 0.13, nl * 0.2, 0, 0, Math.PI * 2); ctx.fill(); ctx.restore(); };
+  const brillo = (x0, y0, rx, ry, a = 0, al = 0.22) => { ctx.fillStyle = `rgba(255,255,255,${al})`; ctx.beginPath(); ctx.ellipse(x0, y0, rx, ry, a, 0, Math.PI * 2); ctx.fill(); };
+  // dibuja la silueta unida: sombra difuminada → contorno exterior → relleno con UN degradado → volumen y detalles recortados a la silueta
+  const pieza = (partes, caja, detalles) => { const S = new Path2D(); for (const q of partes) S.addPath(q.p); const [bx0, by0, bx1, by1] = caja;
+   if (o.sombra !== false) { ctx.save(); ctx.translate(u * 0.25, u * 0.45); ctx.filter = `blur(${Math.max(2, u * 0.25)}px)`; ctx.fillStyle = 'rgba(0,0,0,0.3)'; ctx.fill(S); ctx.restore(); }
+   ctx.strokeStyle = ED; ctx.lineWidth = u * 0.11; for (const q of partes) ctx.stroke(q.p);   // la mitad interior de estos trazos la tapa el relleno: solo queda el contorno exterior
+   const g = ctx.createLinearGradient(bx0, by0, bx1, by1); g.addColorStop(0, LT); g.addColorStop(0.45, sk); g.addColorStop(1, DK); ctx.fillStyle = g; ctx.fill(S);
+   ctx.save(); ctx.clip(S); const r = ctx.createRadialGradient(bx0 + (bx1 - bx0) * 0.35, by0 + (by1 - by0) * 0.45, u * 0.5, bx0 + (bx1 - bx0) * 0.35, by0 + (by1 - by0) * 0.45, (bx1 - bx0) * 0.9); r.addColorStop(0, 'rgba(255,255,255,0.16)'); r.addColorStop(1, 'rgba(90,40,15,0.12)'); ctx.fillStyle = r; ctx.fillRect(bx0 - u, by0 - u, bx1 - bx0 + 2 * u, by1 - by0 + 2 * u);
+   ctx.lineCap = 'round'; detalles(); ctx.restore(); };
   ctx.save(); ctx.translate(x, y); ctx.rotate(o.ang || 0); if (o.izq) ctx.scale(-1, 1); ctx.lineJoin = 'round'; ctx.lineCap = 'round';
-  // sombra suave de toda la mano (silueta difuminada, desplazada)
-  const sombra = (fn) => { if (o.sombra === false) return; ctx.save(); ctx.translate(u * 0.25, u * 0.45); ctx.filter = `blur(${Math.max(2, u * 0.22)}px)`; ctx.globalAlpha *= 0.32; const fs = ctx.fillStyle; fn(true); ctx.restore(); };
   if (pose === 'senalar' || pose === 'tocar') {
    const k = pose === 'tocar' ? 0.9 : 1, by = 3.55 * u * k;
-   const sil = (sh) => { const f = () => { ctx.fillStyle = '#000'; ctx.fill(); }; cap(0, by, 0, by, u, u * 0.86); f(); cap(-0.35 * u, 6.0 * u, -0.36, 2.55 * u, u * 1.05, u * 0.9); f(); ctx.beginPath(); ctx.roundRect(-0.65 * u, by - 0.2 * u, 4.1 * u, 4.1 * u, 1.3 * u); f(); ctx.beginPath(); ctx.roundRect(0.1 * u, 7.0 * u, 2.9 * u, 3.5 * u, 0.6 * u); f(); };
-   sombra(sil);
-   muneca(0.15 * u, 3.05 * u, 7.0 * u, 10.8 * u);
-   palma(-0.6 * u, by - 0.1 * u, 3.45 * u, 7.6 * u);
-   doblado(3.05 * u, by + 0.45 * u, 0.32, u * 0.78);   // meñique
-   doblado(2.15 * u, by + 0.2 * u, 0.22, u * 0.92);    // anular
-   doblado(1.15 * u, by + 0.05 * u, 0.12, u * 0.98);   // corazón
-   dedo(-0.35 * u, 6.0 * u, -0.36, 2.55 * u, u * 1.1, u * 0.92, { pliegues: [0.48], nudillo: true });   // pulgar recogido junto al índice
-   dedo(0, by, 0, by, u, u * 0.84, { nudillo: true });   // índice extendido (punta en 0, 0)
-   if (pose === 'tocar') { ctx.strokeStyle = 'rgba(255,255,255,0.75)'; ctx.lineWidth = u * 0.08; const q = ((o.t ?? 0) * 1.5) % 1; ctx.globalAlpha *= 1 - q; ctx.beginPath(); ctx.arc(0, -u * 0.05, u * (0.5 + q * 1.2), 0, Math.PI * 2); ctx.stroke(); }
+   const ind = cap(0, by + 0.7 * u, 0, by + 0.7 * u, u, u * 0.84);
+   const dob = [[1.15, 0.12, 0.98], [2.15, 0.22, 0.92], [3.05, 0.32, 0.78]].map(([dx, a, w]) => cap(dx * u, by + 0.75 * u, a, 1.95 * u, w * u, w * 0.94 * u));
+   const pul = cap(-0.3 * u, 6.35 * u, -0.36, 2.95 * u, u * 1.12, u * 0.92);
+   const pa = palma(-0.6 * u, by - 0.1 * u, 3.45 * u, 8.3 * u), mu = muneca(-0.05 * u, 3.15 * u, 7.0 * u, 0.45 * u, 2.8 * u, 11.2 * u);
+   pieza([mu, pa, pul, ...dob, ind], [-1.6 * u, -0.2 * u, 3.8 * u, 11 * u], () => {
+    for (const f of dob) { brillo(f.tx, f.ty + u * 0.12, f.w1 * 0.3, f.w1 * 0.2, f.a, 0.26); }
+    pliegue(0.62 * u, by + 0.05 * u, 0.62 * u, by + 0.75 * u, 0.32); pliegue(1.66 * u, by + 0.15 * u, 1.7 * u, by + 0.95 * u, 0.32); pliegue(2.62 * u, by + 0.3 * u, 2.68 * u, by + 1.05 * u, 0.32);   // separación suave entre dedos doblados
+    for (const f of dob) { ctx.strokeStyle = 'rgba(90,45,20,0.4)'; ctx.lineWidth = u * 0.05; ctx.beginPath(); ctx.arc(f.tx - f.dx * u * 0.15, f.ty - f.dy * u * 0.15, f.w1 * 0.34, f.a + Math.PI * 0.18, f.a + Math.PI * 0.82); ctx.stroke(); }
+    arruga(ind, 0.33); arruga(ind, 0.55); una(ind); brillo(ind.bx, by + u * 0.35, u * 0.3, u * 0.2, 0, 0.18);
+    pliegue(-0.05 * u, 5.0 * u, 0.55 * u, 6.3 * u, 0.22, 0.06); arruga(pul, 0.55); una(pul);   // el pulgar se separa de la palma solo por un pliegue suave
+    for (let q = 0; q < 3; q++) pliegue((0.9 + q * 0.85) * u, by + 1.4 * u, (1.0 + q * 0.85) * u, 6.8 * u, 0.1, 0.07);   // tendones del dorso
+   });
+   if (pose === 'tocar') { const q = ((o.t ?? 0) * 1.5) % 1; ctx.strokeStyle = `rgba(255,255,255,${0.75 * (1 - q)})`; ctx.lineWidth = u * 0.08; ctx.beginPath(); ctx.arc(0, -u * 0.05, u * (0.5 + q * 1.2), 0, Math.PI * 2); ctx.stroke(); }
   } else if (pose === 'abierta') {
-   // (0, 0) = centro de la palma; dedos de largos naturales, ligeramente abiertos
-   const F = [[-1.55, -0.2, -1.05, 2.5, 1.12, 0.95, [0.5]], [-0.95, -1.6, -0.22, 3.4, 0.98, 0.84], [0.1, -1.85, -0.03, 3.8, 1.0, 0.86], [1.1, -1.7, 0.16, 3.5, 0.94, 0.8], [1.95, -1.25, 0.38, 2.75, 0.84, 0.72]];
-   const sil = () => { ctx.fillStyle = '#000'; for (const [bx, by, a, L, w0, w1] of F) { cap(bx * u, by * u, a, L * u, w0 * u, w1 * u); ctx.fill(); } ctx.beginPath(); ctx.roundRect(-1.7 * u, -1.9 * u, 4.1 * u, 4.3 * u, 1.4 * u); ctx.fill(); ctx.beginPath(); ctx.roundRect(-1.0 * u, 2.0 * u, 2.9 * u, 3.4 * u, 0.6 * u); ctx.fill(); };
-   sombra(sil);
-   muneca(-1.0 * u, 1.9 * u, 2.0 * u, 5.6 * u);
-   palma(-1.7 * u, -1.9 * u, 2.4 * u, 2.45 * u, 0.6);
-   for (const [bx, by, a, L, w0, w1, pl] of F) dedo(bx * u, by * u, a, L * u, w0 * u, w1 * u, { nudillo: true, pliegues: pl });
+   // (0, 0) = centro de la palma; dedos de largos naturales, algo abiertos; sus bases entran en la palma (sin costura)
+   const F = [[-1.45, 0.3, -1.05, 3.1, 1.12, 0.95], [-0.95, -0.9, -0.22, 4.1, 0.98, 0.84], [0.1, -1.15, -0.03, 4.5, 1.0, 0.86], [1.1, -1.0, 0.16, 4.2, 0.94, 0.8], [1.95, -0.6, 0.38, 3.4, 0.84, 0.72]].map(([bx, by, a, L, w0, w1]) => cap(bx * u, by * u, a, L * u, w0 * u, w1 * u));
+   const pa = palma(-1.7 * u, -1.9 * u, 2.4 * u, 2.6 * u), mu = muneca(-1.35 * u, 2.2 * u, 1.8 * u, -0.9 * u, 1.75 * u, 6.0 * u);
+   pieza([mu, pa, ...F], [-4.2 * u, -6.0 * u, 3.6 * u, 6 * u], () => { F.forEach((f, i) => { arruga(f, i ? 0.42 : 0.55); if (i) arruga(f, 0.66); una(f); brillo(f.bx + f.dx * u * 0.75, f.by + f.dy * u * 0.75, f.w0 * 0.28, f.w0 * 0.18, f.a, 0.2); });
+    for (let q = 0; q < 3; q++) pliegue((-0.75 + q * 1.0) * u, -1.35 * u, (-0.6 + q * 1.0) * u, -0.75 * u, 0.25);   // valles entre dedos
+    pliegue(-1.15 * u, -0.2 * u, -0.6 * u, 1.3 * u, 0.2, 0.06); for (let q = 0; q < 3; q++) pliegue((-0.6 + q * 0.95) * u, -0.4 * u, (-0.5 + q * 0.95) * u, 1.9 * u, 0.1, 0.07); });
   } else if (pose === 'sujetar') {
-   // (0, 0) = centro del objeto: palma detrás a la derecha, cuatro dedos que lo rodean por delante y el pulgar por arriba
-   const sil = () => { ctx.fillStyle = '#000'; ctx.beginPath(); ctx.roundRect(-0.2 * u, -2.3 * u, 3.9 * u, 4.6 * u, 1.4 * u); ctx.fill(); ctx.beginPath(); ctx.roundRect(1.4 * u, 1.6 * u, 2.9 * u, 3.6 * u, 0.6 * u); ctx.fill(); };
-   sombra(sil);
-   muneca(1.5 * u, 4.2 * u, 1.8 * u, 5.8 * u);
-   palma(-0.2 * u, -2.3 * u, 3.7 * u, 2.4 * u, 0.4);
+   // (0, 0) = centro del objeto (detrás de la mano); vemos el dorso: cuatro dedos curvados que lo rodean y el pulgar por encima
    if (o.objeto) o.objeto(ctx);
-   const G = [[-1.55, 2.3, 0.96], [-0.55, 2.6, 1.0], [0.42, 2.45, 0.96], [1.3, 2.0, 0.84]];   // [y, largo, ancho] de índice a meñique
-   for (const [yy, L, w] of G) dedo(3.05 * u, yy * u, -Math.PI / 2 - 0.04, (L + 1.1) * u, w * u, w * 0.9 * u, { una: false, pliegues: [0.42, 0.7], nudillo: true });
-   dedo(2.6 * u, -2.25 * u, -1.25, 2.6 * u, 1.1 * u, 0.94 * u, { pliegues: [0.5] });   // pulgar por encima, con uña
+   const G = [[-1.5, 2.4, 0.96], [-0.55, 2.7, 1.0], [0.4, 2.55, 0.96], [1.3, 2.1, 0.84]].map(([yy, L, w]) => cap(3.6 * u, yy * u, -Math.PI / 2 - 0.04, (L + 1.6) * u, w * u, w * 0.9 * u));
+   const pul = cap(3.0 * u, -2.0 * u, -1.25, 3.0 * u, 1.1 * u, 0.94 * u), pa = palma(1.4 * u, -2.3 * u, 4.6 * u, 2.4 * u), mu = muneca(1.6 * u, 4.5 * u, 1.6 * u, 2.1 * u, 4.2 * u, 6.2 * u);
+   pieza([mu, pa, ...G, pul], [-0.6 * u, -3.4 * u, 4.8 * u, 6 * u], () => { G.forEach((f, i) => { arruga(f, 0.45); arruga(f, 0.7); brillo(f.bx + f.dx * u * 0.7, f.by, f.w0 * 0.22, f.w0 * 0.3, 0, 0.22); if (i) pliegue(f.tx + u * 0.2, f.by - f.w0 * 0.47, f.tx + u * 2.2, f.by - f.w0 * 0.47, 0.28); });
+    arruga(pul, 0.5); una(pul); pliegue(2.4 * u, -1.6 * u, 3.3 * u, -1.8 * u, 0.25); });
   }
   ctx.restore(); };
  let HAND_RIM = null;

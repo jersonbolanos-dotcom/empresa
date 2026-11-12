@@ -924,14 +924,14 @@ Por defecto el sello va centrado en la zona segura (x = 480, ancho 760) para que
 
 ## v1.33 · Mano natural reutilizable (`P.mano`)
 
-`P.mano(ctx, x, y, s, { pose, ang, skin, izq, objeto, sombra, t })` — mano plana con volumen suave y proporciones reales. Úsala SIEMPRE que salga una mano (señalar, tocar una pantalla, sujetar un objeto, saludar); no dibujes manos a mano en los episodios.
+`P.mano(ctx, x, y, s, { pose, ang, skin, izq, objeto, sombra, t })` — mano plana con volumen suave y proporciones reales, dibujada como UNA sola silueta (un contorno, sin costuras; la muñeca se ensancha en curva hasta la palma; un solo degradado de piel). Úsala SIEMPRE que salga una mano (señalar, tocar una pantalla, sujetar un objeto, saludar); no dibujes manos a mano en los episodios.
 
 | Pose | Ancla (x, y) | Uso |
 |---|---|---|
 | `senalar` (por defecto) | punta del índice | señalar algo; los otros dedos doblados con nudillos y el pulgar recogido junto al índice |
 | `tocar` | punta del índice | tocar una pantalla o botón; pasa `t` para la onda de toque |
 | `abierta` | centro de la palma | mano abierta (saludar, «alto», mostrar) |
-| `sujetar` | centro del objeto | sujetar un cargador, un celular…: `objeto: (c) => { … }` dibuja el objeto entre la palma y los dedos, centrado en (0, 0) |
+| `sujetar` | centro del objeto | sujetar un cargador, un celular…: `objeto: (c) => { … }` dibuja el objeto DETRÁS de la mano (vemos el dorso), centrado en (0, 0) |
 
 `s` = ancho del índice (≈ 50-90 px; la mano mide ≈ 11 s de alto con la muñeca). `ang` = giro (0 = dedos hacia arriba; −0,45 = mano que entra desde abajo a la derecha). `izq: true` = mano izquierda. `skin` = tono base (por defecto `#e0a67f`; la luz y la sombra se calculan solas). `sombra: false` la quita. En el cierre: `P.ctaShare(…, { mano: true })`.
 
