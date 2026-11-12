@@ -48,9 +48,10 @@ def montar_variante(voz, al, out):
 def tramos_identicos_variante(voz, montada, al):
     """v1.29: md5 de las muestras de cada tramo de la variante frente al mismo tramo del original."""
     import hashlib
-    d = json.load(open(al)); sr, ch = info(voz); a = leer(voz, sr, ch); b = leer(montada, sr, ch); pz = _piezas(d['montaje'], sr); ok = 0
+    d = json.load(open(al)); sr, ch = info(voz); a = leer(voz, sr, ch); b = leer(montada, sr, ch); n = len(a); ok = 0
+    pz = [(p0, min(p1, n), o) for p0, p1, o in _piezas(d['montaje'], sr)]   # el final del archivo decodificado manda (redondeos en ms)
     for g in d['segments']:
-        i0, i1 = int(round(g['s0'] * sr)), int(round(g['e0'] * sr))
+        i0, i1 = int(round(g['s0'] * sr)), min(n, int(round(g['e0'] * sr)))
         p = next((p for p in pz if p[0] <= i0 and i1 <= p[1]), None)
         if p and hashlib.md5(a[i0:i1].tobytes()).hexdigest() == hashlib.md5(b[p[2] + i0 - p[0]:p[2] + i1 - p[0]].tobytes()).hexdigest():
             ok += 1

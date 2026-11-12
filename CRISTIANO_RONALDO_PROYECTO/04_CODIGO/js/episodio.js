@@ -184,7 +184,7 @@
    P.glow(ctx, 540, lerp(980, 660, lift), 520, '255,200,69', 0.22 * (1 - lift * 0.5));
    P.statBig(ctx, String(n), 540, lerp(980, 660, lift), t, 0, null, { px: lerp(300, 140, lift), sub: 'GOLES OFICIALES', col: GOLD });
    const fila = [[175, 1.3, '#6a7385'], [385, 1.35, '#6a7385'], [590, 0.62, '#3d7fd9'], [810, 1.3, '#6a7385']];
-   for (const [i, [fx, th, c]] of fila.entries()) { const e = R(Tk.g1 + i * 0.12, Tk.g1 + 0.4 + i * 0.12, t); if (e <= 0) continue; ctx.save(); ctx.globalAlpha *= e; if (th < 1) P.glow(ctx, fx, 1120, 260, '79,163,255', 0.35); jugador(ctx, fx, 1450 + (1 - e) * 80, th < 1 ? 520 : 560, t, { kid: true, thin: th, shirt: c, mood: th < 1 ? 'serio' : 'feliz', sock: th < 1 ? '#e8edf5' : '#aab3c2' }); ctx.restore(); }
+   for (const [i, [fx, th, c]] of fila.entries()) { const e = R(Tk.g1 + i * 0.12, Tk.g1 + 0.4 + i * 0.12, t); if (e <= 0) continue; ctx.save(); if (th < 1) P.glow(ctx, fx, 1120, 260, '79,163,255', 0.35); jugador(ctx, fx, 1450 + (1 - e) * 120, (th < 1 ? 520 : 560) * (0.85 + 0.15 * e), t, { kid: true, thin: th, shirt: c, mood: th < 1 ? 'serio' : 'feliz', sock: th < 1 ? '#e8edf5' : '#aab3c2' }); ctx.restore(); }
   } else {
    // monitor de latidos: la línea salta, se acelera y se convierte en la trayectoria de un balón que entra en la red
    P.fondo(ctx, t); const fase = (tau) => faseLin(tau, 1.2, 3.4, 0.2, Math.max(0.5, Tk.g0e)), kick = win(t, Tk.g1, Tk.g1e - 0.25);
@@ -328,8 +328,8 @@
   P.glow(ctx, 540, 1100, 560, '255,200,69', 0.12 + 0.3 * sm(Tk.marcando - 0.1, Tk.marcando + 0.4, t));
   if (t > Tk.marcando) { const q = win(t, Tk.marcando, Tk.marcando + 0.8); ctx.save(); ctx.strokeStyle = `rgba(255,220,120,${0.6 * (1 - q)})`; ctx.lineWidth = 10; ctx.beginPath(); ctx.ellipse(540, 1470, 120 + 520 * q, 30 + 120 * q, 0, 0, TAU); ctx.stroke(); ctx.restore(); }
   jugador(ctx, 540, 1470, 760, t, { num: '7', mood: t > Tk.marcando - 0.1 ? 'grita' : 'serio', pose: t > Tk.marcando - 0.7 ? 'siuu' : 'stand', u });
-  P.hud(ctx, t, [{ label: 'Edad', from: 15, to: 41, t0: Tk.anos41 - 0.3, t1: Tk.anos41 + 0.5, y: 700, valuePx: 100 }, { label: 'Goles oficiales', from: 0, to: 985, t0: Tk.van, t1: Tk.oficiales, x: 'right', hi: true, y: 700, valuePx: 100 }]);
- }, sfx(k) { FX.contador(k, Tk.anos41 - 0.3, Tk.anos41 + 0.5, 15, 41); k.play('whoosh', Tk.marcando - 0.7, { dur: 0.6, gain: 0.35, minor: true }); k.play('thud', Tk.marcando, { f: 80, gain: 0.55 }); k.noise(Tk.marcando, { dur: 2.2, color: 'pink', filter: 'lowpass', f: 1600, gain: 0.07, a: 0.15 }); FX.contador(k, Tk.van, Tk.oficiales, 0, 985); } });
+  P.hud(ctx, t, [{ label: 'Edad', from: 15, to: 41, t0: Tk.anos41 - 0.3, t1: Tk.anos41 + 0.5, y: 700, valuePx: 100, a: sm(Tk.anos41 - 0.5, Tk.anos41 - 0.3, t) }, { label: 'Goles oficiales', from: 900, to: 985, t0: Tk.van - 0.2, t1: Tk.oficiales, x: 'right', hi: true, y: 700, valuePx: 100, a: sm(Tk.van - 0.4, Tk.van - 0.2, t) }]);
+ }, sfx(k) { FX.contador(k, Tk.anos41 - 0.3, Tk.anos41 + 0.5, 15, 41); k.play('whoosh', Tk.marcando - 0.7, { dur: 0.6, gain: 0.35, minor: true }); k.play('thud', Tk.marcando, { f: 80, gain: 0.55 }); k.noise(Tk.marcando, { dur: 2.2, color: 'pink', filter: 'lowpass', f: 1600, gain: 0.07, a: 0.15 }); FX.contador(k, Tk.van - 0.2, Tk.oficiales, 900, 985); } });
 
  // ---------- 13 · El talento te pone en el campo · la alcancía te mantiene 20 años ----------
  B.push({ t0: B0.b22, t1: B0.b24, in: { type: 'fade', d: 0.3 }, draw(ctx, t) {
@@ -350,7 +350,7 @@
  const EP = PL.make({
   estilo: 'noche', marca: { nombre: 'ASOMBROTECA' }, align: A, duration: DURATION, beats: B,
   keywords: ['llorón…', 'goles…', 'corazón', 'perdía.', 'balón,', 'rabia.', 'Lisboa,', 'volvió.', 'pesas.', 'rápido.', 'Taquicardia.', 'láser', 'casa.', 'entrenar.', 'truco.', 'alcancía.', 'moneda:', 'sueño.', 'ciclos', 'marcando.', '985', 'campo.', 'alcancía', 'amigo'],
-  capIcons: { corazón: 'corazon', alcancía: 'moneda', sueño: 'luna' },
+  capIcons: { corazón: 'corazon', sueño: 'luna' },
   ambience(k) { k.noise(0, { dur: DURATION, color: 'pink', filter: 'lowpass', f: 500, gain: 0.006, a: 0.05, hold: DURATION - 2.2 }); },
   music(k) { MUS.epica(k, 0, DURATION, { bpm: 84, gain: 0.55, drums: 0.35, ostinato: 0.4, chords: [['A1', 'E2', 'A2', 'C3'], ['F1', 'C2', 'F2', 'A2'], ['C2', 'G2', 'C3', 'E3'], ['G1', 'D2', 'G2', 'B2']] }); },
  });

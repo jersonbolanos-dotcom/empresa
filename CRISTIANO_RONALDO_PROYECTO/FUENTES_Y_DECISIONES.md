@@ -1,10 +1,27 @@
 # Fuentes y decisiones · Le llamaban llorón: Cristiano Ronaldo
 
-## Datos verificados
-| Dato en el vídeo | Fuente (enlace) |
-|---|---|
-| … | … |
+Comprobado el 12 de noviembre de 2026. Regla v1.29: cada dato, en 2 fuentes; las cifras que cambian van fechadas.
 
-## Decisiones de representación
-- Escalas comprimidas → rótulo «DISTANCIAS ESQUEMÁTICAS» / «NO A ESCALA».
-- Recreaciones → rótulo «RECREACIÓN» / «ILUSTRATIVO».
+## Datos verificados
+
+| Dato en el vídeo | Fuente 1 | Fuente 2 |
+|---|---|---|
+| De niño lloraba si perdía o si no le pasaban el balón; le llamaban «llorón» | [Goal · «Cristiano Ronaldo, el documental: de bebé llorón a talento descomunal»](https://www.goal.com/es/noticias/cristiano-ronaldo-el-documental-de-bebe-lloron-a-talento-descomunal/9qqwne1ecwo71t6cpsfifr136) | [beIN Sports · Cristiano admite que de niño lo llamaban llorón](https://www.beinsports.com/es-us/football/articles-video/cristiano-ronaldo-admite-que-de-ni%C3%B1o-lo-llamaban-llora-por-su-car%C3%A1cter-competitivo-2025-01-31) · [Goal · «The little bee who always cried»](https://www.goal.com/en/news/the-little-bee-who-always-cried-the-story-of-young-ronaldos-path-/blt35da2b47b64c9fe4) |
+| A los 12 años se fue a vivir a Lisboa (Sporting, 1997), sin su familia, y lloró muchos días | [Goal · el ojeador: «He cried many days»](https://www.goal.com/en-us/news/ronaldo-cried-for-days-after-joining-sporting-reveals-the/blt8ebfd0d319862364) | [FIFA · «Growing up with Cristiano»](https://www.fifa.com/news/growing-up-with-cristiano-2756156-x1858) |
+| Era el más flaco; se escapaba al gimnasio a hacer pesas | [DN.pt · Carlos Bruno: «as fugas de Ronaldo para o ginásio»](https://www.dn.pt/edicao-do-dia/29-jan-2019/carlos-bruno-as-fugas-de-ronaldo-para-o-ginasio-e-o-exemplo-de-como-o-trabalho-fisico-compensa--10483435.html) | [Goal · «He was courageous… mentally indestructible»](https://www.goal.com/en/news/he-was-courageous-mentally-he-was-indestructible-why/blte6eb415b5974edd5) (el ojeador: ya de niño entrenaba con pesas) |
+| A los 15, taquicardia; operado con láser por la mañana, en casa por la tarde; a los pocos días volvía a entrenar | [Republic World](https://republicworld.com/sports/football/how-cristiano-ronaldo-heart-surgery-at-15-almost-derailed-his-career) (relato de su madre, Dolores Aveiro, al Daily Mail en 2009) | [Sportskeeda](https://www.sportskeeda.com/football/news-cristiano-ronaldo-s-heart-surgery-at-15-almost-derailed-his-career) · [The List](https://www.thelist.com/628692/the-truth-behind-cristiano-ronaldos-heart-condition) |
+| Duerme por ciclos de 90 minutos, unos cinco al día | [Worldcrunch · entrevista a Nick Littlehales, su entrenador del sueño](https://worldcrunch.com/culture-society/sleep-advice-sports-cristiano-nick-littlehales) | [Sky Sports · Littlehales](https://www.skysports.com/football/news/11096/11056726/meet-the-man-who-has-helped-cristiano-ronaldo-thierry-henry-and-sergio-aguero-sleep) |
+| 41 años (nació el 5-2-1985) | [Olympics.com · siete cosas sobre Cristiano](https://olympics.com/en/news/cristiano-ronaldo-seven-things-to-know-manchester-united-return) | [Al Jazeera, oct. 2026 (lo cita con 41 años)](https://www.aljazeera.com/sports/2026/10/10/ronaldo-returns-after-portugal-quarrel-and-back-in-the-goals-in-al-nassr-wi) |
+| **985 goles oficiales** (a 12-11-2026; el último, el triplete al Al Kholood del 29-10-2026) | Cuenta oficial de la Saudi Pro League, que le acredita el 2.º gol contra Al Faisaly del 23-10-2026: [Archyde · 984 o 985](https://www.archyde.com/cristiano-ronaldos-goal-count-disputed-at-984-or-985/) · [Yahoo Sports · gol en disputa](https://sports.yahoo.com/articles/cristiano-ronaldo-total-goals-disputed-231832659.html) | [World Soccer Talk · 985.º gol](https://worldsoccertalk.com/news/video-cristiano-ronaldo-scores-985th-career-goal-with-a-brace-for-al-nassr-vs-al-kholood/) · [Bolavip · 985](https://bolavip.com/en/soccer/cristiano-ronaldo-hits-985-career-goals-with-hat-trick-where-does-lionel-messi-stand-in-the-race-to-1000) · [cr7counter (10-11-2026)](https://www.cr7counter.com/) |
+| «Nadie ha marcado más» (goles oficiales) | [Yahoo Sports · ¿es el máximo goleador de la historia? Explicado](https://ca.sports.yahoo.com/news/cristiano-ronaldo-football-history-time-123000989.html) | [TBS News · primer hombre en llegar a 900 goles oficiales](https://www.tbsnews.net/sports/cristiano-ronaldo-becomes-first-man-score-900-career-goals-934761) |
+
+## Decisiones
+
+- **984 o 985.** Opta y Transfermarkt cuentan como autogol de Girotto el 2.º gol al Al Faisaly (23-10-2026) y dan 984. La Saudi Pro League, organizadora del partido, se lo acredita a Cristiano: 985. El vídeo usa la cifra oficial de la competición (985). Si alguien lo corrige en comentarios, esta es la explicación.
+- **«Nadie ha marcado más».** Es el récord de goles en partidos oficiales que recogen la prensa y Guinness. La base de datos RSSSF, que también cuenta partidos no oficiales, pone por delante a Josef Bican; por eso el cuerpo dice «goles oficiales».
+- **«Casi mil goles»** (gancho B): sigue siendo cierto aunque marque más; el contador de ese gancho muestra 985, la cifra a 12-11-2026.
+- **Sueño.** El anillo de 24 h muestra 5 ciclos de 90 min (4 seguidos de noche y 1 siesta) como **esquema** del método de Littlehales (rótulo «ESQUEMA»); no es el horario real de Cristiano. Littlehales aclaró que nunca lo despertó cada 90 minutos: los cinco ciclos son una pauta flexible.
+- **Sin cifras inventadas.** El calendario no muestra número de días («muchos días», «a los pocos días») y el monitor de latidos no muestra pulsaciones: no hay fuente para esos números.
+- **«La alcancía te mantiene veinte años».** Remate con cifra redonda: debutó con el primer equipo del Sporting en 2002, así que lleva más de veinte años en la élite.
+- **Personas reales.** Cristiano (adulto y niño) está dibujado con rasgos reconocibles (tupé, rizos de niño, el 7, la celebración «Siuuu»), sin copiar ninguna foto. Camiseta roja y verde genérica: sin escudos ni logos de clubes, de la federación ni de marcas. Mapa de Madeira y Lisboa esquemático.
+- **Voz.** ElevenLabs Eleven v4, voz Dan, UNA toma con los 3 ganchos (1.089 caracteres, 68,6 s). Pausas añadidas en posproducción sin tocar la voz: `[PAUSA 0.4]` antes de «Es una alcancía» y `[PAUSA 0.6]` antes de «Con 41 años» (la `[long pause]` dio solo 0,63 s).

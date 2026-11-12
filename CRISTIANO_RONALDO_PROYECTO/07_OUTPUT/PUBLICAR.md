@@ -1,33 +1,37 @@
 # Publicar · Le llamaban llorón: Cristiano Ronaldo
 
-> v1.29 · Reglas: el gancho va como **pregunta** y **NUNCA** se da la respuesta. Se pide **comentar** (una pregunta concreta),
-> nunca «dale like», «comparte si…» ni «sígueme» (Meta lo castiga). De **3 a 5 hashtags**. Sin enlaces en la descripción.
-> Primero, las 3 variantes como «Reel de prueba» en Instagram; a las 24 h, la que más retuvo en los primeros 3 s va al perfil y a las demás redes.
+> Primero: sube VARIANTE_A, VARIANTE_B y VARIANTE_C a Instagram como **«Reel de prueba»** (solo los ven no seguidores).
+> A las 24 h, la que más gente retuvo en los primeros 3 s se comparte al perfil y se sube a Facebook, YouTube y TikTok.
+> Portada: `portada.jpg`. Reglas: el gancho va como pregunta y nunca se da la respuesta; se pide comentar, nunca «dale like» ni «comparte si…».
 
-Variante elegida: [A | B | C] · Portada: `portada.jpg`
+| Variante | Gancho (primeros 2 s) |
+|---|---|
+| A | «Le llamaban llorón… y nadie ha marcado más.» |
+| B | «Casi mil goles… y era el más flaco del equipo.» |
+| C | «Lo operaron del corazón a los 15… y nadie ha marcado más.» |
 
 ## YouTube Shorts
-**Título** (≤ 70 caracteres, pregunta sin respuesta):
-[¿…?] #shorts
+**Título:**
+¿Cómo un niño al que llamaban «llorón» llegó a casi 1.000 goles? #shorts
 
 **Descripción:**
-[Gancho en una frase, sin desvelar la respuesta.]
-[Pregunta para comentar: «¿Tú qué…? Te leo en comentarios.»]
-#shorts #[tema] #[tema] #[tema]
+Era el más flaco, lloraba si perdía y a los 15 tuvo un problema en el corazón. ¿Qué hizo distinto?
+¿Cuál es el hábito que a ti más te cuesta mantener? Te leo en comentarios.
+#shorts #cristianoronaldo #cr7 #disciplina
 
 ## Facebook (Reels)
 **Texto:**
-[Gancho como pregunta, 1-2 frases.]
-[Pregunta para comentar.]
-#[tema] #[tema] #[tema]
+¿Cómo pasó de ser «el llorón» de Madeira a marcar más goles oficiales que nadie?
+La respuesta no es el talento. ¿Tú qué crees que fue? Cuéntamelo en comentarios.
+#cristianoronaldo #cr7 #disciplina
 
 ## Instagram (Reels)
-**Texto** (la primera línea es la que se ve: gancho como pregunta):
-[¿…?]
-[1 frase de contexto sin dar la respuesta.]
-[Pregunta para comentar.]
-#[tema] #[tema] #[tema] #[tema]
+**Texto:**
+¿Por qué al niño más flaco del equipo le llamaban «llorón»?
+Hoy tiene 985 goles oficiales, y su secreto cabe en algo que tienes en casa.
+¿Lo adivinas? Escríbelo en comentarios antes de verlo.
+#cristianoronaldo #cr7 #futbol #disciplina
 
 ## TikTok
-**Texto** (≤ 150 caracteres):
-[¿…?] [Pregunta para comentar.] #[tema] #[tema] #[tema]
+**Texto:**
+¿Cómo llegó el «llorón» de Madeira a casi 1.000 goles? ¿Tú qué hábito no sueltas? 👇 #cristianoronaldo #cr7 #disciplina
