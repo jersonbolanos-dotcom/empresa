@@ -975,5 +975,8 @@ El cierre (`P.ctaShare`, maqueta fija) no cuenta: se marca solo con `safeLog('ci
 
 Ejemplo: `P.encuadrar(ctx, [100, 600, 900, 1420], (c) => { mesa(c); telViejo(c, 240, 1110, 0.62, t); pila(c, 640, 1080, 380, 640, t); }, { capY: 330 });` — varios objetos pequeños se agrupan y se encuadran juntos, con su mesa (nada flota).
 
-### Mano «sujetar» (v1.34)
-Los cuatro dedos son tubos **curvados** (Bézier, mismo grosor y forma que en `senalar`/`tocar`/`abierta`, corazón el más largo): salen de la fila de nudillos, se arquean por delante del objeto y se doblan en su borde izquierdo para rodearlo (la punta queda detrás, más oscura); el pulgar va **por delante**, cruzado sobre los dedos, con su uña. Nueva opción `borde` = x relativa (px) del borde izquierdo del objeto, donde se doblan los dedos (por defecto −1,8 s). Las otras poses no cambian. Hoja: `catalogo/mano_v134.jpg`.
+### Mano (v1.34)
+- **`senalar` y `tocar`:** el pulgar va AL COSTADO de la mano (sale del borde de la palma, de lado y algo en sombra) y su punta queda tapada por el índice y el corazón doblado, como en una mano real; ya no cruza en diagonal por encima de los dedos.
+- **`abierta`:** sin cambios.
+- **`sujetar`:** rehecha vista desde la palma (el objeto entre el pulgar, delante, y los dedos, detrás, de los que solo asoman las puntas; muñeca en la misma dirección que la mano; `o.caja = [x0, y0, x1, y1]` del objeto). **NO se usa en los vídeos:** todavía no se ve natural. En las escenas con cargador se muestra solo el cargador y el cable, sin mano. Para «tocar» una pantalla o «señalar», las otras poses.
+- Hoja: `catalogo/mano_v134.jpg`.
