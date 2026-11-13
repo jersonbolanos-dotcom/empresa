@@ -347,7 +347,7 @@
   ctx.save(); ctx.translate(-120, 50); cocoLado(ctx, t, { ola: 50, patas: false }); ctx.restore();
   ctx.fillStyle = 'rgba(70,52,84,0.45)'; ctx.fillRect(-3000, 20, 6000, 2000);
   if (ig > 0) { ctx.save(); ctx.globalAlpha *= 0.6 * ig; ctx.translate(-120 + 16 * Math.sin(t * 2), 46); cocoLado(ctx, t, { antiguo: 1, ola: 50, patas: false }); ctx.restore(); } ondas(ctx, 400, 6, t, S(26), 3, 300); juncos(ctx, t, -1000, 120, 10, 700); juncos(ctx, t, 1100, 120, 10, 760, 7);
-  ctx.restore(); primerTermino(ctx, t, 1250); contador(ctx, t, S(26), Tk.igual - 0.6, 66, 0, { dur: 1.0, col: GR });
+  ctx.restore(); primerTermino(ctx, t, 1250); bandada(ctx, t, 600, 9); contador(ctx, t, S(26), Tk.igual - 0.6, 66, 0, { dur: 1.0, col: GR });
   P.tag(ctx, 'CASI IGUAL', 470, 520, t, Tk.igual - 0.4, S(27), { mono: true, col: GR, px: 62 });
  }, sfx(k) { k.play('whoosh', S(26), { dur: 1.0, top: 1800, gain: 0.35 }); FX.reloj(k, S(26), 8, 0.1, 0.6); FX.revelar(k, Tk.igual - 0.4); } });
 
