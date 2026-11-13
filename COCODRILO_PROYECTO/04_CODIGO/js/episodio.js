@@ -322,10 +322,10 @@
 
  // ---------- 11 · ¿Cómo sobrevivió? → PRIMER PLANO DE LOS OJOS asomando (parpadeo), la pausa larga ----------
  B.push({ t0: S(17), t1: S(18), in: { type: 'zoom', d: 0.4, x: 540, y: 960 }, draw(ctx, t) {
-  const cam = camK(t, [[S(17), 480, -40, 2.4], [S(18), 480, -40, 2.9]]); fondoPlano(ctx, '#2a1d4a', '#0d1420'); ctx.save(); vista(ctx, cam, [0, 0], 1000); cieloTarde(ctx, { sx: 760, sy: -200 }); orillaLejana(ctx, t); agua(ctx, t, { sx: 760 });
+  const cam = camK(t, [[S(17), 480, -40, 2.4], [S(18), 480, -40, 2.9]]); fondoPlano(ctx, '#2a1d4a', '#0d1420'); ctx.save(); vista(ctx, cam, [0, 0], 1000); cieloTarde(ctx, { sx: 760, sy: -200 }); agua(ctx, t, { sx: 760 });
   ctx.save(); ctx.beginPath(); ctx.rect(-3000, -3000, 6000, 3014); ctx.clip(); ctx.translate(0, 105); cocoLado(ctx, t, { ola: 10, patas: false, parpado: (t > S(17) + 0.9 && t < S(17) + 1.05) ? 1 : 0 }); ctx.restore(); ctx.fillStyle = 'rgba(70,52,84,0.35)'; ctx.fillRect(-3000, 14, 6000, 2000); ondas(ctx, 480, 6, t, S(17), 3, 200);
-  const q = sm(S(17) + 0.2, S(17) + 0.5, t); if (q > 0) { ctx.save(); ctx.globalAlpha *= q; txt(ctx, '?', 560, -260, 120 * E.out(q), YE, { w: 900, f: 'Fredoka' }); ctx.restore(); }
-  ctx.restore();
+  const q = sm(S(17) + 0.2, S(17) + 0.5, t) * (1 - sm(S(18) - 0.45, S(18) - 0.15, t)); if (q > 0) { ctx.save(); ctx.globalAlpha *= q; txt(ctx, '?', 560, -260, 120 * E.out(q), YE, { w: 900, f: 'Fredoka' }); ctx.restore(); }
+  ctx.restore(); primerTermino(ctx, t, 1250, 0.8); bandada(ctx, t, 560, 9);
  }, sfx(k) { FX.aparece(k, S(17) + 0.2, 480); k.noise(S(17), { dur: S(18) - S(17), color: 'pink', filter: 'lowpass', f: 600, gain: 0.04, a: 0.2 }); } });
 
  // ---------- 12 · primero, la sangre fría: el sol lo calienta, así que come mucho menos → tomando el sol en la orilla ----------
@@ -367,7 +367,7 @@
   if (com > 0) { [['pez', -560, 260], ['cangrejo', -200, 480], ['ave', -160, -520], ['manzana', -560, -320]].forEach(([n, dx, dy], i) => { const u = cl((t - (Tk.todo - 0.9) - i * 0.6) / 0.85); if (u <= 0 || u >= 1) return; const e = E.inOut(u); ctx.save(); ctx.globalAlpha *= u < 0.85 ? 1 : (1 - u) / 0.15; comida(ctx, n, boc[0] + dx * (1 - e), boc[1] + dy * (1 - e), 2.7 * (1 - 0.4 * e), t); ctx.restore(); }); }
   ctx.restore();
   bandada(ctx, t, 540, 8);
-  if (sob > 0) { ctx.save(); ctx.globalAlpha = sob; ctx.fillStyle = 'rgba(8,10,16,0.72)'; ctx.beginPath(); ctx.roundRect(150, 1170, 720, 230, 36); ctx.fill(); ctx.font = '800 50px Fredoka'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillStyle = GR; ctx.fillText('AGUA + TIERRA', 510, 1235); ctx.fillStyle = '#fff'; ctx.fillText('= SOBREVIVIERON', 510, 1325); ctx.restore(); if (P.safeLog) P.safeLog('cifra', 150, 1170, 870, 1400); }
+  // (v2: sin recuadro de texto; la voz lo dice)
   P.tag(ctx, 'AGUA Y TIERRA', 470, 520, t, Tk.aguaT - 0.3, Tk.todo - 0.6, { mono: true, col: CY, px: 60 });
   P.tag(ctx, 'COME DE TODO', 470, 520, t, Tk.todo - 0.6, S(24), { mono: true, col: YE, px: 60 });
  }, sfx(k) { FX.chapuzon(k, Tk.aguaT, 0.8); FX.etiqueta(k, Tk.aguaT - 0.3); k.noise(Tk.tierra, { dur: 1, color: 'brown', filter: 'bandpass', f: 400, q: 1, gain: 0.08, a: 0.2 }); FX.etiqueta(k, Tk.todo - 0.6); for (let i = 0; i < 4; i++) k.play('pop', Tk.todo - 0.3 + i * 0.12, { f: 500 + i * 120, gain: 0.25, minor: true }); FX.correcto(k, Tk.sobrevivieron); } });

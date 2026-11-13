@@ -24,6 +24,7 @@ Vídeo único, gancho A · plantilla v1.39 · consultado el 13-11-2026. Dos fuen
 | Su cuerpo ya funcionaba («como una cuchara») | [BRISTOL]: «arrived at a body plan that was very efficient and versatile enough that they didn't need to change it» | [PBS-NATURE]: «their body plan has changed little since» |
 
 ## Decisiones
+- **V2** (la versión anterior está en `V1/`; la voz no se tocó): ataque de frente con zoom hasta ~90 % del ancho; final de frente con el contorno brillante de la cabeza antigua encima; cocodrilo completo en «sí ha evolucionado»; «come de todo» más cerca; «ANTES / HOY» más grande; sin recuadro «AGUA + TIERRA»; transición a «sangre fría» limpia. El contorno «antiguo» es ilustrativo (cabeza algo más estrecha y hocico más corto), no una especie concreta.
 - **Matiz «casi»**: nunca se dice que no haya cambiado nada; el plano «MUY DESPACIO» y la barra «CAMBIO» lo muestran, y los contornos de antiguo y actual «encajan casi».
 - **«Y su arma ya estaba lista»** (frase elegida por el usuario): la medida de la mordida es de cocodrilos ACTUALES ([PLOS]); en el vídeo se ilustra con el cocodrilo de hoy.
 - **Cifras habladas**: solo «doscientos millones» y «sesenta y seis millones» de años, en letras. La fuerza de la mordida, sin número (las fuentes dan 16.414 N y 16.460 N).

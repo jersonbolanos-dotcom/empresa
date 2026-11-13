@@ -7,7 +7,7 @@
 | Decodificación completa | 0 errores | ✔ |
 | Negros > 0,3 s / congelados > 1,5 s | 0 / 0 | ✔ |
 | Silencios > 1 s (−50 dB) | 0 | ✔ |
-| Sonoridad | -14.0 LUFS · pico -2.0 dBTP | ✔ |
+| Sonoridad | -14.0 LUFS · pico -1.1 dBTP | ✔ |
 | Voz intacta (md5 por tramo) | original igual · 26/26 tramos idénticos en la voz montada | ✔ |
 | Determinismo | OK | ✔ |
 | Duración (objetivo 45-70 s) | 66.5 s | ✔ |
