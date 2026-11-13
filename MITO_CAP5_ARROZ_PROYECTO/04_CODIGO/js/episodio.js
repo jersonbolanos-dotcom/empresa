@@ -15,7 +15,7 @@
   arroz0: wt(0, 'arroz'), danarlo: wt(1, 'dañarlo.'), mito0: S(3), botella: wt(4, 'botella'), dentro: wt(4, 'dentro.'), logica: wt(5, 'lógica:'), absorbe: wt(6, 'absorbe'),
   fuera: wt(7, 'fuera…'), agua: wt(8, 'agua'), quedarse: wt(8, 'quedarse'), peor: wt(9, 'peor:'), polvo: wt(10, 'polvo'), puerto: wt(10, 'puerto'), tapon: wt(10, 'tapón'), cuello: wt(10, 'cuello'),
   apple: wt(11, 'Apple'), arroz11: wt(11, 'arroz.'), veredicto: S(12), mito: wt(13, 'mito.'), recomiendan: wt(14, 'recomiendan'), apagalo: S(15), cargues: wt(16, 'cargues'),
-  pano: wt(16, 'paño…'), seco: wt(17, 'seco'), ventilado: wt(17, 'ventilado,'), secador: wt(17, 'secador.'), treinta: wt(18, '30'), cargarlo: wt(18, 'cargarlo…'),
+  secalo: wt(16, 'sécalo'), pano: wt(16, 'paño…'), seco: wt(17, 'seco'), ventilado: wt(17, 'ventilado,'), secador: wt(17, 'secador.'), treinta: wt(18, '30'), cargarlo: wt(18, 'cargarlo…'),
   hasta: wt(19, 'hasta'), h24: wt(19, '24'), todo: wt(19, 'todo.'), envia: S(20),
  };
  const tV = Tk.mito - 0.05;
@@ -177,7 +177,7 @@
 
  // ---------- 9 · lo que sí recomiendan: apágalo, no lo cargues mojado, sécalo con un paño… lugar seco y ventilado, sin secador ----------
  B.push({ t0: S(14), t1: S(18), in: { type: 'slide', d: 0.35 }, draw(ctx, t) {
-  fondo(ctx, t); const off = sm(Tk.apagalo - 0.1, Tk.apagalo + 0.2, t), nc = sm(Tk.cargues - 0.2, Tk.cargues + 0.2, t), pn = win(t, Tk.pano - 0.9, Tk.pano + 0.4), ve = sm(Tk.ventilado - 0.4, Tk.ventilado, t), sd = sm(Tk.secador - 0.3, Tk.secador, t);
+  fondo(ctx, t); const off = sm(Tk.apagalo - 0.1, Tk.apagalo + 0.2, t), nc = sm(Tk.cargues - 0.2, Tk.cargues + 0.2, t), pn = win(t, Tk.secalo - 0.1, Tk.pano + 0.4), ve = sm(Tk.ventilado - 0.4, Tk.ventilado, t), sd = sm(Tk.secador - 0.3, Tk.secador, t);
   const seco = cl(pn * 1.2);
   const r = ENC(ctx, [0, 400, 1010, 1440], (g) => { losa(g, 0, 1010, 1410);
    celular(g, 300, 1410 - 410 - 14, 400, t, { bat: 0.5, pantalla: off > 0.5 ? '#000' : '#0b1622', dibuja: (c, sw, sh) => { if (off < 1) { c.save(); c.globalAlpha *= 1 - off; bateria(c, 0, -60, 200, 92, 0.5, { col: GR }); c.restore(); } if (off > 0) { c.save(); c.globalAlpha *= off * (1 - ve * 0.7); power(c, 0, 0, 70, '#8f9bb0'); c.restore(); } gotas(c, -sw * 0.42, -sh * 0.42, sw * 0.84, sh * 0.84, 10, 41, 1 - seco, t); } });
@@ -188,8 +188,8 @@
    g.save(); g.globalAlpha *= 0.35 + 0.65 * sd; secador(g, 800, 1150, 1.0); if (sd > 0) P.icon(g, 'cruz', 820, 1150, 170 * E.out(sd), { mode: 'flat', col: RD, col2: '#fff' }); g.restore(); });
   // la mano pasa el paño
   if (pn > 0 && pn < 1) { const [hx, hy] = r.map(300 + Math.sin(pn * Math.PI * 4) * 90, 880 + pn * 200); P.manoImg(ctx, 'palma_abajo', hx + 40, hy - 10, 330 * r.k, { ancla: 'centro' }); }
-  P.tag(ctx, 'APÁGALO', 330, 520, t, Tk.apagalo - 0.1, Tk.cargues - 0.2, { mono: true, col: GR, px: 56 }); P.tag(ctx, 'NO LO CARGUES', 330, 520, t, Tk.cargues - 0.2, Tk.pano - 0.6, { mono: true, col: RD, px: 56 });
-  P.tag(ctx, 'SÉCALO POR FUERA', 330, 520, t, Tk.pano - 0.6, Tk.seco - 0.2, { mono: true, col: CY, px: 56 }); P.tag(ctx, 'SECO Y VENTILADO', 330, 520, t, Tk.seco - 0.2, S(18), { mono: true, col: GR, px: 56 });
+  P.tag(ctx, 'APÁGALO', 330, 520, t, Tk.apagalo - 0.1, Tk.cargues - 0.2, { mono: true, col: GR, px: 56 }); P.tag(ctx, 'NO LO CARGUES', 330, 520, t, Tk.cargues - 0.2, Tk.secalo - 0.1, { mono: true, col: RD, px: 56 });
+  P.tag(ctx, 'SÉCALO POR FUERA', 330, 520, t, Tk.secalo - 0.1, Tk.seco - 0.2, { mono: true, col: CY, px: 56 }); P.tag(ctx, 'SECO Y VENTILADO', 330, 520, t, Tk.seco - 0.2, S(18), { mono: true, col: GR, px: 56 });
  }, sfx(k) { k.play('click', Tk.apagalo, { gain: 0.4 }); k.play('error', Tk.cargues, { f: 'E3', gain: 0.2, minor: true }); for (let i = 0; i < 4; i++) k.play('swish', Tk.pano - 0.9 + i * 0.3, { gain: 0.25 }); k.play('whoosh', Tk.ventilado - 0.3, { dur: 0.8, gain: 0.2 }); k.play('error', Tk.secador, { f: 'C3', gain: 0.25 }); } });
 
  // ---------- 10 · Apple: al menos 30 minutos antes de cargarlo… hasta 24 horas en secarse del todo ----------
