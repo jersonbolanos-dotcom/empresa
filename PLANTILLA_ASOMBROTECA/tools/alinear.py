@@ -42,7 +42,11 @@ if TRAMOS:
     # v1.29: «[GANCHO A|B|C] texto» marca los tramos de cada gancho grabado en la MISMA toma; van todos antes del cuerpo.
     # Un gancho puede ocupar varias líneas seguidas con la misma letra. Sin ganchos, todo funciona como en la v1.28.
     GANCHO_OK = re.compile(r'^\s*\[\s*gancho\s+([abc])\s*\]\s*(.*)$', re.I)
-    SEGS, PAUSAS_POST, GANCHOS = [], [], {}
+    # v1.39: «[QUITAR] texto» marca un tramo del cuerpo que se grabó pero NO va al vídeo (p. ej. para acortar sin regenerar la voz).
+    # Se alinea igual (para no descuadrar los demás) y el montaje lo salta: se corta desde su inicio hasta el inicio del tramo
+    # siguiente (el silencio previo se conserva). Los demás tramos se copian tal cual (voz intacta). Requiere un [GANCHO X].
+    QUITAR_OK = re.compile(r'^\s*\[\s*quitar\s*\]\s*(.*)$', re.I)
+    SEGS, PAUSAS_POST, GANCHOS, QUITAR = [], [], {}, set()
     _cuerpo, _ultima = False, None
     for n, l in enumerate(open(TRAMOS, encoding='utf-8'), 1):
         if not l.strip() or l.startswith('#'):
@@ -59,6 +63,12 @@ if TRAMOS:
             GANCHOS.setdefault(letra, []).append(len(SEGS)); SEGS.append(t); _ultima = letra; continue
         if re.search(r'\[\s*gancho\b', l, re.I):
             sys.exit(f'ERROR tramos.txt línea {n}: «{l.strip()}» — escribe [GANCHO A], [GANCHO B] o [GANCHO C] al principio de la línea, seguido del texto')
+        q = QUITAR_OK.match(l)
+        if q:
+            t = _tag(q.group(1))
+            if not t:
+                sys.exit(f'ERROR tramos.txt línea {n}: [QUITAR] sin texto')
+            QUITAR.add(len(SEGS)); SEGS.append(t); _cuerpo = True; continue
         m = PAUSA_OK.match(l)
         if m and GANCHOS and not _cuerpo:
             sys.exit(f'ERROR tramos.txt línea {n}: no se puede poner [PAUSA] entre los ganchos ni justo antes del cuerpo')
@@ -76,6 +86,10 @@ if TRAMOS:
             SEGS.append(t); _cuerpo = True
     if GANCHOS and not _cuerpo:
         sys.exit('ERROR tramos.txt: hay [GANCHO …] pero falta el cuerpo del guion')
+    if QUITAR and not GANCHOS:
+        sys.exit('ERROR tramos.txt: [QUITAR] necesita el gancho marcado ([GANCHO X]); el montaje sin tramos se hace por variante')
+    if QUITAR and max(QUITAR) == len(SEGS) - 1:
+        sys.exit('ERROR tramos.txt: no se puede [QUITAR] el último tramo')
     if PAUSAS_POST and PAUSAS_POST[-1][0] >= len(SEGS) - 1:
         sys.exit('ERROR tramos.txt: una [PAUSA] no puede ir después del último tramo de voz')
 
@@ -195,6 +209,14 @@ if GN:
     for L in sorted(GN):
         idx = GN[L]; h0 = round(max(0.0, speech[idx[0]][0] - 0.05), 3); h1 = round(speech[idx[-1]][1] + cola(idx[-1]), 3)
         trozos = [[h0, h1], [c0, round(DUR, 6)]] if h1 < c0 - 1e-6 else [[h0, round(DUR, 6)]]
+        QT = globals().get('QUITAR', set())
+        for k in sorted(QT):   # v1.39: se salta [inicio del tramo k, inicio del tramo k+1)
+            q0, q1 = round(speech[k][0] - 0.02, 3), round(speech[k + 1][0] - 0.05, 3); nt = []   # deja entrar el ataque del tramo siguiente
+            for de, a in trozos:
+                if a <= q0 or de >= q1: nt.append([de, a]); continue
+                if de < q0: nt.append([de, q0])
+                if a > q1: nt.append([q1, a])
+            trozos = nt
         # montaje en el tiempo original: copiar [de, a] tal cual o insertar silencio exacto (pausas de posproducción del cuerpo)
         montaje = []
         for de, a in trozos:
@@ -213,7 +235,7 @@ if GN:
                 off += m["a"] - m["de"]
             return round(off, 3)
         total = sum(m.get("silencio", 0) + (m["a"] - m["de"] if "de" in m else 0) for m in montaje)
-        keep = idx + list(range(cuerpo, len(SEGS))); nuevo = {o: n for n, o in enumerate(keep)}
+        keep = idx + [i for i in range(cuerpo, len(SEGS)) if i not in QT]; nuevo = {o: n for n, o in enumerate(keep)}
         vw = []
         for r in ORIG_WORDS:
             if r["seg"] in nuevo:
