@@ -191,8 +191,10 @@
  // ---------- 7 · por eso un descapotable no sirve, ni con la capota puesta: es un paraguas sin tela ----------
  B.push({ t0: S(16), t1: S(18), in: { type: 'slide', d: 0.35 }, draw(ctx, t) {
   const fl = rel(t, [Tk.capota]); cielo(ctx, t, fl * 0.7); lluvia(ctx, t, 1, fl); const no = sm(Tk.capota - 0.2, Tk.capota + 0.2, t), ins = sm(Tk.sinTela - 0.9, Tk.sinTela - 0.5, t);
-  const r = ENC(ctx, CAJA, (g) => { carretera(g, t, 0.6); nubes(g, t, fl); carro(g, t, { fl, lona: true, gira: 0.6 }); if (ins > 0) { g.save(); g.globalAlpha *= ins; paraguas(g, 330, -330, 0.6, t, { tela: 0 }); g.restore(); } });
-  if (no > 0) { const [x, y] = r.map(0, -330); P.icon(ctx, 'cruz', x, y, 260 * E.out(no), { mode: 'flat', col: RD, col2: '#fff' }); }
+  ctx.save(); ctx.globalAlpha *= 1 - ins; const r = ENC(ctx, CAJA, (g) => { carretera(g, t, 0.6); nubes(g, t, fl); carro(g, t, { fl, lona: true, gira: 0.6 }); });
+  if (no > 0) { const [x, y] = r.map(0, -330); P.icon(ctx, 'cruz', x, y, 260 * E.out(no), { mode: 'flat', col: RD, col2: '#fff' }); } ctx.restore();
+  if (ins > 0) { ctx.save(); ctx.globalAlpha *= ins; ENC(ctx, [-420, -1200, 470, 60], (g) => { g.fillStyle = '#1c2230'; g.fillRect(-1200, 0, 2400, 700); g.fillStyle = 'rgba(143,216,255,0.25)'; g.fillRect(-1200, 0, 2400, 4); persona(g, -20, 0, 1, t); paraguas(g, 92, -478, 1, t, { tela: 0 });
+   const R2 = H.rng(61); g.fillStyle = 'rgba(170,215,255,0.9)'; for (let i = 0; i < 26; i++) { const px = -300 + R2() * 700, py = -1000 + ((R2() * 1000 + t * 900) % 1000); g.beginPath(); g.ellipse(px, py, 9, 15, 0, 0, TAU); g.fill(); } }, { ancho: 0.98, alto: 0.98 }); ctx.restore(); }
   P.tag(ctx, 'DESCAPOTABLE', 470, 520, t, Tk.descapotable - 0.2, Tk.sinTela - 0.9, { mono: true, col: RD, px: 60 });
   P.tag(ctx, 'PARAGUAS SIN TELA', 470, 520, t, Tk.sinTela - 0.8, S(18), { mono: true, col: RD, px: 56 });
  }, sfx(k) { FX.etiqueta(k, Tk.descapotable - 0.2); trueno(k, Tk.capota, 0.6); k.play('error', Tk.capota + 0.1, { f: 'D3', gain: 0.3 }); FX.etiqueta(k, Tk.sinTela - 0.8); } });
