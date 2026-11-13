@@ -17,18 +17,21 @@
   descapotable: wt(16, 'descapotable'), capota: wt(16, 'capota'), sinTela: wt(17, 'tela.'), danado: wt(19, 'dañado:'), electronica: wt(20, 'electrónica,'), llanta: wt(20, 'llanta'), vidrio: wt(20, 'vidrio'),
   hacer: wt(21, 'hacer?'), quedate: wt(22, 'Quédate'), sube: wt(23, 'Sube'), toques: wt(24, 'toques'), celular: wt(24, 'celular'), envia: S(25),
  };
- const T_CERCA = 0.7, T_TECHO = 1.85;   // peligro en < 2 s: un rayo cae cerca a 0,7 s y otro en el techo a 1,85 s
+ const T_CERCA = 0.7, T_TECHO = 1.85;
+ // TOPE: y (pantalla) bajo los subtítulos y la pregunta; el rayo y los destellos no entran por encima, para que el texto se lea entero.
+ // En la portada (sin textos) es 0 y el rayo se ve entero.
+ let TOPE = 440; const tope = (y) => { TOPE = (typeof window !== 'undefined' && window.__SIN_SUBTITULOS) ? 0 : y; };   // peligro en < 2 s: un rayo cae cerca a 0,7 s y otro en el techo a 1,85 s
 
  // ---------- cielo de tormenta, lluvia y relámpagos ----------
  const rel = (t, golpes) => { let f = 0; for (const g of golpes) { const d = t - g; if (d >= 0 && d < 1.2) f = Math.max(f, Math.exp(-d * 7) * (d < 0.12 ? (Math.sin(d * 140) > 0 ? 1 : 0.55) : 1)); } return f; };
- const cielo = (ctx, t, fl = 0) => { const g = ctx.createLinearGradient(0, 0, 0, HH); g.addColorStop(0, H.rgba(H.mix('#05070f', '#3a4c78', fl))); g.addColorStop(0.55, H.rgba(H.mix('#0d1530', '#55689a', fl))); g.addColorStop(1, '#070a14'); ctx.fillStyle = g; ctx.fillRect(0, 0, W, HH);
+ const cielo = (ctx, t, fl = 0) => { const g = ctx.createLinearGradient(0, 0, 0, HH); g.addColorStop(0, H.rgba(H.mix('#05070f', '#3a4c78', TOPE > 0 ? 0.15 * fl : fl))); g.addColorStop(0.55, H.rgba(H.mix('#0d1530', '#55689a', fl))); g.addColorStop(1, '#070a14'); ctx.fillStyle = g; ctx.fillRect(0, 0, W, HH);
   const R = H.rng(31); for (let i = 0; i < 9; i++) { const x = ((R() * 1500 + t * (8 + R() * 10)) % 1500) - 210, y = 230 + R() * 420, r = 160 + R() * 160; ctx.fillStyle = `rgba(${Math.round(20 + 90 * fl)},${Math.round(26 + 100 * fl)},${Math.round(48 + 120 * fl)},0.75)`; ctx.beginPath(); ctx.ellipse(x, y, r * 1.5, r * 0.55, 0, 0, TAU); ctx.fill(); } };
  const lluvia = (ctx, t, a = 1, fl = 0) => { const R = H.rng(77); ctx.save(); ctx.strokeStyle = `rgba(${Math.round(150 + 100 * fl)},${Math.round(180 + 70 * fl)},255,${0.35 * a})`; ctx.lineWidth = 2.5; ctx.beginPath();
   for (let i = 0; i < 150; i++) { const x0 = R() * 1400 - 100, y0 = R() * 2000, sp = 1500 + R() * 700, l = 34 + R() * 34, y = ((y0 + t * sp) % 2050) - 60, x = x0 - y * 0.18; ctx.moveTo(x, y); ctx.lineTo(x - l * 0.18, y + l); } ctx.stroke(); ctx.restore(); };
- const destello = (ctx, fl) => { if (fl > 0) { ctx.fillStyle = `rgba(220,235,255,${0.5 * fl})`; ctx.fillRect(0, 0, W, HH); } };
+ const destello = (ctx, fl) => { if (fl > 0) { const g = ctx.createLinearGradient(0, Math.max(0, TOPE - 60), 0, TOPE + 160); g.addColorStop(0, 'rgba(220,235,255,0)'); g.addColorStop(1, `rgba(220,235,255,${0.5 * fl})`); ctx.fillStyle = TOPE > 0 ? g : `rgba(220,235,255,${0.5 * fl})`; ctx.fillRect(0, 0, W, HH); } };
  // rayo zigzag con ramas (determinista)
  const rayoPts = (seed, x0, y0, x1, y1, n = 14, amp = 90) => { const R = H.rng(seed), pts = [[x0, y0]]; for (let k = 1; k < n; k++) { const u = k / n; pts.push([lerp(x0, x1, u) + (R() - 0.5) * amp * (1 - u * 0.6), lerp(y0, y1, u) + (R() - 0.5) * 20]); } pts.push([x1, y1]); return pts; };
- const rayo = (c, seed, x0, y0, x1, y1, a, w = 10) => { if (a <= 0) return; const pts = rayoPts(seed, x0, y0, x1, y1), R = H.rng(seed + 5); c.save(); c.globalAlpha *= a; c.lineJoin = 'round'; c.lineCap = 'round';
+ const rayo = (c, seed, x0, y0, x1, y1, a, w = 10) => { if (a <= 0) return; const pts = rayoPts(seed, x0, y0, x1, y1), R = H.rng(seed + 5); c.save(); if (TOPE > 0) { const m = c.getTransform(); c.setTransform(1, 0, 0, 1, 0, 0); c.beginPath(); c.rect(0, TOPE, W, HH); c.clip(); c.setTransform(m); } c.globalAlpha *= a; c.lineJoin = 'round'; c.lineCap = 'round';
   const tr = (P0, lw, col, blur) => { c.shadowColor = '#9fd0ff'; c.shadowBlur = blur; c.strokeStyle = col; c.lineWidth = lw; c.beginPath(); P0.forEach(([x, y], i) => i ? c.lineTo(x, y) : c.moveTo(x, y)); c.stroke(); };
   const ramas = []; for (let b = 0; b < 3; b++) { const i = 3 + Math.floor(R() * (pts.length - 6)), [bx, by] = pts[i], d = (R() > 0.5 ? 1 : -1); ramas.push(rayoPts(seed + 11 + b, bx, by, bx + d * (120 + R() * 140), by + 160 + R() * 160, 6, 50)); }
   for (const r of ramas) tr(r, w * 0.9, 'rgba(170,210,255,0.8)', 20); tr(pts, w * 2.6, 'rgba(160,205,255,0.55)', 50); tr(pts, w, '#ffffff', 25); c.restore(); };
@@ -122,8 +125,9 @@
  const B = [];
  // ---------- 1 · GANCHO A: vas en el carro de noche… y un rayo cae justo encima ----------
  B.push({ t0: 0, t1: S(2), in: { type: 'cut' }, draw(ctx, t) {
+  tope(440);
   const fl = rel(t, [T_CERCA, T_TECHO]); cielo(ctx, t, fl); lluvia(ctx, t, 1, fl);
-  const qB = P.pregunta(ctx, '¿QUÉ PASA SI TE CAE UN RAYO / DENTRO DEL CARRO?', t, 0, S(2) - 0.15, { capY: 330, px: 60, clave: 'RAYO', x: 540, dy: 110 });
+  const qB = P.pregunta(ctx, '¿QUÉ PASA SI TE CAE UN RAYO / DENTRO DEL CARRO?', t, 0, S(2) - 0.15, { capY: 330, px: 60, clave: 'RAYO', x: 540, dy: 110 }); tope(qB + 14);
   const pz = 1 + 0.07 * E.inOut(win(t, 0, S(2))), sh = t > T_TECHO && t < T_TECHO + 0.5 ? Math.sin(t * 90) * 10 * (1 - (t - T_TECHO) / 0.5) : 0, cp = sm(T_TECHO, T_TECHO + 1.2, t);
   ENC(ctx, CAJA, (g) => { g.translate(sh, 0); g.translate(0, -200); g.scale(pz, pz); g.translate(0, 200); carretera(g, t, 1); nubes(g, t, fl);
    rayo(g, 3, 250, -1000, 440, 0, 1 - sm(T_CERCA + 0.15, T_CERCA + 0.45, t) * (t > T_CERCA ? 1 : 0) - (t < T_CERCA ? 1 : 0), 9);   // cae cerca, delante
@@ -136,6 +140,7 @@
 
  // ---------- 2 · ¿Qué te pasa? Lo que ocurre te va a sorprender ----------
  B.push({ t0: S(2), t1: S(4), in: { type: 'cut' }, draw(ctx, t) {
+  tope(440);
   const fl = rel(t, [Tk.sorprender]) * 0.8; cielo(ctx, t, fl); lluvia(ctx, t, 1, fl);
   const pz = 1.25 + 0.1 * E.inOut(win(t, S(2), S(4))), q = sm(S(2) + 0.1, S(2) + 0.4, t);
   ENC(ctx, CAJA, (g) => { g.translate(0, -300); g.scale(pz, pz); g.translate(0, 300); carretera(g, t, 0.6); carro(g, t, { fl, corriente: 1, gira: 0.6 });
@@ -145,6 +150,7 @@
 
  // ---------- 3 · piensa en un paraguas bajo la lluvia: no te protege el mango… te protege la tela; el agua resbala y cae al suelo ----------
  B.push({ t0: S(4), t1: S(8), in: { type: 'fade', d: 0.35 }, draw(ctx, t) {
+  tope(440);
   cielo(ctx, t, 0); lluvia(ctx, t, 1, 0);
   const mg = win(t, Tk.mango - 0.3, S(6)) > 0 && t < S(6) ? 1 : 0, ok = t >= Tk.tela - 0.2, ag = sm(Tk.agua - 0.4, Tk.agua, t) + (t < Tk.agua - 0.4 ? 0.5 : 0);
   const r = ENC(ctx, [-420, -1200, 470, 60], (g) => { g.fillStyle = '#1c2230'; g.fillRect(-1200, 0, 2400, 700); g.fillStyle = 'rgba(143,216,255,0.25)'; g.fillRect(-1200, 0, 2400, 4);
@@ -157,6 +163,7 @@
 
  // ---------- 4 · tu carro hace lo mismo con el rayo: la corriente corre por la carrocería de metal, por fuera, alrededor de ti… y baja al suelo por las llantas ----------
  B.push({ t0: S(8), t1: S(12), in: { type: 'fade', d: 0.3 }, draw(ctx, t) {
+  tope(440);
   const tg = Tk.rayo2 - 0.25, fl = rel(t, [tg]); cielo(ctx, t, fl); lluvia(ctx, t, 1, fl);
   const p = t < Tk.corriente - 0.2 ? 0 : t < Tk.baja ? 0.62 * E.out(win(t, Tk.corriente - 0.2, Tk.fuera)) : 0.62 + 0.38 * E.inOut(win(t, Tk.baja, Tk.llantas0)), seg = sm(Tk.alrededor - 0.3, Tk.alrededor + 0.2, t);
   ENC(ctx, CAJA, (g) => { carretera(g, t, 0.5); nubes(g, t, fl); carro(g, t, { fl, corriente: p, seguro: seg, gira: 0.5 }); if (t >= tg) rayo(g, 13, 80, -1000, 0, -432, 1 - sm(tg + 0.3, tg + 0.8, t), 12); chispas(g, 0, -440, t, tg, 16, 180); });
@@ -168,6 +175,7 @@
 
  // ---------- 5 · la sorpresa: las llantas de caucho no te salvan; el rayo es demasiado fuerte para que el caucho lo detenga ----------
  B.push({ t0: S(12), t1: S(15), in: { type: 'zoom', d: 0.4, x: 540, y: 900 }, draw(ctx, t) {
+  tope(440);
   const fl = rel(t, [Tk.fuerte - 0.1]); cielo(ctx, t, fl * 0.7); lluvia(ctx, t, 0.8, fl);
   const no = sm(Tk.salvan - 0.3, Tk.salvan, t), arc = t >= Tk.fuerte - 0.1 ? 1 - sm(Tk.detenga + 0.3, Tk.detenga + 0.8, t) : 0, p = sm(Tk.fuerte - 0.1, Tk.detenga, t);
   ENC(ctx, [-420, -560, 420, 200], (g) => { carretera(g, t, 0, -1500, 1500); g.save(); g.translate(0, -60 + 85 * 3.6 / 3.6); g.restore();
@@ -183,6 +191,7 @@
 
  // ---------- 6 · te protege el metal que te rodea, como una jaula ----------
  B.push({ t0: S(15), t1: S(16), in: { type: 'fade', d: 0.3 }, draw(ctx, t) {
+  tope(440);
   cielo(ctx, t, 0); lluvia(ctx, t, 1, 0); const j = sm(Tk.metal - 0.3, Tk.jaula, t);
   ENC(ctx, CAJA, (g) => { carretera(g, t, 0.4); nubes(g, t, 0); carro(g, t, { jaula: j, seguro: j, gira: 0.4, corriente: 1 }); });
   P.tag(ctx, 'JAULA DE METAL', 470, 520, t, Tk.metal - 0.2, S(16), { mono: true, col: CY, px: 60 });
@@ -190,6 +199,7 @@
 
  // ---------- 7 · por eso un descapotable no sirve, ni con la capota puesta: es un paraguas sin tela ----------
  B.push({ t0: S(16), t1: S(18), in: { type: 'slide', d: 0.35 }, draw(ctx, t) {
+  tope(440);
   const fl = rel(t, [Tk.capota]); cielo(ctx, t, fl * 0.7); lluvia(ctx, t, 1, fl); const no = sm(Tk.capota - 0.2, Tk.capota + 0.2, t), ins = sm(Tk.sinTela - 0.9, Tk.sinTela - 0.5, t);
   ctx.save(); ctx.globalAlpha *= 1 - ins; const r = ENC(ctx, CAJA, (g) => { carretera(g, t, 0.6); nubes(g, t, fl); carro(g, t, { fl, lona: true, gira: 0.6 }); });
   if (no > 0) { const [x, y] = r.map(0, -330); P.icon(ctx, 'cruz', x, y, 260 * E.out(no), { mode: 'flat', col: RD, col2: '#fff' }); } ctx.restore();
@@ -201,6 +211,7 @@
 
  // ---------- 8 · eso sí, el carro puede salir dañado: electrónica, una llanta, el vidrio de atrás ----------
  B.push({ t0: S(18), t1: S(21), in: { type: 'fade', d: 0.3 }, draw(ctx, t) {
+  tope(440);
   const fl = rel(t, [S(18)]); cielo(ctx, t, fl * 0.6); lluvia(ctx, t, 1, fl);
   const el = t >= Tk.electronica - 0.2, pin = sm(Tk.llanta - 0.2, Tk.llanta + 0.3, t), gr = sm(Tk.vidrio - 0.2, Tk.vidrio + 0.1, t), parp = el ? (Math.sin(t * 23) > 0.3 ? 1 : 0) : 1;
   const r = ENC(ctx, CAJA, (g) => { carretera(g, t, 0); nubes(g, t, fl); carro(g, t, { fl, gira: 0, pinchada: pin, grieta: gr, faros: parp ? true : false }); if (el) chispas(g, 250, -310, t, Tk.electronica - 0.2 + Math.floor((t - Tk.electronica) / 0.9) * 0.9, 14, 120); if (pin > 0) chispas(g, -310, -40, t, Tk.llanta - 0.2, 16, 160); });
@@ -213,6 +224,7 @@
  const CONSEJOS = [{ t: Tk.quedate, txt: 'Quédate dentro' }, { t: Tk.sube, txt: 'Sube las ventanas' }, { t: Tk.toques, txt: 'No toques el metal' }];
  const tQ = Tk.hacer - 0.25;
  B.push({ t0: S(21), t1: S(25), in: { type: 'fade', d: 0.3 }, draw(ctx, t) {
+  tope(440);
   cielo(ctx, t, 0); lluvia(ctx, t, 1, 0); const ven = t < Tk.sube ? 0.35 : 0.35 + 0.65 * E.inOut(win(t, Tk.sube, Tk.sube + 0.8)), no = sm(Tk.toques - 0.2, Tk.toques + 0.2, t);
   const y0 = 1000, r = ENC(ctx, [-545, -450, 545, 120], (g) => { carretera(g, t, 0); carro(g, t, { gira: 0, ventana: ven, seguro: sm(Tk.quedate - 0.2, Tk.quedate + 0.3, t) });
    if (no > 0) { g.save(); g.globalAlpha *= no; g.strokeStyle = RD; g.lineWidth = 10; g.shadowColor = RD; g.shadowBlur = 20; for (const x of [-120, 200]) { g.beginPath(); g.roundRect(x - 40, -262, 80, 34, 12); g.stroke(); } g.restore(); } },
@@ -222,6 +234,7 @@
 
  // ---------- 10 · CIERRE ----------
  B.push({ t0: S(25), t1: DURATION, in: { type: 'zoom', d: 0.4, x: 540, y: 960 }, draw(ctx, t) {
+  tope(0);
   cielo(ctx, t, 0); lluvia(ctx, t, 0.6, 0);
   P.ctaShare(ctx, t, S(25) + 0.1, DURATION + 1, { preview: (c, x, y, w, h) => P.mini(c, x, y, w, h, (cc) => { cielo(cc, t, 0.4); cc.save(); cc.translate(540, 1250); cc.scale(0.9, 0.9); carretera(cc, t, 0.5); nubes(cc, t, 0.4); carro(cc, t, { fl: 0.4, corriente: 1, gira: 0.5 }); rayo(cc, 7, -60, -1000, 0, -432, 1, 12); cc.restore(); }), names: ['Mateo', 'Valentina', 'Santiago', 'Camila'], manoImg: 'frente' });
   P.marca(ctx, t, T.end + 0.95);

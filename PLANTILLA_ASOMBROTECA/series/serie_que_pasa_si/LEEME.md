@@ -33,17 +33,20 @@ P.queHacer(ctx, t, tQ, CONSEJOS, { y: 470 });               // etiqueta amarilla
 // en sfx(k):
 FX.queHacer(k, tQ, CONSEJOS);
 ```
-Textos cortos (≤ 4 palabras por consejo). El panel queda dentro de x 140-940 y cuenta en el QC como «cifra» (zona segura y
+Textos cortos (≤ 4 palabras por consejo). Desde t0 el remate marca `safeLog('cierre')`: queda exento del ENCUADRE, como el cierre de compartir. El panel queda dentro de x 140-940 y cuenta en el QC como «cifra» (zona segura y
 encimados): mientras está, no pongas otras etiquetas encima; debajo puede seguir la escena (el objeto, más pequeño).
 
 ## Portada fija de la serie
 ```
 python3 PLANTILLA_ASOMBROTECA/tools/producir.py PROYECTO portada "¿QUÉ PASA SI… / LÍNEA 2?" "PALABRA_ROJA" SEGUNDO [--foco X] [--bajar PX] [--escala 0.84]
 ```
-Con `SERIE.json`, la etiqueta amarilla es SIEMPRE «¿QUÉ PASA SI…?» (no se pasa), la pregunta en 2 líneas del mismo tamaño
+Con `SERIE.json`, la etiqueta amarilla es SIEMPRE «¿QUÉ PASA SI…?» (no se pasa; la pregunta de la portada NO la repite: máx. 8 palabras, p. ej. «¿TE CAE UN RAYO / DENTRO DEL CARRO?»), la pregunta en 2 líneas del mismo tamaño
 con la palabra clave en rojo, la marca ARRIBA y todo centrado en x = 540. **Fondo:** un fotograma NÍTIDO de la **escena real**
 (el objeto en la situación: el carro bajo la tormenta con el rayo), nunca la metáfora ni el panel «QUÉ HACER». Elegir un
 segundo sin transición ni destello que lo queme.
+
+## Rayos, destellos y textos
+En escenas de tormenta, el rayo y los destellos no entran en la franja de subtítulos y pregunta (recorte por encima de un `TOPE`), para que el texto se lea entero; en la portada (`__SIN_SUBTITULOS`) el rayo se ve entero. Ver `QPS_CAP1_RAYO_CARRO_PROYECTO/04_CODIGO/js/episodio.js`.
 
 ## Mano y personas
 Solo `P.manoImg` (manos ilustradas del canal, `catalogo/manos_v135.jpg`) o personas dibujadas propias; nunca `P.mano`.
@@ -51,4 +54,4 @@ Solo `P.manoImg` (manos ilustradas del canal, `catalogo/manos_v135.jpg`) o perso
 ## Capítulos
 | Cap. | Pregunta | Proyecto |
 |---|---|---|
-| 1 | ¿Qué pasa si te cae un rayo dentro del carro? | `QPS_CAP1_RAYO_CARRO_PROYECTO` (un solo vídeo, gancho A) |
+| 1 | ¿Qué pasa si te cae un rayo dentro del carro? | `QPS_CAP1_RAYO_CARRO_PROYECTO` (un solo vídeo, gancho A · portada: `"¿TE CAE UN RAYO / DENTRO DEL CARRO?" "RAYO" 2.05` · el carro bajo la tormenta con el rayo en el techo) |
