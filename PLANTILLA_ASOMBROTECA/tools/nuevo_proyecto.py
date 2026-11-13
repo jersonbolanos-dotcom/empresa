@@ -77,7 +77,8 @@ def main():
         '// Imágenes documentales en base64 (ver CREDITOS_IMAGENES.md): window.FOTOS = { clave: "data:image/jpeg;base64,…" }\nwindow.FOTOS = {};\n')
     open(os.path.join(carpeta, '03_GUION/tramos.txt'), 'w', encoding='utf-8').write(
         '# Una línea por tramo de voz (entre pausas largas), en orden. Cifras con su forma hablada: 1945,|milnovecientoscuarentaycinco\n'
-        '# v1.29: ganchos de la misma toma al principio: «[GANCHO A] texto», «[GANCHO B] texto», «[GANCHO C] texto» → producir.py … variantes\n'
+        '# v1.34 (por defecto): UN gancho, el elegido, marcado con su letra: «[GANCHO B] texto» → producir.py … video\n'
+        '# v1.29 (opcional, 3 variantes): ganchos de la misma toma al principio: «[GANCHO A] texto», «[GANCHO B] texto», «[GANCHO C] texto» → producir.py … variantes\n'
         '# Genera un borrador con: python3 PLANTILLA_ASOMBROTECA/tools/producir.py <proyecto> voz\n')
     if a.voz:
         shutil.copy2(a.voz, os.path.join(carpeta, '01_ENTRADA/audio', os.path.basename(a.voz)))

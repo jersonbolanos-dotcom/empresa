@@ -4,7 +4,7 @@ Canal de videos verticales explicativos. El usuario manda audio de narración + 
 con resumen en español. Responder siempre en español.
 
 ## Leer primero (en este orden)
-1. `PLANTILLA_ASOMBROTECA/SUPERPROMPT_PLANTILLA_ASOMBROTECA.md` — reglas y «REGLAS APRENDIDAS» (1–120; las 99–120 de la v1.27–v1.31 mandan: zona segura, ganchos, una toma de voz, variantes, portada estándar v1.30, PUBLICAR.md y formatos de serie en `series/`).
+1. `PLANTILLA_ASOMBROTECA/SUPERPROMPT_PLANTILLA_ASOMBROTECA.md` — reglas y «REGLAS APRENDIDAS» (1–125; las 121–125 de la v1.34 mandan: UN solo vídeo por defecto con el gancho elegido, fórmula de los más vistos, «Imagina» solo con peligro < 2 s, encuadre como FALLO del QC; luego las 99–120 de la v1.27–v1.31: zona segura, ganchos, una toma de voz, variantes, portada estándar v1.30, PUBLICAR.md y formatos de serie en `series/`).
 2. `PLANTILLA_ASOMBROTECA/INSTRUCCIONES_PLANTILLA.md` — todos los bloques `P.*` y FX disponibles por versión.
 3. `PLANTILLA_ASOMBROTECA/CAMBIOS_PLANTILLA.md` — versión actual de la plantilla.
 4. El episodio más parecido como ejemplo (p. ej. `ASOMBROTECA_MACHU_PICCHU_PROYECTO/04_CODIGO/js/episodio.js`).
@@ -26,7 +26,7 @@ con resumen en español. Responder siempre en español.
 2. Escribir `js/episodio.js` (beats `{t0,t1,in,draw,sfx}`; tiempos con `wt(seg,'palabra')`).
 3. `python3 -I $T/build.py` → `index.html`.
 4. Prueba rápida: `node $T/frames.js index.html <dir> t1 t2 …` + `python3 -I $T/sheet.py hoja.jpg cols <pngs>`.
-5. Render: `node $T/render.js index.html <frames> 6` (~3 min). Audio: `node $T/audio.js index.html ../05_AUDIO`.
+5. Producción por defecto (v1.34): `python3 $T/producir.py <PROYECTO> video` (un solo vídeo; `variantes` solo si se piden 3). Render manual: `node $T/render.js index.html <frames> 6` (~3 min). Audio: `node $T/audio.js index.html ../05_AUDIO`.
 6. Mezcla y codificación: comandos ffmpeg en el SUPERPROMPT (sidechain + alimiter; libx264 crf 20).
 7. QC: ffprobe, decodificación completa, blackdetect/freezedetect, ebur128, md5 voz, hoja de contacto del MP4 → `07_QC/QC.md`.
 

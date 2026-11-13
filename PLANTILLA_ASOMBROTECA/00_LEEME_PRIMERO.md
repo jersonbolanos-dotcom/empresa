@@ -79,6 +79,7 @@ Detalles y capturas en `GUIA_ESTILOS.md` y `catalogo/catalogo_v126.jpg`.
 - El QC de `producir.py` comprueba todo esto.
 - v1.28: para alargar una pausa sin tocar la voz, línea `[PAUSA x]` (0.3–1.0 s) en `03_GUION/tramos.txt`; el QC compara la huella de cada tramo de voz.
 - v1.29: UNA toma de voz (`generations_count: 1`, ≤ 1.300 caracteres) con 3 ganchos `[GANCHO A/B/C]` → `producir.py NOMBRE variantes` (VARIANTE_A/B/C.mp4); `producir.py NOMBRE portada …` → `portada.jpg`; `07_OUTPUT/PUBLICAR.md`; QC de silencios en los bordes, textos encimados y pantalla llena.
+- v1.34 · UN solo vídeo por defecto: se proponen 3 ganchos, el usuario elige UNO, voz y vídeo solo con ese (`[GANCHO X]` solo en `tramos.txt`, `producir.py NOMBRE video` → `<NOMBRE>_FINAL.mp4`); 3 variantes solo si se piden. Fórmula de los más vistos (peligro en un transporte «¿Qué pasa si…?», 2.ª persona dentro de la situación, peligro antes de 2 s, promesa de respuesta, un objeto grande en movimiento desde el fotograma 0, pregunta escrita arriba los primeros segundos); «Imagina» solo con el peligro antes de 2 s. ENCUADRE = FALLO del QC: protagonista ≥ 60 % del ancho y escena centrada en la zona segura, sin media pantalla vacía (`P.encuadrar`). `P.mano` «sujetar» con dedos curvados y pulgar delante.
 
 ## Reglas que no se negocian
 

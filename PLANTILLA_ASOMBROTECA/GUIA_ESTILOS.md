@@ -1,12 +1,24 @@
-# Guía de estilos y guion · PLANTILLA ASOMBROTECA v1.29
+# Guía de estilos y guion · PLANTILLA ASOMBROTECA v1.34
+
+> **v1.34 · Lo que funcionó en los 3 vídeos más vistos del canal (manda sobre todo lo demás):**
+> *Avión sin motores (303 mil) · submarino (235 mil) · rayo en un avión (46 mil).*
+> 1. **Tema: peligro en un medio de transporte**, tipo «¿Qué pasa si…?»: «¿Qué pasa si se apagan los motores de un avión?», «¿Qué pasa si un submarino se hunde demasiado?», «¿Qué pasa si un rayo cae en tu avión?». Otros medios: barco, tren, ascensor, teleférico, coche, cohete.
+> 2. **El espectador DENTRO de la situación**, en segunda persona: «Vas en un avión…», «Estás en un submarino a 300 metros…». **El peligro llega en los primeros 2 s** («…y se apagan los dos motores»).
+> 3. **Promesa de respuesta** justo después del peligro: «…y la explicación es sorprendente», «…y lo que pasa después no es lo que crees».
+> 4. **Un solo objeto grande y en movimiento desde el fotograma 0** (el avión, el submarino): ≥ 60 % del ancho, centrado en la zona segura, nada de media pantalla vacía (el QC lo marca como FALLO).
+> 5. **La pregunta escrita arriba** durante los primeros segundos (≈ 0-4 s), grande, en la franja superior de la zona segura y sin taparse con los subtítulos; desaparece antes de 5 s.
+> 6. **«Imagina…» solo si el peligro llega antes de los 2 s** («Imagina que vas en un avión y se apagan los motores.»). Si no, prohibido (como «En el año…» o «Antes de…»).
+> 7. **Un solo vídeo por defecto.** Se proponen 3 ganchos, el usuario elige UNO y se generan la voz y el vídeo solo con ese (`producir.py NOMBRE video`). Las 3 variantes (puntos 2-4 de la v1.29) son una opción, solo si se piden.
+>
+> Ejemplo de arranque: «Vas en un avión a 10.000 metros… y se apagan los dos motores. Lo que pasa después es sorprendente.» + la pregunta «¿QUÉ PASA SI SE APAGAN LOS MOTORES?» arriba + el avión grande planeando desde el fotograma 0.
 
 > **v1.29 · Ahorro de créditos y crecimiento (mandan sobre todo lo demás, junto con las v1.27):**
 > 1. **Una sola generación de voz por vídeo.** En ElevenLabs se pide UNA toma (`generations_count: 1`), nunca dos. El guion completo cabe en ≤ 1.300 caracteres (≈ 45-70 s). Si una pausa queda corta, se alarga con `[PAUSA x]`; si una palabra sale mal, se regenera solo ese tramo corto, nunca el audio entero.
-> 2. **Tres ganchos en el mismo audio.** Los 3 ganchos van al principio del MISMO guion, separados por silencios, y se generan en esa única toma (≈ 200-300 créditos extra en total). En `tramos.txt` se marcan como `[GANCHO A]`, `[GANCHO B]` y `[GANCHO C]`. `producir.py NOMBRE variantes` monta 3 MP4: cada uno con su gancho + el mismo cuerpo. La voz sigue intacta: solo se eligen tramos, nunca se edita una muestra.
+> 2. **Tres ganchos en el mismo audio** *(v1.34: OPCIONAL, solo si el usuario pide las 3 variantes; por defecto, un solo gancho y un solo vídeo)*. Los 3 ganchos van al principio del MISMO guion, separados por silencios, y se generan en esa única toma (≈ 200-300 créditos extra en total). En `tramos.txt` se marcan como `[GANCHO A]`, `[GANCHO B]` y `[GANCHO C]`. `producir.py NOMBRE variantes` monta 3 MP4: cada uno con su gancho + el mismo cuerpo. La voz sigue intacta: solo se eligen tramos, nunca se edita una muestra.
 > 3. **Variante sin gastar créditos.** Si no hay créditos para ganchos hablados, se hacen 3 variantes VISUALES con el mismo audio: cambia la imagen, el movimiento y la frase grande en pantalla de los primeros 2 s.
 > 4. **Probar antes de publicar.** Las 3 variantes se suben a Instagram como «Reel de prueba» (solo lo ven no seguidores). A las 24 h, la que más gente retuvo en los primeros 3 s se comparte al perfil y se sube a Facebook, YouTube y TikTok.
 > 5. **Sonido desde el fotograma 0 y hasta el último.** Nunca hay más de 0,5 s de silencio al principio ni más de 1 s al final: un efecto o un acorde de cierre suave acompaña la última imagen.
-> 6. **Pantalla llena.** El protagonista ocupa al menos el 60 % del ancho de la zona segura. Nada de media pantalla vacía.
+> 6. **Pantalla llena.** El protagonista ocupa al menos el 60 % del ancho de la zona segura. Nada de media pantalla vacía. *(v1.34: y la escena centrada en la zona segura; el QC lo marca como FALLO. Usa `P.encuadrar`.)*
 > 7. **Nada encimado.** En transiciones y finales, un texto o contador desaparece del todo antes de que entre otro. Nada de flechas o elementos cortados en los bordes.
 > 8. **Datos a prueba de comentarios.** Cada cifra se comprueba en 2 fuentes, y los contadores cuadran con la suma de lo que muestran. Cuidado doble con deportes, récords y fechas: el público los conoce.
 > 9. **Temas que se comparten.** Vida diaria (móvil, comida, cuerpo, viajes, casa) y desmentir un mito («Tu móvil NO…», «Esto NO es…»). Si un formato funcionó en el canal, se repite con otro tema.
@@ -16,7 +28,7 @@
 >
 > **v1.27 · Reglas para más visualizaciones (mandan sobre todo lo demás):**
 > 1. **Zona segura de Instagram:** texto importante solo en 220 ≤ y ≤ 1450 y x ≤ 940. Subtítulos arriba (estilo `ios`, capY 330-520), una palabra clave por frase.
-> 2. **Gancho (0-2 s):** nada de «Imagina», «En el año…», «Antes de…». Contradicción, cifra imposible o algo en juego, en segunda persona. Movimiento desde el fotograma 0. Se proponen 3 ganchos y el usuario elige antes del guion.
+> 2. **Gancho (0-2 s):** nada de «Imagina» (v1.34: salvo con el peligro antes de 2 s), «En el año…», «Antes de…». Contradicción, cifra imposible o algo en juego, en segunda persona. Movimiento desde el fotograma 0. Se proponen 3 ganchos y el usuario elige antes del guion.
 > 3. **Ángulo personal:** se cuenta desde la vida del espectador (tu móvil, tu casa, tu cuerpo, tu ciudad).
 > 4. **Pantalla limpia:** sin título fijo arriba; máximo 2 etiquetas a la vez de 1-3 palabras; avisos pequeños y breves.
 > 5. **Pausas dramáticas:** 3-4 silencios antes de las revelaciones (ElevenLabs Eleven v4, voz Dan, con `[short pause]`, `[long pause]` una vez y «…»; los corchetes nunca salen en los subtítulos). La animación se frena, la música baja y entra `FX.pausa`. v1.28: una pausa corta se alarga sin tocar la voz con una línea `[PAUSA x]` (0.3–1.0 s) en `tramos.txt`.

@@ -935,3 +935,45 @@ Por defecto el sello va centrado en la zona segura (x = 480, ancho 760) para que
 
 `s` = ancho del índice (≈ 50-90 px; la mano mide ≈ 11 s de alto con la muñeca). `ang` = giro (0 = dedos hacia arriba; −0,45 = mano que entra desde abajo a la derecha). `izq: true` = mano izquierda. `skin` = tono base (por defecto `#e0a67f`; la luz y la sombra se calculan solas). `sombra: false` la quita. En el cierre: `P.ctaShare(…, { mano: true })`.
 
+
+## v1.34 · Un solo vídeo por defecto, fórmula de los más vistos, encuadre como fallo y mano «sujetar» curvada
+
+### Modo por defecto: UN solo vídeo
+Se siguen proponiendo 3 ganchos, pero el usuario elige UNO y la voz (una toma) lleva solo ese gancho + el cuerpo.
+
+| Qué | Cómo |
+|---|---|
+| `tramos.txt` | El gancho elegido, solo y marcado con su letra: `[GANCHO B] Vas en un avión… y se apagan los motores.` (o sin marca: entonces `window.GANCHO` no se define y `episodio.js` usa la A) |
+| `producir.py NOMBRE video` | Nuevo nombre del paso por defecto (= `todo`): build + render + QC → `07_OUTPUT/<NOMBRE>_FINAL.mp4`, `07_QC/QC.md`, `qc_tecnico.txt`, `hoja_contacto.jpg`, `prueba.jpg` (sin sufijo de letra) |
+| `--gancho` | Con un solo gancho no hace falta: se toma la letra que haya (`build.py` define `window.GANCHO = 'B'` si el elegido es la B) |
+| 3 variantes (OPCIONAL) | Solo si el usuario las pide: los 3 ganchos `[GANCHO A/B/C]` en la misma toma y `producir.py NOMBRE variantes` (igual que en la v1.29). `variantes` con un solo gancho produce un solo vídeo |
+
+Retrocompatible: los proyectos con 3 ganchos producen lo mismo que antes (`VARIANTE_A/B/C.mp4`, `QC_A.md`…); los que no tienen ganchos, también.
+
+### Fórmula de los vídeos más vistos (guion y gancho)
+Avión sin motores (303 mil), submarino (235 mil), rayo en un avión (46 mil): peligro en un medio de transporte tipo «¿Qué pasa si…?»; el espectador dentro de la situación en segunda persona («Vas en un avión…») con el peligro en los primeros 2 s; promesa de respuesta («y la explicación es sorprendente»); un solo objeto grande y en movimiento desde el fotograma 0; la pregunta escrita arriba durante los primeros segundos (única excepción a «sin título fijo», hasta ≈ 4 s). Detalle en `GUIA_ESTILOS.md` y reglas 121-125 del SUPERPROMPT.
+
+**QC del gancho:** «Imagina…» ya no falla siempre: pasa si la primera frase (hasta `. ? ! … , :`) termina a ≤ 2,0 s («Imagina que vas en un avión y se apagan los motores.»). «En el año…», «Antes de…», «Hace mucho…» siguen fallando.
+
+### Encuadre (el QC lo marca como FALLO)
+`tools/zona_segura.js` mide cada 0,5 s el dibujo (bordes, sin las cajas de texto) dentro de la **franja de escena** = zona segura (x 0-940, y 220-1450) menos la franja de subtítulos (con `capY` 330: de ≈ 440 a 1450; con `capY` 1540: de 220 a 1450). Cada fila cuenta como mucho un 25 % del ancho, para que el canto de una mesa no pese como un objeto.
+
+| Falla si durante más de 3 s seguidos… | Motivo en el QC |
+|---|---|
+| el dibujo ocupa < 60 % del ancho seguro | `estrecho` |
+| su centro vertical está a más del 12 % de la franja de su centro | `arriba` / `abajo` |
+| más del 32 % de la franja queda vacío por arriba o por abajo (percentiles 10/90) | `vacío arriba` / `vacío abajo` |
+
+El cierre (`P.ctaShare`, maqueta fija) no cuenta: se marca solo con `safeLog('cierre')`. Fila del QC: «Encuadre (…; > 3 s = fallo)». `producir.py NOMBRE qc --encuadre-aviso` lo deja como aviso, solo para volver a pasar el QC de vídeos anteriores a la v1.34.
+
+**Bloques nuevos para cumplirlo:**
+
+| Bloque | Qué hace |
+|---|---|
+| `P.franjaEscena(capY = 330)` | `{ x0, y0, x1, y1, cx, cy, w, h }` de la franja de escena (subtítulos arriba → `capY + 110` a 1430; abajo → 240 a `capY − 110`) |
+| `P.encuadrar(ctx, caja, dibujo, { capY, ancho = 0.8, alto = 0.86, franja })` | Dibuja `dibujo(ctx)` (en sus propias coordenadas, con su caja `[x0, y0, x1, y1]`) escalado y centrado en la franja: el grupo ocupa `ancho` × 940 px sin pasar de `alto` × alto de la franja. Devuelve `{ k, ox, oy, map(x, y) }` para colocar etiquetas en las mismas coordenadas |
+
+Ejemplo: `P.encuadrar(ctx, [100, 600, 900, 1420], (c) => { mesa(c); telViejo(c, 240, 1110, 0.62, t); pila(c, 640, 1080, 380, 640, t); }, { capY: 330 });` — varios objetos pequeños se agrupan y se encuadran juntos, con su mesa (nada flota).
+
+### Mano «sujetar» (v1.34)
+Los cuatro dedos son tubos **curvados** (Bézier, mismo grosor y forma que en `senalar`/`tocar`/`abierta`, corazón el más largo): salen de la fila de nudillos, se arquean por delante del objeto y se doblan en su borde izquierdo para rodearlo (la punta queda detrás, más oscura); el pulgar va **por delante**, cruzado sobre los dedos, con su uña. Nueva opción `borde` = x relativa (px) del borde izquierdo del objeto, donde se doblan los dedos (por defecto −1,8 s). Las otras poses no cambian. Hoja: `catalogo/mano_v134.jpg`.

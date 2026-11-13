@@ -11,8 +11,11 @@
 #   qc        control técnico (formato, decodificación, negros, congelados, silencios, sonoridad, md5 voz, determinismo,
 #             hoja de contacto) → 07_QC/qc_tecnico.txt, 07_QC/QC.md, 07_QC/hoja_contacto.jpg
 #   todo      build + render + qc          limpiar   borra index.html y temporales
-#   variantes (v1.29) con [GANCHO A/B/C] en tramos.txt: render + qc de cada variante → 07_OUTPUT/VARIANTE_A.mp4, _B, _C
-#             (QC en 07_QC/QC_A.md…). Sin ganchos hace lo mismo que «todo».
+#   video     (v1.34, MODO POR DEFECTO) = «todo»: UN solo vídeo con el gancho que eligió el usuario → 07_OUTPUT/<NOMBRE>_FINAL.mp4.
+#             En tramos.txt el gancho elegido va solo, como «[GANCHO X] texto» (X = la letra elegida, para que episodio.js dibuje
+#             su imagen inicial con window.GANCHO = 'X') o sin marca (window.GANCHO queda sin definir → 'A').
+#   variantes (v1.29, OPCIONAL: solo si el usuario pide las 3 variantes) con [GANCHO A/B/C] en tramos.txt: render + qc de cada
+#             variante → 07_OUTPUT/VARIANTE_A.mp4, _B, _C (QC en 07_QC/QC_A.md…). Con un solo gancho o sin ganchos = «video».
 #   portada   (v1.30) portada "TEXTO" "PALABRA_ROJA" "ETIQUETA" [SEGUNDO] → 07_OUTPUT/portada.jpg 1080×1920. Maqueta fija: fotograma
 #             NÍTIDO del episodio (sin subtítulos) en el SEGUNDO exacto dado (o --t), texto arriba en dos líneas con borde oscuro,
 #             etiqueta amarilla, centrado en x = 540 y dentro del recorte 3:4 (y 240-1680). «/» separa líneas («13 AÑOS / ESPERANDO»).
@@ -82,7 +85,7 @@ def alin(P, a=None):
 
 
 def suf(P, a):
-    G = gancho(P, a); return f'_{G}' if G else ''
+    G = gancho(P, a); return f'_{G}' if G and len(ganchos(P)) > 1 else ''   # v1.34: con un solo gancho, nombres de un solo vídeo
 
 
 def md5(f):
@@ -181,10 +184,24 @@ def pausas(P, mn=0.4, mx=1.6, a=None):
     return [(ws[i - 1]['e'], ws[i]['s']) for i in range(1, len(ws)) if mn <= ws[i]['s'] - ws[i - 1]['e'] <= mx or ws[i].get('pausa')]
 
 
+def encuadre_fila(ll, a):
+    # v1.34 · ENCUADRE (FALLO): protagonista ≥ 60 % del ancho seguro, escena centrada en la franja de escena (zona segura menos la
+    # franja de subtítulos) y sin > 32 % de esa franja vacío arriba o abajo, durante más de 3 s seguidos (el cierre no cuenta).
+    # --encuadre-aviso lo deja como aviso (solo para volver a pasar el QC de vídeos anteriores a la v1.34).
+    k = 'Encuadre (protagonista ≥ 60 % del ancho, escena centrada en la zona segura, sin media pantalla vacía; > 3 s = fallo)'
+    if not ll:
+        return (k, 'sin datos', True)
+    fl = ll.get('fallos')
+    if fl is None:   # zona_segura.js anterior a la v1.34
+        fl = [[x0, x1, f'estrecho {pc} %'] for x0, x1, pc in ll.get('avisos', [])]
+    v = f'mínimo {ll["minimo"]} % del ancho' + ((' · ' + ('AVISO' if a.encuadre_aviso else 'FALLO') + ' en ' + ', '.join(f'{x0}-{x1} s ({m})' for x0, x1, m in fl[:6])) if fl else ' · correcto')
+    return (k, v, a.encuadre_aviso or not fl)
+
+
 def nombre_final(P, a):
     if a.salida:
         return a.salida
-    if gancho(P, a):
+    if gancho(P, a) and len(ganchos(P)) > 1:
         return f'VARIANTE_{gancho(P, a)}.mp4'   # v1.29
     n = os.path.basename(os.path.abspath(P)).replace('_PROYECTO', '')
     return n + '_FINAL.mp4'
@@ -278,9 +295,14 @@ def p_qc(P, a):
     if os.path.exists(al):
         ws = json.load(open(al))['words']; txt0 = ' '.join(w['w'] for w in ws[:6]).lower(); ult = ' '.join(w['w'] for w in ws if w['seg'] == ws[-1]['seg']).lower(); todo = ' '.join(w['w'] for w in ws).lower()
         gch = not re.match(r'^[¡¿]?\s*(imagina|en el año|en \d{3,4}|antes de|hace mucho|había una vez|hace \d+ años)', txt0)
+        # v1.34 · «Imagina…» se permite solo si el peligro llega antes de 2 s: la primera frase (hasta . ? ! … o ,) termina a ≤ 2,0 s
+        # y tiene algo más que «Imagina» («Imagina que tu avión se queda sin motores.»)
+        if not gch and re.match(r'^[¡¿]?\s*imagina', txt0):
+            fin = next((i for i, w in enumerate(ws) if re.search(r'[.?!…,:]$', w['w'])), None)
+            gch = fin is not None and fin >= 2 and ws[fin]['e'] <= 2.0
         cierre = bool(re.search(r'env[ií]a', ult)) and not re.search(r'\b(sigue a|s[ií]guenos|s[ií]gueme)\b', todo)
     # v1.27 · ninguna etiqueta de interpretación ([short pause]…) ni <break/> en los subtítulos
-    etq = None; dj = os.path.join(C, 'js', f'datos{sf}.js')
+    etq = None; dj = os.path.join(C, 'js', f'datos_{G}.js' if G else 'datos.js')
     if os.path.exists(dj):
         etq = sorted(set(re.findall(r'\[[^\]"]*\]|<[^>"]*>', open(dj, encoding='utf-8').read())))
     # v1.27 · movimiento desde el fotograma 0 (ni negro ni quieto)
@@ -309,8 +331,8 @@ def p_qc(P, a):
         ('Pausas dramáticas (0,4-1,6 s; objetivo 3-4)', f'{npz}' + ('' if 3 <= npz <= 6 else ' · AVISO: fuera del objetivo'), True),
         ('Silencio inicial ≤ 0,5 s / final ≤ 1 s (−50 dB)', f'{s_ini:.2f} s / {s_fin:.2f} s', s_ini <= 0.5 and s_fin <= 1.0),
         ('Nada encimado (dos textos o contadores en la misma zona)', 'sin datos' if enc is None else (f'{len(enc)} encimados' + (': ' + ', '.join(f'{e["a"]}+{e["b"]} t={e["t"]}' for e in enc[:6]) if enc else '')), enc is not None and not enc),
-        ('Pantalla llena (contenido ≥ 60 % del ancho seguro; aviso si < 60 % más de 3 s)', 'sin datos' if not ll else (f'mínimo {ll["minimo"]} %' + (' · AVISO en ' + ', '.join(f'{x0}-{x1} s ({pc} %)' for x0, x1, pc in ll['avisos'][:5]) if ll['avisos'] else ' · correcto')), True),
-        ('Gancho sin frase de contexto' + (f' (variante {G})' if G else ''), 'sin alineación' if gch is None else ('correcto' if gch else 'EMPIEZA CON CONTEXTO (Imagina / En el año / Antes de…)'), gch is not False),
+        encuadre_fila(ll, a),
+        ('Gancho sin frase de contexto' + (f' (variante {G})' if G else ''), 'sin alineación' if gch is None else ('correcto' if gch else 'EMPIEZA CON CONTEXTO (En el año / Antes de… o «Imagina» sin peligro antes de 2 s)'), gch is not False),
         ('Cierre «Envíaselo a ese amigo…» (sin «Sigue a…»)', 'sin alineación' if cierre is None else ('correcto' if cierre else 'FALTA o hay «Sigue a…»'), cierre is not False),
         ('Subtítulos sin etiquetas [ ] ni < >', 'sin datos' if etq is None else ('limpios' if not etq else 'ETIQUETAS: ' + ', '.join(etq[:5])), etq is None or not etq),
         ('Movimiento desde el fotograma 0', 'sin datos' if mov is None else ('sí' if mov else 'NEGRO o QUIETO al empezar'), mov is not False),
@@ -349,8 +371,8 @@ def silencios_borde(out, dur):
 
 def p_variantes(P, a):
     gn = ganchos(P)
-    if not gn:
-        print('Este proyecto no tiene [GANCHO …] en tramos.txt: se produce un solo vídeo (como «todo»).')
+    if len(gn) <= 1:   # v1.34: un solo gancho (modo por defecto) o ninguno → un solo vídeo
+        print('Este proyecto tiene un solo gancho (o ninguno): se produce un solo vídeo (como «video»).')
         p_render(P, a); p_qc(P, a); return
     res = {}
     for L in sorted(gn):
@@ -418,7 +440,7 @@ def p_limpiar(P, a):
 
 def main():
     ap = argparse.ArgumentParser(description='Produce un vídeo de la plantilla.')
-    ap.add_argument('proyecto'); ap.add_argument('paso', choices=['voz', 'alinear', 'build', 'prueba', 'render', 'qc', 'todo', 'variantes', 'portada', 'limpiar'])
+    ap.add_argument('proyecto'); ap.add_argument('paso', choices=['voz', 'alinear', 'build', 'prueba', 'render', 'qc', 'todo', 'video', 'variantes', 'portada', 'limpiar'])
     ap.add_argument('extra', nargs='*', help='instantes (s) para «prueba»')
     ap.add_argument('--cola', type=float, default=1.0); ap.add_argument('--workers', type=int, default=6)
     ap.add_argument('--salida', default=None); ap.add_argument('--trabajo', default=None)
@@ -426,11 +448,12 @@ def main():
     ap.add_argument('--foco', type=float, default=540, help='portada: x del fotograma que queda centrada'); ap.add_argument('--bloque', default='arriba', choices=['arriba', 'centro', 'abajo'], help='portada: posición del texto (arriba = maqueta v1.30)')
     ap.add_argument('--bajar', type=int, default=0, help='portada: px que se baja el fotograma para dejar cielo al texto')
     ap.add_argument('--escala', type=float, default=1.0, help='portada (v1.32): < 1 reduce el fotograma para que el objeto quepa entero bajo el texto')
+    ap.add_argument('--encuadre-aviso', dest='encuadre_aviso', action='store_true', help='qc (v1.34): el encuadre cuenta como aviso, no como fallo (vídeos anteriores a la v1.34)')
     ap.add_argument('--marca-pos', dest='marca_pos', default='abajo', choices=['abajo', 'arriba'], help='portada (v1.32): posición de la marca')
     a = ap.parse_args(); P = os.path.abspath(a.proyecto)
     if not os.path.isdir(os.path.join(P, '04_CODIGO')):
         sys.exit(f'No parece un proyecto (falta 04_CODIGO): {P}')
-    pasos = {'voz': [p_voz], 'alinear': [p_alinear], 'build': [p_build], 'prueba': [p_prueba], 'render': [p_render], 'qc': [p_qc], 'todo': [p_render, p_qc], 'variantes': [p_variantes], 'portada': [p_portada], 'limpiar': [p_limpiar]}
+    pasos = {'voz': [p_voz], 'alinear': [p_alinear], 'build': [p_build], 'prueba': [p_prueba], 'render': [p_render], 'qc': [p_qc], 'todo': [p_render, p_qc], 'video': [p_render, p_qc], 'variantes': [p_variantes], 'portada': [p_portada], 'limpiar': [p_limpiar]}
     for f in pasos[a.paso]:
         print(f'== {f.__name__[2:]}')
         f(P, a)

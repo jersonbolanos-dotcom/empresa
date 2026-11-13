@@ -3083,7 +3083,8 @@
  //   nudillos con brillo, pliegues y uñas.
  //   s = ancho del dedo índice (≈ 50-90 px; la mano mide ≈ 11 s de alto con la muñeca).
  //   pose 'senalar' (por defecto) y 'tocar': punta del índice en (x, y), los demás dedos doblados y el pulgar recogido;
- //   pose 'abierta': (x, y) = centro de la palma; pose 'sujetar': (x, y) = centro del objeto, que dibuja o.objeto(ctx) DETRÁS de la mano.
+ //   pose 'abierta': (x, y) = centro de la palma; pose 'sujetar': (x, y) = centro del objeto, que dibuja o.objeto(ctx) DETRÁS de la mano; o.borde = x (px, relativa) del borde
+ //     izquierdo del objeto, donde los dedos se doblan para rodearlo (por defecto −1,8 s) (v1.34).
  //   ang = giro (0 = dedos hacia arriba; + = a la derecha) · izq = mano izquierda · skin = tono base · sombra: false · t = tiempo (onda de 'tocar').
  P.mano = (ctx, x, y, s, o = {}) => { const u = s, pose = o.pose || 'senalar', sk = o.skin || '#e0a67f';
   const C = (c, t) => H.rgba(H.mix(sk, c, t)), LT = C('#ffffff', 0.3), DK = C('#3a1e10', 0.2), LN = C('#3a1e10', 0.5), ED = C('#3a1e10', 0.42), NA = C('#ffffff', 0.55), NAB = C('#3a1e10', 0.25);
@@ -3140,12 +3141,43 @@
     for (let q = 0; q < 3; q++) pliegue((-0.75 + q * 1.0) * u, -1.35 * u, (-0.6 + q * 1.0) * u, -0.75 * u, 0.25);   // valles entre dedos
     pliegue(-1.15 * u, -0.2 * u, -0.6 * u, 1.3 * u, 0.2, 0.06); for (let q = 0; q < 3; q++) pliegue((-0.6 + q * 0.95) * u, -0.4 * u, (-0.5 + q * 0.95) * u, 1.9 * u, 0.1, 0.07); });
   } else if (pose === 'sujetar') {
-   // (0, 0) = centro del objeto (detrás de la mano); vemos el dorso: cuatro dedos curvados que lo rodean y el pulgar por encima
+   // v1.34 · (0, 0) = centro del objeto (detrás de la mano); vemos el dorso: los cuatro dedos son tubos CURVADOS del mismo grosor y
+   // forma que en las otras poses: salen de la fila de nudillos, se arquean por delante del objeto y se doblan en su borde izquierdo
+   // para rodearlo (la punta se esconde detrás); el pulgar va POR DELANTE, cruzado sobre los dedos, con su uña.
    if (o.objeto) o.objeto(ctx);
-   const G = [[-1.5, 2.4, 0.96], [-0.55, 2.7, 1.0], [0.4, 2.55, 0.96], [1.3, 2.1, 0.84]].map(([yy, L, w]) => cap(3.6 * u, yy * u, -Math.PI / 2 - 0.04, (L + 1.6) * u, w * u, w * 0.9 * u));
-   const pul = cap(3.0 * u, -2.0 * u, -1.25, 3.0 * u, 1.1 * u, 0.94 * u), pa = palma(1.4 * u, -2.3 * u, 4.6 * u, 2.4 * u), mu = muneca(1.6 * u, 4.5 * u, 1.6 * u, 2.1 * u, 4.2 * u, 6.2 * u);
-   pieza([mu, pa, ...G, pul], [-0.6 * u, -3.4 * u, 4.8 * u, 6 * u], () => { G.forEach((f, i) => { arruga(f, 0.45); arruga(f, 0.7); brillo(f.bx + f.dx * u * 0.7, f.by, f.w0 * 0.22, f.w0 * 0.3, 0, 0.22); if (i) pliegue(f.tx + u * 0.2, f.by - f.w0 * 0.47, f.tx + u * 2.2, f.by - f.w0 * 0.47, 0.28); });
-    arruga(pul, 0.5); una(pul); pliegue(2.4 * u, -1.6 * u, 3.3 * u, -1.8 * u, 0.25); });
+   // tubo curvo (Path2D) a lo largo de una Bézier cúbica, con extremos redondos y el mismo sentido de giro que cap()
+   const tubo = (P0, P1, P2, P3, w0, w1) => { const N = 24, pts = [];
+    for (let i = 0; i <= N; i++) { const q = i / N, m = 1 - q, bx = m * m * m * P0[0] + 3 * m * m * q * P1[0] + 3 * m * q * q * P2[0] + q * q * q * P3[0], by = m * m * m * P0[1] + 3 * m * m * q * P1[1] + 3 * m * q * q * P2[1] + q * q * q * P3[1];
+     const dx = 3 * m * m * (P1[0] - P0[0]) + 6 * m * q * (P2[0] - P1[0]) + 3 * q * q * (P3[0] - P2[0]), dy = 3 * m * m * (P1[1] - P0[1]) + 6 * m * q * (P2[1] - P1[1]) + 3 * q * q * (P3[1] - P2[1]), l = Math.hypot(dx, dy) || 1;
+     pts.push({ x: bx, y: by, nx: -dy / l, ny: dx / l, w: w0 + (w1 - w0) * q }); }
+    const p2 = new Path2D(), A = pts[0], Z = pts[N], sa = (r) => Math.atan2(-r.ny, -r.nx);
+    p2.moveTo(A.x - A.nx * A.w / 2, A.y - A.ny * A.w / 2); for (const r of pts) p2.lineTo(r.x - r.nx * r.w / 2, r.y - r.ny * r.w / 2);
+    p2.arc(Z.x, Z.y, Z.w / 2, sa(Z), sa(Z) + Math.PI); for (let i = N; i >= 0; i--) p2.lineTo(pts[i].x + pts[i].nx * pts[i].w / 2, pts[i].y + pts[i].ny * pts[i].w / 2);
+    p2.arc(A.x, A.y, A.w / 2, sa(A) + Math.PI, sa(A) + 2 * Math.PI); p2.closePath(); return { p: p2, pts }; };
+   // índice, corazón, anular, meñique: [y de la fila de nudillos, x donde se doblan, ancho] (corazón el más largo, meñique el más corto)
+   const kx = 2.35 * u, xL = o.borde != null ? o.borde : -1.8 * u, G = [[-1.45, 0.05, 0.98], [-0.47, -0.15, 1.0], [0.5, -0.05, 0.95], [1.4, 0.3, 0.84]].map(([yy, xe, w], i) => {
+    const y0 = yy * u, xb = xL + xe * u, ar = (0.62 - i * 0.05) * u, ww = w * u, k0 = kx + [0.1, 0.22, 0.12, -0.08][i] * u;
+    return { f: tubo([k0 + 0.7 * u, y0 + 0.05 * u], [k0 - 1.2 * u, y0 - ar], [xb + 0.1 * u, y0 - ar * 0.8], [xb - 0.1 * u, y0 + (0.78 + i * 0.06) * u], ww, ww * 0.94), w: ww, y0, xb }; });
+   const pul = cap(2.45 * u, 2.05 * u, -0.92, 2.75 * u, 1.12 * u, 0.94 * u);
+   const pa = palma(1.75 * u, -2.15 * u, 4.3 * u, 2.45 * u), mu = muneca(2.15 * u, 4.25 * u, 1.1 * u, 2.85 * u, 4.3 * u, 6.4 * u);
+   const box = [Math.min(-2.3 * u, xL - 0.6 * u), -2.7 * u, 4.6 * u, 6.4 * u];
+   pieza([mu, pa, ...G.map((d) => d.f), pul], box, () => {
+    const g = ctx.createLinearGradient(box[0], box[1], box[2], box[3]); g.addColorStop(0, LT); g.addColorStop(0.45, sk); g.addColorStop(1, DK);
+    // cada dedo (del meñique al índice): relleno con la luz común y su contorno suave a partir de los nudillos (sin costura con el dorso)
+    ctx.save(); ctx.beginPath(); ctx.rect(box[0] - u, box[1] - u, kx + 0.25 * u - box[0] + u, box[3] - box[1] + 2 * u); ctx.clip();
+    const rc = [box[0] + (box[2] - box[0]) * 0.35, box[1] + (box[3] - box[1]) * 0.45], rr = ctx.createRadialGradient(rc[0], rc[1], u * 0.5, rc[0], rc[1], (box[2] - box[0]) * 0.9); rr.addColorStop(0, 'rgba(255,255,255,0.16)'); rr.addColorStop(1, 'rgba(90,40,15,0.12)');
+    for (let i = G.length - 1; i >= 0; i--) { const d = G[i]; ctx.fillStyle = g; ctx.fill(d.f.p); ctx.fillStyle = rr; ctx.fill(d.f.p); ctx.strokeStyle = 'rgba(90,45,20,0.4)'; ctx.lineWidth = u * 0.055; ctx.stroke(d.f.p);
+     // el dedo gira en el borde del objeto: se oscurece donde se mete por detrás
+     const sh = ctx.createLinearGradient(d.xb + 0.55 * u, 0, d.xb - 0.55 * u, 0); sh.addColorStop(0, 'rgba(70,32,12,0)'); sh.addColorStop(1, 'rgba(70,32,12,0.32)'); ctx.save(); ctx.clip(d.f.p); ctx.fillStyle = sh; ctx.fillRect(d.xb - u, d.y0 - u, 1.6 * u, 2.6 * u); ctx.restore(); }
+    ctx.restore();
+    for (const d of G) { const P = d.f.pts, k1 = P[3], k2 = P[17];
+     brillo(k1.x, k1.y, d.w * 0.3, d.w * 0.22, 0, 0.26);   // nudillo
+     brillo(k2.x, k2.y - d.w * 0.08, d.w * 0.28, d.w * 0.2, 0, 0.3);   // segundo nudillo, en la curva
+     for (const r of [P[9], P[20]]) { const ww = r.w * 0.3; ctx.strokeStyle = 'rgba(90,45,20,0.42)'; ctx.lineWidth = u * 0.05; ctx.beginPath(); ctx.moveTo(r.x - r.nx * ww, r.y - r.ny * ww); ctx.quadraticCurveTo(r.x + 0.06 * u, r.y, r.x + r.nx * ww, r.y + r.ny * ww); ctx.stroke(); } }
+    for (let q = 0; q < 3; q++) pliegue((2.75 + q * 0.12) * u, (-1.0 + q * 0.95) * u, (3.9 + q * 0.1) * u, (-0.6 + q * 1.05) * u, 0.1, 0.07);   // tendones del dorso
+    // pulgar por delante: relleno, borde, pliegue y uña
+    ctx.fillStyle = g; ctx.fill(pul.p); ctx.fillStyle = rr; ctx.fill(pul.p); ctx.fillStyle = 'rgba(255,255,255,0.07)'; ctx.fill(pul.p); ctx.strokeStyle = 'rgba(90,45,20,0.45)'; ctx.lineWidth = u * 0.06; ctx.stroke(pul.p); arruga(pul, 0.5); una(pul);
+   });
   }
   ctx.restore(); };
  let HAND_RIM = null;
@@ -5411,9 +5443,22 @@
  //    (el tiempo de dibujo se frena en el centro de la pausa sin saltos), entra FX.pausa y producir.py baja la música en la mezcla.
  //    v1.28: también reconoce las pausas de posproducción («[PAUSA x]» en tramos.txt): la palabra que sigue lleva w.pausa = x.
  P.SAFE = { top: 220, bottom: 1450, right: 940, on: false };
+// v1.34 · ENCUADRE. La escena va en la FRANJA DE ESCENA = zona segura (x 0-940, y 220-1450) menos la franja de subtítulos.
+//   P.franjaEscena(capY) → { x0, y0, x1, y1, cx, cy, w, h } (capY < 960: subtítulos arriba → la escena va de capY + 110 a 1430;
+//   si no, de 240 a capY − 110, como mucho 1430).
+//   P.encuadrar(ctx, caja, dibujo, { capY, ancho = 0.8, alto = 0.86, franja }) dibuja `dibujo(ctx)` (hecho en sus propias coordenadas,
+//   con su caja [x0, y0, x1, y1]) escalado y centrado en la franja: el grupo ocupa `ancho` × 940 px (≥ 0,6 → el QC de encuadre pasa)
+//   sin pasar de `alto` × alto de la franja. Devuelve { k, ox, oy } por si hay que colocar etiquetas en las mismas coordenadas.
+P.franjaEscena = (capY = 330) => { const arriba = capY < 960, y0 = arriba ? Math.max(240, capY + 110) : 240, y1 = arriba ? 1430 : Math.min(1430, capY - 110);
+ return { x0: 30, x1: 910, y0, y1, cx: 470, cy: (y0 + y1) / 2, w: 880, h: y1 - y0 }; };
+P.encuadrar = (ctx, caja, dibujo, o = {}) => { const F = o.franja || P.franjaEscena(o.capY), [x0, y0, x1, y1] = caja, bw = Math.max(1, x1 - x0), bh = Math.max(1, y1 - y0);
+ const k = Math.min((o.ancho ?? 0.8) * 940 / bw, (o.alto ?? 0.86) * F.h / bh), ox = F.cx - k * (x0 + bw / 2), oy = F.cy - k * (y0 + bh / 2);
+ ctx.save(); ctx.translate(ox, oy); ctx.scale(k, k); dibujo(ctx); ctx.restore(); return { k, ox, oy, map: (x, y) => [ox + k * x, oy + k * y] }; };
  let SAFE_LOG = null;
  const safeLog = (k, x0, y0, x1, y1) => { if (SAFE_LOG) SAFE_LOG.push([k, Math.round(x0), Math.round(y0), Math.round(x1), Math.round(y1)]); };
  P.safeLog = safeLog;
+// v1.34 · el cierre (P.ctaShare) se marca para que el QC de encuadre no lo cuente (su maqueta es fija: celular + mano desde abajo)
+{ const _cta = P.ctaShare; P.ctaShare = (ctx, t, t0, t1, o = {}) => { if (t >= t0 - 0.05 && t <= t1) safeLog('cierre', 470, 835, 470, 835); return _cta(ctx, t, t0, t1, o); }; }
  P.pausas = (A, min = 0.4, max = 1.6) => { const out = [], ws = A.words || []; for (let i = 1; i < ws.length; i++) { const g = ws[i].s - ws[i - 1].e; if ((g >= min && g <= max) || ws[i].pausa) out.push([ws[i - 1].e, ws[i].s]); } return out; };
  // tiempo de dibujo frenado dentro de las pausas: f(u) = u + k·sen(2πu)/2π → velocidad 1−k en el centro (casi quieto), continua en los bordes
  const pausaWarp = (PZ, k = 0.85) => (t) => { for (const [a, b] of PZ) if (t > a && t < b) { const u = (t - a) / (b - a); return a + (b - a) * (u + (k * Math.sin(TAU * u)) / TAU); } return t; };
