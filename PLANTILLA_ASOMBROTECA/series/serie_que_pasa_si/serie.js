@@ -6,6 +6,7 @@
 //        → remate final de la serie (en lugar del sello de mito/verdad): etiqueta amarilla «QUÉ HACER» que cae y golpea en t0
 //          y debajo 2-3 consejos que entran uno a uno, cada uno con su ✓ verde. consejos = [{ t, txt }, …] (t = cuándo lo dice la voz).
 //          Texto ≥ 46 px, ajustado al ancho (máx. 2 líneas por consejo), dentro de x 140-940. Devuelve el y inferior del panel.
+//          Desde t0 marca safeLog('cierre'): el remate queda exento del ENCUADRE (v1.34), igual que P.ctaShare.
 //   FX.queHacer(k, t0, consejos)  → golpe + acorde mayor en t0 y un «tic» alegre por cada consejo.
 //   P.serieTitulo(ctx, t, t0, t1, { y })  → rótulo pequeño «¿QUÉ PASA SI…?» (opcional).
 // El resto del formato (pregunta fija con P.pregunta, objeto grande en movimiento desde el fotograma 0, promesa en los
@@ -42,7 +43,8 @@
     r.L.forEach((l, i) => { const ly = cy + (i - (r.L.length - 1) / 2) * r.f * 1.18; ctx.strokeText(l, tx + dx, ly); ctx.fillText(l, tx + dx, ly); }); ctx.restore(); }
    py += h + 30; }
   ctx.restore();
-  if (P.safeLog) P.safeLog('cifra', x - w / 2, y - th / 2, x + w / 2, vis ? py : y + th / 2);   // cuenta para el QC (zona segura y encimados)
+  if (P.safeLog) { P.safeLog('cifra', x - w / 2, y - th / 2, x + w / 2, vis ? py : y + th / 2);   // cuenta para el QC (zona segura y encimados)
+   if (t >= t0) P.safeLog('cierre', x, y, x, y); }                                       // remate final: exento del ENCUADRE, como el cierre
   return py;
  };
  FX.queHacer = (k, t0, consejos = []) => { k.play('whoosh', t0 - 0.35, { dur: 0.35, top: 2200, gain: 0.3, minor: true }); k.play('thud', t0, { f: 70, gain: 0.5 }); k.play('stamp', t0 + 0.01, { gain: 0.4 });
