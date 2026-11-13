@@ -217,6 +217,7 @@ if GN:
                 if de < q0: nt.append([de, q0])
                 if a > q1: nt.append([q1, a])
             trozos = nt
+        trozos = [q for q in trozos if q[1] - q[0] >= 0.08]   # dos [QUITAR] seguidos no dejan migas de silencio
         # montaje en el tiempo original: copiar [de, a] tal cual o insertar silencio exacto (pausas de posproducción del cuerpo)
         montaje = []
         for de, a in trozos:

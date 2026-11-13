@@ -1,5 +1,5 @@
 # ¿Por qué el cocodrilo casi no ha cambiado? · voz ElevenLabs Eleven v4, Dan, UNA toma (1.051 caracteres, 72,6 s). UN gancho: el A.
-# v1.39: el tramo «Hace siglos que casi no cambia…» se grabó pero NO va al vídeo ([QUITAR], pedido del usuario para acortar).
+# v1.39: «Hace siglos que casi no cambia…» y «Y tercero, su cuerpo ya funcionaba…» se grabaron pero NO van al vídeo ([QUITAR], pedido del usuario para acortar).
 [GANCHO A] Estás en la orilla de un río…
 [GANCHO A] y dos ojos te miran desde el agua.
 Y la razón por la que siguen ahí te va a sorprender.
@@ -25,7 +25,7 @@ y puede pasar meses sin comer.
 Segundo,
 vive entre el agua y la tierra y come casi de todo:
 así vivían los que sobrevivieron.
-Y tercero,
-su cuerpo ya funcionaba tan bien que no necesitaba cambiar.
+[QUITAR] Y tercero,
+[QUITAR] su cuerpo ya funcionaba tan bien que no necesitaba cambiar.
 Por eso hoy, en tu río, nada uno casi igual que entonces.
 Envíaselo a ese amigo al que le encantan los dinosaurios.
