@@ -118,12 +118,12 @@
  const FR_GANCHO = { x0: 30, x1: 910, y0: 600, y1: 1430, cx: 470, cy: 1015, w: 880, h: 830 };   // con la pregunta arriba
  // ---------- 1 · GANCHO A: deslizas hacia arriba y cierras todas tus apps (la batería no se mueve) ----------
  B.push({ t0: 0, t1: S(2), in: { type: 'cut' }, draw(ctx, t) {
-  fondo(ctx, t); const qB = P.pregunta(ctx, '¿CERRAR APPS / AHORRA BATERÍA?', t, 0, 4.8, { capY: 330, px: 66, clave: 'BATERÍA?', x: 540, dy: 50 });
+  fondo(ctx, t); const qB = P.pregunta(ctx, '¿CERRAR APPS / AHORRA BATERÍA?', t, 0, S(2) - 0.15, { capY: 330, px: 62, clave: 'BATERÍA?', x: 540, dy: 110 });
   const vuela = (i) => E.in(win(t, Tk.desliza + 0.25 + i * 0.55, Tk.desliza + 0.75 + i * 0.55));
   const r = ENC(ctx, [60, 405, 960, 1425], (g) => { losa(g, 40, 980, 1410);
    celular(g, 300, 1410 - 492 - 12, 480, t, { bat: 0.62, dibuja: (c, sw, sh) => { c.fillStyle = 'rgba(30,40,60,0.85)'; c.fillRect(-sw / 2, -sh / 2, sw, sh);
     for (let i = 2; i >= 0; i--) { const v = vuela(i); if (v >= 1) continue; c.save(); c.globalAlpha *= 1 - v * 0.6; tarjeta(c, (i - 1) * sw * 0.16, -sh * 0.02 - v * sh * 0.9 + i * 12, sw * 0.62, sh * 0.66, i + 1, t); c.restore(); } } });
-   bateriaV(g, 770, 1410 - 380 - 6, 330, 760, 0.62, { col: GR }); }, { franja: { x0: 30, x1: 1010, y0: qB + 30, y1: 1440, cx: 520, cy: (qB + 30 + 1440) / 2, w: 880, h: 1440 - qB - 30 }, alto: 0.97, ancho: 0.9 });
+   bateriaV(g, 770, 1410 - 380 - 6, 330, 760, 0.62, { col: GR }); }, { franja: { x0: 30, x1: 1050, y0: qB + 30, y1: 1640, cx: 540, cy: (qB + 30 + 1640) / 2, w: 980, h: 1640 - qB - 30 }, alto: 0.98, ancho: 0.98 });
   // el dedo desliza cada tarjeta hacia arriba
   const i = Math.min(2, Math.floor(Math.max(0, t - Tk.desliza - 0.25) / 0.55)), ph = cl((t - Tk.desliza - 0.25 - i * 0.55) / 0.5);
   const [fx, fy] = r.map(300, 980 - E.inOut(ph) * 330); if (t > Tk.desliza - 0.1 && t < Tk.desliza + 1.95) P.manoImg(ctx, 'frente', fx + 10, fy, 560, { ancla: 'punta', ang: 0.18 });
@@ -182,7 +182,7 @@
  }, sfx(k) { k.play('thud', Tk.cerrarLibro + 0.1, { gain: 0.55 }); FX.crujido(k, Tk.cerrarLibro + 0.12); k.play('whoosh', Tk.tirar, { dur: 0.8, gain: 0.35 }); FX.etiqueta(k, Tk.tirar + 0.5); } });
 
  // ---------- 8 · la próxima vez tiene que abrirla DESDE CERO y le cuesta más trabajo ----------
- B.push({ t0: S(14), t1: S(16), in: { type: 'slide', d: 0.35 }, draw(ctx, t) {
+ B.push({ t0: S(14), t1: S(16), in: { type: 'fade', d: 0.3 }, draw(ctx, t) {
   fondo(ctx, t); const tap = sm(Tk.abrirla - 0.3, Tk.abrirla, t), pr = cl(win(t, Tk.cero - 0.1, Tk.trabajo + 0.3)), ld = cl(win(t, Tk.abrirla, Tk.trabajo));
   const r = ENC(ctx, [20, 470, 990, 1440], (g) => { losa(g, 0, 990, 1410);
    celular(g, 270, 1410 - 461 - 12, 450, t, { bat: 0.62, dibuja: (c, sw, sh) => { inicio(c, sw, sh, t, { d: 2 });

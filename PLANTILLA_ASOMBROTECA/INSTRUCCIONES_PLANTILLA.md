@@ -1014,3 +1014,5 @@ Las manos de los vídeos salen ahora de la **hoja de manos ilustradas** del cana
 - Devuelve el y inferior: la escena del gancho empieza debajo (con `P.encuadrar(…, { franja: { …, y0: ese y + 20 } })` si hace falta).
 - QC: se registra como 'pregunta' (zona segura y encimados); no cuenta como título fijo.
 
+**v1.36b · `P.pregunta` va FIJA:** se dibuja en la capa de los subtítulos, fuera de la cámara: no hace zoom ni se desliza con las transiciones. `x` por defecto 540 (centro de la pantalla). Con `t0` ≤ 0,05 se ve entera desde el fotograma 0. Pon `t1` antes del siguiente subtítulo (p. ej. `S(2) - 0.15`) y usa `dy` (≈ 100) para separarla del subtítulo.
+

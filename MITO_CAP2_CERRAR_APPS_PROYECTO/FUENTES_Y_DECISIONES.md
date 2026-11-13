@@ -24,3 +24,4 @@ Regla de la serie: solo lo publicado; sin cifras si no hay medición fiable; las
 - **Voz:** ElevenLabs Eleven v4, voz Dan, 2 tomas (781 caracteres cada una, 1.562 créditos); elegida la toma 1 (52,1 s). Voz intacta (24/24 tramos idénticos en el QC).
 - **Manos:** las manos ilustradas del canal (`P.manoImg`, v1.35), a petición del usuario.
 - **No usado:** la idea de que cerrar apps «borra datos» o «libera RAM para que el celular vaya más rápido»: no forma parte de la pregunta y las fuentes no la miden.
+- **V2 (13-11-2026):** gancho corregido (pregunta fija, centrada y separada del subtítulo, sin zoom y fuera antes de «¿Cerrarlas…»; celular más grande desde el fotograma 0) y el libro de «tirar el marcapáginas» siempre dentro de la zona segura (la escena siguiente entra con fundido en vez de deslizarse). Mismos datos y voz. V1 en `07_OUTPUT/V1/` y `04_CODIGO/V1/`. La portada no cambia.
