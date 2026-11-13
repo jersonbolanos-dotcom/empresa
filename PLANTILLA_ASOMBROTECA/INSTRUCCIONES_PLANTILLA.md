@@ -1003,3 +1003,13 @@ Las manos de los vídeos salen ahora de la **hoja de manos ilustradas** del cana
 - **Créditos:** en `CREDITOS_IMAGENES.md` de cada vídeo: «Manos: hoja de manos ilustradas aportada por el canal (uso propio)».
 - **Regenerar:** `python3 -I PLANTILLA_ASOMBROTECA/tools/extraer_manos.py HOJA.png [--escala 2]` detecta la cuadrícula (7 × 3, fondo oscuro liso, rótulos debajo), recorta cada mano con alfa suave sin halo, quita astillas de las vecinas, amplía con Lanczos y escribe `manos/*.png` y `motor/manos.js` (WebP en base64, con la «punta» de las poses que señalan). Con otra hoja u otro orden: `--nombres a,b,c,…`.
 
+## v1.36 · La pregunta escrita arriba (`P.pregunta`)
+
+`P.pregunta(ctx, '¿CERRAR APPS / AHORRA BATERÍA?', t, 0, 4.8, { capY: 330, px: 70, clave: 'BATERÍA?' })`
+
+- Para la regla 122: la pregunta del vídeo, escrita arriba durante los primeros segundos (que desaparezca antes de 5 s).
+- « / » separa las dos líneas; `clave` = palabra en amarillo; se reduce sola si no cabe en 880 px.
+- Posición: con los subtítulos arriba (`capY` < 960) va justo debajo de ellos (y ≈ capY + 100); con los subtítulos abajo, en y = 250.
+- Devuelve el y inferior: la escena del gancho empieza debajo (con `P.encuadrar(…, { franja: { …, y0: ese y + 20 } })` si hace falta).
+- QC: se registra como 'pregunta' (zona segura y encimados); no cuenta como título fijo.
+
