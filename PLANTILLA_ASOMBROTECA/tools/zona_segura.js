@@ -49,7 +49,9 @@ const { chromium } = require('playwright'); const path = require('path');
     // línea larga —el canto de una mesa— no pese como un objeto): percentiles 10 y 90 y centro, de 0 (arriba) a 1 (abajo)
     const subs = L.filter((q) => q[0] === 'subtitulo'); if (subs.length) { const ym = Math.min(...subs.map((q) => q[2])), yM = Math.max(...subs.map((q) => q[4]));
      franja = (ym + yM) / 2 < 960 ? [Math.max(220, yM + 16), 1450] : [220, Math.min(1450, ym - 16)]; }
-    const f0 = Math.max(0, Math.round(franja[0] / sc) - Y0), f1 = Math.min(filas.length, Math.round(franja[1] / sc) - Y0), FR = filas.slice(f0, f1).map((v) => Math.min(v, X1 * 0.25));
+    // v1.36 · la pregunta escrita arriba (P.pregunta) también se descuenta de la franja de escena mientras está
+    const fr = franja.slice(), pq = L.filter((q) => q[0] === 'pregunta'); if (pq.length) fr[0] = Math.max(fr[0], Math.max(...pq.map((q) => q[4])) + 16);
+    const f0 = Math.max(0, Math.round(fr[0] / sc) - Y0), f1 = Math.min(filas.length, Math.round(fr[1] / sc) - Y0), FR = filas.slice(f0, f1).map((v) => Math.min(v, X1 * 0.25));
     const M = FR.reduce((s0, v) => s0 + v, 0); let acc = 0, p10 = 0, p90 = 1, cy = 0.5;
     if (M > 0) { let my = 0; for (let k = 0; k < FR.length; k++) { const v = FR[k], a0 = acc; acc += v; my += v * k; if (a0 < 0.1 * M && acc >= 0.1 * M) p10 = k / FR.length; if (a0 < 0.9 * M && acc >= 0.9 * M) p90 = k / FR.length; } cy = my / M / FR.length; }
     if (!L.some((q) => q[0] === 'cierre')) anchos.push([+t.toFixed(2), x0 < 0 ? 0 : (x1 - x0 + 1) / X1, +cy.toFixed(3), +p10.toFixed(3), +p90.toFixed(3)]); } }

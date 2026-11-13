@@ -83,7 +83,7 @@
    for (const sg of [-1, 1]) { const ww = sg < 0 ? wL : wR; if (ww < 4) continue; c.fillStyle = '#f7f1e3'; c.beginPath(); c.moveTo(0, -6); c.quadraticCurveTo(sg * ww * 0.5, -30, sg * ww, -16); c.lineTo(sg * ww, -340 + (1 - ab) * 0); c.quadraticCurveTo(sg * ww * 0.5, -356, 0, -336); c.closePath(); c.fill();
     c.strokeStyle = 'rgba(120,100,70,0.35)'; c.lineWidth = 6; for (let r = 0; r < 8; r++) { const yy = -296 + r * 34; c.beginPath(); c.moveTo(sg * ww * 0.12, yy); c.lineTo(sg * ww * (r === 7 ? 0.55 : 0.86), yy + 6); c.stroke(); } }
    c.fillStyle = 'rgba(0,0,0,0.12)'; c.fillRect(-6, -336, 12, 330); }
-  else { c.fillStyle = '#9b3b3b'; c.beginPath(); c.roundRect(-230, -150, 470, 150, 14); c.fill(); c.fillStyle = '#f7f1e3'; c.fillRect(-218, -132, 446, 114); c.fillStyle = '#b84a4a'; c.beginPath(); c.roundRect(-230, -150, 470, 44, 14); c.fill(); c.fillStyle = 'rgba(120,100,70,0.35)'; for (let r = 0; r < 5; r++) c.fillRect(-212, -96 + r * 16, 434, 4); }
+  else { c.fillStyle = '#9b3b3b'; c.beginPath(); c.roundRect(-230, -250, 470, 250, 16); c.fill(); c.fillStyle = '#f7f1e3'; c.fillRect(-218, -206, 446, 188); c.fillStyle = '#b84a4a'; c.beginPath(); c.roundRect(-230, -250, 470, 52, 16); c.fill(); c.fillStyle = 'rgba(120,100,70,0.35)'; for (let r = 0; r < 9; r++) c.fillRect(-212, -186 + r * 18, 434, 4); }
   if (marca > 0) { const v = cl(o.vuela || 0), mx = (ab > 0.02 ? 120 : 160) + v * 420, my = (ab > 0.02 ? -350 : -170) - v * 520 + v * v * 300; c.save(); c.translate(mx, my); c.rotate(v * 3.2); cinta(c, 0, 0, 44, 210 * E.out(cl(marca)), 1 - cl((v - 0.8) / 0.2)); c.restore(); }
   c.restore(); };
  // chip (procesador) con patillas; carga 0 (frío, apagado) … 1 (caliente, rojo, con ondas de calor)
@@ -118,12 +118,12 @@
  const FR_GANCHO = { x0: 30, x1: 910, y0: 600, y1: 1430, cx: 470, cy: 1015, w: 880, h: 830 };   // con la pregunta arriba
  // ---------- 1 · GANCHO A: deslizas hacia arriba y cierras todas tus apps (la batería no se mueve) ----------
  B.push({ t0: 0, t1: S(2), in: { type: 'cut' }, draw(ctx, t) {
-  fondo(ctx, t); P.pregunta(ctx, '¿CERRAR APPS / AHORRA BATERÍA?', t, 0, 4.8, { capY: 330, px: 70, clave: 'BATERÍA?' });
+  fondo(ctx, t); const qB = P.pregunta(ctx, '¿CERRAR APPS / AHORRA BATERÍA?', t, 0, 4.8, { capY: 330, px: 66, clave: 'BATERÍA?', x: 540, dy: 50 });
   const vuela = (i) => E.in(win(t, Tk.desliza + 0.25 + i * 0.55, Tk.desliza + 0.75 + i * 0.55));
-  const r = ENC(ctx, [20, 300, 960, 1430], (g) => { losa(g, 0, 980, 1410);
+  const r = ENC(ctx, [60, 405, 960, 1425], (g) => { losa(g, 40, 980, 1410);
    celular(g, 300, 1410 - 492 - 12, 480, t, { bat: 0.62, dibuja: (c, sw, sh) => { c.fillStyle = 'rgba(30,40,60,0.85)'; c.fillRect(-sw / 2, -sh / 2, sw, sh);
     for (let i = 2; i >= 0; i--) { const v = vuela(i); if (v >= 1) continue; c.save(); c.globalAlpha *= 1 - v * 0.6; tarjeta(c, (i - 1) * sw * 0.16, -sh * 0.02 - v * sh * 0.9 + i * 12, sw * 0.62, sh * 0.66, i + 1, t); c.restore(); } } });
-   bateriaV(g, 760, 1410 - 330 - 6, 300, 660, 0.62, { col: GR }); });
+   bateriaV(g, 770, 1410 - 380 - 6, 330, 760, 0.62, { col: GR }); }, { franja: { x0: 30, x1: 1010, y0: qB + 30, y1: 1440, cx: 520, cy: (qB + 30 + 1440) / 2, w: 880, h: 1440 - qB - 30 }, alto: 0.97, ancho: 0.9 });
   // el dedo desliza cada tarjeta hacia arriba
   const i = Math.min(2, Math.floor(Math.max(0, t - Tk.desliza - 0.25) / 0.55)), ph = cl((t - Tk.desliza - 0.25 - i * 0.55) / 0.5);
   const [fx, fy] = r.map(300, 980 - E.inOut(ph) * 330); if (t > Tk.desliza - 0.1 && t < Tk.desliza + 1.95) P.manoImg(ctx, 'frente', fx + 10, fy, 560, { ancla: 'punta', ang: 0.18 });
@@ -169,15 +169,17 @@
    g.save(); g.globalAlpha *= a2; g.translate(0, (1 - a2) * 60); ayuda(g, 725, 945, 420, 900, 'Google', ok, t); g.restore(); });
  }, sfx(k) { FX.aparece(k, Tk.apple - 0.2, 620); FX.aparece(k, Tk.google - 0.2, 680); FX.correcto(k, Tk.ayuda); } });
 
- // ---------- 7 · si la cierras… es como cerrar el libro y tirar el marcapáginas ----------
+ // ---------- 7 · si la cierras… es como cerrar el libro (de golpe) y tirar el marcapáginas — el libro, protagonista ----------
  B.push({ t0: S(12), t1: S(14), in: { type: 'fade', d: 0.3 }, draw(ctx, t) {
-  fondo(ctx, t); const sw0 = E.in(win(t, Tk.cierras - 0.05, Tk.cierras + 0.45)), cb = 1 - E.inOut(win(t, Tk.cerrarLibro - 0.1, Tk.cerrarLibro + 0.45)), vu = win(t, Tk.tirar - 0.05, Tk.tirar + 0.9);
-  const r = ENC(ctx, [20, 400, 1000, 1440], (g) => { losa(g, 0, 990, 1410);
-   celular(g, 270, 1410 - 461 - 12, 450, t, { bat: 0.62, dibuja: (c, sw, sh) => { c.fillStyle = 'rgba(30,40,60,0.85)'; c.fillRect(-sw / 2, -sh / 2, sw, sh); if (sw0 < 1) { c.save(); c.globalAlpha *= 1 - sw0 * 0.7; tarjeta(c, 0, -sh * 0.04 - sw0 * sh * 0.95, sw * 0.7, sh * 0.62, 2, t, { hielo: 1, marca: 1, pag: 'pág. 37' }); c.restore(); } } });
-   libro(g, 740, 1400, 0.82, cb, 1, t, { vuela: vu }); });
-  const ph = cl((t - Tk.cierras + 0.35) / 0.8), [fx, fy] = r.map(270, 1000 - E.inOut(ph) * 380); if (t > Tk.cierras - 0.4 && t < Tk.cierras + 0.7) P.manoImg(ctx, 'frente', fx + 10, fy, 560, { ancla: 'punta', ang: 0.18 });
-  P.tag(ctx, 'SIN MARCAPÁGINAS', 470, 1395, t, Tk.tirar + 0.3, S(14), { mono: true, col: RD, px: 58 });
- }, sfx(k) { k.play('swish', Tk.cierras, { gain: 0.4 }); k.play('thud', Tk.cerrarLibro + 0.35, { gain: 0.35 }); k.play('whoosh', Tk.tirar, { dur: 0.6, gain: 0.3 }); FX.etiqueta(k, Tk.tirar + 0.3); } });
+  fondo(ctx, t); const tc = Tk.cerrarLibro, cb = 1 - E.in(win(t, tc - 0.05, tc + 0.16)), vu = win(t, Tk.tirar - 0.05, Tk.tirar + 1.4), golpe = win(t, tc + 0.11, tc + 0.6);
+  const tiembla = sm(Tk.cierras - 0.2, Tk.cierras, t) * (1 - sm(tc - 0.1, tc, t)) * Math.sin(t * 40) * 3;
+  const zc = 1 - cb, r = ENC(ctx, [lerp(-40, 90, zc), lerp(820, 980, zc), lerp(1000, 870, zc), 1440], (g) => { losa(g, -20, 980, 1410); g.save(); g.translate(tiembla, 0); libro(g, 480, 1400, 1.55, cb, cb > 0.05 ? 1 : 0, t, { vuela: 0 }); g.restore();
+   if (golpe > 0 && golpe < 1) { g.save(); g.globalAlpha *= 1 - golpe; g.fillStyle = 'rgba(230,220,200,0.6)'; for (let q = 0; q < 9; q++) { const an = Math.PI + q * Math.PI / 8; g.beginPath(); g.arc(480 + Math.cos(an) * (300 + 260 * golpe), 1330 + Math.sin(an) * 60 * golpe - 40 * golpe, 18 + 26 * golpe, 0, TAU); g.fill(); } g.restore(); } }, { ancho: 0.95 });
+  // la cinta sale volando, grande, en arco hacia arriba a la derecha
+  if (vu > 0 && vu < 1) { const [x0, y0] = r.map(480 + 160 * 1.55, 1400 - 250 * 1.55), x = x0 + E.inOut(vu) * 560, y = Math.max(560, y0 - 230 * r.k - Math.sin(vu * Math.PI) * 120); ctx.save(); ctx.translate(x, y); ctx.rotate(vu * 2.2); cinta(ctx, 0, 0, 90 * r.k * 1.55 / 1.3, 380 * r.k * 1.55 / 1.3, 1 - cl((vu - 0.9) / 0.1)); ctx.restore(); }
+  else if (vu <= 0 && cb < 0.05) { const [x0, y0] = r.map(480 + 160 * 1.55, 1400 - 250 * 1.55); cinta(ctx, x0, y0 - 230 * r.k, 90 * r.k * 1.55 / 1.3, 380 * r.k * 1.55 / 1.3, 1); }
+  P.tag(ctx, 'SIN MARCAPÁGINAS', 470, 1395, t, Tk.tirar + 0.5, S(14), { mono: true, col: RD, px: 58 });
+ }, sfx(k) { k.play('thud', Tk.cerrarLibro + 0.1, { gain: 0.55 }); FX.crujido(k, Tk.cerrarLibro + 0.12); k.play('whoosh', Tk.tirar, { dur: 0.8, gain: 0.35 }); FX.etiqueta(k, Tk.tirar + 0.5); } });
 
  // ---------- 8 · la próxima vez tiene que abrirla DESDE CERO y le cuesta más trabajo ----------
  B.push({ t0: S(14), t1: S(16), in: { type: 'slide', d: 0.35 }, draw(ctx, t) {

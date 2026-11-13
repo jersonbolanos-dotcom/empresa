@@ -5466,22 +5466,22 @@ P.encuadrar = (ctx, caja, dibujo, o = {}) => { const F = o.franja || P.franjaEsc
  let SAFE_LOG = null;
  const safeLog = (k, x0, y0, x1, y1) => { if (SAFE_LOG) SAFE_LOG.push([k, Math.round(x0), Math.round(y0), Math.round(x1), Math.round(y1)]); };
  P.safeLog = safeLog;
-// v1.36 · P.pregunta(ctx, 'LÍNEA 1 / LÍNEA 2', t, t0, t1, { capY = 330, px = 66, clave, col }) — LA PREGUNTA ESCRITA ARRIBA durante
+// v1.36 · P.pregunta(ctx, 'LÍNEA 1 / LÍNEA 2', t, t0, t1, { capY = 330, px = 66, clave, col, x = 470, dy = 0 }) — LA PREGUNTA ESCRITA ARRIBA durante
 //   los primeros segundos (regla 122). Centrada en la zona segura (x = 470), en 1-2 líneas (« / » las separa), blanca con borde
 //   oscuro y la palabra `clave` en amarillo. Va justo DEBAJO de los subtítulos cuando están arriba (capY < 960 → y ≈ capY + 100)
 //   o arriba del todo (y = 250) si están abajo; entra con un pequeño «pop» y se va en 0,3 s. Se registra en el QC como 'pregunta'
 //   (zona segura y encimados; no cuenta como título fijo). Devuelve el y inferior, para empezar la escena debajo.
-P.pregunta = (ctx, texto, t, t0, t1, o = {}) => { const capY = o.capY ?? 330, px = o.px || 66, L = String(texto).split('/').map((q) => q.trim()).filter(Boolean), lh = px * 1.12;
- const y0 = capY < 960 ? capY + 100 : 250, yB = y0 + lh * L.length; if (t < t0 - 0.05 || t > t1) return yB;
+P.pregunta = (ctx, texto, t, t0, t1, o = {}) => { const capY = o.capY ?? 330, px = o.px || 66, L = String(texto).split('/').map((q) => q.trim()).filter(Boolean), lh = px * 1.12, X = o.x ?? 470;
+ const y0 = (capY < 960 ? capY + 100 : 250) + (o.dy || 0), yB = y0 + lh * L.length; if (t < t0 - 0.05 || t > t1) return yB;
  const a = sm(t0, t0 + 0.2, t) * (1 - sm(t1 - 0.3, t1, t)), e = E.out(win(t, t0, t0 + 0.35)); if (a <= 0) return yB;
  ctx.save(); ctx.globalAlpha *= a; ctx.font = `900 ${px}px "${SK.font.cap}"`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.lineJoin = 'round';
- let wmax = 0; for (const l of L) wmax = Math.max(wmax, ctx.measureText(l).width); const k = Math.min(1, 880 / wmax);
- ctx.translate(470, y0 + lh * L.length / 2); ctx.scale(k * (0.85 + 0.15 * e), k * (0.85 + 0.15 * e)); ctx.translate(-470, -(y0 + lh * L.length / 2));
- L.forEach((l, i) => { const y = y0 + lh * (i + 0.5); ctx.lineWidth = px * 0.16; ctx.strokeStyle = 'rgba(8,10,16,0.92)'; ctx.strokeText(l, 470, y);
-  if (o.clave && l.toUpperCase().includes(o.clave.toUpperCase())) { const ws = l.split(' '), sp = ctx.measureText(' ').width, tot = ctx.measureText(l).width; let xx = 470 - tot / 2; ctx.textAlign = 'left';
+ let wmax = 0; for (const l of L) wmax = Math.max(wmax, ctx.measureText(l).width); const k = Math.min(1, (2 * Math.min(X, 940 - X) - 20) / wmax);
+ ctx.translate(X, y0 + lh * L.length / 2); ctx.scale(k * (0.85 + 0.15 * e), k * (0.85 + 0.15 * e)); ctx.translate(-X, -(y0 + lh * L.length / 2));
+ L.forEach((l, i) => { const y = y0 + lh * (i + 0.5); ctx.lineWidth = px * 0.16; ctx.strokeStyle = 'rgba(8,10,16,0.92)'; ctx.strokeText(l, X, y);
+  if (o.clave && l.toUpperCase().includes(o.clave.toUpperCase())) { const ws = l.split(' '), sp = ctx.measureText(' ').width, tot = ctx.measureText(l).width; let xx = X - tot / 2; ctx.textAlign = 'left';
    for (const w of ws) { ctx.fillStyle = w.toUpperCase().replace(/[¿?¡!.,]/g, '') === o.clave.toUpperCase() ? (o.col || '#FFD23F') : '#FFFFFF'; ctx.fillText(w, xx, y); xx += ctx.measureText(w).width + sp; } ctx.textAlign = 'center'; }
-  else { ctx.fillStyle = '#FFFFFF'; ctx.fillText(l, 470, y); } });
- ctx.restore(); safeLog('pregunta', 470 - wmax * k / 2, y0, 470 + wmax * k / 2, yB); return yB; };
+  else { ctx.fillStyle = '#FFFFFF'; ctx.fillText(l, X, y); } });
+ ctx.restore(); safeLog('pregunta', X - wmax * k / 2, y0, X + wmax * k / 2, yB); return yB; };
 // v1.34 · el cierre (P.ctaShare) se marca para que el QC de encuadre no lo cuente (su maqueta es fija: celular + mano desde abajo)
 { const _cta = P.ctaShare; P.ctaShare = (ctx, t, t0, t1, o = {}) => { if (t >= t0 - 0.05 && t <= t1) safeLog('cierre', 470, 835, 470, 835); return _cta(ctx, t, t0, t1, o); }; }
  P.pausas = (A, min = 0.4, max = 1.6) => { const out = [], ws = A.words || []; for (let i = 1; i < ws.length; i++) { const g = ws[i].s - ws[i - 1].e; if ((g >= min && g <= max) || ws[i].pausa) out.push([ws[i - 1].e, ws[i].s]); } return out; };

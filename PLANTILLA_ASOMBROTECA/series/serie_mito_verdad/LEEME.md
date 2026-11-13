@@ -43,6 +43,7 @@ bordes se funden con el fondo) y `--bajar` lo coloca debajo del texto; `portada.
 ## Capítulos
 | Cap. | Pregunta | Veredicto | Proyecto |
 |---|---|---|---|
+| 2 | ¿Cerrar las apps que quedan abiertas ahorra batería? | MITO | `MITO_CAP2_CERRAR_APPS_PROYECTO` (un solo vídeo, gancho A · portada: `"¿CERRAR LAS APPS / AHORRA BATERÍA?" "APPS" 5.0 --foco 470 --bajar 270` · celular con la pantalla de apps) |
 | 3 | ¿En modo avión carga más rápido el celular? | A MEDIAS | `MITO_CAP3_MODO_AVION_PROYECTO` (portada: `"¿CARGA MÁS RÁPIDO / EN MODO AVIÓN?" "AVIÓN?" 2.0 --gancho A --escala 0.84 --bajar 168` · celular con el dedo en el avión y la batería con «?») |
 | 4 | ¿Hay que dejar que la batería llegue a 0 % para cargarla? | MITO | `MITO_CAP4_BATERIA_CERO_PROYECTO` (portada V2: `"¿HAY QUE LLEGAR / AL 0 % PARA CARGAR?" "0" 1.4 --gancho A --foco 470 --bajar 205` · celular al 2 % y el cargador sin enchufar en la mesa, sin mano; vídeo publicado: VARIANTE_B, rehecha con el encuadre v1.34) |
 
