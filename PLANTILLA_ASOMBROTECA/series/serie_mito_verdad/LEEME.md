@@ -48,6 +48,7 @@ bordes se funden con el fondo) y `--bajar` lo coloca debajo del texto; `portada.
 | 3 | ¿En modo avión carga más rápido el celular? | A MEDIAS | `MITO_CAP3_MODO_AVION_PROYECTO` (portada: `"¿CARGA MÁS RÁPIDO / EN MODO AVIÓN?" "AVIÓN?" 2.0 --gancho A --escala 0.84 --bajar 168` · celular con el dedo en el avión y la batería con «?») |
 | 4 | ¿Hay que dejar que la batería llegue a 0 % para cargarla? | MITO | `MITO_CAP4_BATERIA_CERO_PROYECTO` (portada V2: `"¿HAY QUE LLEGAR / AL 0 % PARA CARGAR?" "0" 1.4 --gancho A --foco 470 --bajar 205` · celular al 2 % y el cargador sin enchufar en la mesa, sin mano; vídeo publicado: VARIANTE_B, rehecha con el encuadre v1.34) |
 | 5 | ¿Meter el celular mojado en arroz lo salva? | MITO | `MITO_CAP5_ARROZ_PROYECTO` (un solo vídeo, gancho B · portada: `"¿EL ARROZ SALVA / UN CELULAR MOJADO?" "ARROZ" 0.3 --foco 390` · celular mojado en el tazón de arroz) |
+| 6 | ¿Un imán puede borrar tu celular? | MITO | `MITO_CAP6_IMAN_PROYECTO` (un solo vídeo, gancho C · portada: `"¿UN IMÁN PUEDE / BORRAR TU CELULAR?" "IMÁN" 5.4 --foco 480 --bajar 150` · celular con un imán de herradura grande al lado) |
 
 ## Mano
 Siempre `P.manoImg(ctx, pose, x, y, alto, { ancla: 'punta', ang, espejo })` (v1.35, manos ilustradas del canal; catálogo `catalogo/manos_v135.jpg`); con un cargador, solo el cargador y el cable, sin mano y en el cierre `P.ctaShare(…, { mano: true })`.

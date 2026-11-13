@@ -12,7 +12,7 @@
  const CY = '#3ee6ff', GO = '#ffc845', RD = '#ff4d5e', GR = '#22d27a', INK = '#0d1117';
  const R = (a, b, t) => E.out(win(t, a, b));
  const Tk = {
-  borra: wt(1, 'borra.'), mito0: S(3), letras: wt(4, 'letras'), magnetico: wt(6, 'magnético.'), desordenar: wt(7, 'desordenarlos.'), celdas: wt(9, 'celdas'), tinta: wt(10, 'tinta'), cuaderno: wt(10, 'cuaderno.'),
+  imanes: wt(0, 'imanes'), borra: wt(1, 'borra.'), mito0: S(3), letras: wt(4, 'letras'), magnetico: wt(6, 'magnético.'), desordenar: wt(7, 'desordenarlos.'), celdas: wt(9, 'celdas'), tinta: wt(10, 'tinta'), cuaderno: wt(10, 'cuaderno.'),
   encima: wt(12, 'encima'), nada: wt(12, 'nada.'), afecta: wt(14, 'afecta.'), brujula: wt(15, 'brújula'), marcar: wt(15, 'marcar'), banda: wt(16, 'banda'), funda: wt(16, 'funda:'), imantadas: wt(17, 'imantadas,'), danarse: wt(17, 'dañarse.'),
   veredicto: S(18), mito: wt(19, 'mito.'), saca: wt(21, 'saca'), funda2: wt(21, 'funda'), iman2: wt(21, 'imán'), cargador: wt(21, 'cargador'), envia: S(22),
  };
@@ -94,8 +94,10 @@
 
  // celular por dentro (rayos X): imanes (anillo y altavoces) y memoria; o.imanes 0…1, o.mem 0…1
  const rayosX = (c, sw, sh, t, o = {}) => { c.fillStyle = '#0a1a2e'; c.fillRect(-sw / 2, -sh / 2, sw, sh); c.strokeStyle = 'rgba(120,180,255,0.35)'; c.lineWidth = 3; c.strokeRect(-sw * 0.4, -sh * 0.42, sw * 0.8, sh * 0.84);
-  const im = o.imanes || 0; if (im > 0) { c.save(); c.globalAlpha *= im; P.glow(c, 0, sh * 0.05, sw * 0.5, '62,230,255', 0.35); c.strokeStyle = CY; c.lineWidth = 14; for (let q = 0; q < 16; q++) { const a0 = q * TAU / 16; c.beginPath(); c.arc(0, sh * 0.05, sw * 0.28, a0 + 0.06, a0 + TAU / 16 - 0.06); c.stroke(); }
-   for (const yy of [-sh * 0.4, sh * 0.4]) { c.fillStyle = CY; c.beginPath(); c.roundRect(-sw * 0.16, yy - 14, sw * 0.32, 28, 12); c.fill(); } c.restore(); }
+  // v2: imanes reconocibles (barras rojo y plata en anillo + dos imanes de herradura), con brillo o.brillo 0…1
+  const im = o.imanes || 0, br = o.brillo || 0; if (im > 0) { c.save(); c.globalAlpha *= im; if (br > 0) P.glow(c, 0, sh * 0.05, sw * 0.6, '255,77,94', 0.45 * br);
+   const rr = sw * 0.27; for (let q = 0; q < 8; q++) { const a0 = q * TAU / 8; c.save(); c.translate(Math.cos(a0) * rr, sh * 0.05 + Math.sin(a0) * rr); c.rotate(a0 + Math.PI / 2); c.fillStyle = '#e04050'; c.beginPath(); c.roundRect(-34, -16, 34, 32, [8, 0, 0, 8]); c.fill(); c.fillStyle = '#cfd8e3'; c.beginPath(); c.roundRect(0, -16, 34, 32, [0, 8, 8, 0]); c.fill(); c.restore(); }
+   herradura(c, 0, -sh * 0.36, 0.32, t, { ang: Math.PI, campo: br }); herradura(c, 0, sh * 0.38, 0.32, t, { ang: 0, campo: br }); c.restore(); }
   const m = o.mem ?? 1; c.save(); c.globalAlpha *= 0.4 + 0.6 * m; c.fillStyle = '#1f2633'; c.beginPath(); c.roundRect(-sw * 0.18, -sh * 0.28, sw * 0.36, sh * 0.14, 10); c.fill(); c.fillStyle = '#ffd36b'; for (let q = 0; q < 6; q++) c.fillRect(-sw * 0.14 + q * sw * 0.05, -sh * 0.25, sw * 0.03, sh * 0.08); c.restore(); };
 
  // =====================================================================================================
@@ -105,12 +107,13 @@
  // ---------- 1 · GANCHO C: tu celular ya lleva imanes dentro… y no se borra ----------
  B.push({ t0: 0, t1: S(2), in: { type: 'cut' }, draw(ctx, t) {
   fondo(ctx, t); const qB = P.pregunta(ctx, '¿UN IMÁN PUEDE / BORRAR TU CELULAR?', t, 0, S(2) - 0.15, { capY: 330, px: 62, clave: 'IMÁN', x: 540, dy: 110 });
-  const im = sm(0.0, 0.9, t), ok = sm(Tk.borra - 0.2, Tk.borra + 0.2, t), pz = 1 + 0.06 * E.out(win(t, 0, 3));
+  const im = sm(0.0, 0.5, t), brl = sm(Tk.imanes - 0.2, Tk.imanes + 0.2, t) * (0.75 + 0.25 * Math.sin(t * 9)), ok = sm(Tk.borra - 0.2, Tk.borra + 0.2, t), pz = 1 + 0.06 * E.out(win(t, 0, 3));
   ENC(ctx, [10, 380, 1010, 1440], (g) => { g.translate(500, 1000); g.scale(pz, pz); g.translate(-500, -1000); losa(g, 0, 1010, 1410);
-   celular(g, 300, 1410 - 461 - 14, 450, t, { bat: 0.7, dibuja: (c, sw, sh) => rayosX(c, sw, sh, t, { imanes: im, mem: 1 }) });
+   celular(g, 300, 1410 - 461 - 14, 450, t, { bat: 0.7, dibuja: (c, sw, sh) => rayosX(c, sw, sh, t, { imanes: im, brillo: brl, mem: 1 }) });
    celdas(g, 770, 980, 380, 300, t, { on: 0.5 + 0.5 * ok }); txt(g, 'MEMORIA', 770, 790, 54, '#cfd8e3', { w: 900, f: 'Fredoka' }); if (ok > 0) P.icon(g, 'check', 770, 1220, 160 * E.out(ok), { mode: 'flat', col: GR, col2: '#fff' }); },
    { franja: { x0: 30, x1: 1050, y0: qB + 30, y1: 1640, cx: 540, cy: (qB + 30 + 1640) / 2, w: 980, h: 1640 - qB - 30 }, alto: 0.98, ancho: 0.98 });
- }, sfx(k) { k.play('whoosh', 0.05, { dur: 0.6, gain: 0.25 }); FX.revelar(k, 0.2); FX.correcto(k, Tk.borra); } });
+  P.tag(ctx, 'IMANES', 760, 880, t, Tk.imanes - 0.15, S(2), { mono: true, col: RD, px: 70 });
+ }, sfx(k) { k.play('whoosh', 0.05, { dur: 0.6, gain: 0.25 }); FX.revelar(k, 0.2); FX.etiqueta(k, Tk.imanes - 0.15); FX.correcto(k, Tk.borra); } });
 
  // ---------- 2 · ¿Un imán puede borrar tu celular? ¿Mito o verdad? ----------
  B.push({ t0: S(2), t1: S(4), in: { type: 'zoom', d: 0.35, x: 540, y: 960 }, draw(ctx, t) {
@@ -146,7 +149,7 @@
  // ---------- 6 · un imán de nevera no tiene nada que desordenar: puede pasarle por encima sin borrar nada ----------
  B.push({ t0: S(11), t1: S(13), in: { type: 'slide', d: 0.35 }, draw(ctx, t) {
   fondo(ctx, t); const pas = win(t, Tk.encima - 0.5, Tk.nada + 0.4), ok = sm(Tk.nada - 0.1, Tk.nada + 0.3, t);
-  ENC(ctx, [0, 590, 1010, 1440], (g) => { losa(g, 0, 1010, 1410);
+  ENC(ctx, [0, 680, 1010, 1440], (g) => { losa(g, 0, 1010, 1410);
    celular(g, 230, 1410 - 400 - 14, 390, t, { bat: 0.7, dibuja: (c, sw, sh) => celdas(c, 0, 0, sw * 0.86, sh * 0.6, t, { on: 1 }) }); cuaderno(g, 720, 1400, 0.8, t, { texto: 'DATOS', escribe: 1 });
    const mx = lerp(-60, 1080, E.inOut(pas)); if (pas > 0 && pas < 1) { g.save(); g.translate(mx, 820); g.fillStyle = 'rgba(0,0,0,0.3)'; g.beginPath(); g.ellipse(6, 70, 70, 12, 0, 0, TAU); g.fill(); letra(g, 'A', 0, 0, 160, '#ff4d5e', Math.sin(t * 4) * 0.2); g.restore(); }
    if (ok > 0) { P.icon(g, 'check', 230, 700, 150 * E.out(ok), { mode: 'flat', col: GR, col2: '#fff' }); P.icon(g, 'check', 720, 960, 150 * E.out(ok), { mode: 'flat', col: GR, col2: '#fff' }); } });
@@ -176,7 +179,7 @@
 
  // ---------- 9 · VEREDICTO: MITO ----------
  B.push({ t0: Tk.veredicto - 0.35, t1: S(20), in: { type: 'fade', d: 0.3 }, draw(ctx, t) {
-  fondo(ctx, t); ENC(ctx, [0, 400, 1000, 1440], (g) => { losa(g, 0, 1000, 1410); celular(g, 300, 1410 - 461 - 14, 450, t, { bat: 0.7, dibuja: (c, sw, sh) => rayosX(c, sw, sh, t, { imanes: 1, mem: 1 }) }); herradura(g, 780, 900, 1.15, t, { ang: Math.PI / 2, campo: 1 }); });
+  fondo(ctx, t); ENC(ctx, [0, 400, 1000, 1440], (g) => { losa(g, 0, 1000, 1410); celular(g, 300, 1410 - 461 - 14, 450, t, { bat: 0.7, dibuja: (c, sw, sh) => rayosX(c, sw, sh, t, { imanes: 1, brillo: 0.6, mem: 1 }) }); herradura(g, 780, 900, 1.15, t, { ang: Math.PI / 2, campo: 1 }); });
   ctx.fillStyle = `rgba(5,8,12,${0.55 * sm(Tk.veredicto - 0.3, Tk.veredicto, t)})`; ctx.fillRect(0, 0, W, HH);
   P.veredicto(ctx, t, tV, 'MITO', { y: 1000 });
  }, sfx(k) { k.play('riser', Tk.veredicto - 0.3, { dur: tV - Tk.veredicto + 0.2, gain: 0.25, minor: true }); FX.veredicto(k, tV, 'MITO'); } });

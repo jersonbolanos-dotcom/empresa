@@ -1,23 +1,23 @@
-# Publicar · ¿MITO O VERDAD? · Cap. 6 · ¿Mito o verdad? Cap. 6 · ¿Un imán puede borrar tu celular?
+# Publicar · ¿MITO O VERDAD? · Cap. 6 · ¿Un imán puede borrar tu celular?
 
-> Serie «¿MITO O VERDAD?» (6 capítulos sobre cosas que todos hacemos con el celular). Siempre la misma maqueta de portada.
-> Primero, las 3 variantes como «Reel de prueba» en Instagram; a las 24 h, la que más retuvo en los primeros 3 s va al perfil y al resto.
-> Reglas: la pregunta del capítulo como gancho y NUNCA el veredicto. Se pide comentar «¿mito o verdad?» antes de ver el final.
-> Nunca «dale like» ni «comparte si…». De 3 a 5 hashtags (siempre #mitooverdad).
+> Serie «¿MITO O VERDAD?» (6 capítulos sobre cosas que todos hacemos con el celular). Portada: `portada.jpg` (maqueta fija de la serie).
+> Un solo vídeo (v1.34): `MITO_CAP6_IMAN_FINAL.mp4`, con el gancho C: «Tu celular ya lleva imanes dentro… y no se borra.»
+> Reglas: la pregunta como gancho y NUNCA el veredicto. Se pide comentar «¿mito o verdad?». Nunca «dale like» ni «comparte si…».
 
 ## YouTube Shorts
-**Título:** ¿Mito o verdad? [pregunta del capítulo] #shorts
-**Descripción:** [1 frase de contexto sin el veredicto] ¿Tú qué dices: mito o verdad? Te leo en comentarios.
-#shorts #mitooverdad #[tema] #[tema]
+**Título:** ¿Mito o verdad? ¿Un imán puede borrar tu celular? #shorts
+**Descripción:** Siempre nos dijeron que alejáramos los imanes de los aparatos. ¿Puede un imán borrar tu celular o es puro mito?
+¿Tú qué dices: mito o verdad? Te leo en comentarios.
+#shorts #mitooverdad #celular #tecnologia
 
 ## Facebook (Reels)
-**Texto:** [pregunta del capítulo] ¿Mito o verdad? Escríbelo en comentarios antes de ver el final.
-#mitooverdad #[tema] #[tema]
+**Texto:** ¿Un imán puede borrar todo lo que tienes en el celular? ¿Mito o verdad? Escríbelo en comentarios antes de ver el final.
+#mitooverdad #celular #tecnologia
 
 ## Instagram (Reels)
-**Texto:** ¿Mito o verdad? [pregunta del capítulo]
-[1 frase sin el veredicto]. Comenta «mito» o «verdad» antes de verlo.
-#mitooverdad #[tema] #[tema] #[tema]
+**Texto:** ¿Mito o verdad? ¿Un imán puede borrar tu celular?
+Tu celular ya lleva imanes dentro… entonces, ¿qué pasa si le acercas otro? Comenta «mito» o «verdad» antes de verlo.
+#mitooverdad #celular #tecnologia #trucos
 
 ## TikTok
-**Texto:** ¿Mito o verdad? [pregunta corta] Comenta tu respuesta 👇 #mitooverdad #[tema] #[tema]
+**Texto:** ¿Mito o verdad? ¿Imán + celular = fotos borradas? Comenta tu respuesta 👇 #mitooverdad #celular #tecnologia
