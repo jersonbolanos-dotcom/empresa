@@ -3,7 +3,7 @@
 | Control | Resultado | |
 |---|---|---|
 | Formato | h264 1080×1920 30/1 · aac 48000 Hz | ✔ |
-| Duración / tamaño | 52.90 s · 21.5 MB | ✔ |
+| Duración / tamaño | 52.90 s · 20.3 MB | ✔ |
 | Decodificación completa | 0 errores | ✔ |
 | Negros > 0,3 s / congelados > 1,5 s | 0 / 0 | ✔ |
 | Silencios > 1 s (−50 dB) | 0 | ✔ |
@@ -16,7 +16,7 @@
 | Pausas dramáticas (0,4-1,6 s; objetivo 3-4) | 5 | ✔ |
 | Silencio inicial ≤ 0,5 s / final ≤ 1 s (−50 dB) | 0.00 s / 0.09 s | ✔ |
 | Nada encimado (dos textos o contadores en la misma zona) | 0 encimados | ✔ |
-| Pantalla llena (contenido ≥ 60 % del ancho seguro; aviso si < 60 % más de 3 s) | mínimo 0 % · AVISO en 27-32.4 s (8 %), 39.6-48 s (51 %) | ✔ |
+| Encuadre (protagonista ≥ 60 % del ancho, escena centrada en la zona segura, sin media pantalla vacía; > 3 s = fallo) | mínimo 41 % del ancho · correcto | ✔ |
 | Gancho sin frase de contexto (variante B) | correcto | ✔ |
 | Cierre «Envíaselo a ese amigo…» (sin «Sigue a…») | correcto | ✔ |
 | Subtítulos sin etiquetas [ ] ni < > | limpios | ✔ |

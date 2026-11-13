@@ -5234,7 +5234,8 @@
   if (geo) { const a0 = geo.avatar(sel), A1 = [a0[0] + 540, a0[1] + cy], B1 = [geo.button[0] + 540, geo.button[1] + cy], f = (q) => E.inOut(win(q, 0.45, tap1)), g = E.inOut(win(tt, tap1 + 0.25, tap2)), press = Math.max(1 - Math.abs(tt - tap1) / 0.12, 1 - Math.abs(tt - tap2) / 0.12, 0), fw = h * 0.062;
    const X = tt < tap1 ? lerp(760, A1[0], f(tt)) : lerp(A1[0], B1[0], g), Y = (tt < tap1 ? lerp(HH + 260, A1[1], f(tt)) : lerp(A1[1], B1[1], g)) + press * 6;
    for (const [q, p] of [[tap1, A1], [tap2, B1]]) { const r = win(tt, q, q + 0.45); if (r > 0 && r < 1) { ctx.strokeStyle = `rgba(255,255,255,${0.6 * (1 - r)})`; ctx.lineWidth = 4; ctx.beginPath(); ctx.arc(p[0], p[1], 20 + 60 * r, 0, TAU); ctx.stroke(); } }
-   if (o.mano) P.mano(ctx, X, Y, fw * 0.95, { ang: 0.32, skin: o.skin }); else P.fingertip(ctx, X, Y, fw, t, { ang: 0.32, card: false, skin: o.skin }); }   // v1.31: o.mano = mano plana completa
+   if (o.manoImg && (typeof window !== 'undefined' && window.MANOS_IMG)) P.manoImg(ctx, o.manoImg === true ? 'frente' : o.manoImg, X, Y, fw * 8, { ancla: 'punta', ang: 0.32 });   // v1.35: mano ilustrada
+   else if (o.mano) P.mano(ctx, X, Y, fw * 0.95, { ang: 0.32, skin: o.skin }); else P.fingertip(ctx, X, Y, fw, t, { ang: 0.32, card: false, skin: o.skin }); }   // v1.31: o.mano = mano plana completa
   ctx.restore(); };
 
  // ---- ETIQUETA con líneas guía (píldora oscura, texto blanco; 1-2 guías discontinuas hasta los objetos) ----

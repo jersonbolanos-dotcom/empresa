@@ -996,6 +996,7 @@ Las manos de los vídeos salen ahora de la **hoja de manos ilustradas** del cana
 | `sombra` | sombra suave (por defecto sí; `false` la quita) |
 
 - No hace falta incrustar nada: si `episodio.js` usa `P.manoImg`, `build.py` incrusta `motor/manos.js` (≈ 0,7 MB) antes del motor; los demás proyectos no cambian. Las imágenes se cargan en `K.fotos()` (o `await P.cargarManos()` en `init`).
+- Cierre: `P.ctaShare(ctx, t, t0, t1, { …, manoImg: 'frente' })` (o cualquier pose que señale) dibuja la mano ilustrada tocando «Enviar».
 - Para tocar una pantalla: `apunta_izquierda`/`apunta_derecha` o `frente`/`lado_*` con `ancla: 'punta'` en el punto tocado (+ la onda de `FX.toque`).
 - Para sostener: usar las poses que ya traen su objeto (`sujeta_celular`, `sostiene_taza`, `sostiene_tarjeta`, `escribe`). Para un objeto distinto (p. ej. un cargador) no hay pose: se muestra el objeto solo, sin mano.
 - **Celular de `sujeta_celular`:** es genérico y sin logo, pero su cámara recuerda a un modelo comercial; usarlo pequeño o de espaldas solo cuando importe que sea «un celular», no una marca.
