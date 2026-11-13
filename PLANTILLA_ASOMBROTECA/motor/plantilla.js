@@ -5478,7 +5478,7 @@ P.pregunta = (ctx, texto, t, t0, t1, o = {}) => { const capY = o.capY ?? 330, px
  const y0 = (capY < 960 ? capY + 100 : 250) + (o.dy || 0), yB = y0 + lh * L.length; if (t < t0 || t > t1) return yB;
  const a = (t0 <= 0.05 ? 1 : sm(t0, t0 + 0.2, t)) * (1 - sm(t1 - 0.25, t1, t)); if (a <= 0) return yB;
  FIJOS['pregunta|' + texto + '|' + t0] = (c) => { c.save(); c.setTransform(1, 0, 0, 1, 0, 0); c.globalAlpha = a; c.font = `900 ${px}px "${SK.font.cap}"`; c.textAlign = 'center'; c.textBaseline = 'middle'; c.lineJoin = 'round';
-  let wmax = 0; for (const l of L) wmax = Math.max(wmax, c.measureText(l).width); const k = Math.min(1, (2 * Math.min(X, 1080 - X) - 60) / wmax), pk = px * k;
+  let wmax = 0; for (const l of L) wmax = Math.max(wmax, c.measureText(l).width); const k = Math.min(1, (2 * Math.min(X, 940 - X) - 20) / wmax), pk = px * k;   // siempre dentro de la zona segura (x ≤ 940)
   c.font = `900 ${pk}px "${SK.font.cap}"`;
   L.forEach((l, i) => { const y = y0 + lh * (i + 0.5); c.lineWidth = pk * 0.16; c.strokeStyle = 'rgba(8,10,16,0.92)'; c.strokeText(l, X, y);
    if (o.clave && l.toUpperCase().includes(o.clave.toUpperCase())) { const ws = l.split(' '), sp = c.measureText(' ').width, tot = c.measureText(l).width; let xx = X - tot / 2; c.textAlign = 'left';
