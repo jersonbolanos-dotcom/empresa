@@ -47,4 +47,4 @@ bordes se funden con el fondo) y `--bajar` lo coloca debajo del texto; `portada.
 | 4 | ¿Hay que dejar que la batería llegue a 0 % para cargarla? | MITO | `MITO_CAP4_BATERIA_CERO_PROYECTO` (portada: celular con la batería al 1-2 % y la mano con el cargador sin enchufar, gancho A) |
 
 ## Mano
-Siempre `P.mano(ctx, x, y, s, { pose: 'senalar' | 'tocar' | 'abierta', ang })` (v1.34; la pose 'sujetar' NO se usa: con cargador, solo cargador y cable) y en el cierre `P.ctaShare(…, { mano: true })`.
+Siempre `P.manoImg(ctx, pose, x, y, alto, { ancla: 'punta', ang, espejo })` (v1.35, manos ilustradas del canal; catálogo `catalogo/manos_v135.jpg`); con un cargador, solo el cargador y el cable, sin mano y en el cierre `P.ctaShare(…, { mano: true })`.

@@ -24,6 +24,10 @@ if G and G not in _gn:
     sys.exit(f'ERROR: no hay [GANCHO {G}] en tramos.txt (hay: {", ".join(sorted(_gn))})')
 if G:
     src = src.replace('<!-- @inline-js js/datos.js -->', f"<script>window.GANCHO = '{G}';</script>\n<!-- @inline-js js/datos_{G}.js -->")
+# v1.35 · manos ilustradas: si episodio.js usa P.manoImg, se incrusta motor/manos.js justo antes del motor (los demás proyectos no cambian)
+_ep = os.path.join(root, 'js', 'episodio.js')
+if os.path.exists(_ep) and 'manoImg' in open(_ep, encoding='utf-8').read() and 'motor/manos.js' not in src:
+    src = re.sub(r'(<!-- @inline-js (\S*)motor/plantilla\.js -->)', lambda m: f'<!-- @inline-js {m.group(2)}motor/manos.js -->\n' + m.group(1), src, count=1)
 out = re.sub(r'<!-- @inline-css (\S+) -->', css, src)
 out = re.sub(r'<!-- @inline-js (\S+) -->', js, out)
 adir = os.path.join(root, '..', '01_ENTRADA', 'audio')

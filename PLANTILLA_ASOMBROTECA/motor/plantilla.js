@@ -3169,6 +3169,25 @@
    pieza([ten, pul], [cx - 0.6 * u, yB - 1.4 * u, cx + 2.4 * u, yB + 3.3 * u], () => { arruga(pul, 0.5); arruga(pul, 0.68); una(pul); });
   }
   ctx.restore(); };
+ // v1.35 · P.manoImg(ctx, nombre, x, y, alto, { ancla, ang, espejo, alpha, sombra }) — MANO ILUSTRADA (sprite de motor/manos.js,
+ //   recortado de la hoja de manos con tools/extraer_manos.py). Poses: frente, abierta, paz, ok, pulgar_arriba, pulgar_abajo, puno,
+ //   lado_izquierdo, lado_derecho, dorso, palma, apunta_derecha, apunta_izquierda, sujeta_celular, escribe, sostiene_taza,
+ //   sostiene_tarjeta, palma_arriba, palma_abajo, pinza, garra.
+ //   alto = alto en px del dibujo · ancla: 'punta' (punta del índice, en las poses que señalan; por defecto si existe), 'base'
+ //   (centro de la muñeca, abajo; por defecto en las demás) o 'centro' · ang = giro alrededor del ancla · espejo = mano izquierda.
+ //   Se carga sola: episodio.js solo tiene que llamar a P.manoImg (build.py incrusta motor/manos.js) y esperar K.fotos() o
+ //   P.cargarManos() en init. Devuelve la caja [x0, y0, x1, y1] (sin giro).
+ const MANOS = {};
+ P.cargarManos = () => { const D = (typeof window !== 'undefined' && window.MANOS_IMG) || {};
+  return Promise.all(Object.keys(D).map((k) => MANOS[k] ? Promise.resolve() : new Promise((res) => { const im = new Image(); im.onload = () => { MANOS[k] = im; res(); }; im.onerror = () => res(); im.src = D[k].src; }))); };
+ P.manoImg = (ctx, nombre, x, y, alto, o = {}) => { const D = (typeof window !== 'undefined' && window.MANOS_IMG) || {}, d = D[nombre], im = MANOS[nombre];
+  if (!d) throw new Error('P.manoImg: no existe la pose «' + nombre + '» (hay: ' + Object.keys(D).join(', ') + ')');
+  if (!im) return null; const k = alto / d.h, an = o.ancla || (d.punta ? 'punta' : 'base');
+  const [ax, ay] = an === 'punta' && d.punta ? d.punta : an === 'centro' ? [d.w / 2, d.h / 2] : [d.w / 2, d.h];
+  ctx.save(); ctx.globalAlpha *= o.alpha ?? 1; ctx.translate(x, y); ctx.rotate(o.ang || 0); if (o.espejo) ctx.scale(-1, 1); ctx.scale(k, k); ctx.translate(-ax, -ay);
+  if (o.sombra !== false) { ctx.save(); ctx.filter = `brightness(0) blur(${Math.max(2, 12 / k)}px)`; ctx.globalAlpha *= 0.4; ctx.drawImage(im, 8 / k, 16 / k); ctx.restore(); }   // sombra suave
+  ctx.imageSmoothingQuality = 'high'; ctx.drawImage(im, 0, 0); ctx.restore();
+  return [x - ax * k, y - ay * k, x + (d.w - ax) * k, y + (d.h - ay) * k]; };
  let HAND_RIM = null;
  P.fingertip = (ctx, cx, tipY, fw, t, o = {}) => { const sk = o.skin || '#d29a76', dk = H.rgba(H.mix(sk, '#3a1e10', 0.3)), dk2 = H.rgba(H.mix(sk, '#3a1e10', 0.5)), lt = H.rgba(H.mix(sk, '#fff1e6', 0.3)), mm = fw / 17, an = o.ang ?? 0.42, L = fw * 4.4;
   const hp = new Path2D();
@@ -5091,7 +5110,7 @@
   const bill = (ctx, cam, foot, h, f) => { const a = cam.clip([foot], 1)[0], b = cam.clip([[foot[0], foot[1] + h, foot[2]]], 1)[0]; if (!a || !b) return null; return f(a[0], a[1], a[1] - b[1]); };
   // cámara 3D por fotogramas clave: keys = [[t, pos, target, f], …] con interpolación suave
   const shot = (keys, t) => { let i = 0; while (i < keys.length - 2 && t > keys[i + 1][0]) i++; const a = keys[i], b = keys[i + 1], u = E.inOut(win(t, a[0], b[0])), L = (p, q) => p.map((v, j) => lerp(v, q[j], u)); return P.cam3(L(a[1], b[1]), L(a[2], b[2]), lerp(a[3] || 900, b[3] || 900, u)); };
-  const IMG = {}; const fotos = async () => { for (const k of Object.keys(window.FOTOS || {})) IMG[k] = await new Promise((res) => { const im = new Image(); im.onload = () => res(im); im.onerror = () => res(null); im.src = window.FOTOS[k]; }); return IMG; };
+  const IMG = {}; const fotos = async () => { await P.cargarManos(); for (const k of Object.keys(window.FOTOS || {})) IMG[k] = await new Promise((res) => { const im = new Image(); im.onload = () => res(im); im.onerror = () => res(null); im.src = window.FOTOS[k]; }); return IMG; };
   return { A, W, HH, TAU, cl, sm, E, lerp, win, wt, wa, T, B0, DURATION, txt, title, lab, recon, vign, bill, shot, fotos, IMG }; };
  // Marca discreta al final (dos líneas finas y el nombre espaciado). Nombre: P.MARCA.nombre (configurable con PL.make({ marca })).
  P.marca = (ctx, t, t0, o = {}) => { const a = sm(t0 - 0.6, t0, t); if (a <= 0) return; const y = o.y ?? 285, nm = o.nombre || P.MARCA.nombre; ctx.save(); ctx.globalAlpha *= a; ctx.strokeStyle = 'rgba(245,247,250,0.75)'; ctx.lineWidth = 2; const lw = 230 * E.out(a); ctx.beginPath(); ctx.moveTo(540 - lw, y - 55); ctx.lineTo(540 + lw, y - 55); ctx.moveTo(540 - lw, y + 53); ctx.lineTo(540 + lw, y + 53); ctx.stroke(); ctx.font = `800 54px "${SK.font.cap}"`; ctx.letterSpacing = '10px'; ctx.fillStyle = '#F5F7FA'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.shadowColor = 'rgba(0,0,0,0.6)'; ctx.shadowBlur = 14; ctx.fillText(nm, 540, y); ctx.restore(); };

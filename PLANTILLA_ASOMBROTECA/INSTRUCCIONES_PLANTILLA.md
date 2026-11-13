@@ -980,3 +980,25 @@ Ejemplo: `P.encuadrar(ctx, [100, 600, 900, 1420], (c) => { mesa(c); telViejo(c, 
 - **`abierta`:** sin cambios.
 - **`sujetar`:** rehecha vista desde la palma (el objeto entre el pulgar, delante, y los dedos, detrás, de los que solo asoman las puntas; muñeca en la misma dirección que la mano; `o.caja = [x0, y0, x1, y1]` del objeto). **NO se usa en los vídeos:** todavía no se ve natural. En las escenas con cargador se muestra solo el cargador y el cable, sin mano. Para «tocar» una pantalla o «señalar», las otras poses.
 - Hoja: `catalogo/mano_v134.jpg`.
+
+## v1.35 · Manos ilustradas (`P.manoImg`)
+
+Las manos de los vídeos salen ahora de la **hoja de manos ilustradas** del canal (`manos/hoja_manos_original.png`, 21 poses), recortadas con fondo transparente. Sustituyen a `P.mano` (la mano dibujada por código queda solo por retrocompatibilidad).
+
+`P.manoImg(ctx, nombre, x, y, alto, { ancla, ang, espejo, alpha, sombra })`
+
+| Parámetro | Qué hace |
+|---|---|
+| `nombre` | `frente`, `abierta`, `paz`, `ok`, `pulgar_arriba`, `pulgar_abajo`, `puno`, `lado_izquierdo`, `lado_derecho`, `dorso`, `palma`, `apunta_derecha`, `apunta_izquierda`, `sujeta_celular`, `escribe`, `sostiene_taza`, `sostiene_tarjeta`, `palma_arriba`, `palma_abajo`, `pinza`, `garra` (catálogo: `catalogo/manos_v135.jpg`) |
+| `alto` | alto del dibujo en px. Calidad buena hasta ≈ 800 px (el sprite está ampliado ×2 desde la hoja; si se necesita más grande, pedir la hoja en más resolución y volver a ejecutar la herramienta) |
+| `ancla` | `'punta'` = punta del índice (por defecto en `frente`, `lado_izquierdo`, `lado_derecho`, `apunta_derecha`, `apunta_izquierda`; marcada en amarillo en el catálogo), `'base'` = centro de la muñeca (por defecto en las demás), `'centro'` |
+| `ang` / `espejo` | giro alrededor del ancla / mano izquierda |
+| `sombra` | sombra suave (por defecto sí; `false` la quita) |
+
+- No hace falta incrustar nada: si `episodio.js` usa `P.manoImg`, `build.py` incrusta `motor/manos.js` (≈ 0,7 MB) antes del motor; los demás proyectos no cambian. Las imágenes se cargan en `K.fotos()` (o `await P.cargarManos()` en `init`).
+- Para tocar una pantalla: `apunta_izquierda`/`apunta_derecha` o `frente`/`lado_*` con `ancla: 'punta'` en el punto tocado (+ la onda de `FX.toque`).
+- Para sostener: usar las poses que ya traen su objeto (`sujeta_celular`, `sostiene_taza`, `sostiene_tarjeta`, `escribe`). Para un objeto distinto (p. ej. un cargador) no hay pose: se muestra el objeto solo, sin mano.
+- **Celular de `sujeta_celular`:** es genérico y sin logo, pero su cámara recuerda a un modelo comercial; usarlo pequeño o de espaldas solo cuando importe que sea «un celular», no una marca.
+- **Créditos:** en `CREDITOS_IMAGENES.md` de cada vídeo: «Manos: hoja de manos ilustradas aportada por el canal (uso propio)».
+- **Regenerar:** `python3 -I PLANTILLA_ASOMBROTECA/tools/extraer_manos.py HOJA.png [--escala 2]` detecta la cuadrícula (7 × 3, fondo oscuro liso, rótulos debajo), recorta cada mano con alfa suave sin halo, quita astillas de las vecinas, amplía con Lanczos y escribe `manos/*.png` y `motor/manos.js` (WebP en base64, con la «punta» de las poses que señalan). Con otra hoja u otro orden: `--nombres a,b,c,…`.
+

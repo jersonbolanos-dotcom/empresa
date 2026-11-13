@@ -18,6 +18,7 @@ con resumen en español. Responder siempre en español.
 - Determinismo: `H.rng`, nunca `Math.random`. No modificar `H` ni `SOUND`.
 - No crear plantillas nuevas: ampliar `PLANTILLA_ASOMBROTECA` (bloques nuevos, versión nueva en CAMBIOS) y comprobar retrocompatibilidad.
 - Nada flota: los objetos se apoyan en superficies definidas.
+- Manos (v1.35): solo `P.manoImg` con las manos ilustradas del canal (`PLANTILLA_ASOMBROTECA/catalogo/manos_v135.jpg`); nunca `P.mano`.
 - Al corregir: respaldar la versión anterior en carpetas `V1/` y cambiar solo lo pedido.
 - Git: commit + push a la rama de trabajo; no subir `index.html` generados; no crear PR salvo que se pida.
 
