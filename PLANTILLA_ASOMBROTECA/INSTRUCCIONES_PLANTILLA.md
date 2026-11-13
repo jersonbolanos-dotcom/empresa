@@ -1008,6 +1008,7 @@ Las manos de los vídeos salen ahora de la **hoja de manos ilustradas** del cana
 `P.pregunta(ctx, '¿CERRAR APPS / AHORRA BATERÍA?', t, 0, 4.8, { capY: 330, px: 70, clave: 'BATERÍA?' })`
 
 - Para la regla 122: la pregunta del vídeo, escrita arriba durante los primeros segundos (que desaparezca antes de 5 s).
+- Opciones: `x` (centro; 470 = zona segura, 540 = centro de la pantalla) y `dy` (px extra de separación del subtítulo). El QC de encuadre descuenta la pregunta de la franja de escena mientras está.
 - « / » separa las dos líneas; `clave` = palabra en amarillo; se reduce sola si no cabe en 880 px.
 - Posición: con los subtítulos arriba (`capY` < 960) va justo debajo de ellos (y ≈ capY + 100); con los subtítulos abajo, en y = 250.
 - Devuelve el y inferior: la escena del gancho empieza debajo (con `P.encuadrar(…, { franja: { …, y0: ese y + 20 } })` si hace falta).
