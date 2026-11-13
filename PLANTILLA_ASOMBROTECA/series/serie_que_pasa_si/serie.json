@@ -1,0 +1,10 @@
+{
+ "id": "serie_que_pasa_si",
+ "nombre": "¿QUÉ PASA SI…?",
+ "tema": "Situaciones de peligro o sorpresa vividas en segunda persona, con lo que pasa de verdad y qué hacer",
+ "capitulos": 0,
+ "portada": { "etiqueta": "¿QUÉ PASA SI…?", "bloque": "arriba", "lineas": 2, "roja": "palabra", "tam": "igual", "marca": "arriba", "fondo": "fotograma NÍTIDO de la ESCENA REAL del capítulo (el objeto grande dentro de la situación, p. ej. el carro bajo la tormenta con el rayo), nunca la metáfora, centrado en x = 540" },
+ "remate": "QUÉ HACER",
+ "estilo_recomendado": "noche",
+ "hashtags_fijos": ["#quepasasi"]
+}

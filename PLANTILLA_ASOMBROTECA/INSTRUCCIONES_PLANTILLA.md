@@ -910,6 +910,7 @@ Un formato de serie fija lo que se repite en todos los capítulos: bloques propi
 | Serie | Carpeta | Qué trae |
 |---|---|---|
 | «¿MITO O VERDAD?» | `series/serie_mito_verdad/` | `P.veredicto` + `FX.veredicto` (sello MITO / VERDAD / A MEDIAS que cae con su golpe), `P.serieTitulo`, portada fija (etiqueta «¿MITO O VERDAD?», la pregunta en 2 líneas con la palabra clave en rojo, fotograma nítido, maqueta v1.30), `PUBLICAR.md` de la serie y `LEEME.md` con la estructura del guion |
+| «¿QUÉ PASA SI…?» | `series/serie_que_pasa_si/` | `P.queHacer` + `FX.queHacer` (remate «QUÉ HACER» con 2-3 consejos con ✓, en lugar del sello), `P.serieTitulo`, portada fija (etiqueta «¿QUÉ PASA SI…?», pregunta en 2 líneas con la palabra clave en rojo, fotograma nítido de la escena real centrado en x = 540), `PUBLICAR.md` y `LEEME.md` con las reglas fijas del formato (v1.37) |
 
 ```
 python3 PLANTILLA_ASOMBROTECA/tools/nuevo_proyecto.py MITO_CAP4_TEMA --serie serie_mito_verdad --capitulo 4 --estilo tecno --voz AUDIO
@@ -1015,4 +1016,12 @@ Las manos de los vídeos salen ahora de la **hoja de manos ilustradas** del cana
 - QC: se registra como 'pregunta' (zona segura y encimados); no cuenta como título fijo.
 
 **v1.36b · `P.pregunta` va FIJA:** se dibuja en la capa de los subtítulos, fuera de la cámara: no hace zoom ni se desliza con las transiciones. `x` por defecto 540 (centro de la pantalla). Con `t0` ≤ 0,05 se ve entera desde el fotograma 0. Pon `t1` antes del siguiente subtítulo (p. ej. `S(2) - 0.15`) y usa `dy` (≈ 100) para separarla del subtítulo.
+
+## v1.37 · Formato de serie «¿QUÉ PASA SI…?» (`series/serie_que_pasa_si/`)
+- `nuevo_proyecto.py NOMBRE --serie serie_que_pasa_si --capitulo N --estilo noche --voz AUDIO`.
+- Reglas fijas (ver `LEEME.md` de la serie): el espectador dentro de la situación, en segunda persona, con el peligro en < 2 s;
+  un solo objeto grande (≥ 60 % del ancho) y en movimiento desde el fotograma 0; `P.pregunta` fija y centrada; promesa de
+  respuesta tras el gancho; remate «QUÉ HACER» con 2-3 consejos; «Envíaselo a ese amigo que…».
+- `P.queHacer(ctx, t, t0, [{ t, txt }, …], { x = 540, y = 470, w = 800, t1, titulo = 'QUÉ HACER', px = 54 })` + `FX.queHacer(k, t0, consejos)`.
+- Portada: `producir.py P portada "¿QUÉ PASA SI… / …?" "ROJA" SEGUNDO` (la etiqueta sale de `SERIE.json`); fondo = escena real.
 
