@@ -1,33 +1,23 @@
 # Publicar · ¿Por qué el cocodrilo casi no ha cambiado en millones de años?
 
-> v1.29 · Reglas: el gancho va como **pregunta** y **NUNCA** se da la respuesta. Se pide **comentar** (una pregunta concreta),
-> nunca «dale like», «comparte si…» ni «sígueme» (Meta lo castiga). De **3 a 5 hashtags**. Sin enlaces en la descripción.
-> Primero, las 3 variantes como «Reel de prueba» en Instagram; a las 24 h, la que más retuvo en los primeros 3 s va al perfil y a las demás redes.
-
-Variante elegida: [A | B | C] · Portada: `portada.jpg`
+> Un solo vídeo (v1.34): `COCODRILO_FINAL.mp4`, gancho A: «Estás en la orilla de un río… y dos ojos te miran desde el agua.»
+> Portada: `portada.jpg` (etiqueta «200 MILLONES DE AÑOS», «CASI SIN / CAMBIOS»).
+> Reglas: la pregunta como gancho y NUNCA la respuesta en el texto (no decir «sangre fría» ni «sobrevivió por…»). Se pide comentar.
+> Nunca «dale like» ni «comparte si…». De 3 a 5 hashtags.
 
 ## YouTube Shorts
-**Título** (≤ 70 caracteres, pregunta sin respuesta):
-[¿…?] #shorts
-
-**Descripción:**
-[Gancho en una frase, sin desvelar la respuesta.]
-[Pregunta para comentar: «¿Tú qué…? Te leo en comentarios.»]
-#shorts #[tema] #[tema] #[tema]
+**Título:** ¿Por qué el cocodrilo casi no ha cambiado en 200 millones de años? #shorts
+**Descripción:** Vivió con los dinosaurios… y sigue en los ríos de hoy casi igual. ¿Por qué tú crees que sobrevivió? Te leo en comentarios.
+#shorts #cocodrilo #dinosaurios #naturaleza
 
 ## Facebook (Reels)
-**Texto:**
-[Gancho como pregunta, 1-2 frases.]
-[Pregunta para comentar.]
-#[tema] #[tema] #[tema]
+**Texto:** El cocodrilo ya existía cuando vivían los dinosaurios… y casi no ha cambiado. ¿Sabes por qué? Escríbelo en comentarios antes de ver el final.
+#cocodrilo #dinosaurios #naturaleza
 
 ## Instagram (Reels)
-**Texto** (la primera línea es la que se ve: gancho como pregunta):
-[¿…?]
-[1 frase de contexto sin dar la respuesta.]
-[Pregunta para comentar.]
-#[tema] #[tema] #[tema] #[tema]
+**Texto:** ¿Por qué el cocodrilo casi no ha cambiado en millones de años?
+Cayó el asteroide, desaparecieron los dinosaurios… y él siguió nadando. Comenta por qué crees que sobrevivió.
+#cocodrilo #dinosaurios #naturaleza #animales
 
 ## TikTok
-**Texto** (≤ 150 caracteres):
-[¿…?] [Pregunta para comentar.] #[tema] #[tema] #[tema]
+**Texto:** ¿Por qué el cocodrilo casi no ha cambiado desde los dinosaurios? 🐊 Comenta tu teoría 👇 #cocodrilo #dinosaurios #naturaleza

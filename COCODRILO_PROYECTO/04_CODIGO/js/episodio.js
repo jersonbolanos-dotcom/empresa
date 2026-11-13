@@ -56,9 +56,9 @@
  // bandada de aves que cruza el cielo (pantalla, franja alta de la escena)
  const bandada = (ctx, t, y0 = 600, n = 9, col = '#1b1220', a = 1) => { ctx.save(); ctx.globalAlpha *= a; ctx.strokeStyle = col; ctx.lineWidth = 7; ctx.lineCap = 'round'; const R = H.rng(46); for (let i = 0; i < n; i++) { const x = ((R() * 1400 + t * (70 + R() * 30)) % 1400) - 160, y = y0 + R() * 160 + Math.sin(t * 2 + i) * 8, w = 26 + R() * 16, al = Math.sin(t * 9 + i * 1.7) * 0.6; ctx.beginPath(); ctx.moveTo(x - w, y - w * al); ctx.quadraticCurveTo(x - w * 0.4, y - w * 0.5, x, y); ctx.quadraticCurveTo(x + w * 0.4, y - w * 0.5, x + w, y - w * al); ctx.stroke(); } ctx.restore(); };
  // hierba de primer término (pantalla) que se mece
- const pastoFrente = (ctx, t, y0 = 1300) => { const R = H.rng(57); ctx.save(); ctx.lineCap = 'round'; for (let i = 0; i < 90; i++) { const x = R() * W, h = 90 + R() * 150, sw = Math.sin(t * 2 + x * 0.02) * 18; ctx.strokeStyle = i % 3 ? '#26361a' : '#3b5326'; ctx.lineWidth = 6 + R() * 5; ctx.beginPath(); ctx.moveTo(x, HH); ctx.lineTo(x, y0 + 160); ctx.quadraticCurveTo(x + sw * 0.5, y0 + 160 - h * 0.5, x + sw, y0 + 160 - h); ctx.stroke(); } ctx.restore(); };
+ const pastoFrente = (ctx, t, y0 = 1300) => { const R = H.rng(57); ctx.save(); ctx.lineCap = 'round'; for (let i = 0; i < 90; i++) { const x = R() * W, h = 60 + R() * 70, sw = Math.sin(t * 2 + x * 0.02) * 18; ctx.strokeStyle = i % 3 ? '#26361a' : '#3b5326'; ctx.lineWidth = 6 + R() * 5; ctx.beginPath(); ctx.moveTo(x, HH); ctx.lineTo(x, y0 + 160); ctx.quadraticCurveTo(x + sw * 0.5, y0 + 160 - h * 0.5, x + sw, y0 + 160 - h); ctx.stroke(); } ctx.restore(); };
  // nenúfares vistos desde arriba (mundo)
- const nenufaresTop = (c, t) => { const R = H.rng(88); for (let i = 0; i < 26; i++) { const x = -900 + R() * 1800, y = -1600 + R() * 3200, r = 50 + R() * 70; c.fillStyle = i % 2 ? '#3e6b33' : '#4a7a3a'; c.beginPath(); c.arc(x, y + Math.sin(t + i) * 4, r, 0.3, TAU - 0.1); c.lineTo(x, y); c.closePath(); c.fill(); c.strokeStyle = 'rgba(0,0,0,0.25)'; c.lineWidth = 3; for (let k = 0; k < 5; k++) { c.beginPath(); c.moveTo(x, y); c.lineTo(x + Math.cos(k * 1.2 + 0.5) * r * 0.9, y + Math.sin(k * 1.2 + 0.5) * r * 0.9); c.stroke(); } } };
+ const nenufaresTop = (c, t) => { const R = H.rng(88); for (let i = 0; i < 60; i++) { const x = -900 + R() * 1800, y = -1600 + R() * 3200, r = 50 + R() * 70; c.fillStyle = i % 2 ? '#3e6b33' : '#4a7a3a'; c.beginPath(); c.arc(x, y + Math.sin(t + i) * 4, r, 0.3, TAU - 0.1); c.lineTo(x, y); c.closePath(); c.fill(); c.strokeStyle = 'rgba(0,0,0,0.25)'; c.lineWidth = 3; for (let k = 0; k < 5; k++) { c.beginPath(); c.moveTo(x, y); c.lineTo(x + Math.cos(k * 1.2 + 0.5) * r * 0.9, y + Math.sin(k * 1.2 + 0.5) * r * 0.9); c.stroke(); } } };
  // ---------- COCODRILO de lado (mira a la derecha; local: bisagra de la mandíbula en (420, -60); vientre en y ≈ 40) ----------
  // o.boca 0…1 · o.ola amplitud de la cola · o.parpado 0…1 · o.antiguo 0…1 (patas largas, hocico corto, pardo) · o.patas
  const piel = (a) => ({ top: H.rgba(H.mix('#3f5a2b', '#6b5530', a)), mid: H.rgba(H.mix('#4e6b33', '#7d6438', a)), panza: H.rgba(H.mix('#c9bf86', '#c8a979', a)), osc: H.rgba(H.mix('#2a3d1d', '#4a3a22', a)) });
@@ -131,8 +131,8 @@
   const R = H.rng(72); ctx.lineWidth = 3; for (let i = 0; i < 60; i++) { const y = 1010 + Math.pow(R(), 1.5) * 900, x = R() * W, l = 30 + (y - 1000) * 0.3, ph = t * (0.8 + R()) + R() * 6; ctx.strokeStyle = `rgba(255,220,190,${0.1 + 0.2 * (y - 1000) / 900})`; ctx.beginPath(); ctx.moveTo(x + Math.sin(ph) * 20, y); ctx.lineTo(x + l + Math.sin(ph) * 20, y); ctx.stroke(); }
   if (fl > 0) { ctx.fillStyle = `rgba(255,255,255,${0.2 * fl})`; ctx.fillRect(0, 0, W, HH); } };
  // humo y polvo que avanzan por el suelo (pantalla) + brasas que caen
- const humoSuelo = (ctx, t, t0, a = 1) => { if (t < t0) return; const d = t - t0, R = H.rng(99); ctx.save(); for (let i = 0; i < 18; i++) { const x = ((R() * 1400 + d * (60 + R() * 80)) % 1500) - 200, y = 1060 + R() * 420 - Math.sin(d + i) * 20, r = 120 + R() * 160 + d * 20; ctx.fillStyle = `rgba(${90 + R() * 40},${70 + R() * 30},${70 + R() * 20},${Math.min(0.75, d * 0.8) * a})`; ctx.beginPath(); ctx.arc(x, y, r, 0, TAU); ctx.fill(); }
-  for (let i = 0; i < 40; i++) { const x = R() * W, y0 = R() * 1900, y = (y0 + d * (160 + R() * 160)) % 1500 + 400; ctx.fillStyle = `rgba(255,${150 + R() * 80},70,${0.85 * a})`; ctx.beginPath(); ctx.arc(x + Math.sin(d * 3 + i) * 12, y, 3 + R() * 4, 0, TAU); ctx.fill(); } ctx.restore(); };
+ const humoSuelo = (ctx, t, t0, a = 1) => { if (t < t0) return; const d = t - t0, R = H.rng(99); ctx.save(); for (let i = 0; i < 18; i++) { const x = ((R() * 1400 + d * (60 + R() * 80)) % 1500) - 200, y = 1060 + R() * 420 - Math.sin(d + i) * 20, r = 120 + R() * 160 + d * 20; ctx.fillStyle = `rgba(${90 + R() * 40},${70 + R() * 30},${70 + R() * 20},${Math.min(0.45, d * 0.6) * a})`; ctx.beginPath(); ctx.arc(x, y, r, 0, TAU); ctx.fill(); }
+  for (let i = 0; i < 110; i++) { const x = R() * W, y0 = R() * 1900, y = (y0 + d * (160 + R() * 160)) % 1500 + 400; ctx.fillStyle = `rgba(255,${150 + R() * 80},70,${0.9 * a})`; ctx.beginPath(); ctx.arc(x + Math.sin(d * 3 + i) * 12, y, 4 + R() * 6, 0, TAU); ctx.fill(); } ctx.restore(); };
  // ---------- COCODRILO desde arriba (nada hacia arriba; ondula) ----------
  const anchoTop = (y) => { if (y < -560) return lerp(36, 96, cl((y + 700) / 140)); if (y < -380) return lerp(96, 120, cl((y + 560) / 180)); if (y < 220) return 200 - 60 * Math.abs((y + 80) / 300); return lerp(140, 8, cl((y - 220) / 700)); };
  const cocoTop = (c, t, o = {}) => { const Pl = piel(0), amp = o.ola ?? 60, xo = (y) => amp * Math.sin(t * 2.6 - y * 0.007) * cl((y + 300) / 1200);
@@ -198,11 +198,11 @@
   ctx.save(); ctx.translate(sh[0], sh[1]); rioFrente(ctx, t);
   for (let k = 0; k < 3; k++) { const ph = (t * 0.7 + k / 3) % 1; ctx.strokeStyle = `rgba(255,230,210,${0.55 * (1 - ph)})`; ctx.lineWidth = 5; ctx.beginPath(); ctx.ellipse(540, WL + 8, 260 * (0.6 + ph * 1.2), 40 * (0.6 + ph * 1.2), 0, 0, TAU); ctx.stroke(); }
   cocoFrente(ctx, t, 540, y, sc, abre);
-  const ag = ctx.createLinearGradient(0, WL, 0, HH); ag.addColorStop(0, 'rgba(70,52,84,0.75)'); ag.addColorStop(1, 'rgba(20,24,40,0.9)'); ctx.fillStyle = ag; ctx.fillRect(0, WL + 6, W, HH - WL);
+  const ag = ctx.createLinearGradient(0, WL, 0, HH); ag.addColorStop(0, 'rgba(70,52,84,0.55)'); ag.addColorStop(1, 'rgba(20,24,40,0.6)'); ctx.fillStyle = ag; ctx.fillRect(0, WL + 6, W, HH - WL);
   ctx.strokeStyle = 'rgba(255,220,200,0.6)'; ctx.lineWidth = 4; ctx.beginPath(); for (let x = 0; x <= W; x += 30) ctx.lineTo(x, WL + 6 + 4 * Math.sin(x * 0.05 + t * 4)); ctx.stroke();
   salpicon(ctx, 540, WL, t, T_ATAQUE - 0.05, 46, 640);
   const vuela = t > T_ATAQUE + 0.05, pv = cl((t - T_ATAQUE - 0.05) / 1.6); pajaro(ctx, 880 + pv * 420, 1000 - pv * 520, 1.2, t, vuela);
-  ctx.restore(); primerTermino(ctx, t, 1340); fogonazo(ctx, t, golpes);
+  ctx.restore(); primerTermino(ctx, t, 1260); fogonazo(ctx, t, golpes);
  }, sfx(k) { k.noise(0, { dur: S(2), color: 'pink', filter: 'lowpass', f: 900, gain: 0.05, a: 0.05, hold: S(2) - 0.3 }); FX.burbujas(k, 0.2, 1.2, 6, 3, 0.8); k.play('riser', 0.5, { dur: 1.0, gain: 0.25, minor: true }); FX.chapuzon(k, T_ATAQUE, 1.6); k.play('thud', T_ATAQUE, { f: 50, gain: 0.8 }); k.noise(T_ATAQUE + 0.02, { dur: 0.6, color: 'brown', filter: 'bandpass', f: 600, q: 0.8, gain: 0.25, a: 0.01 }); k.noise(T_ATAQUE + 0.1, { dur: 0.5, color: 'pink', filter: 'highpass', f: 3000, gain: 0.08, a: 0.05 }); FX.chapuzon(k, T_ATAQUE + 1.1, 0.7); } });
 
  // ---------- 2 · y la razón por la que siguen ahí te va a sorprender → VISTA DESDE ARRIBA del río, el cocodrilo nadando ----------
@@ -296,7 +296,7 @@
   volcan(ctx, -800, -40, 0.9, t); orillaLejana(ctx, t);
   ctx.save(); ctx.globalAlpha *= 1 - ap; sauropodo(ctx, -380, -40, 0.75, t, { col: '#2a1622', mira: susto, ojo: true }); teropodo(ctx, 520, -30, 0.8, t, { susto, col: '#3a1a22' }); ctx.restore();
   agua(ctx, t, { top: '#8a3324', sol: false }); helecho(ctx, -950, 40, 1.4, t, '#2a1a12'); helecho(ctx, 1000, 60, 1.5, t, '#2a1a12');
-  if (t > T_IMPACTO) { const d = t - T_IMPACTO; ctx.fillStyle = `rgba(120,80,70,${Math.min(0.75, d * 0.6)})`; ctx.beginPath(); ctx.ellipse(250, -40, 300 + d * 1600, 120 + d * 700, 0, Math.PI, TAU); ctx.fill(); }
+  if (t > T_IMPACTO) { const d = t - T_IMPACTO; ctx.fillStyle = `rgba(120,80,70,${Math.min(0.45, d * 0.5)})`; ctx.beginPath(); ctx.ellipse(250, -40, 300 + d * 1600, 120 + d * 700, 0, Math.PI, TAU); ctx.fill(); }
   ctx.restore(); humoSuelo(ctx, t, T_IMPACTO); bandada(ctx, t, 560, 8, '#2a0e14', 1 - sm(T_IMPACTO, T_IMPACTO + 0.3, t)); fogonazo(ctx, t, golpes);
   contador(ctx, t, S(14), T_IMPACTO - 0.1, 200, 66, { dur: 1.2 }); lineaTiempo(ctx, t, sm(S(14), S(14) + 0.3, t) * (1 - sm(T_IMPACTO - 0.3, T_IMPACTO, t)), lerp(0, 0.67, E.inOut(win(t, S(14), S(14) + 1.2))));
   P.tag(ctx, 'DESAPARECIERON', 470, 520, t, Tk.desaparecieron - 0.3, S(16), { mono: true, col: RD, px: 60 });
@@ -351,7 +351,7 @@
  // ---------- 13 · segundo, vive entre el agua y la tierra y come casi de todo → plano MITAD BAJO EL AGUA / MITAD FUERA ----------
  B.push({ t0: S(21), t1: S(24), in: { type: 'slide', d: 0.45 }, draw(ctx, t) {
   const sale = E.inOut(win(t, Tk.aguaT - 0.2, Tk.tierra + 0.6)), com = sm(Tk.todo - 0.6, Tk.todo, t), sob = sm(Tk.sobrevivieron - 0.6, Tk.sobrevivieron, t);
-  const px = lerp(-200, 160, sale), py = lerp(260, -60, sale), rr = lerp(0.04, -0.2, sale), zz = camK(t, [[S(21), 0, 0, 0.54], [Tk.todo, 0, 0, 0.56], [S(24), 0, 0, 0.54]])[2], cam = [px, py - 130, zz], boc = puntoPosado(px, py, rr, 1, 700, -40); fondoPlano(ctx, '#2a1d4a', '#06222c'); ctx.save(); vista(ctx, cam);
+  const px = lerp(-200, 160, sale), py = lerp(260, -60, sale), rr = lerp(0.04, -0.2, sale), zz = camK(t, [[S(21), 0, 0, 0.54], [Tk.todo, 0, 0, 0.56], [S(24), 0, 0, 0.54]])[2], boc = puntoPosado(px, py, rr, 1, 700, -40), cam = [boc[0] - 216 / zz, py - 200, zz]; fondoPlano(ctx, '#2a1d4a', '#06222c'); ctx.save(); vista(ctx, cam);
   cieloTarde(ctx, { sx: -500, sy: -500 }); orillaLejana(ctx, t); ctx.fillStyle = '#6a5436'; ctx.beginPath(); ctx.moveTo(300, 0); ctx.quadraticCurveTo(600, -60, 3000, -80); ctx.lineTo(3000, 900); ctx.lineTo(500, 900); ctx.closePath(); ctx.fill();
   const w = ctx.createLinearGradient(0, 0, 0, 1200); w.addColorStop(0, 'rgba(46,106,106,0.9)'); w.addColorStop(1, 'rgba(6,34,44,1)'); ctx.fillStyle = w; ctx.beginPath(); ctx.moveTo(-3000, 0); ctx.lineTo(300, 0); ctx.quadraticCurveTo(500, 300, 900, 1200); ctx.lineTo(-3000, 1200); ctx.closePath(); ctx.fill();
   ctx.strokeStyle = 'rgba(255,220,200,0.7)'; ctx.lineWidth = 6; ctx.beginPath(); for (let x = -3000; x <= 330; x += 40) ctx.lineTo(x, 5 * Math.sin(x * 0.03 + t * 3)); ctx.stroke();
@@ -359,7 +359,7 @@
   { const Rb = H.rng(82); for (let i = 0; i < 30; i++) { const x = -1500 + Rb() * 1800, y = 1100 - ((Rb() * 1000 + t * (60 + Rb() * 60)) % 1000); ctx.strokeStyle = 'rgba(200,240,255,0.55)'; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(x, y, 5 + Rb() * 8, 0, TAU); ctx.stroke(); } }
   posado(ctx, t, px, py, rr, 1, { ola: 40, camina: sale > 0.5, boca: 0.6 * com * (1 - sm(Tk.todo + 1.2, Tk.todo + 1.6, t)) });
   // «come casi de todo»: un pez, un cangrejo, un ave y una fruta, GRANDES, entran hacia la boca
-  if (com > 0) { [['pez', -620, 380], ['cangrejo', 200, 620], ['ave', 120, -640], ['manzana', -560, -520]].forEach(([n, dx, dy], i) => { const u = cl((t - (Tk.todo - 1.0) - i * 0.45) / 1.1); if (u <= 0 || u >= 1) return; const e = E.inOut(u); ctx.save(); ctx.globalAlpha *= u < 0.85 ? 1 : (1 - u) / 0.15; comida(ctx, n, boc[0] + dx * (1 - e), boc[1] + dy * (1 - e), 3.4 * (1 - 0.45 * e), t); ctx.restore(); }); }
+  if (com > 0) { [['pez', -700, 360], ['cangrejo', -260, 640], ['ave', -220, -660], ['manzana', -700, -420]].forEach(([n, dx, dy], i) => { const u = cl((t - (Tk.todo - 1.0) - i * 0.45) / 1.1); if (u <= 0 || u >= 1) return; const e = E.inOut(u); ctx.save(); ctx.globalAlpha *= u < 0.85 ? 1 : (1 - u) / 0.15; comida(ctx, n, boc[0] + dx * (1 - e), boc[1] + dy * (1 - e), 3.4 * (1 - 0.45 * e), t); ctx.restore(); }); }
   ctx.restore();
   bandada(ctx, t, 540, 8);
   if (sob > 0) { ctx.save(); ctx.globalAlpha = sob; ctx.fillStyle = 'rgba(8,10,16,0.72)'; ctx.beginPath(); ctx.roundRect(150, 1170, 720, 230, 36); ctx.fill(); ctx.font = '800 50px Fredoka'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillStyle = GR; ctx.fillText('AGUA + TIERRA', 510, 1235); ctx.fillStyle = '#fff'; ctx.fillText('= SOBREVIVIERON', 510, 1325); ctx.restore(); if (P.safeLog) P.safeLog('cifra', 150, 1170, 870, 1400); }
@@ -369,12 +369,12 @@
 
  // ---------- 15 · por eso hoy, en tu río, nada uno casi igual que entonces → el de HOY grande y el ANTIGUO superpuesto con contorno brillante ----------
  B.push({ t0: S(24), t1: S(25), in: { type: 'zoom', d: 0.45, x: 540, y: 960 }, draw(ctx, t) {
-  const vuelve = E.inOut(win(t, S(24), Tk.hoy + 0.2)), ig = sm(Tk.igual - 0.6, Tk.igual, t), cam = camK(t, [[S(24), 0, 20, 0.5], [Tk.hoy + 0.3, 0, 20, 0.55], [S(25), 20, 20, 0.58]]);
+  const vuelve = E.inOut(win(t, S(24), Tk.hoy + 0.2)), ig = sm(Tk.igual - 0.6, Tk.igual, t), cam = camK(t, [[S(24), 0, 20, 0.5], [Tk.hoy + 0.3, 300, -150, 0.88], [S(25), 360, -160, 0.95]]);
   fondoPlano(ctx, '#2a1d4a', '#0d1420'); ctx.save(); vista(ctx, cam);
   if (vuelve < 1) { ctx.save(); ctx.globalAlpha *= 1 - vuelve; jurasico(ctx, t, { tero: false }); ctx.restore(); } ctx.save(); ctx.globalAlpha *= vuelve; cieloTarde(ctx); orillaLejana(ctx, t); agua(ctx, t); ctx.restore();
   posado(ctx, t, 0, -40, -0.12, 1, { ola: 30, camina: true }, '#5a4630');
   if (ig > 0) posado(ctx, t, 6 * Math.sin(t * 2), -44, -0.12, 1, { ola: 30, soloContorno: true, contorno: 1, contornoA: ig });
-  juncos(ctx, t, -1000, 360, 10, 800, 7); ctx.restore(); primerTermino(ctx, t, 1210, 0.8); pastoFrente(ctx, t, 1250); bandada(ctx, t, 480, 14);
+  juncos(ctx, t, -1000, 360, 10, 800, 7); ctx.restore(); primerTermino(ctx, t, 1250, 0.6); pastoFrente(ctx, t, 1420); bandada(ctx, t, 480, 14);
   contador(ctx, t, S(24), Tk.igual - 0.6, 66, 0, { dur: 1.0, col: GR });
   P.tag(ctx, 'CASI IGUAL', 470, 520, t, Tk.igual - 0.4, S(25), { mono: true, col: GR, px: 62 });
  }, sfx(k) { k.play('whoosh', S(24), { dur: 1.0, top: 1800, gain: 0.35 }); FX.reloj(k, S(24), 8, 0.1, 0.6); FX.revelar(k, Tk.igual - 0.4); k.tone(Tk.igual, { f: 'A5', dur: 1.2, gain: 0.05, verb: 0.5 }); } });

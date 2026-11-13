@@ -1029,3 +1029,7 @@ Las manos de los vídeos salen ahora de la **hoja de manos ilustradas** del cana
 - `PL.make({ …, capBorde: true })` (o un número: grosor relativo al tamaño de letra; `true` = 0,16). Contorno `rgba(8,10,16,0.92)` bajo cada palabra.
 - Úsalo cuando haya fondos claros o destellos a pantalla completa (fogonazo de un rayo, nieve, cielo blanco). `P.pregunta` ya lleva su borde.
 
+## v1.39 · Quitar un tramo de la voz sin regenerarla (`[QUITAR]`)
+- En `03_GUION/tramos.txt`, antepón `[QUITAR] ` a la línea del tramo que no debe ir al vídeo (p. ej. para bajar de 65 s). Se alinea igual y el montaje lo salta; los demás tramos quedan intactos.
+- Si una frase son varios tramos (p. ej. «Y tercero,» y la frase siguiente), marca todos. Después: `producir.py NOMBRE alinear` y revisa los índices de `wt(tramo, …)` en `episodio.js` (los tramos quitados no cuentan).
+
