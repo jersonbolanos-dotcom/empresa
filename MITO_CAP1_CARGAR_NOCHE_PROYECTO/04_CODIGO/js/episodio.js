@@ -206,15 +206,25 @@
   ENC(ctx, [-120, 300, 1000, 1440], (g) => { losa(g, -100, 980, 1410); P.glow(g, 820, 430, 300, '255,200,69', 0.6 * s); P.icon(g, 'sol', 820, 430, 220 * (0.6 + 0.4 * s), { mode: 'flat', col: GO }); globo(g, 300, 1410, 1.3, 1.12, t, { canso: 0.6, calor: s }); }, { ancho: 0.9 });
  }, sfx(k) { k.play('riser', S(17), { dur: 0.8, gain: 0.2 }); } });
 
- // ---------- 10 · nunca lo cargues debajo de la almohada: Apple y Google lo desaconsejan ----------
+ // ---------- 10 · nunca lo cargues debajo de la almohada: Apple y Google lo desaconsejan (plano cercano de la almohada) ----------
  B.push({ t0: S(18), t1: Tk.veredicto - 0.35, in: { type: 'slide', d: 0.35 }, draw(ctx, t) {
-  fondo(ctx, t); const deb = sm(S(18), Tk.almohada - 0.1, t), hot = sm(Tk.almohada - 0.2, Tk.almohada + 0.6, t), no = sm(Tk.desaconsejan - 0.3, Tk.desaconsejan, t);
-  ENC(ctx, [-20, 570, 1000, 1200], (g) => { ventana(g, 690, 580, 300, 300, 1, t); cama(g, 490, 1080, 900, { levanta: 30 * deb });
-   g.save(); g.globalAlpha *= deb; g.fillStyle = '#1b2029'; g.beginPath(); g.roundRect(150, 1012, 230, 34, 10); g.fill(); g.strokeStyle = '#e9edf3'; g.lineWidth = 10; g.beginPath(); g.moveTo(380, 1030); g.quadraticCurveTo(520, 1040, 560, 1120); g.stroke(); g.restore();
-   if (hot > 0) { P.glow(g, 210, 1010, 260, '255,77,94', 0.55 * hot); g.strokeStyle = `rgba(255,140,90,${0.8 * hot})`; g.lineWidth = 8; g.lineCap = 'round'; for (let i = -1; i <= 1; i++) { g.beginPath(); for (let q = 0; q <= 12; q++) { const yy = 950 - q * 14, xx = 210 + i * 70 + Math.sin(q * 0.9 + t * 9 + i) * 12; q ? g.lineTo(xx, yy) : g.moveTo(xx, yy); } g.stroke(); } }
-   if (no > 0) P.icon(g, 'cruz', 230, 900, 300 * E.out(no), { mode: 'flat', col: RD, col2: '#fff' }); });
+  fondo(ctx, t); const mete = E.out(win(t, S(18), S(18) + 0.6)), hot = sm(Tk.almohada - 0.3, Tk.almohada + 0.8, t), no = sm(Tk.desaconsejan - 0.3, Tk.desaconsejan, t);
+  ENC(ctx, [150, 690, 1060, 1140], (g) => {
+   ventana(g, 560, 600, 260, 240, 1, t);
+   // cabecero y colchón (vista lateral cercana)
+   g.fillStyle = 'rgba(0,0,0,0.35)'; g.beginPath(); g.ellipse(600, 1290, 440, 18, 0, 0, TAU); g.fill();
+   g.fillStyle = '#3b4766'; g.beginPath(); g.roundRect(150, 1160, 900, 120, 16); g.fill(); g.fillStyle = '#e8ecf5'; g.beginPath(); g.roundRect(150, 1070, 900, 100, 26); g.fill();
+   // celular tumbado en el colchón, metido bajo la almohada: asoma por la derecha con la pantalla encendida
+   const px = lerp(960, 760, mete); g.save(); g.translate(px, 1030); g.scale(1, 0.62); g.rotate(Math.PI / 2); celular(g, 0, 0, 250, t, { bat: 0.8, dibuja: (c, sw, sh) => { P.glow(c, 0, 0, 160, '62,230,255', 0.35); rayo(c, 0, -40, 110, 1); } }); g.restore();
+   // cable conectado al extremo del celular, que cae por el borde del colchón
+   g.strokeStyle = '#e9edf3'; g.lineWidth = 12; g.lineCap = 'round'; g.beginPath(); g.moveTo(px + 270, 1030); g.quadraticCurveTo(px + 330, 1040, px + 300, 1180); g.stroke(); g.fillStyle = '#e9edf3'; g.beginPath(); g.roundRect(px + 250, 1014, 40, 32, 6); g.fill();
+   // almohada encima (se calienta en rojo)
+   const pc = H.rgba(H.mix('#f7f9fd', '#ff6b6b', 0.75 * hot)); if (hot > 0) P.glow(g, 490, 990, 340, '255,77,94', 0.55 * hot);
+   g.fillStyle = pc; g.beginPath(); g.ellipse(490, 1000, 310, 105, 0, 0, TAU); g.fill(); g.strokeStyle = H.rgba(H.mix('#d6dce8', '#c0392b', hot)); g.lineWidth = 6; g.stroke(); g.fillStyle = 'rgba(255,255,255,0.25)'; g.beginPath(); g.ellipse(430, 960, 180, 30, -0.05, 0, TAU); g.fill();
+   if (hot > 0) { g.strokeStyle = `rgba(255,120,80,${0.85 * hot})`; g.lineWidth = 9; g.lineCap = 'round'; for (let k = -2; k <= 2; k++) { g.beginPath(); for (let q = 0; q <= 12; q++) { const yy = 880 - q * 14, xx = 490 + k * 100 + Math.sin(q * 0.9 + t * 9 + k) * 12; q ? g.lineTo(xx, yy) : g.moveTo(xx, yy); } g.stroke(); } }
+   if (no > 0) P.icon(g, 'cruz', 560, 980, 340 * E.out(no), { mode: 'flat', col: RD, col2: '#fff' }); }, { ancho: 0.97 });
   P.tag(ctx, 'BAJO LA ALMOHADA: NO', 470, 520, t, Tk.desaconsejan - 0.3, Tk.veredicto - 0.35, { mono: true, col: RD, px: 54 });
- }, sfx(k) { k.play('whoosh', S(18) + 0.2, { dur: 0.5, gain: 0.2 }); k.play('riser', Tk.almohada - 0.2, { dur: 0.8, gain: 0.18 }); k.play('error', Tk.desaconsejan, { f: 'C3', gain: 0.35 }); FX.etiqueta(k, Tk.desaconsejan - 0.3); } });
+ }, sfx(k) { k.play('whoosh', S(18) + 0.1, { dur: 0.5, gain: 0.2 }); k.play('riser', Tk.almohada - 0.3, { dur: 1.0, gain: 0.2 }); k.play('error', Tk.desaconsejan, { f: 'C3', gain: 0.35 }); FX.etiqueta(k, Tk.desaconsejan - 0.3); } });
 
  // ---------- 11 · VEREDICTO: A MEDIAS (sello de la serie) ----------
  B.push({ t0: Tk.veredicto - 0.35, t1: S(22), in: { type: 'fade', d: 0.3 }, draw(ctx, t) {

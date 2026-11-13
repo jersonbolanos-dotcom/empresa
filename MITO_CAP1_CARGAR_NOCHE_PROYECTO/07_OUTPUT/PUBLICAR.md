@@ -1,23 +1,23 @@
-# Publicar · ¿MITO O VERDAD? · Cap. 1 · ¿Mito o verdad? Cap. 1 · ¿Cargar el celular toda la noche daña la batería?
+# Publicar · ¿MITO O VERDAD? · Cap. 1 · ¿Cargar el celular toda la noche daña la batería?
 
-> Serie «¿MITO O VERDAD?» (6 capítulos sobre cosas que todos hacemos con el celular). Siempre la misma maqueta de portada.
-> Primero, las 3 variantes como «Reel de prueba» en Instagram; a las 24 h, la que más retuvo en los primeros 3 s va al perfil y al resto.
-> Reglas: la pregunta del capítulo como gancho y NUNCA el veredicto. Se pide comentar «¿mito o verdad?» antes de ver el final.
-> Nunca «dale like» ni «comparte si…». De 3 a 5 hashtags (siempre #mitooverdad).
+> Serie «¿MITO O VERDAD?» (6 capítulos sobre cosas que todos hacemos con el celular). Portada: `portada.jpg` (maqueta fija de la serie).
+> Un solo vídeo (v1.34): `MITO_CAP1_CARGAR_NOCHE_FINAL.mp4`, con el gancho A: «Lo enchufas antes de dormir… y lo dejas toda la noche.»
+> Reglas: la pregunta como gancho y NUNCA el veredicto. Se pide comentar «¿mito o verdad?». Nunca «dale like» ni «comparte si…».
 
 ## YouTube Shorts
-**Título:** ¿Mito o verdad? [pregunta del capítulo] #shorts
-**Descripción:** [1 frase de contexto sin el veredicto] ¿Tú qué dices: mito o verdad? Te leo en comentarios.
-#shorts #mitooverdad #[tema] #[tema]
+**Título:** ¿Mito o verdad? ¿Cargar el celular toda la noche daña la batería? #shorts
+**Descripción:** Lo enchufas antes de dormir y lo dejas hasta la mañana. ¿Le estás haciendo daño a la batería o es puro mito?
+¿Tú qué dices: mito o verdad? Te leo en comentarios.
+#shorts #mitooverdad #celular #bateria
 
 ## Facebook (Reels)
-**Texto:** [pregunta del capítulo] ¿Mito o verdad? Escríbelo en comentarios antes de ver el final.
-#mitooverdad #[tema] #[tema]
+**Texto:** ¿Cargar el celular toda la noche daña la batería? ¿Mito o verdad? Escríbelo en comentarios antes de ver el final.
+#mitooverdad #celular #bateria
 
 ## Instagram (Reels)
-**Texto:** ¿Mito o verdad? [pregunta del capítulo]
-[1 frase sin el veredicto]. Comenta «mito» o «verdad» antes de verlo.
-#mitooverdad #[tema] #[tema] #[tema]
+**Texto:** ¿Mito o verdad? ¿Cargarlo toda la noche daña la batería?
+Casi todos lo dejamos enchufado mientras dormimos… pero ¿pasa algo? Comenta «mito» o «verdad» antes de verlo.
+#mitooverdad #celular #bateria #trucos
 
 ## TikTok
-**Texto:** ¿Mito o verdad? [pregunta corta] Comenta tu respuesta 👇 #mitooverdad #[tema] #[tema]
+**Texto:** ¿Mito o verdad? ¿Cargar toda la noche = batería arruinada? Comenta tu respuesta 👇 #mitooverdad #celular #bateria
