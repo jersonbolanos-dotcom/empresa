@@ -87,7 +87,8 @@
   c.fillStyle = 'rgba(255,255,255,0.35)'; for (let q = 0; q < 6; q++) { c.beginPath(); c.arc(-50 + q * 20, wy + 40 + (q % 3) * 50 - ((t * 40 + q * 30) % 120), 6, 0, TAU); c.fill(); } c.restore();
   c.strokeStyle = '#cfe6ff'; c.lineWidth = 8; c.stroke(body); c.fillStyle = 'rgba(255,255,255,0.25)'; c.fillRect(-80, -320, 16, 280);
   c.fillStyle = '#e04f5f'; c.beginPath(); c.roundRect(-48, -540, 96, 46, 10); c.fill();   // tapa (cerrada)
-  if (o.tapon > 0) { c.save(); c.globalAlpha *= cl(o.tapon); granos(c, -36, -500, 72, 70, 22, 4, { r: 12 }); c.restore(); }
+  if (o.tapon > 0) { c.save(); c.globalAlpha *= cl(o.tapon); c.beginPath(); c.rect(-40, -494, 80, 80); c.clip(); c.fillStyle = 'rgba(245,240,225,0.35)'; c.fillRect(-40, -494, 80, 80); granos(c, -40, -494, 80, 76, 26, 4, { r: 15 }); c.restore();
+   c.save(); c.globalAlpha *= cl(o.tapon); c.strokeStyle = GO; c.lineWidth = 8; c.setLineDash([14, 10]); c.beginPath(); c.arc(0, -460, 78, 0, TAU); c.stroke(); c.setLineDash([]); c.restore(); }
   c.restore(); };
  // gotas de agua
  const gotas = (c, x0, y0, w, h, n, seed, a = 1, t = 0) => { const Rr = H.rng(seed); c.save(); c.globalAlpha *= a; for (let i = 0; i < n; i++) { const x = x0 + Rr() * w, y = y0 + Rr() * h + Math.sin(t * 2 + i) * 3, r = 8 + Rr() * 10; c.fillStyle = 'rgba(120,200,255,0.85)'; c.beginPath(); c.moveTo(x, y - r * 1.6); c.quadraticCurveTo(x + r, y - r * 0.2, x, y + r * 0.6); c.quadraticCurveTo(x - r, y - r * 0.2, x, y - r * 1.6); c.fill(); c.fillStyle = 'rgba(255,255,255,0.6)'; c.beginPath(); c.arc(x - r * 0.3, y - r * 0.3, r * 0.22, 0, TAU); c.fill(); } c.restore(); };
@@ -102,7 +103,7 @@
  // símbolo de apagado
  const power = (c, x, y, r, col) => { c.save(); c.strokeStyle = col; c.lineWidth = r * 0.18; c.lineCap = 'round'; c.beginPath(); c.arc(x, y, r, -Math.PI / 2 + 0.6, -Math.PI / 2 - 0.6 + TAU); c.stroke(); c.beginPath(); c.moveTo(x, y - r * 1.15); c.lineTo(x, y - r * 0.2); c.stroke(); c.restore(); };
  // celular hundido en el tazón de arroz (inclinado; el puerto de carga queda abajo, dentro del arroz)
- const celArroz = (g, x, y, w, t, o = {}) => tazon(g, x, y, w, t, { dentro: (c, ys) => { c.save(); c.translate(x + 10, ys - w * 0.22); c.rotate(-0.28); celular(c, 0, 0, w * 0.42, t, o.cel || { bat: 0.5 }); c.restore(); if (o.gotas) gotas(c, x - w * 0.25, ys - w * 0.7, w * 0.5, w * 0.4, 6, 3, o.gotas, t); granos(c, x - w * 0.4, ys - w * 0.05, w * 0.8, w * 0.08, 30, 17, { r: w * 0.018 }); } });
+ const celArroz = (g, x, y, w, t, o = {}) => tazon(g, x, y, w, t, { dentro: (c, ys) => { c.save(); c.translate(x + 10, ys - w * 0.22 + (o.hunde || 0) * w * 0.12 - w * 0.12); c.rotate(-0.28 - (1 - (o.hunde ?? 1)) * 0.12); celular(c, 0, 0, w * 0.42, t, o.cel || { bat: 0.5 }); c.restore(); if (o.gotas) gotas(c, x - w * 0.25, ys - w * 0.7, w * 0.5, w * 0.4, 6, 3, o.gotas, t); granos(c, x - w * 0.4, ys - w * 0.05, w * 0.8, w * 0.08, 30, 17, { r: w * 0.018 }); } });
  // puerto de carga en primer plano (lupa): o.granos 0…1 = granos y polvo que se cuelan
  const lupaPuerto = (g, x, y, r, t, gr) => { g.save(); g.beginPath(); g.arc(x, y, r, 0, TAU); g.fillStyle = '#121a28'; g.fill(); g.clip();
   g.fillStyle = '#2b3140'; g.fillRect(x - r, y - r * 0.15, r * 2, r * 1.2); g.fillStyle = '#05080c'; g.beginPath(); g.roundRect(x - r * 0.5, y - r * 0.08, r, r * 0.3, r * 0.14); g.fill(); g.fillStyle = '#c9a26b'; for (let q = 0; q < 6; q++) g.fillRect(x - r * 0.36 + q * r * 0.14, y + r * 0.02, r * 0.06, r * 0.1);
@@ -118,7 +119,8 @@
  B.push({ t0: 0, t1: S(2), in: { type: 'cut' }, draw(ctx, t) {
   fondo(ctx, t); const qB = P.pregunta(ctx, '¿EL ARROZ SALVA / UN CELULAR MOJADO?', t, 0, S(2) - 0.15, { capY: 330, px: 62, clave: 'ARROZ', x: 540, dy: 110 });
   const lp = sm(Tk.arroz0 + 0.3, Tk.arroz0 + 0.9, t), gr = win(t, Tk.danarlo - 0.6, Tk.danarlo + 0.8);
-  ENC(ctx, [10, 560, 1010, 1440], (g) => { losa(g, 0, 1010, 1410); celArroz(g, 330, 1400, 640, t, { gotas: 1 }); g.save(); g.globalAlpha *= lp; g.strokeStyle = 'rgba(207,216,227,0.7)'; g.lineWidth = 6; g.setLineDash([14, 10]); g.beginPath(); g.moveTo(400, 1150); g.lineTo(640, 880); g.stroke(); g.setLineDash([]); lupaPuerto(g, 760, 760, 220 * (0.6 + 0.4 * lp), t, gr); g.restore(); },
+  const pz = 1 + 0.07 * E.out(win(t, 0, 2.5)), hu = E.out(win(t, 0, 1.4));
+  ENC(ctx, [10, 560, 1010, 1440], (g) => { g.translate(500, 1200); g.scale(pz, pz); g.translate(-500, -1200); losa(g, 0, 1010, 1410); celArroz(g, 330, 1400, 640, t, { gotas: 1, hunde: hu }); g.save(); g.globalAlpha *= lp; g.strokeStyle = 'rgba(207,216,227,0.7)'; g.lineWidth = 6; g.setLineDash([14, 10]); g.beginPath(); g.moveTo(400, 1150); g.lineTo(640, 880); g.stroke(); g.setLineDash([]); lupaPuerto(g, 760, 760, 220 * (0.6 + 0.4 * lp), t, gr); g.restore(); },
    { franja: { x0: 30, x1: 1050, y0: qB + 30, y1: 1640, cx: 540, cy: (qB + 30 + 1640) / 2, w: 980, h: 1640 - qB - 30 }, alto: 0.98, ancho: 0.98 });
  }, sfx(k) { k.play('whoosh', 0.05, { dur: 0.5, gain: 0.2 }); for (let i = 0; i < 8; i++) k.play('tick', Tk.danarlo - 0.5 + i * 0.12, { gain: 0.12, f: 2400 }); } });
 
@@ -157,7 +159,7 @@
  // ---------- 6 · algo peor: polvo y granos en el puerto de carga, como un tapón en el cuello de la botella ----------
  B.push({ t0: S(9), t1: S(11), in: { type: 'slide', d: 0.35 }, draw(ctx, t) {
   fondo(ctx, t); const gr = win(t, Tk.polvo - 0.2, Tk.puerto + 0.6), tp = sm(Tk.tapon - 0.3, Tk.tapon + 0.3, t);
-  ENC(ctx, [0, 440, 1000, 1440], (g) => { losa(g, 0, 1000, 1410); lupaPuerto(g, 330, 900, 300, t, gr); g.save(); g.globalAlpha *= 0.3 + 0.7 * tp; botella(g, 800, 1410, 1.0, t, { agua: 0.55, tapon: tp }); g.restore(); });
+  ENC(ctx, [0, 560, 1000, 1440], (g) => { losa(g, 0, 1000, 1410); lupaPuerto(g, 300, 960, 270, t, gr); g.save(); g.globalAlpha *= 0.3 + 0.7 * tp; botella(g, 770, 1410, 1.5, t, { agua: 0.55, tapon: tp }); g.restore(); });
   P.tag(ctx, 'PUERTO DE CARGA', 330, 520, t, Tk.puerto - 0.2, S(11), { mono: true, col: RD, px: 54 }); P.tag(ctx, 'TAPÓN', 760, 1395, t, Tk.tapon, S(11), { mono: true, col: GO, px: 58 });
  }, sfx(k) { for (let i = 0; i < 10; i++) k.play('tick', Tk.polvo + i * 0.12, { gain: 0.12, f: 2600 }); FX.etiqueta(k, Tk.puerto - 0.2); k.play('thud', Tk.tapon, { gain: 0.3 }); FX.etiqueta(k, Tk.tapon); } });
 
