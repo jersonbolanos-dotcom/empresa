@@ -46,6 +46,7 @@ con la palabra clave en rojo, la marca ARRIBA y todo centrado en x = 540. **Fond
 segundo sin transición ni destello que lo queme.
 
 ## Rayos, destellos y textos
+Con fogonazos blancos a pantalla completa, activa `capBorde: true` en `PL.make` (v1.38) para que el subtítulo se lea encima del destello.
 En escenas de tormenta, el rayo y los destellos no entran en la franja de subtítulos y pregunta (recorte por encima de un `TOPE`), para que el texto se lea entero; en la portada (`__SIN_SUBTITULOS`) el rayo se ve entero. Ver `QPS_CAP1_RAYO_CARRO_PROYECTO/04_CODIGO/js/episodio.js`.
 
 ## Mano y personas
@@ -54,4 +55,4 @@ Solo `P.manoImg` (manos ilustradas del canal, `catalogo/manos_v135.jpg`) o perso
 ## Capítulos
 | Cap. | Pregunta | Proyecto |
 |---|---|---|
-| 1 | ¿Qué pasa si te cae un rayo dentro del carro? | `QPS_CAP1_RAYO_CARRO_PROYECTO` (un solo vídeo, gancho A · portada: `"¿TE CAE UN RAYO / DENTRO DEL CARRO?" "RAYO" 2.05` · el carro bajo la tormenta con el rayo en el techo) |
+| 1 | ¿Qué pasa si te cae un rayo dentro del carro? | `QPS_CAP1_RAYO_CARRO_PROYECTO` (un solo vídeo, gancho A · portada: `"¿TE CAE UN RAYO / DENTRO DEL CARRO?" "RAYO" 1.0` · V2: el carro grande y abajo, el rayo cae desde la derecha bajo el título (composición propia de portada con `__SIN_SUBTITULOS`)) |

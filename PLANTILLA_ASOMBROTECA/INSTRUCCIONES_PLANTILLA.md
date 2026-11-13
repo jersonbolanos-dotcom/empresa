@@ -1025,3 +1025,7 @@ Las manos de los vídeos salen ahora de la **hoja de manos ilustradas** del cana
 - `P.queHacer(ctx, t, t0, [{ t, txt }, …], { x = 540, y = 470, w = 800, t1, titulo = 'QUÉ HACER', px = 54 })` + `FX.queHacer(k, t0, consejos)`.
 - Portada: `producir.py P portada "¿QUÉ PASA SI… / …?" "ROJA" SEGUNDO` (la etiqueta sale de `SERIE.json`); fondo = escena real.
 
+## v1.38 · Borde oscuro en los subtítulos (`capBorde`)
+- `PL.make({ …, capBorde: true })` (o un número: grosor relativo al tamaño de letra; `true` = 0,16). Contorno `rgba(8,10,16,0.92)` bajo cada palabra.
+- Úsalo cuando haya fondos claros o destellos a pantalla completa (fogonazo de un rayo, nieve, cielo blanco). `P.pregunta` ya lleva su borde.
+

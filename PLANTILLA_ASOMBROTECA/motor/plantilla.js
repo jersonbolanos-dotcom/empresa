@@ -5087,6 +5087,7 @@
      ctx.lineWidth = 3.5; ctx.beginPath(); ctx.moveTo(bx, by - 4); ctx.lineTo(bx, by + bh * 0.6); ctx.moveTo(bx + bw, by + bh * 0.4); ctx.lineTo(bx + bw, by + bh + 4); ctx.stroke(); for (const [hx, hy] of [[bx, by - 10], [bx + bw, by + bh + 10]]) { ctx.fillStyle = sel; ctx.beginPath(); ctx.arc(hx, hy, 8.5, 0, TAU); ctx.fill(); ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 2.5; ctx.stroke(); ctx.strokeStyle = sel; } ctx.restore(); }
     if (ic && shown) { ctx.save(); ctx.globalAlpha = fade * pop; P.icon(ctx, ic, x + iw * 0.45, yy - px * 0.34, px * 0.9, { mode: 'flat', col: cfg.capIconCol || '#58b4ff' }); ctx.restore(); }
     ctx.font = active || kw ? fB : fD; ctx.globalAlpha = fade * (shown ? pop * (active || kw ? 1 : 0.58) : 0.24);
+    if (cfg.capBorde) { ctx.save(); ctx.lineJoin = 'round'; ctx.strokeStyle = 'rgba(8,10,16,0.92)'; ctx.lineWidth = px * (cfg.capBorde === true ? 0.16 : cfg.capBorde); ctx.strokeText(w.txt, tx, yy); ctx.restore(); }   // v1.38: borde oscuro opcional
     ctx.shadowColor = 'rgba(0,0,0,0.6)'; ctx.shadowBlur = 14; ctx.shadowOffsetY = 3; ctx.fillStyle = mono && kw && shown ? col('accent') : (cfg.capColor || '#ffffff'); ctx.fillText(w.txt, tx, yy); ctx.shadowBlur = 0; ctx.shadowOffsetY = 0; safeLog('subtitulo', x, yy - px * 0.9, x + all[i], yy + px * 0.3);
     x += all[i] + sp; }); });
   ctx.restore(); }
@@ -5559,6 +5560,7 @@ P._limpiarFijos = () => { for (const k of Object.keys(FIJOS)) delete FIJOS[k]; }
      }
      ctx.font = active || isKW ? fB : fD;
      ctx.globalAlpha = fade * pop * (active || isKW ? 1 : 0.62);
+     if (cfg.capBorde) { ctx.save(); ctx.lineJoin = 'round'; ctx.strokeStyle = 'rgba(8,10,16,0.92)'; ctx.lineWidth = px * (cfg.capBorde === true ? 0.16 : cfg.capBorde); ctx.strokeText(w.txt, x, yy); ctx.restore(); }   // v1.38: borde oscuro (se lee sobre fondos claros o destellos)
      ctx.shadowColor = 'rgba(0,0,0,0.55)'; ctx.shadowBlur = 14; ctx.shadowOffsetY = 3;
      ctx.fillStyle = '#ffffff'; ctx.fillText(w.txt, x, yy); ctx.shadowBlur = 0; ctx.shadowOffsetY = 0; safeLog('subtitulo', x, yy - px * 0.9, x + all[i], yy + px * 0.3);
     }
@@ -5586,7 +5588,7 @@ P._limpiarFijos = () => { for (const k of Object.keys(FIJOS)) delete FIJOS[k]; }
   ctx.globalAlpha = a; ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
   ctx.fillStyle = '#f0b90b'; ctx.beginPath(); ctx.roundRect(bx, b0.y + px * 0.2, bw, Math.max(6, px * 0.1), 4); ctx.fill();
   ctx.shadowColor = 'rgba(0,0,0,0.75)'; ctx.shadowBlur = 16; ctx.shadowOffsetY = 3;
-  for (const b of boxes) { const kw = KW.some((k) => (Array.isArray(k) ? nrm(b.w) === nrm(k[0]) && b.s >= k[1] && b.s <= k[2] : nrm(b.w) === nrm(k))); ctx.fillStyle = kw ? '#ffd54a' : '#ffffff'; ctx.fillText(b.w, b.x, b.y); safeLog('subtitulo', b.x, b.y - px * 0.9, b.x + b.ww, b.y + px * 0.3); }
+  for (const b of boxes) { const kw = KW.some((k) => (Array.isArray(k) ? nrm(b.w) === nrm(k[0]) && b.s >= k[1] && b.s <= k[2] : nrm(b.w) === nrm(k))); if (cfg.capBorde) { ctx.save(); ctx.shadowColor = 'transparent'; ctx.lineJoin = 'round'; ctx.strokeStyle = 'rgba(8,10,16,0.92)'; ctx.lineWidth = px * (cfg.capBorde === true ? 0.16 : cfg.capBorde); ctx.strokeText(b.w, b.x, b.y); ctx.restore(); } ctx.fillStyle = kw ? '#ffd54a' : '#ffffff'; ctx.fillText(b.w, b.x, b.y); safeLog('subtitulo', b.x, b.y - px * 0.9, b.x + b.ww, b.y + px * 0.3); }
   ctx.restore();
  }
 

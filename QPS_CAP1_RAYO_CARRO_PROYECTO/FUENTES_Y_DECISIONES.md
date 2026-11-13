@@ -26,6 +26,9 @@ Serie «¿QUÉ PASA SI…?» · Cap. 1 · plantilla v1.37 · un solo vídeo, gan
 - Carros de fibra de vidrio: solo en [NWS-3]; se quitó del guion a petición del usuario.
 
 ## Decisiones de representación
+- V2 (versión anterior en `V1/`): planos variados con cámara (lateral, cenital, cabina por dentro, primeros planos del techo, la llanta, el tablero y el vidrio de atrás). Los daños se muestran en primer plano y son ilustrativos de lo que puede pasar, no de su gravedad.
+- Fogonazo blanco, sacudida y trueno en los impactos: recurso dramático, no medida de intensidad. Subtítulos con borde oscuro (`capBorde`, v1.38) para que se lean sobre el destello.
+- El conductor se asusta con el impacto y aparece tranquilo cuando la voz dice que la corriente va «por fuera, alrededor de ti».
 - Carro, carretera, persona y paraguas dibujados genéricos, sin marcas ni fotos reales. Manos solo en el cierre, con `P.manoImg`.
 - El recorrido de la corriente (brillo amarillo por el techo, los pilares y las llantas hasta el suelo) es un esquema ilustrativo del camino «por fuera»; no representa intensidades.
 - Los dos primeros rayos (0,7 s y 1,85 s) adelantan el peligro de la voz para que llegue en < 2 s (regla del formato de serie).

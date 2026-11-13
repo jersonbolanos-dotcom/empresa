@@ -131,6 +131,9 @@
   c.fillStyle = '#2a2f3a'; c.fillRect(0, 0, 1000, 120); c.fillStyle = '#353b48'; c.beginPath(); c.moveTo(470, 125); c.lineTo(560, 108); c.lineTo(560, 600); c.lineTo(470, 565); c.closePath(); c.fill();
   c.fillStyle = '#20242d'; c.beginPath(); c.moveTo(0, 600); c.lineTo(40, 600); c.lineTo(470, 560); c.lineTo(560, 600); c.lineTo(560, 1100); c.lineTo(0, 1100); c.closePath(); c.fill(); c.fillRect(0, 0, 40, 1100);
   c.fillStyle = '#cfd8e3'; c.beginPath(); c.roundRect(200, 760, 110, 26, 13); c.fill();   // manija interior (metal)
+  c.fillStyle = '#2b303b'; c.beginPath(); c.roundRect(60, 690, 440, 40, 18); c.fill(); c.strokeStyle = '#3a404d'; c.lineWidth = 4; c.stroke();   // apoyabrazos
+  c.fillStyle = '#16191f'; c.beginPath(); c.arc(170, 940, 90, 0, TAU); c.fill(); c.strokeStyle = '#3a404d'; c.lineWidth = 5; c.beginPath(); c.arc(170, 940, 90, 0, TAU); c.stroke(); c.lineWidth = 3; for (let k = -70; k <= 70; k += 18) { c.beginPath(); c.moveTo(170 + k, 940 - Math.sqrt(8100 - k * k) * 0.8); c.lineTo(170 + k, 940 + Math.sqrt(8100 - k * k) * 0.8); c.stroke(); }   // altavoz
+  c.strokeStyle = '#2f3542'; c.lineWidth = 4; c.beginPath(); c.moveTo(20, 640); c.lineTo(540, 640); c.moveTo(20, 1040); c.lineTo(540, 1040); c.stroke();
   c.fillStyle = '#1a1d24'; c.beginPath(); c.roundRect(540, 600, 470, 230, [30, 0, 0, 0]); c.fill(); c.fillStyle = '#262a33'; c.fillRect(540, 600, 470, 18);
   const parp = (o.chispas ? (Math.sin(t * 31) > 0 ? 1 : 0.25) : 1); c.save(); c.globalAlpha *= parp; for (const gx of [660, 760]) { c.strokeStyle = '#8fd8ff'; c.lineWidth = 5; c.beginPath(); c.arc(gx, 690, 38, Math.PI * 0.8, Math.PI * 2.2); c.stroke(); } c.restore();
   c.fillStyle = o.chispas ? (Math.sin(t * 40) > 0 ? '#e9f2ff' : '#0b0d12') : '#0d2238'; c.beginPath(); c.roundRect(830, 650, 150, 100, 12); c.fill(); if (!o.chispas) { c.fillStyle = '#3ea8ff'; c.fillRect(848, 668, 70, 10); c.fillRect(848, 690, 110, 8); }
@@ -140,6 +143,7 @@
   c.fillStyle = '#151922'; c.beginPath(); c.roundRect(70, 420, 190, 680, 60); c.fill();   // asiento
   c.fillStyle = '#2d3b5a'; c.beginPath(); c.moveTo(150 + dx, 1100); c.lineTo(170 + dx, 640); c.quadraticCurveTo(260 + dx, 570, 380 + dx, 610); c.lineTo(450 + dx, 1100); c.closePath(); c.fill();
   c.strokeStyle = '#11141b'; c.lineWidth = 22; c.beginPath(); c.moveTo(370 + dx, 620); c.lineTo(230 + dx, 1100); c.stroke();   // cinturón
+  c.strokeStyle = 'rgba(255,255,255,0.12)'; c.lineWidth = 4; c.beginPath(); c.moveTo(300 + dx, 640); c.lineTo(330 + dx, 1100); c.moveTo(200 + dx, 820); c.lineTo(420 + dx, 840); c.stroke();   // costuras de la chaqueta
   c.fillStyle = '#d29a74'; c.fillRect(320 + dx, 540, 60, 80);   // cuello
   const hx = 360 + dx, hy = 470 - 10 * m; c.fillStyle = '#d99a72'; c.beginPath(); c.ellipse(hx, hy, 92, 104, 0, 0, TAU); c.fill(); c.beginPath(); c.moveTo(hx + 82, hy - 10); c.lineTo(hx + 112, hy + 22); c.lineTo(hx + 84, hy + 30); c.closePath(); c.fill();   // cabeza y nariz
   c.fillStyle = '#2a1d16'; c.beginPath(); c.ellipse(hx - 14, hy - 44, 98, 70, -0.15, Math.PI * 0.92, Math.PI * 2.02); c.fill(); c.beginPath(); c.ellipse(hx - 62, hy - 6, 40, 70, 0, 0, TAU); c.fill();
@@ -215,7 +219,7 @@
 
  // ---------- 2 · ¿Qué te pasa? Lo que ocurre te va a sorprender → DENTRO de la cabina, el conductor asustado ----------
  B.push({ t0: S(2), t1: S(4), in: { type: 'zoom', d: 0.45, x: 540, y: 820 }, draw(ctx, t) {
-  tope(440); const fl = rel(t, [Tk.sorprender]), sh = sacude(t, [[Tk.sorprender, 0.4]]), cam = camK(t, [[S(2), 480, 600, 1.18], [S(4), 440, 590, 1.3]]);
+  tope(440); const fl = rel(t, [Tk.sorprender]), sh = sacude(t, [[Tk.sorprender, 0.4]]), cam = camK(t, [[S(2), 480, 450, 1.18], [S(4), 440, 450, 1.3]]);
   dentro(ctx, t, cam, { fl, sh, miedo: 1, corriente: 1, vel: 0.6,
    extra: (g) => { const q = sm(S(2) + 0.1, S(2) + 0.4, t); if (q > 0) { g.save(); g.globalAlpha *= q; txt(g, '?', 470 + Math.sin(t * 5) * 6, 300, 200 * E.out(q), YE, { w: 900, f: 'Fredoka' }); g.restore(); } } });
   fogonazo(ctx, t, [[Tk.sorprender, 0.5]]);
@@ -248,7 +252,7 @@
 
  // ---------- 6 · por fuera, alrededor de ti… → DENTRO: el conductor tranquilo; la corriente rodea la cabina por fuera ----------
  B.push({ t0: S(10), t1: S(11), in: { type: 'zoom', d: 0.4, x: 540, y: 820 }, draw(ctx, t) {
-  tope(440); const seg = sm(Tk.alrededor - 0.3, Tk.alrededor + 0.3, t), cam = camK(t, [[S(10), 480, 600, 1.18], [S(11), 440, 590, 1.28]]);
+  tope(440); const seg = sm(Tk.alrededor - 0.3, Tk.alrededor + 0.3, t), cam = camK(t, [[S(10), 480, 450, 1.18], [S(11), 440, 450, 1.28]]);
   dentro(ctx, t, cam, { corriente: 0.4 + 0.6 * E.out(win(t, S(10), Tk.alrededor + 0.4)), seguro: seg, calma: seg, miedo: seg > 0.5 ? 0 : 0.6, vel: 0.6 });
   P.tag(ctx, 'TÚ, A SALVO', 470, 520, t, Tk.alrededor - 0.2, S(11), { mono: true, col: GR, px: 60 });
  }, sfx(k) { FX.lluvia(k, S(10), S(11) - S(10), 1.3); FX.chispa(k, S(10), 1.2, 0.5); FX.correcto(k, Tk.alrededor); FX.etiqueta(k, Tk.alrededor - 0.2); } });
@@ -338,7 +342,7 @@
 
  // ---------- MONTAJE ----------
  const EP = PL.make({
-  estilo: 'noche', marca: { nombre: 'ASOMBROTECA' }, align: A, duration: DURATION, beats: B,
+  estilo: 'noche', capBorde: true, marca: { nombre: 'ASOMBROTECA' }, align: A, duration: DURATION, beats: B,
   keywords: ['rayo', 'encima.', 'sorprender.', 'paraguas', 'mango…', 'tela', 'suelo.', 'carrocería', 'metal,', 'alrededor', 'llantas.', 'sorpresa:', 'caucho', 'salvan.', 'fuerte', 'jaula.', 'descapotable', 'tela.', 'dañado:', 'electrónica,', 'llanta', 'vidrio', 'hacer?', 'dentro.', 'ventanas.', 'metal', 'amigo'],
   ambience(k) { k.noise(0, { dur: DURATION, color: 'pink', filter: 'bandpass', f: 1800, q: 0.6, gain: 0.02, a: 0.05, hold: DURATION - 2.5 }); k.noise(0, { dur: DURATION, color: 'brown', filter: 'lowpass', f: 400, gain: 0.02, a: 0.05, hold: DURATION - 2.5 }); },
   music(k) { MUS.pulso(k, 0, DURATION, { bpm: 92, gain: 0.45, chords: [['D2', 'F2', 'A2', 'D3'], ['A#1', 'D2', 'F2', 'A#2'], ['G1', 'A#1', 'D2', 'G2'], ['A1', 'C#2', 'E2', 'A2']] }); },
