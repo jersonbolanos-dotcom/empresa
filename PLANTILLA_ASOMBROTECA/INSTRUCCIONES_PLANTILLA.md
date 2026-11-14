@@ -1033,3 +1033,9 @@ Las manos de los vídeos salen ahora de la **hoja de manos ilustradas** del cana
 - En `03_GUION/tramos.txt`, antepón `[QUITAR] ` a la línea del tramo que no debe ir al vídeo (p. ej. para bajar de 65 s). Se alinea igual y el montaje lo salta; los demás tramos quedan intactos.
 - Si una frase son varios tramos (p. ej. «Y tercero,» y la frase siguiente), marca todos. Después: `producir.py NOMBRE alinear` y revisa los índices de `wt(tramo, …)` en `episodio.js` (los tramos quitados no cuentan).
 
+## v1.40 · Marca de la portada a una altura fija
+
+- `python3 PLANTILLA_ASOMBROTECA/tools/producir.py PROYECTO portada "L1 / L2" "ROJA" "ETIQUETA" SEGUNDO --marca-y 1850`
+- Pone la marca en y = 1850 en lugar de la posición de la maqueta (y ≈ 1630). Úsalo cuando el dibujo baja hasta casi el borde inferior y la marca va en una franja corta debajo (pinta esa franja en la rama `PORTADA` del episodio).
+- Con `--marca-y`, el aviso del recorte 3:4 solo comprueba el texto: la marca queda fuera de la cuadrícula de Instagram a propósito.
+- Sin la opción, la portada es idéntica a la de la v1.30.

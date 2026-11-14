@@ -146,6 +146,11 @@
   const ap = o.aire || 0; if (ap > 0) { const Lr = 30 + 70 * ap; ctx.save(); ctx.globalAlpha = Math.min(1, ap * 2); for (const [ex, ey, nx, ny] of [[60, -205, 0.45, 1], [200, -300, 0.25, 1], [60, 205, 0.45, -1], [200, 300, 0.25, -1], [370, -180, -1, 0], [372, 0, -1, 0], [370, 180, -1, 0], [-330, -46, 0, 1], [-330, 46, 0, -1]]) { const n = Math.hypot(nx, ny), ux = nx / n, uy = ny / n, ox = ex - ux * (Lr + 30), oy = ey - uy * (Lr + 30); flecha(ctx, ox, oy, ex - ux * 18, ey - uy * 18, AZ, 12); } ctx.restore(); }
   ctx.restore(); };
  const tuboPunto = (x, y, s, px, py) => [x + s * px, y + s * py];
+ // tubo centrado en (540, 960) y girado ang (0 = cañón a la izquierda; −π/2 = pantalla arriba)
+ // en diagonal el embudo se va hacia la pantalla: se recentra (abajo-izquierda) y se reduce un poco para que quepa entero
+ const diag = (ang) => Math.abs(Math.sin(2 * ang));
+ const tuboCentro = (ctx, t, s, ang, o) => { const k = diag(ang), se = s * (1 - 0.2 * k); ctx.save(); ctx.translate(540 - 90 * k, 960 + 230 * k); ctx.rotate(ang); tuboRX(ctx, t, 64 * se, 0, se, o); ctx.restore(); };
+ const rotP = (s, ang, px, py) => { const k = diag(ang), se = s * (1 - 0.2 * k), x = (64 + px) * se, y = py * se; return [540 - 90 * k + x * Math.cos(ang) - y * Math.sin(ang), 960 + 230 * k + x * Math.sin(ang) + y * Math.cos(ang)]; };
 
  // ---------- TELEVISOR DE LADO (lo profundo), con el tubo dentro si rx > 0 ----------
  const tvLado = (ctx, t, x, y, s, o = {}) => { const D = 600, Hh = TVH; ctx.save(); ctx.translate(x, y); ctx.scale(s, s);
@@ -156,7 +161,7 @@
   ctx.fillStyle = '#1b1b1e'; ctx.fillRect(D / 2 - 26, top + 30, 26, Hh - 60); ctx.fillStyle = '#2a3330'; ctx.beginPath(); ctx.moveTo(D / 2, top + 50); ctx.quadraticCurveTo(D / 2 + 30, top + Hh / 2, D / 2, top + Hh - 50); ctx.closePath(); ctx.fill();
   if (rx > 0) { ctx.save(); ctx.beginPath(); ctx.roundRect(-D / 2 + 14, top + 14, D - 28, Hh - 28, 14); ctx.clip(); ctx.globalAlpha = rx; ctx.fillStyle = '#0b1d3a'; ctx.fillRect(-D / 2, top, D, Hh); ctx.restore(); ctx.save(); ctx.globalAlpha = rx; tuboRX(ctx, t, 0, top + Hh / 2, 0.6, Object.assign({}, o.tubo || {})); ctx.restore(); }
   if (o.profundo) { ctx.save(); ctx.globalAlpha = o.profundo; ctx.strokeStyle = YE; ctx.fillStyle = YE; ctx.lineWidth = 8; const yy = top - 60; ctx.beginPath(); ctx.moveTo(-D / 2 + 30, yy); ctx.lineTo(D / 2 - 30, yy); ctx.stroke(); flecha(ctx, 0, yy, -D / 2, yy, YE, 8); flecha(ctx, 0, yy, D / 2, yy, YE, 8); ctx.restore(); }
-  const a = o.antena || 0; ctx.strokeStyle = '#c9ced8'; ctx.lineWidth = 7; ctx.lineCap = 'round'; ctx.fillStyle = '#2a2a2e'; ctx.beginPath(); ctx.ellipse(0, top - 8, 52, 18, 0, Math.PI, TAU); ctx.fill(); for (const k of [-1, 1]) { const ang = -Math.PI / 2 + k * (0.3 + 0.08 * a * k); ctx.beginPath(); ctx.moveTo(0, top - 18); ctx.lineTo(Math.cos(ang) * 240, top - 18 + Math.sin(ang) * 240); ctx.stroke(); }
+  const a = o.antena || 0; ctx.strokeStyle = '#c9ced8'; ctx.lineWidth = 7; ctx.lineCap = 'round'; ctx.fillStyle = '#2a2a2e'; ctx.beginPath(); ctx.ellipse(0, top - 8, 52, 18, 0, Math.PI, TAU); ctx.fill(); for (const k of [-1, 1]) { const ang = -Math.PI / 2 + k * ((o.antenaAng ?? 0.3) + 0.08 * a * k), L = o.antenaL ?? 240; ctx.beginPath(); ctx.moveTo(0, top - 18); ctx.lineTo(Math.cos(ang) * L, top - 18 + Math.sin(ang) * L); ctx.stroke(); }
   ctx.restore(); };
 
  // ---------- TELEVISOR POR DETRÁS (tapa con rejillas y tornillos; sin mostrar cómo se abre) ----------
@@ -197,13 +202,17 @@
  // =====================================================================================================
  const B = [];
  const FY = 1440, TX = 520, TS = 1.05;   // piso, televisor en la sala
- const fam = (c, t, o = {}) => { persona(c, t, 150, FY, 0.82, Object.assign({ ropa: '#3a7a4a', seed: 1.3, mira: 1 }, o.nino || {})); };
+ const fam = (c, t, o = {}) => { persona(c, t, (o.nino && o.nino.x) ?? 150, FY, 0.82, Object.assign({ ropa: '#3a7a4a', seed: 1.3, mira: 1 }, o.nino || {})); };
  const abuela = (c, t, o = {}) => persona(c, t, 800, FY, 1.1, Object.assign({ abuela: true, ropa: '#8e4f8a', piel: '#c98d63', seed: 0, mira: -1 }, o));
- const sala = (ctx, t, o = {}) => { salaFondo(ctx, t, { fy: FY }); if (o.nino !== false) fam(ctx, t, { nino: o.nino || {} }); televisor(ctx, t, TX, FY, TS, o.tv || {}); if (o.abuela !== false) abuela(ctx, t, o.abuela || {}); if (o.tv && o.tv.pantalla && o.tv.pantalla !== 'apagada') P.glow(ctx, TX + TS * SCX, FY + TS * SCY, 600, '170,200,255', 0.18); };
+ const sala = (ctx, t, o = {}) => { salaFondo(ctx, t, { fy: FY }); const delante = o.nino && o.nino.delante; if (o.nino !== false && !delante) fam(ctx, t, { nino: o.nino || {} }); televisor(ctx, t, TX, FY, TS, o.tv || {}); if (delante) fam(ctx, t, { nino: o.nino }); if (o.abuela !== false) abuela(ctx, t, o.abuela || {}); if (o.tv && o.tv.pantalla && o.tv.pantalla !== 'apagada') P.glow(ctx, TX + TS * SCX, FY + TS * SCY, 600, '170,200,255', 0.18); };
 
  // ---------- 1 · GANCHO: frente al televisor de tu abuela (estática, antena) → la cámara avanza → en «DISPARANDO» el chorro sale a cámara (90 %) → la familia reacciona ----------
  B.push({ t0: 0, t1: S(2), in: { type: 'cut' }, draw(ctx, t) {
-  if (PORTADA) { salaFondo(ctx, 0.5, { fy: 1560 }); televisor(ctx, 0.5, 560, 1560, 1.38, { pantalla: (c, x, y, w, h) => { barrido(c, x, y, w, h, 0.62, 14, { lineas: true, r: 14 }); }, brillo: 0.35, brilloCol: '190,230,255', antenaAng: 1.32, antenaL: 230 }); ctx.fillStyle = '#1e1612'; ctx.fillRect(0, 1565, W, 400); ctx.fillStyle = '#b8452f'; ctx.fillRect(0, 1560, W, 8); return; }
+  if (PORTADA) { const fy = 1770, ps = 1.55, cx = 540, sp = cx + ps * 110; salaFondo(ctx, 0.5, { fy });
+   ctx.save(); ctx.beginPath(); ctx.rect(-100, -100, sp + 100, HH + 200); ctx.clip(); tvLado(ctx, 0.5, cx, fy, ps, { rx: 1, antena: 0, antenaAng: 1.25, antenaL: 200, tubo: { haz: 1, v: -0.25 } }); ctx.restore();
+   ctx.save(); ctx.beginPath(); ctx.rect(sp, -100, W, HH + 200); ctx.clip(); tvLado(ctx, 0.5, cx, fy, ps, { antena: 0, antenaAng: 1.25, antenaL: 200 }); ctx.restore();
+   const top = fy - ps * (70 + TVH); ctx.fillStyle = CY; ctx.fillRect(sp - 3, top + 6, 6, ps * TVH - 12); P.glow(ctx, sp, top + ps * TVH / 2, 260, '143,216,255', 0.35); P.glow(ctx, cx + ps * 312, top + ps * TVH / 2, 260, '140,255,190', 0.55);
+   ctx.fillStyle = '#1e1612'; ctx.fillRect(0, fy + 20, W, HH); ctx.fillStyle = '#b8452f'; ctx.fillRect(0, fy + 14, W, 8); return; }
   P.pregunta(ctx, '¿CÓMO FUNCIONABA / EL TELEVISOR DE ANTES?', t, 0, S(2) - 0.15, { capY: 330, px: 58, clave: 'TELEVISOR', col: '#ff3b3b', x: 540, dy: 110 });
   const TE = Tk.disparando, TC = TE - 0.3, TR = TE + 0.35, golpes = [[TE, 1.4]], sh = sacude(t, golpes, 56);
   ctx.save(); ctx.translate(sh[0], sh[1]);
@@ -231,7 +240,7 @@
  }, sfx(k) { k.tone(S(3) + 0.2, { f: [[0, 300], [2, 1000]], type: 'sine', dur: 2.2, gain: 0.05 }); FX.revelar(k, Tk.sorprender - 0.3); } });
 
  // ---------- 4 · Al fondo del tubo, un CAÑÓN dispara electrones hacia la pantalla… → rayos X: primer plano del cañón y la cámara sigue el chorro hasta la pantalla ----------
- B.push({ t0: S(4), t1: S(5), in: { type: 'zoom', d: 0.35, x: 540, y: 960 }, draw(ctx, t) {
+ B.push({ t0: S(4), t1: S(5), in: { type: 'cut' }, draw(ctx, t) {
   const ts = 1.15, tx = 540 - 40 * ts, ty = 960, L = sm(Tk.dispara, Tk.pantalla - 0.1, t), cam = camK(t, [[S(4), tx - 330 * ts, ty, 2.0], [Tk.dispara, tx - 300 * ts, ty, 1.9], [Tk.pantalla, tx + 120 * ts, ty, 1.15], [S(5), 540, ty, 1.0]]);
   rejilla(ctx); ctx.save(); zoomP(ctx, cam); tuboRX(ctx, t, tx, ty, ts, { haz: L > 0 ? 1 : 0, largo: L, v: 0, marcaCanon: t < Tk.dispara + 0.2 && t > Tk.canon - 0.2 }); ctx.restore();
   TAG(ctx, 'CAÑÓN', 470, 520, t, Tk.canon - 0.3, Tk.pantalla - 0.6, { mono: true, col: YE, px: 66 }); TAG(ctx, 'CHORRO DE ELECTRONES', 470, 520, t, Tk.pantalla - 0.4, S(5), { mono: true, col: CY, px: 50 });
@@ -293,9 +302,10 @@
   TAG(ctx, 'DONDE CAE EL AGUA', 470, 520, t, Tk.agua - 0.6, S(13), { mono: true, col: AZ, px: 54 });
  }, sfx(k) { k.noise(S(12), { dur: S(13) - S(12), filter: 'bandpass', f: 1800, q: 0.8, gain: 0.1, a: 0.05 }); FX.etiqueta(k, Tk.agua - 0.6); } });
 
- // ---------- 13 · En los de color hay tres mangueras: → rayos X con TRES cañones y tres chorros (girando la cámara) ----------
+ // ---------- 13 · En los de color hay tres mangueras: → rayos X con TRES cañones y tres chorros; tubo en diagonal, grande y centrado; la cámara gira ----------
  B.push({ t0: S(13), t1: S(14), in: { type: 'zoom', d: 0.35, x: 540, y: 960 }, draw(ctx, t) {
-  const ts = 1.12, tx = 540 - 40 * ts, cam = camK(t, [[S(13), tx - 260 * ts, 960, 1.9], [S(14), 560, 960, 1.05]]); rejilla(ctx); ctx.save(); zoomP(ctx, cam); ctxGiro(ctx, 540, 960, -0.06 + 0.06 * sm(S(13), S(14), t)); tuboRX(ctx, t, tx, 960, ts, { haz: 1, tres: true, v: 0.5 * Math.sin((t - S(13)) * 2) }); ctx.restore();
+  const u = sm(S(13), S(14), t), ang = lerp(-1.0, -0.8, u), sT = 1.05, g = rotP(sT, ang, -400, 0), cam = camK(t, [[S(13), lerp(540, g[0], 0.4), lerp(960, g[1], 0.4), 1.25], [S(14), 540, 960, 1.0]]);
+  rejilla(ctx); ctx.save(); zoomP(ctx, cam); tuboCentro(ctx, t, sT, ang, { haz: 1, tres: true, v: 0.5 * Math.sin((t - S(13)) * 2) }); ctx.restore();
   TAG(ctx, 'TRES CHORROS', 470, 520, t, Tk.tres - 0.3, S(14), { mono: true, col: '#ffffff', px: 62 });
  }, sfx(k) { k.play('whoosh', S(13), { dur: 0.5, top: 1600, gain: 0.25, minor: true }); for (let i = 0; i < 3; i++) k.play('pop', S(13) + 0.3 + i * 0.18, { f: 400 + i * 120, gain: 0.25, minor: true }); FX.etiqueta(k, Tk.tres - 0.3); } });
 
@@ -306,40 +316,46 @@
   P.tag(ctx, 'ROJO', 470, 520, t, Tk.rojo - 0.3, Tk.verde - 0.22, { mono: true, col: '#ff5a5a', px: 70 }); P.tag(ctx, 'VERDE', 470, 520, t, Tk.verde - 0.2, Tk.azul - 0.22, { mono: true, col: '#4cff7a', px: 70 }); P.tag(ctx, 'AZUL', 470, 520, t, Tk.azul - 0.2, S(15), { mono: true, col: '#6aa8ff', px: 70 });
  }, sfx(k) { k.tone(Tk.rojo, { f: 'C5', dur: 0.4, gain: 0.07 }); k.tone(Tk.verde, { f: 'E5', dur: 0.4, gain: 0.07 }); k.tone(Tk.azul, { f: 'G5', dur: 0.4, gain: 0.07 }); k.tone(Tk.azul + 0.3, { f: 'C6', dur: 1, gain: 0.05, verb: 0.5 }); } });
 
- // ---------- 15 · ¿Y por qué eran tan pesados y profundos? → el niño empuja el televisor; de lado, la flecha de lo profundo → (pausa larga) rayos X: el aire empieza a salir del tubo ----------
- const TUS = 1.0, TUX = 540 + 64 * TUS;   // tubo grande y centrado (≈ 88 % del ancho)
- B.push({ t0: S(15), t1: S(16), in: { type: 'zoom', d: 0.4, x: 540, y: 960 }, draw(ctx, t) {
+ // ---------- 15 · ¿Y por qué eran tan pesados y profundos? → LA SALA: el niño empuja el televisor y no se mueve, la abuela se ríe → de lado, lo profundo → (pausa) rayos X: el aire empieza a salir ----------
+ const TUS = 1.0, TUX = 540 + 64 * TUS, TV_S = 1.15;   // TV_S: tubo vertical (≈ 71 % del ancho, casi todo el alto útil)
+ B.push({ t0: S(15), t1: S(16), in: { type: 'cut' }, draw(ctx, t) {
   const tb = Tk.profundos - 0.1, tp = Tk.profundos + 0.6;
-  if (t < tb) { const cam = camK(t, [[S(15), 520, 1060, 1.05], [tb, 500, 1080, 1.12]]); ctx.save(); zoomP(ctx, cam); sala(ctx, t, { tv: { pantalla: 'imagen', tiembla: 0.15, brillo: 0.12 }, nino: { brazoD: [150 + 10 * Math.sin(t * 12), -330], incl: 0.12, miedo: 0.2 }, abuela: { sonrie: 1, pecho: true } }); ctx.restore(); TAG(ctx, 'PESADO', 470, 520, t, Tk.pesados - 0.3, tb, { mono: true, col: NAR, px: 64 }); }
+  if (t < tb) { const cam = camK(t, [[S(15), 470, 1060, 1.12], [tb, 450, 1080, 1.2]]), sh = 4 * Math.sin(t * 40); ctx.save(); zoomP(ctx, cam);
+   sala(ctx, t, { tv: { pantalla: 'imagen', brillo: 0.12 }, nino: { delante: true, x: 160 + sh, brazoD: [120 + 6 * Math.sin(t * 30), -340], brazoI: [80, -310], incl: 0.28, miedo: 0.3 }, abuela: { sonrie: 1, pecho: true, salto: 0.07 * Math.abs(Math.sin(t * 16)), mira: -1 } });
+   ctx.fillStyle = '#7fc8ff'; for (const [dx, dy, ph] of [[-50, -600, 0], [40, -630, 0.5]]) { const q = ((t * 1.5 + ph) % 1); ctx.globalAlpha = 1 - q; ctx.beginPath(); ctx.ellipse(160 + dx * 0.82 + 30, FY + dy * 0.82 + q * 60, 7, 11, 0, 0, TAU); ctx.fill(); } ctx.globalAlpha = 1; ctx.restore();
+   TAG(ctx, 'PESADO', 470, 520, t, Tk.pesados - 0.3, tb, { mono: true, col: NAR, px: 64 }); }
   else if (t < tp) { const cam = camK(t, [[tb, 540, 1080, 1.0], [tp, 540, 1060, 1.06]]); ctx.save(); zoomP(ctx, cam); salaFondo(ctx, t, { fy: FY }); tvLado(ctx, t, 540, FY, 1.35, { profundo: sm(tb, tb + 0.3, t), antena: Math.sin(t * 2) }); ctx.restore(); TAG(ctx, 'PROFUNDO', 470, 520, t, tb + 0.05, tp, { mono: true, col: YE, px: 64 }); }
-  else { const sa = 0.45 * sm(tp, S(16), t), cam = camK(t, [[tp, 540, 960, 1.12], [S(16), 540, 960, 1.05]]); rejilla(ctx); ctx.save(); zoomP(ctx, cam); tuboRX(ctx, t, TUX, 960, TUS, { aireSale: sa }); ctx.restore(); }
- }, sfx(k) { k.noise(S(15) + 0.2, { dur: 0.9, color: 'brown', filter: 'bandpass', f: 200, q: 2, gain: 0.12, a: 0.1 }); FX.etiqueta(k, Tk.pesados - 0.3); k.play('whoosh', Tk.profundos - 0.15, { dur: 0.4, top: 1400, gain: 0.25, minor: true }); FX.etiqueta(k, Tk.profundos - 0.05); k.noise(Tk.profundos + 0.6, { dur: S(16) - Tk.profundos - 0.6, filter: 'bandpass', f: [[0, 600], [1, 1400]], q: 1.5, gain: 0.1, a: 0.2 }); FX.latido(k, Tk.profundos + 0.7, 2, 0.5); } });
+  else { const sa = 0.45 * sm(tp, S(16), t), cam = camK(t, [[tp, 540, 960, 1.1], [S(16), 540, 960, 1.02]]); rejilla(ctx); ctx.save(); zoomP(ctx, cam); tuboCentro(ctx, t, TUS, lerp(0, -0.3, sm(tp, S(16), t)), { aireSale: sa }); ctx.restore(); }
+ }, sfx(k) { k.noise(S(15) + 0.2, { dur: 0.9, color: 'brown', filter: 'bandpass', f: 200, q: 2, gain: 0.12, a: 0.1 }); FX.etiqueta(k, Tk.pesados - 0.3); for (let i = 0; i < 3; i++) k.play('pop', S(15) + 0.5 + i * 0.22, { f: 700 + i * 60, gain: 0.12, minor: true }); k.play('whoosh', Tk.profundos - 0.15, { dur: 0.4, top: 1400, gain: 0.25, minor: true }); FX.etiqueta(k, Tk.profundos - 0.05); k.noise(Tk.profundos + 0.6, { dur: S(16) - Tk.profundos - 0.6, filter: 'bandpass', f: [[0, 600], [1, 1400]], q: 1.5, gain: 0.1, a: 0.2 }); FX.latido(k, Tk.profundos + 0.7, 2, 0.5); } });
 
- // ---------- 16 · Porque por dentro el tubo está al VACÍO. → el aire termina de salir… ¡golpe en «vacío»!: destello, sacudida y el vidrio cruje; tubo grande sobre el azul ----------
+ // ---------- 16 · Porque por dentro el tubo está al VACÍO. → el tubo GIRA hasta quedar de pie (grande); el aire termina de salir… ¡golpe en «vacío»!: destello, sacudida, el vidrio cruje ----------
  B.push({ t0: S(16), t1: S(17), in: { type: 'cut' }, draw(ctx, t) {
-  const g0 = Tk.vacio, golpes = [[g0, 1.4]], sh = sacude(t, golpes, 52), sa = lerp(0.45, 1, sm(S(16), g0 - 0.15, t)), cam = camK(t, [[S(16), 540, 960, 1.05], [g0, 540, 960, 1.14], [S(17), 540, 960, 1.08]]), gr = t > g0 ? Math.exp(-(t - g0) * 2.2) : 0;
-  rejilla(ctx); ctx.save(); zoomP(ctx, cam, sh); tuboRX(ctx, t, TUX, 960, TUS, { aireSale: sa, grieta: gr }); ctx.restore();
+  const g0 = Tk.vacio, golpes = [[g0, 1.4]], sh = sacude(t, golpes, 52), sa = lerp(0.45, 1, sm(S(16), g0 - 0.15, t)), ang = lerp(-0.3, -Math.PI / 2, E.inOut(sm(S(16), g0 - 0.1, t))), s_ = lerp(TUS, TV_S, sm(S(16), g0 - 0.1, t)), cam = camK(t, [[S(16), 540, 960, 1.0], [g0, 540, 960, 1.04], [S(17), 540, 960, 1.0]]), gr = t > g0 ? Math.exp(-(t - g0) * 2.2) : 0;
+  rejilla(ctx); ctx.save(); zoomP(ctx, cam, sh); tuboCentro(ctx, t, s_, ang, { aireSale: sa, grieta: gr }); ctx.restore();
   if (t > g0) { const v = cl((t - g0) / 0.5); ctx.save(); ctx.globalAlpha = 0.5 * (1 - v); ctx.strokeStyle = CY; ctx.lineWidth = 14; ctx.beginPath(); ctx.arc(540, 960, 200 + 600 * v, 0, TAU); ctx.stroke(); ctx.restore(); }
   fogonazo(ctx, t, [[g0, 0.6]]); TAG(ctx, 'AL VACÍO', 470, 520, t, g0 - 0.15, S(17), { mono: true, col: CY, px: 72 });
  }, sfx(k) { k.noise(S(16), { dur: Tk.vacio - S(16), filter: 'bandpass', f: [[0, 1200], [2, 3500]], q: 1.2, gain: 0.12, a: 0.05 }); k.play('riser', S(16) + 0.2, { dur: Tk.vacio - S(16) - 0.25, gain: 0.3, minor: true }); k.play('thud', Tk.vacio, { f: 38, gain: 1.0 });
   for (let i = 0; i < 7; i++) k.noise(Tk.vacio + 0.02 + i * 0.045, { dur: 0.03, filter: 'highpass', f: 3500 + i * 300, gain: 0.35, a: 0.001 }); k.tone(Tk.vacio, { f: 880, type: 'triangle', dur: 1.4, gain: 0.07, verb: 0.6 }); k.tone(Tk.vacio, { f: 1318, type: 'triangle', dur: 1.1, gain: 0.05, verb: 0.6 }); FX.etiqueta(k, Tk.vacio - 0.15); } });
 
- // ---------- 17 · El aire lo aprieta desde afuera… → flechas azules del aire empujando el vidrio; el tubo tiembla ----------
- B.push({ t0: S(17), t1: S(18), in: { type: 'slide', d: 0.35 }, draw(ctx, t) {
-  const ap = sm(S(17), Tk.aprieta + 0.3, t), ts = TUS, tx = TUX, cam = camK(t, [[S(17), 560, 960, 1.0], [S(18), 520, 960, 1.08]]); rejilla(ctx); ctx.save(); zoomP(ctx, cam); ctx.translate(2 * ap * Math.sin(t * 60), 0); tuboRX(ctx, t, tx, 960, ts, { aire: ap }); ctx.restore();
+ // ---------- 17 · El aire lo aprieta desde afuera… → de pie: acercamiento al CUELLO y la cámara se aleja mientras las flechas del aire aprietan ----------
+ B.push({ t0: S(17), t1: S(18), in: { type: 'cut' }, draw(ctx, t) {
+  const ap = sm(S(17), Tk.aprieta + 0.3, t), ang = -Math.PI / 2, n = rotP(TV_S, ang, -330, 0), cam = camK(t, [[S(17), n[0], n[1] - 60, 1.7], [Tk.aprieta + 0.1, 540, 1000, 1.15], [S(18), 540, 960, 1.0]]);
+  rejilla(ctx); ctx.save(); zoomP(ctx, cam); ctx.translate(2 * ap * Math.sin(t * 60), 0); tuboCentro(ctx, t, TV_S, ang, { aire: ap }); ctx.restore();
   TAG(ctx, 'EL AIRE APRIETA', 470, 520, t, Tk.aprieta - 0.4, S(18), { mono: true, col: AZ, px: 58 });
  }, sfx(k) { k.noise(S(17), { dur: S(18) - S(17), color: 'brown', filter: 'lowpass', f: [[0, 200], [2, 600]], gain: 0.15, a: 0.3 }); FX.etiqueta(k, Tk.aprieta - 0.4); } });
 
- // ---------- 18 · y el vidrio tenía que ser gruesísimo. → acercamiento al vidrio de la pantalla, que se vuelve grueso y brilla ----------
- B.push({ t0: S(18), t1: S(19), in: { type: 'zoom', d: 0.35, x: 800, y: 960 }, draw(ctx, t) {
-  const gr = sm(S(18) + 0.2, Tk.gruesisimo, t), ts = 1.12, tx = 540 - 40 * ts, hx = tx + 350 * ts, cam = camK(t, [[S(18), hx - 120, 960, 1.8], [S(19), hx - 160, 960, 1.6]]); rejilla(ctx); ctx.save(); zoomP(ctx, cam); tuboRX(ctx, t, tx, 960, ts, { aire: 0.6, grosor: gr }); ctx.restore();
-  TAG(ctx, 'VIDRIO GRUESO', 470, 520, t, Tk.gruesisimo - 0.5, S(19), { mono: true, col: YE, px: 62 });
+ // ---------- 18 · y el vidrio tenía que ser gruesísimo. → acercamiento al VIDRIO de la pantalla (arriba), que se vuelve grueso y brilla; la cámara gira un poco ----------
+ B.push({ t0: S(18), t1: S(19), in: { type: 'zoom', d: 0.35, x: 540, y: 600 }, draw(ctx, t) {
+  const gr = sm(S(18) + 0.2, Tk.gruesisimo, t), ang = -Math.PI / 2 + 0.12 * sm(S(18), S(19), t), f = rotP(TV_S, ang, 300, 0), cam = camK(t, [[S(18), f[0], f[1] + 140, 1.55], [S(19), f[0], f[1] + 170, 1.4]]);
+  rejilla(ctx); ctx.save(); zoomP(ctx, cam); tuboCentro(ctx, t, TV_S, ang, { aire: 0.6, grosor: gr }); ctx.restore();
+  TAG(ctx, 'VIDRIO GRUESO', 470, 1390, t, Tk.gruesisimo - 0.5, S(19), { mono: true, col: YE, px: 62 });
  }, sfx(k) { k.play('whoosh', S(18), { dur: 0.4, top: 1400, gain: 0.25, minor: true }); k.tone(Tk.gruesisimo - 0.2, { f: 'A4', type: 'triangle', dur: 0.9, gain: 0.06, verb: 0.4 }); FX.etiqueta(k, Tk.gruesisimo - 0.5); } });
 
- // ---------- 19 · Y el chorro puede necesitar espacio para abrirse hasta las esquinas. → rayos X: el chorro barre de esquina a esquina (cono) → de lado, lo profundo ----------
- B.push({ t0: S(19), t1: S(20), in: { type: 'zoom', d: 0.35, x: 540, y: 960 }, draw(ctx, t) {
+ // ---------- 19 · Y el chorro puede necesitar espacio para abrirse hasta las esquinas. → el tubo gira de nuevo a horizontal: el chorro barre de esquina a esquina (cono) → de lado, lo profundo ----------
+ B.push({ t0: S(19), t1: S(20), in: { type: 'cut' }, draw(ctx, t) {
   const tb = Tk.esquinas + 0.15;
-  if (t < tb) { const ts = 1.12, tx = 540 - 40 * ts, cam = camK(t, [[S(19), 540, 960, 1.0], [tb, 520, 960, 1.1]]), v = Math.sin((t - S(19)) * 4); rejilla(ctx); ctx.save(); zoomP(ctx, cam); tuboRX(ctx, t, tx, 960, ts, { haz: 1, v: 0.98 * v, cono: sm(Tk.esquinas - 1.0, Tk.esquinas - 0.6, t), bobinas: 0.6 }); ctx.restore(); TAG(ctx, 'HASTA LAS ESQUINAS', 470, 520, t, Tk.esquinas - 0.6, tb, { mono: true, col: YE, px: 52 }); }
+  if (t < tb) { const q = sm(S(19), S(19) + 1.4, t), ang = lerp(-Math.PI / 2, -0.12, E.inOut(q)), s_ = lerp(TV_S, TUS, q), cam = camK(t, [[S(19), 540, 960, 1.0], [tb, 540, 960, 1.06]]), v = Math.sin((t - S(19)) * 4);
+   rejilla(ctx); ctx.save(); zoomP(ctx, cam); tuboCentro(ctx, t, s_, ang, { haz: 1, v: 0.98 * v, cono: sm(Tk.esquinas - 1.0, Tk.esquinas - 0.6, t), bobinas: 0.6 }); ctx.restore(); TAG(ctx, 'HASTA LAS ESQUINAS', 470, 520, t, Tk.esquinas - 0.6, tb, { mono: true, col: YE, px: 52 }); }
   else { const cam = camK(t, [[tb, 540, 1060, 1.12], [S(20), 540, 1080, 1.02]]); ctx.save(); zoomP(ctx, cam); salaFondo(ctx, t, { fy: FY }); tvLado(ctx, t, 540, FY, 1.35, { rx: 0.85, profundo: 1, tubo: { haz: 1, v: 0.95 * Math.sin(t * 4), cono: 1 } }); ctx.restore(); }
  }, sfx(k) { k.noise(S(19), { dur: S(20) - S(19), filter: 'bandpass', f: 5000, q: 2, gain: 0.05, a: 0.1 }); for (let x = S(19) + 0.1; x < S(20); x += Math.PI / 4) k.play('whoosh', x, { dur: 0.3, top: 2400, gain: 0.12, minor: true }); FX.etiqueta(k, Tk.esquinas - 0.6); } });
 
@@ -353,8 +369,8 @@
 
  // ---------- 21 · nunca lo abras; → el televisor por detrás, con una X roja y el rayo de peligro ----------
  B.push({ t0: S(21), t1: S(22), in: { type: 'cut' }, draw(ctx, t) {
-  const cam = camK(t, [[S(21), 540, 1040, 1.0], [S(22), 540, 1020, 1.1]]); ctx.save(); zoomP(ctx, cam); salaFondo(ctx, t, { fy: FY }); tvAtras(ctx, t, 520, FY, 1.05); ctx.restore();
-  marcaX(ctx, 520, 1060, 260, sm(Tk.abras - 0.2, Tk.abras + 0.1, t)); TAG(ctx, 'NUNCA LO ABRAS', 470, 520, t, Tk.abras - 0.3, S(22), { mono: true, col: RD, px: 62 });
+  const cam = camK(t, [[S(21), 540, 1080, 1.0], [S(22), 540, 1070, 1.06]]); ctx.save(); zoomP(ctx, cam); salaFondo(ctx, t, { fy: FY }); tvAtras(ctx, t, 520, FY, 1.32); ctx.restore();
+  marcaX(ctx, 520, 900, 300, sm(S(21), S(21) + 0.25, t)); TAG(ctx, 'NUNCA LO ABRAS', 470, 520, t, Tk.abras - 0.3, S(22), { mono: true, col: RD, px: 62 });
  }, sfx(k) { k.play('error', Tk.abras, { f: 'C3', gain: 0.3 }); k.play('thud', Tk.abras, { f: 80, gain: 0.5 }); FX.etiqueta(k, Tk.abras - 0.3); } });
 
  // ---------- 22 · aun desconectado puede guardar electricidad peligrosa. → enchufe fuera y, dentro, la carga que queda (rayo) → FINAL: la pantalla se apaga en un puntito ----------

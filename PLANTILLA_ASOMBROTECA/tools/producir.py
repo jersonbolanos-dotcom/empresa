@@ -426,7 +426,7 @@ def p_portada(P, a):
         pass
     out = os.path.join(O, 'portada.jpg')
     pr = (serie or {}).get('portada', {})
-    sh(['node', os.path.join(T, 'portada.js'), f, out, texto, roja, etq, marca, str(a.foco), a.bloque, str(a.bajar), pr.get('roja', 'linea'), pr.get('tam', 'desigual'), str(a.escala), pr.get('marca', a.marca_pos)])
+    sh(['node', os.path.join(T, 'portada.js'), f, out, texto, roja, etq, marca, str(a.foco), a.bloque, str(a.bajar), pr.get('roja', 'linea'), pr.get('tam', 'desigual'), str(a.escala), pr.get('marca', a.marca_pos)] + ([str(a.marca_y)] if a.marca_y else []))
     print(f'Portada: {out} (fondo: episodio{" variante " + gancho(P, a) if gancho(P, a) else ""} en t = {t} s)')
 
 
@@ -450,6 +450,7 @@ def main():
     ap.add_argument('--escala', type=float, default=1.0, help='portada (v1.32): < 1 reduce el fotograma para que el objeto quepa entero bajo el texto')
     ap.add_argument('--encuadre-aviso', dest='encuadre_aviso', action='store_true', help='qc (v1.34): el encuadre cuenta como aviso, no como fallo (vídeos anteriores a la v1.34)')
     ap.add_argument('--marca-pos', dest='marca_pos', default='abajo', choices=['abajo', 'arriba'], help='portada (v1.32): posición de la marca')
+    ap.add_argument('--marca-y', dest='marca_y', type=int, default=0, help='portada (v1.40): altura (y) de la marca; 0 = la de la maqueta')
     a = ap.parse_args(); P = os.path.abspath(a.proyecto)
     if not os.path.isdir(os.path.join(P, '04_CODIGO')):
         sys.exit(f'No parece un proyecto (falta 04_CODIGO): {P}')
