@@ -119,8 +119,12 @@
   if (o.comida) { const R = H.rng(5); for (let i = 0; i < 46; i++) { const fx = -w / 2 + 30 + R() * (w - 60), fy = -14 - R() * (-wy - 26) + 3 * Math.sin(t * 6 + i), bl = o.comida; ctx.fillStyle = i % 3 ? `rgb(${Math.round(lerp(122, 160, bl))},${Math.round(lerp(47, 80, bl))},30)` : '#5a2214'; ctx.beginPath(); ctx.ellipse(fx, fy, 15, 10, R() * 3, 0, TAU); ctx.fill(); } }
   if (hv > 0) { ctx.strokeStyle = 'rgba(255,255,255,0.85)'; ctx.lineWidth = 3; for (let i = 0; i < 28; i++) { const ph = (t * 1.5 * hv + i * 0.137) % 1, bx = -w / 2 + 20 + ((i * 97) % (w - 40)), by = -6 - ph * (-wy - 12); ctx.beginPath(); ctx.arc(bx + 6 * Math.sin(t * 5 + i), by, 4 + 7 * ph, 0, TAU); ctx.stroke(); } }
   // vapor que llena el espacio (blanco)
-  const vp = o.vapor ?? 0; if (vp > 0) { ctx.save(); ctx.beginPath(); ctx.rect(-w / 2, -h - 110 - ld, w, h + 110 + ld + wy); ctx.clip(); const R = H.rng(9);
-   for (let i = 0; i < 40; i++) { const bx = -w / 2 + 30 + R() * (w - 60) + 20 * Math.sin(t * 1.3 + i), by = wy - 20 - R() * (h + 70 + wy) + 12 * Math.sin(t * 1.7 + i * 2), r = 38 + R() * 38, vis = cl((vp * 40 - i) / 3); if (vis <= 0) continue; ctx.fillStyle = `rgba(255,255,255,${0.5 * vis})`; ctx.beginPath(); ctx.arc(bx, by, r, 0, TAU); ctx.fill(); } ctx.restore(); }
+  const vp = o.vapor ?? 0; if (vp > 0) { ctx.save(); ctx.beginPath(); ctx.moveTo(-w / 2 + 9, wy + 4); ctx.lineTo(-w / 2 + 9, -h - 6 - ld); ctx.quadraticCurveTo(0, -h - 108 - ld, w / 2 - 9, -h - 6 - ld); ctx.lineTo(w / 2 - 9, wy + 4); ctx.closePath(); ctx.clip(); const R = H.rng(9), ytop = -h - 50 - ld;
+   for (let i = 0; i < 26; i++) { const bx = -w / 2 + 40 + R() * (w - 80) + 22 * Math.sin(t * 1.1 + i), by = lerp(wy - 30, ytop, R()) + 14 * Math.sin(t * 1.5 + i * 2), r = 50 + R() * 50, vis = cl((vp * 26 - i) / 3); if (vis <= 0) continue;
+    const g = ctx.createRadialGradient(bx, by, 0, bx, by, r); g.addColorStop(0, `rgba(255,255,255,${0.34 * vis})`); g.addColorStop(1, 'rgba(255,255,255,0)'); ctx.fillStyle = g; ctx.beginPath(); ctx.arc(bx, by, r, 0, TAU); ctx.fill(); }
+   ctx.lineCap = 'round'; for (let i = 0; i < 9; i++) { const vis = cl((vp * 9 - i) / 2); if (vis <= 0) continue; const cx = -w / 2 + 70 + ((i * 131) % (w - 140)), cy = lerp(wy - 40, ytop + 10, ((i * 0.37) % 1)), rr = 28 + (i % 3) * 14, a0 = t * (1.6 + (i % 3) * 0.4) * (i % 2 ? 1 : -1) + i;
+    ctx.strokeStyle = `rgba(255,255,255,${0.45 * vis})`; ctx.lineWidth = 6; ctx.beginPath(); for (let k = 0; k <= 24; k++) { const a = a0 + k * 0.26, rk = rr * (0.3 + k / 24); const xx = cx + Math.cos(a) * rk, yy = cy + Math.sin(a) * rk * 0.6; k ? ctx.lineTo(xx, yy) : ctx.moveTo(xx, yy); } ctx.stroke(); }
+   ctx.restore(); }
   // flechas de presión (amarillas, crecen)
   const pr = o.presion || 0; if (pr > 0) { const L = 26 + 90 * pr, col = pr > 0.85 && o.rojo ? RD : YE, lw = 9 + 6 * pr; ctx.save(); ctx.globalAlpha = Math.min(1, pr * 3);
    for (const [ex, ey, dx, dy] of [[-w / 2 + 14, -h * 0.72, -1, 0], [w / 2 - 14, -h * 0.72, 1, 0], [-w / 2 + 14, -h * 0.98, -1, 0], [w / 2 - 14, -h * 0.98, 1, 0], [-140, -h - 54, 0, -1], [140, -h - 54, 0, -1], [0, -h - 76, 0, -1]]) flecha(ctx, ex - dx * L, ey - dy * L, ex, ey, col, lw); ctx.restore(); }
@@ -195,7 +199,7 @@
  // ---------- 1 · GANCHO: la olla pita y tiembla, la familia salta del susto → (1,2 s) primer plano de la válvula: chorro a la cámara (90 %) → la cocina ----------
  B.push({ t0: 0, t1: S(2), in: { type: 'cut' }, draw(ctx, t) {
   if (PORTADA) { cocinaFondo(ctx, 0.4, { ey: 1500, ventana: false }); cocinaMueble(ctx, 0.4, { ey: 1500 }); hornilla(ctx, 0.4, 610, 1500, 480, 1); olla(ctx, 0.4, 610, 1454, 1.45, { baila: 1, vapor: 1, vh: 520, vrate: 1.2 }); return; }
-  P.pregunta(ctx, '¿POR QUÉ NO EXPLOTA / LA OLLA A PRESIÓN?', t, 0, S(2) - 0.15, { capY: 330, px: 58, clave: 'EXPLOTA', x: 540, dy: 110 });
+  P.pregunta(ctx, '¿POR QUÉ NO EXPLOTA / LA OLLA A PRESIÓN?', t, 0, S(2) - 0.15, { capY: 330, px: 58, clave: 'EXPLOTA', col: '#ff3b3b', x: 540, dy: 110 });
   const golpes = [[T_LLENA, 1.0], [T_CORTE, 0.3]], sh = sacude(t, golpes, 42);
   ctx.save(); ctx.translate(sh[0], sh[1]);
   if (t < T_CORTE) { const cam = [lerp(560, 590, t / T_CORTE), lerp(880, 870, t / T_CORTE), lerp(1.08, 1.16, t / T_CORTE)]; ctx.save(); zoomP(ctx, cam);
@@ -270,58 +274,58 @@
 
  // ---------- 8 · su tapa cierra con un empaque de goma → corte: la tapa baja y el empaque rojo sella (clic) ----------
  B.push({ t0: S(8), t1: S(9), in: { type: 'zoom', d: 0.4, x: 540, y: 960 }, draw(ctx, t) {
-  const cierra = sm(S(8) + 0.1, Tk.empaque - 0.1, t), ld = 160 * (1 - cierra), eg = sm(Tk.empaque - 0.15, Tk.empaque + 0.2, t), cam = camK(t, [[S(8), 540, 960, 1.0], [Tk.empaque, 540, 960, 1.0], [S(9), 300, 720, 2.1]]);
+  const cierra = sm(S(8) + 0.1, Tk.empaque - 0.1, t), ld = 160 * (1 - cierra), eg = sm(Tk.empaque - 0.15, Tk.empaque + 0.2, t), cam = camK(t, [[S(8), 540, 960, 1.22], [Tk.empaque, 540, 960, 1.25], [S(9), 300, 740, 2.1]]);
   ctx.save(); zoomP(ctx, cam); rejilla(ctx); ollaRX(ctx, t, 540, 1330, 1.35, { tapaDy: ld, empaque: eg, vapor: 0, calor: 0.4, hierve: 0.2 }); ctx.restore();
   P.tag(ctx, 'EMPAQUE DE GOMA', 470, 520, t, Tk.empaque - 0.2, S(9), { mono: true, col: RD, px: 56 });
  }, sfx(k) { k.play('whoosh', S(8), { dur: 0.5, top: 1200, gain: 0.25, minor: true }); k.play('thud', Tk.empaque - 0.1, { f: 90, gain: 0.5 }); k.play('tick', Tk.empaque - 0.05, { f: 1600, gain: 0.35 }); FX.etiqueta(k, Tk.empaque - 0.2); } });
 
  // ---------- 9 · y el vapor se queda atrapado → corte completo: hierve y el vapor blanco llena el espacio ----------
  B.push({ t0: S(9), t1: S(10), in: { type: 'zoom', d: 0.35, x: 540, y: 960 }, draw(ctx, t) {
-  const vp = sm(S(9), Tk.atrapado + 0.2, t), cam = camK(t, [[S(9), 540, 1000, 1.25], [S(10), 540, 980, 1.0]]); ctx.save(); zoomP(ctx, cam); rejilla(ctx); ollaRX(ctx, t, 540, 1330, 1.35, { vapor: vp, empaque: 0.4, presion: 0.25 * vp }); ctx.restore();
+  const vp = sm(S(9), Tk.atrapado + 0.2, t), cam = camK(t, [[S(9), 540, 960, 1.28], [S(10), 540, 960, 1.2]]); ctx.save(); zoomP(ctx, cam); rejilla(ctx); ollaRX(ctx, t, 540, 1330, 1.35, { vapor: vp, empaque: 0.4, presion: 0.25 * vp }); ctx.restore();
   P.tag(ctx, 'VAPOR ATRAPADO', 470, 520, t, Tk.atrapado - 0.6, S(10), { mono: true, col: '#ffffff', px: 58 });
  }, sfx(k) { k.noise(S(9), { dur: S(10) - S(9), color: 'pink', filter: 'bandpass', f: 800, q: 1, gain: 0.08, a: 0.3 }); for (let x = S(9); x < S(10); x += 0.12) k.play('pop', x, { f: 300 + (x * 997) % 300, gain: 0.06, minor: true }); FX.etiqueta(k, Tk.atrapado - 0.6); } });
 
  // ---------- 10 · La presión sube… (pausa larga) → el medidor sube despacio, las flechas crecen; tensión ----------
  B.push({ t0: S(10), t1: S(11), in: { type: 'zoom', d: 0.35, x: 540, y: 960 }, draw(ctx, t) {
-  const pr = sm(S(10), S(11), t), cam = camK(t, [[S(10), 540, 980, 1.0], [S(11), 640, 760, 1.35]]); ctx.save(); zoomP(ctx, cam); rejilla(ctx); ollaRX(ctx, t, 540, 1330, 1.35, { vapor: 1, presion: 0.3 + 0.7 * pr, empaque: 0.4 });
-  manometro(ctx, 760, 760, 120, 0.15 + 0.8 * pr, { vibra: pr, t }); ctx.restore();
+  const pr = sm(S(10), S(11), t), cam = camK(t, [[S(10), 540, 960, 1.2], [S(11), 545, 955, 1.28]]); ctx.save(); zoomP(ctx, cam); rejilla(ctx); ollaRX(ctx, t, 540, 1330, 1.35, { vapor: 1, presion: 0.3 + 0.7 * pr, empaque: 0.4 });
+  manometro(ctx, 720, 800, 115, 0.15 + 0.8 * pr, { vibra: pr, t }); ctx.restore();
   const tn = sm(S(10) + 0.8, S(11), t); if (tn > 0) { ctx.fillStyle = `rgba(255,80,60,${0.12 * tn * (0.6 + 0.4 * Math.sin(t * 14))})`; ctx.fillRect(0, 0, W, HH); }
  }, sfx(k) { k.noise(S(10), { dur: S(11) - S(10), color: 'pink', filter: 'bandpass', f: [[0, 600], [2, 1800]], q: 1, gain: 0.08, a: 0.3 }); k.play('riser', S(10) + 0.2, { dur: S(11) - S(10) - 0.2, gain: 0.35 }); FX.latido(k, Tk.sube + 0.1, 3, 0.45); } });
 
  // ---------- 11 · y el agua puede pasar de cien grados → ¡GOLPE! termómetro gigante que sube por encima de 100 ----------
  B.push({ t0: S(11), t1: S(12), in: { type: 'cut' }, draw(ctx, t) {
-  const golpes = [[S(11) + 0.02, 1.0]], sh = sacude(t, golpes, 40), tc = lerp(98, 110, sm(S(11), S(12), t)), cam = camK(t, [[S(11), 540, 980, 1.1], [S(12), 540, 960, 1.0]]);
-  ctx.save(); zoomP(ctx, cam, sh); rejilla(ctx); ollaRX(ctx, t, 540, 1330, 1.35, { vapor: 1, presion: 1, empaque: 0.3, hierve: 1.6 }); termometro(ctx, 360, 1240, 760, tc); ctx.restore();
+  const golpes = [[S(11) + 0.02, 1.0]], sh = sacude(t, golpes, 40), tc = lerp(98, 110, sm(S(11), S(12), t)), cam = camK(t, [[S(11), 540, 960, 1.25], [S(12), 540, 960, 1.18]]);
+  ctx.save(); zoomP(ctx, cam, sh); rejilla(ctx); ollaRX(ctx, t, 540, 1330, 1.35, { vapor: 1, presion: 1, empaque: 0.3, hierve: 1.6 }); termometro(ctx, 360, 1260, 640, tc); ctx.restore();
   fogonazo(ctx, t, golpes); P.tag(ctx, 'MÁS DE 100 °C', 470, 520, t, Tk.cien - 0.3, S(12), { mono: true, col: NAR, px: 62 });
  }, sfx(k) { k.play('thud', S(11), { f: 45, gain: 1.0 }); k.noise(S(11), { dur: 0.6, filter: 'highpass', f: 2500, gain: 0.35, a: 0.002 }); k.tone(S(11), { f: [[0, 2400], [0.8, 3200]], type: 'sawtooth', dur: 0.9, gain: 0.05, filter: 'bandpass', f2: 3000, a: 0.01 }); FX.etiqueta(k, Tk.cien - 0.3); } });
 
  // ---------- 12 · llega a unos ciento veinte → primer plano del termómetro: la columna llega a 120 (ding) ----------
  B.push({ t0: S(12), t1: S(13), in: { type: 'zoom', d: 0.35, x: 400, y: 700 }, draw(ctx, t) {
-  const tc = lerp(110, 120, sm(S(12), Tk.veinte, t)), cam = camK(t, [[S(12), 470, 820, 1.35], [S(13), 470, 760, 1.55]]); ctx.save(); zoomP(ctx, cam); rejilla(ctx); ollaRX(ctx, t, 540, 1330, 1.35, { vapor: 1, presion: 1, hierve: 1.6 }); termometro(ctx, 360, 1240, 760, tc); ctx.restore();
+  const tc = lerp(110, 120, sm(S(12), Tk.veinte, t)), cam = camK(t, [[S(12), 535, 960, 1.2], [S(13), 520, 950, 1.3]]); ctx.save(); zoomP(ctx, cam); rejilla(ctx); ollaRX(ctx, t, 540, 1330, 1.35, { vapor: 1, presion: 1, hierve: 1.6 }); termometro(ctx, 360, 1260, 640, tc); ctx.restore();
   P.tag(ctx, '≈ 120 °C', 470, 1390, t, Tk.veinte - 0.3, S(13), { mono: true, col: YE, px: 70 });
  }, sfx(k) { k.tone(S(12), { f: [[0, 400], [1.2, 800]], type: 'triangle', dur: 1.3, gain: 0.05 }); k.play('ding', Tk.veinte, { f: 'E6', gain: 0.25 }); FX.etiqueta(k, Tk.veinte - 0.3); } });
 
  // ---------- 13 · Por eso cocina mucho más rápido → corte con frijoles que se ablandan y un reloj que gira veloz ----------
  B.push({ t0: S(13), t1: S(14), in: { type: 'zoom', d: 0.35, x: 540, y: 960 }, draw(ctx, t) {
-  const bl = sm(S(13), S(14), t), cam = camK(t, [[S(13), 540, 1000, 1.0], [S(14), 520, 1040, 1.12]]); ctx.save(); zoomP(ctx, cam); rejilla(ctx); ollaRX(ctx, t, 540, 1330, 1.35, { vapor: 1, presion: 0.8, comida: bl, nivel: 0.5 }); reloj(ctx, t, 800, 700, 120, 9); ctx.restore();
+  const bl = sm(S(13), S(14), t), cam = camK(t, [[S(13), 540, 960, 1.18], [S(14), 540, 960, 1.27]]); ctx.save(); zoomP(ctx, cam); rejilla(ctx); ollaRX(ctx, t, 540, 1330, 1.35, { vapor: 1, presion: 0.8, comida: bl, nivel: 0.5 }); reloj(ctx, t, 800, 700, 120, 9); ctx.restore();
   P.tag(ctx, 'MÁS RÁPIDO', 470, 520, t, Tk.rapido - 0.5, S(14), { mono: true, col: GR, px: 64 });
  }, sfx(k) { FX.reloj(k, S(13) + 0.1, 18, 0.12); FX.etiqueta(k, Tk.rapido - 0.5); FX.correcto(k, Tk.rapido); } });
 
  // ---------- 14 · ¿Y el pito? → primer plano de la válvula por fuera, bailando y silbando ----------
  B.push({ t0: S(14), t1: S(15), in: { type: 'zoom', d: 0.35, x: 540, y: 800 }, draw(ctx, t) {
-  const cam = camK(t, [[S(14), 620, 650, 2.2], [S(15), 620, 640, 2.5]]); ctx.save(); zoomP(ctx, cam); planoCocina(ctx, t, { x: 620, s: 1.2, olla: { baila: 1.3, vapor: 1, tiembla: 0.6 } }); ctx.restore();
-  anillo(ctx, t, 540, 900, 260, sm(Tk.pito - 0.3, Tk.pito, t));
+  const cam = camK(t, [[S(14), 620, 545, 2.2], [S(15), 620, 545, 2.45]]); ctx.save(); zoomP(ctx, cam); planoCocina(ctx, t, { x: 620, s: 1.2, olla: { baila: 1.3, vapor: 1, tiembla: 0.6 } }); ctx.restore();
+  anillo(ctx, t, 540, 1100, 260, sm(Tk.pito - 0.3, Tk.pito, t));
  }, sfx(k) { k.tone(S(14), { f: [[0, 2700], [1, 3000]], type: 'sawtooth', dur: S(15) - S(14), gain: 0.045, filter: 'bandpass', f2: 2900, a: 0.02 }); for (let x = S(14); x < S(15); x += 0.08) k.play('tick', x, { f: 1000, gain: 0.14, minor: true }); FX.revelar(k, Tk.pito - 0.3); } });
 
  // ---------- 15 · Es una válvula con un peso → rayos X de la válvula: el peso apoyado sobre el tubito ----------
  B.push({ t0: S(15), t1: S(16), in: { type: 'zoom', d: 0.35, x: 540, y: 900 }, draw(ctx, t) {
-  const cam = camK(t, [[S(15), 540, 760, 2.0], [S(16), 530, 720, 2.35]]); ctx.save(); zoomP(ctx, cam); rejilla(ctx); ollaRX(ctx, t, 540, 1330, 1.35, { vapor: 1, presion: 0.5, marcaPeso: sm(Tk.peso - 0.4, Tk.peso, t) > 0.5 }); ctx.restore();
+  const cam = camK(t, [[S(15), 540, 800, 1.8], [S(16), 540, 775, 2.0]]); ctx.save(); zoomP(ctx, cam); rejilla(ctx); ollaRX(ctx, t, 540, 1330, 1.35, { vapor: 1, presion: 0.5, marcaPeso: sm(Tk.peso - 0.4, Tk.peso, t) > 0.5 }); ctx.restore();
   P.tag(ctx, 'VÁLVULA CON PESO', 470, 520, t, Tk.peso - 0.5, S(16), { mono: true, col: YE, px: 56 });
  }, sfx(k) { k.play('whoosh', S(15), { dur: 0.4, top: 1600, gain: 0.25, minor: true }); k.play('thud', Tk.peso, { f: 120, gain: 0.3 }); FX.etiqueta(k, Tk.peso - 0.5); } });
 
  // ---------- 16 · la presión lo levanta y sale un poquito de vapor → rayos X: el peso sube, sale vapor, baja (ciclo); la cámara se mueve ----------
  B.push({ t0: S(16), t1: S(17), in: { type: 'slide', d: 0.35 }, draw(ctx, t) {
-  const c = Math.max(0, Math.sin((t - Tk.levanta + 0.3) * 7.5)), lift = t < Tk.levanta - 0.3 ? 0 : c, cam = camK(t, [[S(16), 530, 720, 2.35], [Tk.levanta + 0.6, 550, 700, 2.4], [S(17), 540, 900, 1.35]]);
+  const c = Math.max(0, Math.sin((t - Tk.levanta + 0.3) * 7.5)), lift = t < Tk.levanta - 0.3 ? 0 : c, cam = camK(t, [[S(16), 540, 960, 1.18], [Tk.levanta + 0.6, 540, 955, 1.25], [S(17), 540, 960, 1.3]]);
   ctx.save(); zoomP(ctx, cam); rejilla(ctx); ollaRX(ctx, t, 540, 1330, 1.35, { vapor: 1, presion: 0.75 - 0.2 * lift, peso: lift }); ctx.restore();
   
   P.tag(ctx, 'SALE UN POQUITO', 470, 520, t, Tk.vapor16 - 0.6, S(17), { mono: true, col: '#ffffff', px: 56 });
@@ -337,7 +341,7 @@
  // ---------- 18 · Pero si la válvula se tapa, o alguien fuerza la tapa… → rayos X: válvula tapada (rojo) → por fuera: la tapa forzada ----------
  B.push({ t0: S(18), t1: S(19), in: { type: 'zoom', d: 0.35, x: 540, y: 900 }, draw(ctx, t) {
   const tb = Tk.fuerza - 0.25;
-  if (t < tb) { const tp = sm(S(18) + 0.2, Tk.tapada, t), cam = camK(t, [[S(18), 540, 900, 2.1], [tb, 540, 940, 1.7]]); ctx.save(); zoomP(ctx, cam); rejilla(ctx); ollaRX(ctx, t, 540, 1330, 1.35, { vapor: 1, presion: 0.6 + 0.4 * tp, rojo: true, tapado: tp }); ctx.restore(); marcaX(ctx, 540, 820, 80, sm(Tk.tapada - 0.1, Tk.tapada + 0.2, t)); P.tag(ctx, 'VÁLVULA TAPADA', 470, 520, t, Tk.tapada - 0.4, tb, { mono: true, col: RD, px: 56 }); }
+  if (t < tb) { const tp = sm(S(18) + 0.2, Tk.tapada, t), cam = camK(t, [[S(18), 540, 960, 1.2], [tb, 540, 960, 1.28]]); ctx.save(); zoomP(ctx, cam); rejilla(ctx); ollaRX(ctx, t, 540, 1330, 1.35, { vapor: 1, presion: 0.6 + 0.4 * tp, rojo: true, tapado: tp }); ctx.restore(); { const z = cam[2], vx = 540 + z * (540 - cam[0]), vyy = 950 + z * (1330 - 1.35 * 460 - cam[1]); marcaX(ctx, vx, vyy, 70, sm(Tk.tapada - 0.1, Tk.tapada + 0.2, t)); } P.tag(ctx, 'VÁLVULA TAPADA', 470, 1395, t, S(18) + 0.1, tb, { mono: true, col: RD, px: 60 }); }
   else { const cam = camK(t, [[tb, 560, 760, 1.5], [S(19), 560, 740, 1.65]]), fz = sm(tb, S(19), t); ctx.save(); zoomP(ctx, cam); planoCocina(ctx, t, { x: 640, s: 1.2, olla: { tiembla: 1.5 * fz, pin: 1 } }); ctx.restore();
    ctx.save(); ctx.globalAlpha = fz; ctx.strokeStyle = RD; ctx.lineWidth = 22; ctx.lineCap = 'round'; ctx.beginPath(); ctx.arc(540, 900, 360, Math.PI * 1.05, Math.PI * 1.05 + 1.3 * fz); ctx.stroke(); const ea = Math.PI * 1.05 + 1.3 * fz; flecha(ctx, 540 + Math.cos(ea - 0.15) * 360, 900 + Math.sin(ea - 0.15) * 360, 540 + Math.cos(ea) * 360, 900 + Math.sin(ea) * 360, RD, 22); ctx.restore();
    P.tag(ctx, 'TAPA FORZADA', 470, 520, t, tb + 0.05, S(19), { mono: true, col: RD, px: 58 }); }
@@ -365,12 +369,18 @@
   ctx.restore(); P.tag(ctx, 'VARIOS SEGUROS', 470, 520, t, Tk.seguros - 0.6, S(22), { mono: true, col: GR, px: 60 });
  }, sfx(k) { k.play('whoosh', S(21), { dur: 0.5, top: 1600, gain: 0.25, minor: true }); FX.etiqueta(k, Tk.seguros - 0.6); for (let i = 0; i < 3; i++) k.play('ding', Tk.seguros - 0.4 + i * 0.35, { f: ['C6', 'E6', 'G6'][i], gain: 0.18 }); } });
 
- // ---------- 22 · un tapón que salta si la válvula se tapa → rayos X: válvula tapada, presión al máximo… ¡el tapón salta! ----------
+ // ---------- 22 · un tapón que salta si la válvula se tapa → acercamiento AL TAPÓN: tiembla con la presión… ¡sale disparado hacia la cámara! y el vapor escapa por ahí ----------
+ const tapon3D = (ctx, x, y, k, ang) => { ctx.save(); ctx.translate(x, y); ctx.rotate(ang); ctx.scale(k, k); ctx.fillStyle = 'rgba(0,0,0,0.25)'; ctx.beginPath(); ctx.ellipse(6, 10, 60, 30, 0, 0, TAU); ctx.fill();
+  ctx.fillStyle = '#b22a1e'; ctx.fillRect(-22, -6, 44, 60); ctx.fillStyle = '#e8463c'; ctx.beginPath(); ctx.ellipse(0, 0, 62, 30, 0, 0, TAU); ctx.fill(); ctx.fillStyle = '#ff7a6b'; ctx.beginPath(); ctx.ellipse(-14, -8, 26, 10, -0.2, 0, TAU); ctx.fill(); ctx.restore(); };
  B.push({ t0: S(22), t1: S(23), in: { type: 'zoom', d: 0.35, x: 540, y: 900 }, draw(ctx, t) {
-  const g0 = Tk.salta, tp = E.out(cl((t - g0) / 0.35)), golpes = [[g0, 1.0]], sh = sacude(t, golpes, 36), pr = t < g0 ? sm(S(22), g0, t) : 1 - 0.6 * tp, cam = camK(t, [[S(22), 480, 900, 1.6], [g0, 420, 880, 1.9], [S(23), 520, 940, 1.4]]);
-  ctx.save(); zoomP(ctx, cam, sh); rejilla(ctx); ollaRX(ctx, t, 540, 1330, 1.35, { vapor: 1, presion: 0.6 + 0.4 * pr, rojo: t < g0, tapado: 1, tapon: tp, marcaTapon: t < g0 && t > S(22) + 0.3 }); ctx.restore();
-  fogonazo(ctx, t, [[g0, 0.7]]); P.tag(ctx, 'TAPÓN DE SEGURIDAD', 470, 520, t, Tk.salta - 0.5, S(23), { mono: true, col: GR, px: 54 });
- }, sfx(k) { k.play('riser', S(22), { dur: Tk.salta - S(22), gain: 0.3, minor: true }); k.play('pop', Tk.salta, { f: 220, gain: 0.8 }); k.play('thud', Tk.salta, { f: 70, gain: 0.6 }); k.noise(Tk.salta, { dur: 1.4, filter: 'highpass', f: 2500, gain: 0.35, a: 0.005 }); k.tone(Tk.salta, { f: [[0, 3200], [1, 2600]], type: 'sawtooth', dur: 1.0, gain: 0.04, filter: 'bandpass', f2: 3000, a: 0.01 }); FX.etiqueta(k, Tk.salta - 0.5); FX.correcto(k, Tk.salta + 0.6); } });
+  const g0 = Tk.salta, golpes = [[g0, 1.2]], sh = sacude(t, golpes, 46), pr = sm(S(22), g0, t), fuera = t >= g0, u = cl((t - g0) / 0.45);
+  const px = 540 - 150 * 1.35, py = 1330 + 1.35 * lidY(-150, OH, 52), cam = camK(t, [[S(22), px + 60, py + 60, 1.9], [g0, px + 20, py + 20, 2.3], [S(23), px + 40, py + 10, 2.0]]);
+  ctx.save(); zoomP(ctx, cam, sh); rejilla(ctx); ollaRX(ctx, t, 540, 1330, 1.35, { vapor: 1, presion: fuera ? 0.5 : 0.6 + 0.4 * pr, rojo: !fuera, tapado: 1, tapon: fuera ? 3 : 0.025 * pr * Math.abs(Math.sin(t * 45)), vtapon: 1 }); ctx.restore();
+  if (!fuera) { const pz = cam[2], sx = 540 + pz * (px - cam[0]), sy = 950 + pz * (py - cam[1]); anillo(ctx, t, sx, sy - 10, 120, sm(S(22) + 0.2, S(22) + 0.5, t), RD); }
+  if (fuera) chorro(ctx, t, 540 + cam[2] * (px - cam[0]), 950 + cam[2] * (py - cam[1]) - 120, 0.45 * (1 - sm(g0 + 0.5, g0 + 1.2, t)), { rad: 260, seed: 11, alfa: 0.55 });
+  if (fuera && u < 1) { const k = lerp(2.4, 14, E.in(u)), sx = lerp(540 + cam[2] * (px - cam[0]), 560, u), sy = lerp(950 + cam[2] * (py - cam[1]), 960, u); ctx.save(); ctx.globalAlpha = 1 - sm(0.8, 1, u); tapon3D(ctx, sx, sy, k, u * 2.2); ctx.restore(); }
+  fogonazo(ctx, t, [[g0 + 0.3, 0.9]]); P.tag(ctx, 'TAPÓN DE SEGURIDAD', 470, 520, t, Tk.salta - 0.6, S(23), { mono: true, col: GR, px: 56 });
+ }, sfx(k) { k.play('riser', S(22), { dur: Tk.salta - S(22), gain: 0.35, minor: true }); for (let x = S(22) + 0.2; x < Tk.salta; x += 0.07) k.play('tick', x, { f: 1500, gain: 0.08, minor: true }); k.play('pop', Tk.salta, { f: 200, gain: 0.9 }); k.play('whoosh', Tk.salta + 0.02, { dur: 0.4, top: 3000, gain: 0.45 }); k.play('thud', Tk.salta + 0.3, { f: 50, gain: 1.0 }); k.noise(Tk.salta, { dur: 1.6, filter: 'highpass', f: 2500, gain: 0.4, a: 0.005 }); k.tone(Tk.salta, { f: [[0, 3300], [1.2, 2500]], type: 'sawtooth', dur: 1.2, gain: 0.05, filter: 'bandpass', f2: 3000, a: 0.01 }); FX.etiqueta(k, Tk.salta - 0.6); FX.correcto(k, S(23) - 0.4); } });
 
  // ---------- 23 · y una tapa que no abre con presión adentro → primer plano del mango: el seguro rojo arriba, la tapa no gira; candado ----------
  B.push({ t0: S(23), t1: S(24), in: { type: 'slide', d: 0.35 }, draw(ctx, t) {
