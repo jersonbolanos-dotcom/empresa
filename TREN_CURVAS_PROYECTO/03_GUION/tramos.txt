@@ -1,0 +1,31 @@
+# ¿Por qué el tren no se sale de la vía en las curvas? · voz ElevenLabs Eleven v4, Dan, UNA toma (1.014 caracteres, 64,6 s). UN gancho: el A.
+# [PAUSA 0.3] alarga la pausa larga antes del secreto (la toma la dejó en 0,6 s); la voz no se toca.
+[GANCHO A] Vas en un tren a toda velocidad…
+[GANCHO A] y la vía gira de golpe junto a un precipicio.
+¿Por qué no se sale?
+El secreto está en algo que nunca has mirado.
+Pon un vaso de plástico a rodar sobre la mesa.
+No va recto:
+gira en círculo…
+porque una boca es más ancha que la otra.
+¿Y las ruedas del tren?
+[PAUSA 0.3]
+No son cilindros.
+Son ligeramente cónicas, como ese vaso.
+Y van unidas por un eje rígido:
+las dos giran siempre a la vez.
+En la curva, el tren se corre un poquito hacia fuera…
+así la rueda de fuera se apoya en su parte más ancha…
+y recorre más camino en cada vuelta.
+La de dentro, en la más estrecha.
+Resultado:
+el tren gira solo.
+Como el vaso.
+¿Y la pestaña, ese borde de la rueda?
+Es solo un seguro por si algo falla, no lo que la guía.
+Además, en la curva la vía se inclina:
+el riel de fuera va más alto.
+Es el peralte, y contrarresta el empujón hacia fuera.
+Así gira el tren junto al precipicio…
+gracias a un cono.
+Envíaselo a ese amigo que siempre se agarra fuerte en las curvas.
