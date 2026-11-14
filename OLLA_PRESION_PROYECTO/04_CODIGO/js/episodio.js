@@ -89,7 +89,7 @@
   ctx.fillStyle = 'rgba(255,255,255,0.4)'; ctx.fillRect(-w / 2 + 70, -h + 34, 24, h - 74); ctx.strokeStyle = 'rgba(0,0,0,0.18)'; ctx.lineWidth = 4; ctx.beginPath(); ctx.moveTo(-w / 2, -h + 62); ctx.lineTo(w / 2, -h + 62); ctx.stroke();
   if (sep) { ctx.fillStyle = 'rgba(60,40,20,0.35)'; ctx.beginPath(); ctx.ellipse(120, -140, 50, 34, 0.4, 0, TAU); ctx.fill(); ctx.beginPath(); ctx.ellipse(-150, -80, 36, 26, -0.3, 0, TAU); ctx.fill(); }
   ctx.fillStyle = sep ? '#8a7354' : '#9aa1ab'; ctx.fillRect(-w / 2 - 14, -h - 16, w + 28, 22);
-  ctx.save(); ctx.translate(0, -ld);
+  if (!o.sinTapa) { ctx.save(); ctx.translate(0, -ld);
   ctx.fillStyle = sep ? metal(ctx, w, '#7a6448', '#dcc49c', '#b29672', '#6a553c') : metal(ctx, w, '#8a919c', '#f6f8fb', '#c9ced6', '#7a818c');
   ctx.beginPath(); ctx.moveTo(-w / 2 - 12, -h - 16); ctx.quadraticCurveTo(0, -h - 110, w / 2 + 12, -h - 16); ctx.closePath(); ctx.fill();
   ctx.fillStyle = '#e8463c'; ctx.fillRect(-w / 2 - 12, -h - 22, w + 24, 7);
@@ -99,8 +99,10 @@
   const bj = o.baila || 0, ang = bj * 0.28 * Math.sin(t * 38), up = bj * 7 * Math.abs(Math.sin(t * 19));
   ctx.fillStyle = '#6b7280'; ctx.fillRect(-9, -h - 92, 18, 32);
   ctx.save(); ctx.translate(0, -h - 92 - up - (o.levanta || 0) * 30); ctx.rotate(ang); ctx.fillStyle = sep ? '#4a3c2c' : '#3d434c'; ctx.beginPath(); ctx.moveTo(-34, 0); ctx.lineTo(34, 0); ctx.lineTo(24, -52); ctx.lineTo(-24, -52); ctx.closePath(); ctx.fill(); ctx.beginPath(); ctx.arc(0, -60, 16, 0, TAU); ctx.fill(); ctx.fillStyle = 'rgba(255,255,255,0.3)'; ctx.fillRect(-18, -46, 8, 40); ctx.restore();
-  ctx.restore(); ctx.restore();
-  if (o.vapor) vapor(ctx, x + jx, y + jy - (h + 160 + ld) * s, t, o.vapor, { n: 12, h: (o.vh || 380) * s, r0: 14 * s, r1: 72 * s, rate: o.vrate || 1.4, dx: 50 * s });
+  ctx.restore(); } else { ctx.fillStyle = '#3a2a22'; ctx.beginPath(); ctx.ellipse(0, -h - 6, w / 2 + 6, 34, 0, 0, TAU); ctx.fill(); ctx.fillStyle = '#6b2a18'; ctx.beginPath(); ctx.ellipse(0, -h + 4, w / 2 - 20, 24, 0, 0, TAU); ctx.fill(); const R = H.rng(8); for (let i = 0; i < 40; i++) { ctx.fillStyle = i % 3 ? '#8a3a20' : '#5a2214'; ctx.beginPath(); ctx.ellipse((R() - 0.5) * (w - 70), -h + 4 + (R() - 0.5) * 34, 14, 9, R() * 3, 0, TAU); ctx.fill(); } }
+  ctx.restore();
+  if (o.sinTapa && o.vapor) for (const dx of [-140, 0, 140]) vapor(ctx, x + jx + dx * s, y + jy - (h + 10) * s, t + dx * 0.003, o.vapor, { n: 9, h: 420 * s, r0: 30 * s, r1: 110 * s, rate: 0.7, dx: 30 * s, a: 0.55 });
+  if (o.vapor && !o.sinTapa) vapor(ctx, x + jx, y + jy - (h + 160 + ld) * s, t, o.vapor, { n: 12, h: (o.vh || 380) * s, r0: 14 * s, r1: 72 * s, rate: o.vrate || 1.4, dx: 50 * s });
   if (o.vtapon && (o.tapon || 0) > 0) vapor(ctx, x + jx - (o.espejo ? -130 : 130) * s, y + jy - (h + 60) * s, t, o.vtapon, { n: 12, h: 420 * s, r0: 20 * s, r1: 90 * s, rate: 1.8, dx: -40 * s }); };
 
  // ---------- OLLA EN CORTE («rayos X»): agua, vapor, calor, flechas de presión, empaque, válvula con peso y tapón ----------
@@ -172,6 +174,10 @@
   ctx.restore(); };
  const mesaCocina = (ctx, y) => { ctx.fillStyle = '#9c6b3f'; ctx.fillRect(-900, y, W + 1800, 60); ctx.fillStyle = '#7a5130'; ctx.fillRect(-900, y + 60, W + 1800, 1400); ctx.strokeStyle = 'rgba(60,35,15,0.35)'; ctx.lineWidth = 4; for (let k = 0; k < 4; k++) { ctx.beginPath(); ctx.moveTo(-900, y + 18 + k * 12); for (let x = -900; x <= W + 900; x += 90) ctx.lineTo(x, y + 18 + k * 12 + 4 * Math.sin(x * 0.02 + k)); ctx.stroke(); } for (let x = -900; x < W + 900; x += 240) { ctx.beginPath(); ctx.moveTo(x, y + 60); ctx.lineTo(x, y + 1400); ctx.stroke(); } };
 
+ const plato = (ctx, t, x, y, s) => { ctx.save(); ctx.translate(x, y); ctx.scale(s, s); ctx.fillStyle = 'rgba(0,0,0,0.25)'; ctx.beginPath(); ctx.ellipse(0, 4, 150, 16, 0, 0, TAU); ctx.fill();
+  ctx.fillStyle = '#c8553d'; ctx.beginPath(); ctx.moveTo(-150, -90); ctx.quadraticCurveTo(-140, 0, -60, 0); ctx.lineTo(60, 0); ctx.quadraticCurveTo(140, 0, 150, -90); ctx.closePath(); ctx.fill(); ctx.fillStyle = '#e2a32b'; ctx.fillRect(-146, -74, 292, 12);
+  ctx.fillStyle = '#5a2214'; ctx.beginPath(); ctx.ellipse(0, -92, 150, 30, 0, 0, TAU); ctx.fill(); const R = H.rng(12); for (let i = 0; i < 26; i++) { ctx.fillStyle = i % 3 ? '#8a3a20' : '#6b2a18'; ctx.beginPath(); ctx.ellipse((R() - 0.5) * 240, -96 + (R() - 0.5) * 30 - 8 * R(), 14, 9, R() * 3, 0, TAU); ctx.fill(); }
+  ctx.restore(); vapor(ctx, x - 40 * s, y - 110 * s, t, 0.8, { n: 7, h: 260 * s, r0: 14 * s, r1: 50 * s, rate: 0.8, dx: 20 * s, a: 0.6 }); vapor(ctx, x + 50 * s, y - 110 * s, t + 0.4, 0.8, { n: 7, h: 240 * s, r0: 14 * s, r1: 46 * s, rate: 0.9, dx: -20 * s, a: 0.6 }); };
  // ---------- PERSONAS (de pie, detrás del mueble: se ven de la cintura hacia arriba) ----------
  const persona = (ctx, t, x, y, s, o = {}) => { const m = o.miedo || 0, son = o.sonrie || 0, j = o.salto || 0; ctx.save(); ctx.translate(x, y - j * 110 * s); ctx.rotate(o.incl || 0); ctx.scale(s, s); const ropa = o.ropa || '#3d6fb6', piel = o.piel || '#d9a074';
   ctx.fillStyle = '#3a3550'; ctx.fillRect(-56, -200, 48, 200); ctx.fillRect(8, -200, 48, 200);
@@ -198,7 +204,7 @@
 
  // ---------- 1 · GANCHO: la olla pita y tiembla, la familia salta del susto → (1,2 s) primer plano de la válvula: chorro a la cámara (90 %) → la cocina ----------
  B.push({ t0: 0, t1: S(2), in: { type: 'cut' }, draw(ctx, t) {
-  if (PORTADA) { cocinaFondo(ctx, 0.4, { ey: 1500, ventana: false }); cocinaMueble(ctx, 0.4, { ey: 1500 }); hornilla(ctx, 0.4, 610, 1500, 480, 1); olla(ctx, 0.4, 610, 1454, 1.45, { baila: 1, vapor: 1, vh: 520, vrate: 1.2 }); return; }
+  if (PORTADA) { cocinaFondo(ctx, 0.4, { ey: 1500, ventana: false }); cocinaMueble(ctx, 0.4, { ey: 1500 }); hornilla(ctx, 0.4, 610, 1500, 480, 1); olla(ctx, 0.4, 610, 1454, 1.45, { baila: 1 }); { const R = H.rng(21); for (const capa of [0, 1]) for (let i = 0; i < 34; i++) { const u = i / 33, x = lerp(650, 1080, u) + (R() - 0.5) * 40 * u, y = lerp(752, 640, u) + (R() - 0.5) * 70 * u, r = lerp(16, 120, Math.pow(u, 0.8)) * (0.8 + 0.4 * R()); ctx.fillStyle = capa ? `rgba(255,255,255,${0.95 - 0.35 * u})` : `rgba(190,205,218,${0.8 - 0.3 * u})`; ctx.beginPath(); ctx.arc(x + (capa ? 0 : 8), y + (capa ? 0 : 12), r, 0, TAU); ctx.fill(); } } ctx.fillStyle = '#1e1612'; ctx.fillRect(0, 1565, W, 400); ctx.fillStyle = '#c8553d'; ctx.fillRect(0, 1560, W, 8); return; }
   P.pregunta(ctx, '¿POR QUÉ NO EXPLOTA / LA OLLA A PRESIÓN?', t, 0, S(2) - 0.15, { capY: 330, px: 58, clave: 'EXPLOTA', col: '#ff3b3b', x: 540, dy: 110 });
   const golpes = [[T_LLENA, 1.0], [T_CORTE, 0.3]], sh = sacude(t, golpes, 42);
   ctx.save(); ctx.translate(sh[0], sh[1]);
@@ -305,16 +311,19 @@
   P.tag(ctx, '≈ 120 °C', 470, 1390, t, Tk.veinte - 0.3, S(13), { mono: true, col: YE, px: 70 });
  }, sfx(k) { k.tone(S(12), { f: [[0, 400], [1.2, 800]], type: 'triangle', dur: 1.3, gain: 0.05 }); k.play('ding', Tk.veinte, { f: 'E6', gain: 0.25 }); FX.etiqueta(k, Tk.veinte - 0.3); } });
 
- // ---------- 13 · Por eso cocina mucho más rápido → corte con frijoles que se ablandan y un reloj que gira veloz ----------
- B.push({ t0: S(13), t1: S(14), in: { type: 'zoom', d: 0.35, x: 540, y: 960 }, draw(ctx, t) {
-  const bl = sm(S(13), S(14), t), cam = camK(t, [[S(13), 540, 960, 1.18], [S(14), 540, 960, 1.27]]); ctx.save(); zoomP(ctx, cam); rejilla(ctx); ollaRX(ctx, t, 540, 1330, 1.35, { vapor: 1, presion: 0.8, comida: bl, nivel: 0.5 }); reloj(ctx, t, 800, 700, 120, 9); ctx.restore();
+ // ---------- 13 · Por eso cocina mucho más rápido → LA COCINA: la abuela destapa la olla (ya sin presión) y sirve los frijoles humeantes; el niño contento; reloj veloz ----------
+ B.push({ t0: S(13), t1: S(14), in: { type: 'fade', d: 0.35 }, draw(ctx, t) {
+  const cam = camK(t, [[S(13), 600, 900, 1.0], [S(14), 585, 890, 1.06]]); ctx.save(); zoomP(ctx, cam);
+  planoCocina(ctx, t, { x: 760, s: 1.08, llama: 0, olla: { sinTapa: true, espejo: true, vapor: 1 }, gente: (c) => { persona(c, t, 150, EY + 30, 0.95, { abuela: true, ropa: '#8e4f8a', piel: '#c98d63', cuchara: true, sonrie: 1 }); persona(c, t, 330, EY + 120, 0.72, { sonrie: 1, ropa: '#3a7a4a', salto: 0.25 * Math.max(0, Math.sin((t - S(13)) * 7)) }); } });
+  plato(ctx, t, 470, EY + 2, 0.95); ctx.restore();
+  ctx.fillStyle = 'rgba(255,190,90,0.12)'; ctx.fillRect(0, 0, W, HH); reloj(ctx, t, 860, 700, 100, 9);
   P.tag(ctx, 'MÁS RÁPIDO', 470, 520, t, Tk.rapido - 0.5, S(14), { mono: true, col: GR, px: 64 });
- }, sfx(k) { FX.reloj(k, S(13) + 0.1, 18, 0.12); FX.etiqueta(k, Tk.rapido - 0.5); FX.correcto(k, Tk.rapido); } });
+ }, sfx(k) { k.play('whoosh', S(13), { dur: 0.4, top: 1200, gain: 0.2, minor: true }); k.noise(S(13), { dur: 0.6, filter: 'highpass', f: 3000, gain: 0.12, a: 0.05 }); FX.reloj(k, S(13) + 0.2, 16, 0.12); k.play('pop', S(13) + 0.9, { f: 500, gain: 0.25, minor: true }); FX.etiqueta(k, Tk.rapido - 0.5); FX.correcto(k, Tk.rapido); } });
 
- // ---------- 14 · ¿Y el pito? → primer plano de la válvula por fuera, bailando y silbando ----------
- B.push({ t0: S(14), t1: S(15), in: { type: 'zoom', d: 0.35, x: 540, y: 800 }, draw(ctx, t) {
-  const cam = camK(t, [[S(14), 620, 545, 2.2], [S(15), 620, 545, 2.45]]); ctx.save(); zoomP(ctx, cam); planoCocina(ctx, t, { x: 620, s: 1.2, olla: { baila: 1.3, vapor: 1, tiembla: 0.6 } }); ctx.restore();
-  anillo(ctx, t, 540, 1100, 260, sm(Tk.pito - 0.3, Tk.pito, t));
+ // ---------- 14 · ¿Y el pito? → de vuelta a los RAYOS X: la olla entera y un anillo sobre la válvula que silba ----------
+ B.push({ t0: S(14), t1: S(15), in: { type: 'zoom', d: 0.35, x: 540, y: 700 }, draw(ctx, t) {
+  const cam = camK(t, [[S(14), 540, 960, 1.18], [S(15), 540, 940, 1.28]]); ctx.save(); zoomP(ctx, cam); rejilla(ctx); ollaRX(ctx, t, 540, 1330, 1.35, { vapor: 1, presion: 0.6, peso: 0.5 + 0.5 * Math.abs(Math.sin(t * 12)) }); ctx.restore();
+  const z = cam[2], vx = 540 + z * (540 - cam[0]), vy = 950 + z * (1330 - 1.35 * 470 - cam[1]); anillo(ctx, t, vx, vy, 120, sm(Tk.pito - 0.3, Tk.pito, t));
  }, sfx(k) { k.tone(S(14), { f: [[0, 2700], [1, 3000]], type: 'sawtooth', dur: S(15) - S(14), gain: 0.045, filter: 'bandpass', f2: 2900, a: 0.02 }); for (let x = S(14); x < S(15); x += 0.08) k.play('tick', x, { f: 1000, gain: 0.14, minor: true }); FX.revelar(k, Tk.pito - 0.3); } });
 
  // ---------- 15 · Es una válvula con un peso → rayos X de la válvula: el peso apoyado sobre el tubito ----------
