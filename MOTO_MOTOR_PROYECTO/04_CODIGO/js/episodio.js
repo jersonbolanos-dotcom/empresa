@@ -133,7 +133,7 @@
   ctx.fillStyle = '#b8452f'; ctx.beginPath(); ctx.arc(270, -130, 150, Math.PI * 1.1, Math.PI * 1.55); ctx.lineTo(270, -130); ctx.closePath(); ctx.fill();
   // tubo de escape y humo
   ctx.strokeStyle = '#7d848f'; ctx.lineWidth = 20; ctx.beginPath(); ctx.moveTo(70, -250); ctx.quadraticCurveTo(60, -130, -60, -140); ctx.lineTo(-300, -170); ctx.stroke(); ctx.fillStyle = '#5a6068'; ctx.beginPath(); ctx.roundRect(-340, -200, 150, 46, 18); ctx.fill();
-  if (o.humo !== false) { const hk = o.humo ?? 0.7; ctx.save(); ctx.scale(o.espejo ? -1 : 1, 1); for (let i = 0; i < 9; i++) { const ph = ((t * 1.3 + i / 9) % 1), hx = (o.espejo ? 1 : -1) * (350 + ph * 260), hy = -180 - ph * 90 + 10 * Math.sin(t * 3 + i); ctx.globalAlpha = hk * (1 - ph) * 0.7; ctx.fillStyle = '#d9d9de'; ctx.beginPath(); ctx.arc(hx, hy, 14 + 40 * ph, 0, TAU); ctx.fill(); } ctx.restore(); ctx.globalAlpha = 1; }
+  if (o.humo !== false) { const hk = o.humo ?? 0.7; ctx.save(); ctx.scale(o.espejo ? -1 : 1, 1); for (let i = 0; i < 9; i++) { const ph = ((t * 1.3 + i / 9) % 1), hx = (o.espejo ? 1 : -1) * (350 + ph * 260 * Math.max(1, hk)), hy = -180 - ph * 90 + 10 * Math.sin(t * 3 + i); ctx.globalAlpha = hk * (1 - ph) * 0.7; ctx.fillStyle = '#d9d9de'; ctx.beginPath(); ctx.arc(hx, hy, (14 + 40 * ph) * Math.max(1, hk), 0, TAU); ctx.fill(); } ctx.restore(); ctx.globalAlpha = 1; }
   // cadena
   ctx.strokeStyle = '#5a5f68'; ctx.lineWidth = 8; ctx.beginPath(); ctx.moveTo(-40, -195); ctx.lineTo(-260, -170); ctx.moveTo(-40, -150); ctx.lineTo(-260, -80); ctx.stroke(); ctx.fillStyle = '#c9ced8'; for (let i = 0; i < 8; i++) { const q = ((ra * 0.1 + i / 8) % 1); ctx.beginPath(); ctx.arc(lerp(-40, -260, q), lerp(-195, -170, q), 4, 0, TAU); ctx.fill(); }
   ctx.fillStyle = '#7d848f'; ctx.beginPath(); ctx.arc(-40, -172, 26, 0, TAU); ctx.fill(); ctx.beginPath(); ctx.arc(-260, -125, 52, 0, TAU); ctx.globalAlpha = 0.7; ctx.fill(); ctx.globalAlpha = 1;
@@ -145,10 +145,24 @@
   ctx.fillStyle = '#2a2d33'; ctx.beginPath(); ctx.arc(205, -440, 34, 0, TAU); ctx.fill(); ctx.fillStyle = '#fff6c8'; ctx.beginPath(); ctx.arc(222, -440, 22, -1.2, 1.2); ctx.fill(); if (o.luz) P.glow(ctx, 240, -440, 160, '255,240,180', o.luz);
   ctx.strokeStyle = '#1e1e22'; ctx.lineWidth = 12; ctx.beginPath(); ctx.moveTo(185, -470); ctx.lineTo(150, -500); ctx.stroke();
   if (o.piloto !== false) piloto(ctx, t, o.pilotoO || {});
-  if (o.rx) { ctx.save(); ctx.globalAlpha = o.rx; ctx.fillStyle = '#0b1d3a'; ctx.beginPath(); ctx.arc(-10, -260, 170, 0, TAU); ctx.fill(); ctx.strokeStyle = CY; ctx.lineWidth = 6; ctx.stroke(); ctx.beginPath(); ctx.arc(-10, -260, 166, 0, TAU); ctx.clip(); ctx.translate(-10, -200); ctx.rotate(0.3); motorRX(ctx, t, 0, 0, 0.32, { phi: o.phi ?? t * 14 }); ctx.restore(); if (o.latido) { P.glow(ctx, -10, -280, 200, '255,150,40', o.latido); } }
+  if (o.rx) { const R = o.rxR || 170; ctx.save(); ctx.globalAlpha = o.rx; ctx.fillStyle = '#0b1d3a'; ctx.beginPath(); ctx.arc(-10, -260, R, 0, TAU); ctx.fill(); ctx.strokeStyle = CY; ctx.lineWidth = 6; ctx.stroke(); ctx.beginPath(); ctx.arc(-10, -260, R - 4, 0, TAU); ctx.clip(); ctx.translate(-10, -260 + 60 * R / 170); ctx.rotate(0.3); motorRX(ctx, t, 0, 0, 0.32 * R / 170, { phi: o.phi ?? t * 14 }); ctx.restore(); if (o.latido) { P.glow(ctx, -10, -280, R + 30, '255,150,40', o.latido); } }
   ctx.restore(); };
 
  // ---------- VISTA DESDE LOS OJOS DEL CONDUCTOR: la calle adelante, tablero, manos, tanque y motor entre las piernas ----------
+ // ---------- GUANTE AGARRANDO EL PUÑO DEL MANUBRIO (vista del conductor). gas 0..1 = la muñeca gira el acelerador hacia atrás ----------
+ const guante = (ctx, t, x, y, izq, gas) => { ctx.save(); ctx.translate(x, y); ctx.scale(izq ? -1.25 : 1.25, 1.25); ctx.rotate(0.3);
+  // antebrazo (manga de la chaqueta) que baja hacia el conductor
+  ctx.fillStyle = '#2f6db5'; ctx.beginPath(); ctx.moveTo(-40, 50); ctx.lineTo(70, 40); ctx.lineTo(330, 520); ctx.lineTo(120, 560); ctx.closePath(); ctx.fill(); ctx.fillStyle = 'rgba(255,255,255,0.12)'; ctx.fillRect(-10, 120, 150, 14);
+  // puño de goma (estrías que se desplazan al girar el acelerador)
+  ctx.fillStyle = '#18181b'; ctx.beginPath(); ctx.roundRect(-150, -30, 300, 60, 26); ctx.fill(); ctx.strokeStyle = '#34343a'; ctx.lineWidth = 5; const ph = gas * 26; for (let i = -6; i <= 6; i++) { const yy = ((i * 9 + ph) % 54 + 54) % 54 - 27; ctx.beginPath(); ctx.moveTo(-148, yy); ctx.lineTo(-100, yy); ctx.moveTo(100, yy); ctx.lineTo(148, yy); ctx.stroke(); }
+  // la mano gira con el puño
+  ctx.rotate(-0.28 * gas); ctx.translate(0, 6 * gas);
+  ctx.fillStyle = '#3a3a42'; ctx.beginPath(); ctx.roundRect(-62, 30, 124, 70, 18); ctx.fill(); ctx.fillStyle = '#d9a03a'; ctx.fillRect(-62, 52, 124, 14);   // puño del guante (muñequera)
+  ctx.fillStyle = '#2b2b31'; ctx.beginPath(); ctx.ellipse(0, 4, 96, 62, 0, 0, TAU); ctx.fill();   // dorso
+  ctx.fillStyle = '#2b2b31'; ctx.beginPath(); ctx.ellipse(-92, 26, 30, 44, 0.6, 0, TAU); ctx.fill();   // pulgar por debajo
+  for (let i = 0; i < 4; i++) { const fx = -66 + i * 44, fy = -46 - (i === 1 || i === 2 ? 6 : 0); ctx.fillStyle = '#26262b'; ctx.beginPath(); ctx.roundRect(fx - 20, fy - 22, 40, 52, 18); ctx.fill(); ctx.fillStyle = 'rgba(255,255,255,0.16)'; ctx.beginPath(); ctx.ellipse(fx, fy - 6, 12, 7, 0, 0, TAU); ctx.fill(); }   // dedos que envuelven el puño
+  ctx.fillStyle = 'rgba(255,255,255,0.1)'; ctx.beginPath(); ctx.ellipse(-10, 0, 60, 26, -0.1, 0, TAU); ctx.fill(); ctx.fillStyle = '#4a4a52'; ctx.beginPath(); ctx.roundRect(-40, -8, 80, 22, 10); ctx.fill();   // refuerzo de nudillos
+  ctx.restore(); };
  const pov = (ctx, t, o = {}) => { const off = t * 900, vib = 3 * Math.sin(t * 70);
   ctx.save(); ctx.translate(vib * 0.5, vib);
   // calle hacia delante (perspectiva)
@@ -161,7 +175,7 @@
   ctx.fillStyle = '#1e1e22'; ctx.beginPath(); ctx.moveTo(-20, 1010); ctx.quadraticCurveTo(540, 900, W + 20, 1010); ctx.lineTo(W + 20, 1060); ctx.quadraticCurveTo(540, 950, -20, 1060); ctx.closePath(); ctx.fill();
   ctx.fillStyle = '#2a2d33'; ctx.beginPath(); ctx.arc(540, 940, 120, 0, TAU); ctx.fill(); ctx.fillStyle = '#0f1218'; ctx.beginPath(); ctx.arc(540, 940, 100, 0, TAU); ctx.fill(); ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 4; for (let i = 0; i <= 10; i++) { const a = Math.PI * (0.8 + 1.4 * i / 10); ctx.beginPath(); ctx.moveTo(540 + Math.cos(a) * 80, 940 + Math.sin(a) * 80); ctx.lineTo(540 + Math.cos(a) * 92, 940 + Math.sin(a) * 92); ctx.stroke(); }
   const na = Math.PI * (0.8 + 1.4 * (o.aguja ?? (0.45 + 0.05 * Math.sin(t * 9)))); ctx.strokeStyle = RD; ctx.lineWidth = 6; ctx.beginPath(); ctx.moveTo(540, 940); ctx.lineTo(540 + Math.cos(na) * 84, 940 + Math.sin(na) * 84); ctx.stroke();
-  if (typeof window !== 'undefined' && window.MANOS_IMG) { P.manoImg(ctx, 'puno', 150, 1080, 230, { ancla: 'centro', ang: -0.2, espejo: true }); P.manoImg(ctx, 'puno', 930, 1080, 230, { ancla: 'centro', ang: 0.2 }); }
+  guante(ctx, t, 190, 1000, true, 0); guante(ctx, t, 890, 1000, false, o.gas || 0);
   // piernas (jeans) y tanque
   ctx.fillStyle = '#2c3a5a'; ctx.beginPath(); ctx.moveTo(-60, 1300); ctx.quadraticCurveTo(200, 1250, 330, 1500); ctx.lineTo(260, HH + 60); ctx.lineTo(-60, HH + 60); ctx.closePath(); ctx.fill(); ctx.beginPath(); ctx.moveTo(W + 60, 1300); ctx.quadraticCurveTo(W - 200, 1250, W - 330, 1500); ctx.lineTo(W - 260, HH + 60); ctx.lineTo(W + 60, HH + 60); ctx.closePath(); ctx.fill();
   ctx.fillStyle = '#c8553d'; ctx.beginPath(); ctx.moveTo(360, 1090); ctx.quadraticCurveTo(540, 1050, 720, 1090); ctx.quadraticCurveTo(760, 1300, 680, 1460); ctx.lineTo(400, 1460); ctx.quadraticCurveTo(320, 1300, 360, 1090); ctx.closePath(); ctx.fill(); ctx.fillStyle = 'rgba(255,255,255,0.3)'; ctx.beginPath(); ctx.ellipse(500, 1180, 40, 90, 0, 0, TAU); ctx.fill(); ctx.fillStyle = '#9aa3b2'; ctx.beginPath(); ctx.arc(540, 1120, 26, 0, TAU); ctx.fill();
@@ -214,7 +228,7 @@
   P.pregunta(ctx, '¿QUÉ PASA DENTRO / DEL MOTOR?', t, 0, S(2) - 0.15, { capY: 330, px: 58, clave: 'MOTOR', col: '#ff3b3b', x: 540, dy: 110 });
   const TE = Tk.explota, golpes = [[TE, 1.4]], sh = sacude(t, golpes, 56), rx = sm(TE - 0.3, TE - 0.02, t), lv = latidoV(t);
   ctx.save(); ctx.translate(sh[0] + (lv * 6) * Math.sin(t * 80), sh[1]); const z = lerp(1.0, 1.12, sm(0, TE, t)); ctx.translate(540, 1500); ctx.scale(z, z); ctx.translate(-540, -1500);
-  pov(ctx, t, { rx, phi: t > TE ? 2 * Math.PI + (t - TE) * 30 : 2 * Math.PI - 0.1, latido: lv * 0.8, aguja: 0.4 + 0.25 * sm(0, TE, t) + 0.05 * Math.sin(t * 9) }); ctx.restore();
+  pov(ctx, t, { gas: t < TE + 0.5 ? sm(TE - 0.65, TE - 0.2, t) : 0.6 + 0.4 * lv, rx, phi: t > TE ? 2 * Math.PI + (t - TE) * 30 : 2 * Math.PI - 0.1, latido: lv * 0.8, aguja: 0.4 + 0.25 * sm(0, TE, t) + 0.05 * Math.sin(t * 9) }); ctx.restore();
   if (lv > 0.05) bolaFuego(ctx, t, 540, 1480, 0.12 + 0.2 * lv, { rad: 300, seed: 3 });
   const kf = t < TE - 0.2 ? 0 : t < TE ? E.in((t - TE + 0.2) / 0.2) : 1 - sm(TE + 0.1, TE + 0.5, t); bolaFuego(ctx, t, lerp(540, 540, kf), lerp(1480, 960, kf), kf, { rad: 560 });
   fogonazo(ctx, t, [[TE, 0.9]]);
@@ -283,7 +297,7 @@
  B.push({ t0: S(18), t1: S(21), in: { type: 'cut' }, draw(ctx, t) {
   const tb = Tk.escape - 0.45, s = SM, c = centroMotor(s);
   if (t < tb) { const ph = lerp(3 * Math.PI + 0.05, 4 * Math.PI - 0.05, sm(S(18), tb, t)), cam = camK(t, [[S(18), 540, 950, 1.0], [tb, 560, 920, 1.12]]); rejilla(ctx); ctx.save(); zoomP(ctx, cam); motorRX(ctx, t, c[0], c[1], s, { phi: ph }); ctx.restore(); TAG(ctx, '4 · SOPLA', 470, 520, t, Tk.cuatro2 - 0.1, tb, { mono: true, col: '#c9ced8', px: 72 }); }
-  else { const ex = motoW(-340, -180), cam = camK(t, [[tb, ex[0] + 120, ex[1] - 60, 1.7], [S(21), ex[0] + 160, ex[1] - 80, 1.5]]); ctx.save(); zoomP(ctx, cam); calle(ctx, t, { vel: 400, moto: { humo: 1.2 } }); ctx.restore(); TAG(ctx, 'ESCAPE', 470, 520, t, Tk.escape - 0.4, S(21), { mono: true, col: '#c9ced8', px: 66 }); }
+  else { const cam = camK(t, [[tb, 540, 1130, 0.95], [S(21), 540, 1140, 0.98]]); ctx.save(); zoomP(ctx, cam); calle(ctx, t, { vel: 400, px: 960, peaton: { mira: -1 }, moto: { humo: 1.2 } }); { const ex = motoW(-330, -175); for (let i = 0; i < 12; i++) { const ph = ((t * 0.8 + i / 12) % 1), hx = ex[0] - 20 - ph * 170 + 25 * Math.sin(t * 2 + i), hy = ex[1] - 20 - ph * 420; ctx.globalAlpha = 0.8 * (1 - ph) * sm(0, 0.12, ph); ctx.fillStyle = i % 2 ? '#c9ccd3' : '#b3b7c0'; ctx.beginPath(); ctx.arc(hx, hy, 34 + 90 * ph, 0, TAU); ctx.fill(); } ctx.globalAlpha = 1; } ctx.restore(); TAG(ctx, 'ESCAPE', 470, 520, t, Tk.escape - 0.4, S(21), { mono: true, col: '#c9ced8', px: 66 }); }
  }, sfx(k) { FX.etiqueta(k, Tk.cuatro2 - 0.1); k.noise(Tk.sopla, { dur: 1.4, filter: 'bandpass', f: 1200, q: 0.8, gain: 0.12, a: 0.1 }); motorSon(k, Tk.escape - 0.45, S(21), 14, 0.06); } });
 
  // ---------- 11 · La biela y el cigüeñal convierten ese sube y baja en giro, → primer plano del cigüeñal y la biela girando; la cámara gira ----------
@@ -345,8 +359,8 @@
   const t1 = Tk.pedido - 0.25, t2 = Tk.casa - 0.55;
   if (t < t1) { const cam = camK(t, [[S(29), 540, 1060, 1.0], [t1, 560, 1060, 1.05]]); ctx.save(); zoomP(ctx, cam); calle(ctx, t, { vel: 700, px: 900, peaton: { mira: -1 }, moto: { luz: 0.6 } }); ctx.restore(); TAG(ctx, 'AL TRABAJO', 470, 520, t, Tk.trabajo - 0.4, t1, { mono: true, col: YE, px: 60 }); }
   else if (t < t2) { const cam = camK(t, [[t1, 520, 1080, 1.05], [t2, 500, 1080, 1.1]]); ctx.save(); zoomP(ctx, cam); ciudad(ctx, t, { fy: 1260, off: 0 }); persona(ctx, t, 860, 1520, 0.95, { ropa: '#5f9a4e', sonrie: 1, brazoI: [-120, -360], seed: 3 }); ctx.fillStyle = '#e2a32b'; ctx.fillRect(860 - 0.95 * 200, 1520 - 0.95 * 420, 120, 90); moto(ctx, t, 380, 1560, 0.9, { rueda: 0, vibra: 0.3, humo: 0.3, pilotoO: { giraCabeza: 0.1 } }); ctx.restore(); TAG(ctx, 'UN PEDIDO', 470, 520, t, Tk.pedido - 0.25, t2, { mono: true, col: YE, px: 60 }); }
-  else { const cam = camK(t, [[t2, 540, 1060, 1.12], [S(30), 600, 1250, 1.4]]); ctx.save(); zoomP(ctx, cam); ciudad(ctx, t, { fy: 1300, off: 0 }); ctx.fillStyle = '#5a3418'; ctx.fillRect(700, 1060, 180, 240); ctx.fillStyle = 'rgba(255,220,140,0.7)'; ctx.fillRect(720, 1080, 140, 90);
-   persona(ctx, t, 820, 1320, 0.65, { ropa: '#e8463c', sonrie: 1, salto: 0.25 * Math.max(0, Math.sin((t - t2) * 8)), brazoD: [90, -560], seed: 4 }); moto(ctx, t, 470, 1560, 1.05, { rueda: 0.3, vibra: 0.2, rx: 1, phi: t * 10, latido: 0.25 + 0.2 * Math.sin(t * 8), humo: 0.3, luz: 0.7, pilotoO: { giraCabeza: 0.15 } }); ctx.restore(); TAG(ctx, 'A CASA', 470, 520, t, Tk.casa - 0.5, S(30), { mono: true, col: GR, px: 60 }); }
+  else { const cam = camK(t, [[t2, 540, 1150, 1.0], [S(30), 560, 1170, 1.1]]); ctx.save(); zoomP(ctx, cam); ciudad(ctx, t, { fy: 1300, off: 0 }); ctx.fillStyle = '#5a3418'; ctx.fillRect(850, 1060, 180, 240); ctx.fillStyle = 'rgba(255,220,140,0.7)'; ctx.fillRect(870, 1080, 140, 90);
+   persona(ctx, t, 940, 1320, 0.65, { ropa: '#e8463c', sonrie: 1, salto: 0.25 * Math.max(0, Math.sin((t - t2) * 8)), brazoD: [90, -560], seed: 4 }); moto(ctx, t, 520, 1560, 0.95, { rueda: 0.3, vibra: 0.2, rx: sm(t2 + 0.1, t2 + 0.35, t) * (1 - sm(t2 + 1.0, t2 + 1.35, t)), rxR: 115, phi: t * 10, latido: (0.25 + 0.2 * Math.sin(t * 8)) * (1 - sm(t2 + 1.0, t2 + 1.35, t)), humo: 0.3, luz: 0.7, pilotoO: { giraCabeza: 0.15 } }); ctx.restore(); TAG(ctx, 'A CASA', 470, 520, t, Tk.casa - 0.5, S(30), { mono: true, col: GR, px: 60 }); }
  }, sfx(k) { motorSon(k, S(29), S(30), 12, 0.04); FX.etiqueta(k, Tk.trabajo - 0.4); FX.etiqueta(k, Tk.pedido - 0.25); k.play('pop', Tk.pedido, { f: 600, gain: 0.25, minor: true }); FX.etiqueta(k, Tk.casa - 0.5); k.tone(Tk.casa, { f: 'C5', dur: 1, gain: 0.05, verb: 0.5 }); k.tone(Tk.casa + 0.1, { f: 'E5', dur: 1, gain: 0.04, verb: 0.5 }); } });
 
  // ---------- 19 · CIERRE ----------
