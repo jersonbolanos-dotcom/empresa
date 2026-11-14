@@ -4,7 +4,7 @@
 ¿Cómo funcionaba?
 Lo que pasaba por dentro te va a sorprender.
 Al fondo del tubo, un cañón dispara electrones hacia la pantalla…
-o sea,
+[QUITAR] o sea,
 hacia ti.
 Como pintar una pared con una manguera…
 línea por línea.
@@ -16,12 +16,13 @@ como la pintura donde cae el agua.
 En los de color hay tres mangueras:
 rojo, verde y azul.
 ¿Y por qué eran tan pesados y profundos?
+[PAUSA 0.4]
 Porque por dentro el tubo está al vacío.
 El aire lo aprieta desde afuera…
 y el vidrio tenía que ser gruesísimo.
 Y el chorro puede necesitar espacio para abrirse hasta las esquinas.
 Toda esa imagen… era un solo puntito pintando a toda velocidad.
-Eso sí:
+[QUITAR] Eso sí:
 nunca lo abras;
 aun desconectado puede guardar electricidad peligrosa.
 Envíaselo a ese amigo que todavía le da golpecitos al televisor.
