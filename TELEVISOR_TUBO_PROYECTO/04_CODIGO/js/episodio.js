@@ -105,7 +105,7 @@
   // carpeta tejida y antena de conejo
   ctx.fillStyle = '#fbf6ec'; ctx.beginPath(); for (let i = 0; i <= 24; i++) { const a = Math.PI + i / 24 * Math.PI, r = 150 + (i % 2) * 14; ctx.lineTo(40 + Math.cos(a) * r, top + 4 + Math.sin(a) * r * 0.16); } ctx.closePath(); ctx.fill();
   const a = o.antena || 0; ctx.fillStyle = '#2a2a2e'; ctx.beginPath(); ctx.ellipse(40, top - 8, 52, 18, 0, Math.PI, TAU); ctx.fill();
-  ctx.strokeStyle = '#c9ced8'; ctx.lineWidth = 7; ctx.lineCap = 'round'; for (const k of [-1, 1]) { const ang = -Math.PI / 2 + k * (0.45 + 0.12 * a * k), L = 250; ctx.beginPath(); ctx.moveTo(40, top - 18); ctx.lineTo(40 + Math.cos(ang) * L, top - 18 + Math.sin(ang) * L); ctx.stroke(); ctx.fillStyle = '#c9ced8'; ctx.beginPath(); ctx.arc(40 + Math.cos(ang) * L, top - 18 + Math.sin(ang) * L, 9, 0, TAU); ctx.fill(); }
+  ctx.strokeStyle = '#c9ced8'; ctx.lineWidth = 7; ctx.lineCap = 'round'; for (const k of [-1, 1]) { const ang = -Math.PI / 2 + k * ((o.antenaAng ?? 0.45) + 0.12 * a * k), L = o.antenaL ?? 250; ctx.beginPath(); ctx.moveTo(40, top - 18); ctx.lineTo(40 + Math.cos(ang) * L, top - 18 + Math.sin(ang) * L); ctx.stroke(); ctx.fillStyle = '#c9ced8'; ctx.beginPath(); ctx.arc(40 + Math.cos(ang) * L, top - 18 + Math.sin(ang) * L, 9, 0, TAU); ctx.fill(); }
   ctx.restore();
   if (o.brillo) P.glow(ctx, x + s * SCX, y + s * SCY, 520 * s, o.brilloCol || '170,200,255', o.brillo); };
  // punto de la pantalla en coordenadas del mundo
@@ -203,7 +203,7 @@
 
  // ---------- 1 · GANCHO: frente al televisor de tu abuela (estática, antena) → la cámara avanza → en «DISPARANDO» el chorro sale a cámara (90 %) → la familia reacciona ----------
  B.push({ t0: 0, t1: S(2), in: { type: 'cut' }, draw(ctx, t) {
-  if (PORTADA) { salaFondo(ctx, 0.5, { fy: 1560 }); televisor(ctx, 0.5, 540, 1560, 1.3, { pantalla: (c, x, y, w, h) => { c.fillStyle = '#0a1830'; c.fillRect(x, y, w, h); barrido(c, x, y, w, h, 0.62, 14, { lineas: true, r: 14 }); } }); return; }
+  if (PORTADA) { salaFondo(ctx, 0.5, { fy: 1560 }); televisor(ctx, 0.5, 560, 1560, 1.38, { pantalla: (c, x, y, w, h) => { barrido(c, x, y, w, h, 0.62, 14, { lineas: true, r: 14 }); }, brillo: 0.35, brilloCol: '190,230,255', antenaAng: 1.32, antenaL: 230 }); ctx.fillStyle = '#1e1612'; ctx.fillRect(0, 1565, W, 400); ctx.fillStyle = '#b8452f'; ctx.fillRect(0, 1560, W, 8); return; }
   P.pregunta(ctx, '¿CÓMO FUNCIONABA / EL TELEVISOR DE ANTES?', t, 0, S(2) - 0.15, { capY: 330, px: 58, clave: 'TELEVISOR', col: '#ff3b3b', x: 540, dy: 110 });
   const TE = Tk.disparando, TC = TE - 0.3, TR = TE + 0.35, golpes = [[TE, 1.4]], sh = sacude(t, golpes, 56);
   ctx.save(); ctx.translate(sh[0], sh[1]);
