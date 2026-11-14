@@ -209,7 +209,7 @@
  const B = [];
  // ---------- 1 · GANCHO A: cabina → (1,2 s) cámara baja en la curva: el tren llega inclinado y llena el 90 % → (3 s) plano general al borde ----------
  B.push({ t0: 0, t1: S(2), in: { type: 'cut' }, draw(ctx, t) {
-  if (PORTADA) { paisaje(ctx, 0.5, { hy: 1020, off: 0, sx: 820 }); ctx.fillStyle = '#251a33'; ctx.fillRect(720, 1020, 600, 1000); ctx.fillStyle = '#8f7f6a'; ctx.beginPath(); ctx.moveTo(-100, HH); ctx.lineTo(360, 1020); ctx.lineTo(760, 1020); ctx.lineTo(1180, HH); ctx.closePath(); ctx.fill(); viaFrente(ctx, 0.5, 540, 1700, 1.0, 0.1); trenFrente(ctx, 0.5, 540, 1612, 1.32, { incl: -0.1, chispas: 0 }); return; }
+  if (PORTADA) { planoBorde(ctx, 0.5, { x: 1250, s: 1.0, incl: -0.09, chispas: 0.2 }); return; }
   P.pregunta(ctx, '¿POR QUÉ EL TREN NO SE SALE / EN LAS CURVAS?', t, 0, S(2) - 0.15, { capY: 330, px: 58, clave: 'CURVAS', x: 540, dy: 110 });
   const golpes = [[T_LLENA, 1.0], [T_CORTE, 0.35]], sh = sacude(t, golpes, 40);
   ctx.save(); ctx.translate(sh[0], sh[1]);

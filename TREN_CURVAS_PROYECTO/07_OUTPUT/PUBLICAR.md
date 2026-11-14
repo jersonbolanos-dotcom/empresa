@@ -1,33 +1,15 @@
 # Publicar · ¿Por qué el tren no se sale de la vía en las curvas?
 
-> v1.29 · Reglas: el gancho va como **pregunta** y **NUNCA** se da la respuesta. Se pide **comentar** (una pregunta concreta),
-> nunca «dale like», «comparte si…» ni «sígueme» (Meta lo castiga). De **3 a 5 hashtags**. Sin enlaces en la descripción.
-> Primero, las 3 variantes como «Reel de prueba» en Instagram; a las 24 h, la que más retuvo en los primeros 3 s va al perfil y a las demás redes.
-
-Variante elegida: [A | B | C] · Portada: `portada.jpg`
-
-## YouTube Shorts
-**Título** (≤ 70 caracteres, pregunta sin respuesta):
-[¿…?] #shorts
-
-**Descripción:**
-[Gancho en una frase, sin desvelar la respuesta.]
-[Pregunta para comentar: «¿Tú qué…? Te leo en comentarios.»]
-#shorts #[tema] #[tema] #[tema]
+> Un solo vídeo (v1.34): `TREN_CURVAS_FINAL.mp4`, gancho A con la imagen del B. Portada: `portada.jpg`.
+> El texto no da la respuesta (no decir «cónicas», «cono» ni «peralte»). Sin enlaces.
 
 ## Facebook (Reels)
-**Texto:**
-[Gancho como pregunta, 1-2 frases.]
-[Pregunta para comentar.]
-#[tema] #[tema] #[tema]
+**Texto** (copiar tal cual):
 
-## Instagram (Reels)
-**Texto** (la primera línea es la que se ve: gancho como pregunta):
-[¿…?]
-[1 frase de contexto sin dar la respuesta.]
-[Pregunta para comentar.]
-#[tema] #[tema] #[tema] #[tema]
+¿Por qué el tren no se sale de la vía en las curvas? 🚆
+Va a toda velocidad junto a un precipicio y la vía gira de golpe. El secreto está en algo que nunca has mirado.
+¿Tú qué crees que lo mantiene en la vía? Te leo en comentarios.
+Compártelo con ese amigo que siempre se agarra fuerte en las curvas, y sigue a Asombroteca.
+Fuentes: Scientific American y Practical Engineering.
 
-## TikTok
-**Texto** (≤ 150 caracteres):
-[¿…?] [Pregunta para comentar.] #[tema] #[tema] #[tema]
+#trenes #ingenieria #ciencia #fisica #curiosidades #ferrocarril #asombroteca
