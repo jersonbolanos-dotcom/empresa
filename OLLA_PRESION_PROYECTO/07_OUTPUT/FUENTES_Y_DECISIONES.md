@@ -30,6 +30,13 @@ Vídeo único, gancho A + C · plantilla v1.39 · consultado el 14-11-2026. Dos 
 | Si alguien fuerza la tapa, el vapor sale de golpe | [CPSC]: tapas que se abrieron con el contenido a presión → 37 casos de quemaduras | [PRESTO]: el cierre de la tapa existe para que no se abra con presión |
 
 ## Decisiones
+- **V2** (la versión anterior está en `V1/`: vídeo, `episodio.js` y mezcla; la voz no se tocó):
+  - gancho sincronizado: la olla tiembla cada vez más desde «empieza a pitar» y el golpe máximo cae en «explotar», con chorro a cámara, destello, sacudida y silbido; la familia reacciona en ese momento;
+  - olla al 62-71 % del ancho, entera (mangos algo más cortos);
+  - botella grande y comparación botella-olla lado a lado, del mismo tamaño;
+  - etiquetas a opacidad completa cuando la voz las dice;
+  - abuela y niño con parpadeo, manos y gestos (la abuela revuelve al servir, el niño se asoma);
+  - escena de servir en la cocina en «cocina mucho más rápido»; vuelta a los rayos X en «¿Y el pito?».
 - **Física:** se dice «el agua puede pasar de cien grados», no «sin hervir». El agua sí hierve, pero a una temperatura más alta. La cifra de ~120 °C es para unas 15 libras de presión al nivel del mar; las ollas eléctricas y las ciudades altas dan algo menos. Por eso se dice «puede» y «unos».
 - **Sin consejos peligrosos:** no se explica cómo abrir, forzar ni destapar una olla. La seguridad queda en «varios seguros». La frase «Revisa la válvula y el empaque, y sigue el manual» se quitó del guion antes de generar la voz, por decisión del usuario.
 - **Escena de servir:** la abuela sirve con la olla ya destapada y SIN presión: no hay vapor saliendo por la válvula ni llama encendida. Se dibuja así para no sugerir que se abre con presión.

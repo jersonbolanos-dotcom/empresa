@@ -1,6 +1,6 @@
 # Publicar · ¿Por qué no explota una olla a presión?
 
-> Un solo vídeo (v1.34): `OLLA_PRESION_FINAL.mp4`, gancho A + C. Portada: `portada.jpg`.
+> Un solo vídeo (v1.34): `OLLA_PRESION_FINAL.mp4` (V2), gancho A + C. Portada: `portada.jpg` (sin cambios).
 > El texto no da la respuesta (no decir «válvula», «tapón», «empaque» ni «presión controlada»). Sin enlaces.
 
 ## Facebook (Reels)
