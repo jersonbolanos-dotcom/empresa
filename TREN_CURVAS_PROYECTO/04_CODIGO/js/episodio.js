@@ -37,6 +37,11 @@
    if (nieve) { ctx.fillStyle = 'rgba(255,240,235,0.85)'; for (let i = 1; i < pts.length - 1; i++) { const [x, y] = pts[i]; if (y < pts[i - 1][1] && y < pts[i + 1][1] && y < y0 - amp * 0.7) { ctx.beginPath(); ctx.moveTo(x - 34, y + 30); ctx.lineTo(x, y); ctx.lineTo(x + 34, y + 30); ctx.closePath(); ctx.fill(); } } } };
   capa(hy - 120, 330, 0.004, '#7a5a86', 0.05, true); capa(hy - 40, 240, 0.006, '#5a3f6a', 0.15, false); capa(hy + 20, 170, 0.009, '#3d2c50', 0.35, false); };
 
+ // ---------- VALLE muy abajo (pantalla): fondo del barranco con río, árboles diminutos y bruma ----------
+ const valle = (ctx, t, y0, y1, o = {}) => { const g = ctx.createLinearGradient(0, y0, 0, y1); g.addColorStop(0, '#7d6c8c'); g.addColorStop(0.3, '#4f6656'); g.addColorStop(1, '#22352a'); ctx.fillStyle = g; ctx.fillRect(-300, y0, W + 600, y1 - y0);
+  const R = H.rng(o.seed || 21); ctx.fillStyle = 'rgba(30,50,36,0.8)'; for (let i = 0; i < 200; i++) { const y = y0 + Math.pow(R(), 0.8) * (y1 - y0), x = R() * (W + 400) - 200, r = 3 + 12 * (y - y0) / (y1 - y0); ctx.fillStyle = i % 3 ? 'rgba(28,48,32,0.9)' : 'rgba(70,95,60,0.9)'; ctx.beginPath(); ctx.arc(x, y, r, 0, TAU); ctx.fill(); }
+  ctx.strokeStyle = '#7fb6d6'; ctx.lineCap = 'round'; ctx.beginPath(); for (let k = 0; k <= 30; k++) { const u = k / 30, y = lerp(y0 + 10, y1, u), x = (o.rx ?? 540) + Math.sin(u * 7 + 1) * 160 * (0.4 + u) ; ctx.lineWidth = 3 + 26 * u; if (k) ctx.lineTo(x, y); else ctx.moveTo(x, y); } ctx.stroke();
+  const bz = ctx.createLinearGradient(0, y0, 0, y0 + (y1 - y0) * 0.5); bz.addColorStop(0, 'rgba(230,190,200,0.35)'); bz.addColorStop(1, 'rgba(230,190,200,0)'); ctx.fillStyle = bz; ctx.fillRect(-300, y0, W + 600, (y1 - y0) * 0.5); };
  // ---------- tren de FRENTE (base en la vía: y); s = 1 → 640 px de ancho ----------
  const trenFrente = (ctx, t, x, y, s, o = {}) => { ctx.save(); ctx.translate(x, y); ctx.rotate(o.incl || 0); ctx.scale(s, s);
   ctx.fillStyle = '#2a2d34'; ctx.beginPath(); ctx.roundRect(-280, -120, 560, 80, 12); ctx.fill(); ctx.fillStyle = '#8a909c'; for (const k of [-1, 1]) { ctx.beginPath(); ctx.roundRect(k * 215 - 30, -100, 60, 100, 10); ctx.fill(); }   // bogie y ruedas de frente sobre los rieles
@@ -105,10 +110,12 @@
   if (o.giro) { const ph = (t * 2.2) % 1; for (const [k, c] of [[-1, cL], [1, cR]]) { ctx.save(); ctx.globalAlpha *= o.giro; ctx.strokeStyle = YE; ctx.lineWidth = 14; ctx.lineCap = 'round'; const xc = k * (G + 20) + sh; ctx.beginPath(); ctx.ellipse(xc, c[1], 120, 300, 0, -Math.PI / 2 + ph * TAU, -Math.PI / 2 + ph * TAU + 1.6); ctx.stroke(); ctx.restore(); } }
   ctx.restore(); };
 
+ const rejillaRX = (ctx) => { ctx.fillStyle = '#0a1a33'; ctx.fillRect(0, 0, W, HH); ctx.strokeStyle = 'rgba(143,216,255,0.13)'; ctx.lineWidth = 2; for (let gx = 0; gx <= W; gx += 54) { ctx.beginPath(); ctx.moveTo(gx, 0); ctx.lineTo(gx, HH); ctx.stroke(); } for (let gy = 0; gy <= HH; gy += 54) { ctx.beginPath(); ctx.moveTo(0, gy); ctx.lineTo(W, gy); ctx.stroke(); } };
+ const balastoRX = (ctx) => { const R = H.rng(77), g = ctx.createLinearGradient(0, 1372, 0, 1700); g.addColorStop(0, 'rgba(60,95,140,0.55)'); g.addColorStop(1, 'rgba(60,95,140,0)'); ctx.fillStyle = g; ctx.fillRect(-400, 1372, W + 800, 330); for (let i = 0; i < 70; i++) { const x = -300 + R() * (W + 600), u = R(), y = 1395 + u * 260, r = 18 + R() * 16; ctx.fillStyle = `rgba(110,150,200,${0.35 * (1 - u)})`; ctx.beginPath(); ctx.ellipse(x, y, r * 1.4, r, R() * 3, 0, TAU); ctx.fill(); } };
  // ---------- RUEDA cónica en perspectiva 3/4 (héroe): cara exterior (estrecha) delante, interior (ancha + pestaña) detrás ----------
- const ruedaCono = (ctx, t, x, y, r, o = {}) => { const dz = r * 0.95, rin = r, rout = r * 0.78, ex = 0.32, ang = t * (o.giro ?? 5); ctx.save();
+ const ruedaCono = (ctx, t, x, y, r, o = {}) => { const dz = r * 0.95, rin = r, rout = o.cil ? r : r * 0.78, ex = 0.32, ang = t * (o.giro ?? 5); ctx.save();
   // pestaña y cara interior (atrás, a la izquierda)
-  const bx = x - dz; ctx.fillStyle = '#4a505c'; ctx.beginPath(); ctx.ellipse(bx, y, rin * 1.1 * ex, rin * 1.1, 0, 0, TAU); ctx.fill();
+  const bx = x - dz; if (o.eje) { ctx.fillStyle = '#9aa3b2'; ctx.fillRect(bx - 520, y - 34, 520, 68); ctx.fillStyle = '#6b7280'; ctx.fillRect(bx - 520, y + 14, 520, 20); } ctx.fillStyle = '#4a505c'; ctx.beginPath(); ctx.ellipse(bx, y, rin * 1.1 * ex, rin * 1.1, 0, 0, TAU); ctx.fill();
   // superficie de rodadura (cono): bandas de color de la parte ancha (naranja) a la estrecha (azul)
   const gs = ctx.createLinearGradient(bx, 0, x, 0); gs.addColorStop(0, o.colores === false ? '#9aa3b2' : NAR); gs.addColorStop(1, o.colores === false ? '#6b7280' : AZ); ctx.fillStyle = gs;
   ctx.beginPath(); ctx.moveTo(bx, y - rin); ctx.lineTo(x, y - rout); ctx.lineTo(x, y + rout); ctx.lineTo(bx, y + rin); ctx.closePath(); ctx.fill();
@@ -136,8 +143,11 @@
  const curvaArriba = (ctx, t, o = {}) => { const cx = o.cx ?? 1500, cy = o.cy ?? 950, R = o.R ?? 1150, gauge = 110;
   ctx.fillStyle = '#4c6b3a'; ctx.fillRect(-200, -200, W + 400, HH + 400); const R2 = H.rng(9); ctx.fillStyle = '#3e5a30'; for (let i = 0; i < 40; i++) { ctx.beginPath(); ctx.arc(R2() * W, R2() * HH, 30 + R2() * 50, 0, TAU); ctx.fill(); }
   // precipicio por fuera de la curva
-  ctx.save(); ctx.beginPath(); ctx.arc(cx, cy, R + 260, 0, TAU); ctx.rect(-400, -400, W + 2000, HH + 800); ctx.clip('evenodd'); const gv = ctx.createRadialGradient(cx, cy, R + 260, cx, cy, R + 1200); gv.addColorStop(0, '#2b2238'); gv.addColorStop(1, '#14101e'); ctx.fillStyle = gv; ctx.fillRect(-400, -400, W + 2000, HH + 800); ctx.restore();
-  ctx.strokeStyle = '#8a7a64'; ctx.lineWidth = 16; ctx.beginPath(); ctx.arc(cx, cy, R + 260, 0, TAU); ctx.stroke();
+  ctx.save(); ctx.beginPath(); ctx.arc(cx, cy, R + 260, 0, TAU); ctx.rect(-400, -400, W + 2000, HH + 800); ctx.clip('evenodd'); ctx.fillStyle = '#3d5a48'; ctx.fillRect(-400, -400, W + 2000, HH + 800); { const Rv = H.rng(31); ctx.fillStyle = '#2a4434'; for (let i = 0; i < 140; i++) { ctx.beginPath(); ctx.arc(-400 + Rv() * 2400, -400 + Rv() * 2800, 6 + Rv() * 10, 0, TAU); ctx.fill(); } }
+   ctx.strokeStyle = '#6fb0d6'; ctx.lineWidth = 34; ctx.lineCap = 'round'; ctx.beginPath(); for (let k = 0; k <= 40; k++) { const u = k / 40, y = -400 + u * 2800, x = cx - R - 700 + Math.sin(u * 9) * 120; k ? ctx.lineTo(x, y) : ctx.moveTo(x, y); } ctx.stroke();
+   const gs = ctx.createRadialGradient(cx, cy, R + 250, cx, cy, R + 620); gs.addColorStop(0, 'rgba(8,6,14,0.9)'); gs.addColorStop(1, 'rgba(8,6,14,0)'); ctx.fillStyle = gs; ctx.fillRect(-400, -400, W + 2000, HH + 800);
+   const gb = ctx.createLinearGradient(0, 0, 0, 1); ctx.fillStyle = 'rgba(200,170,190,0.18)'; ctx.fillRect(-400, -400, W + 2000, HH + 800); ctx.restore();
+  ctx.strokeStyle = '#a89478'; ctx.lineWidth = 26; ctx.beginPath(); ctx.arc(cx, cy, R + 260, 0, TAU); ctx.stroke(); ctx.strokeStyle = '#5a4636'; ctx.lineWidth = 14; ctx.beginPath(); ctx.arc(cx, cy, R + 282, 0, TAU); ctx.stroke();
   ctx.strokeStyle = '#8f7f6a'; ctx.lineWidth = 230; ctx.beginPath(); ctx.arc(cx, cy, R, 0, TAU); ctx.stroke();
   ctx.strokeStyle = '#5a4a3a'; ctx.lineWidth = 22; for (let a = 0; a < TAU; a += 0.03) { ctx.beginPath(); ctx.moveTo(cx + Math.cos(a) * (R - 90), cy + Math.sin(a) * (R - 90)); ctx.lineTo(cx + Math.cos(a) * (R + 90), cy + Math.sin(a) * (R + 90)); ctx.stroke(); }
   for (const rr of [R - gauge / 2, R + gauge / 2]) { ctx.strokeStyle = '#d6dae2'; ctx.lineWidth = 12; ctx.beginPath(); ctx.arc(cx, cy, rr, 0, TAU); ctx.stroke(); }
@@ -148,14 +158,17 @@
 
  // ---------- cabina (vía en perspectiva que gira junto al precipicio) ----------
  const cabina = (ctx, t, o = {}) => { const hy = 860, giro = o.giro ?? 1, vel = o.vel ?? 2.2; paisaje(ctx, t, { hy, off: t * 300, sx: 820 });
-  const X = (d) => 540 + o.dx + giro * Math.pow(1 - d, 2.6) * -900, Y = (d) => hy + (HH + 120 - hy) * Math.pow(d, 1.7), G = (d) => 18 + 560 * Math.pow(d, 1.7);
-  // precipicio a la derecha de la vía
-  ctx.fillStyle = '#251a33'; ctx.beginPath(); ctx.moveTo(W + 200, hy); for (let i = 0; i <= 40; i++) { const d = i / 40; ctx.lineTo(X(d) + G(d) * 1.9, Y(d)); } ctx.lineTo(W + 200, HH + 200); ctx.closePath(); ctx.fill();
-  const gv = ctx.createLinearGradient(0, hy, 0, HH); gv.addColorStop(0, 'rgba(120,90,140,0.6)'); gv.addColorStop(1, 'rgba(10,8,18,0.9)'); ctx.fillStyle = gv; ctx.fill();
+  const X = (d) => 380 + o.dx + giro * Math.pow(1 - d, 2.6) * -700, Y = (d) => hy + (HH + 120 - hy) * Math.pow(d, 1.7), G = (d) => 18 + 560 * Math.pow(d, 1.7);
+  // precipicio a la derecha de la vía: borde de roca y, muy abajo, el valle con el río
+  ctx.save(); ctx.beginPath(); ctx.moveTo(W + 200, hy - 40); for (let i = 0; i <= 40; i++) { const d = i / 40; ctx.lineTo(X(d) + G(d) * 1.6, Y(d)); } ctx.lineTo(W + 200, HH + 200); ctx.closePath(); ctx.clip(); valle(ctx, t, hy + 30, HH + 100, { rx: 900, seed: 5 }); ctx.restore();
+  { const top = [], bot = []; for (let i = 0; i <= 40; i++) { const d = i / 40, x = X(d) + G(d) * 1.6, y = Y(d); top.push([x, y]); bot.push([x + 40 + G(d) * 0.75, y + 30 + 160 * d * d]); }
+   const gr = ctx.createLinearGradient(0, hy, 0, HH); gr.addColorStop(0, '#7a5e48'); gr.addColorStop(1, '#3a2a20'); ctx.fillStyle = gr; ctx.beginPath(); top.forEach(([x, y], k) => k ? ctx.lineTo(x, y) : ctx.moveTo(x, y)); for (let k = bot.length - 1; k >= 0; k--) ctx.lineTo(bot[k][0] + 18 * Math.sin(k * 1.7), bot[k][1]); ctx.closePath(); ctx.fill();
+   ctx.strokeStyle = 'rgba(30,20,14,0.55)'; ctx.lineWidth = 3; for (const f of [0.3, 0.55, 0.8]) { ctx.beginPath(); top.forEach(([x, y], k) => { const yy = lerp(y, bot[k][1], f), xx = lerp(x, bot[k][0], f); k ? ctx.lineTo(xx, yy) : ctx.moveTo(xx, yy); }); ctx.stroke(); } }
   // ladera de roca a la izquierda
   ctx.fillStyle = '#5a4636'; ctx.beginPath(); ctx.moveTo(-200, hy - 40); for (let i = 0; i <= 40; i++) { const d = i / 40; ctx.lineTo(X(d) - G(d) * 1.7, Y(d)); } ctx.lineTo(-200, HH + 200); ctx.closePath(); ctx.fill();
   // balasto
   ctx.fillStyle = '#8f7f6a'; ctx.beginPath(); for (let i = 0; i <= 40; i++) { const d = i / 40; ctx.lineTo(X(d) - G(d) * 1.6, Y(d)); } for (let i = 40; i >= 0; i--) { const d = i / 40; ctx.lineTo(X(d) + G(d) * 1.6, Y(d)); } ctx.closePath(); ctx.fill();
+  for (let k = 0; k < 10; k++) { const d = ((k / 10 + t * vel * 0.12) % 1), x = X(d) + G(d) * 1.45, y = Y(d), h = 10 + 90 * d * d; ctx.fillStyle = '#f2f2f2'; ctx.fillRect(x - 2 - 4 * d, y - h, 4 + 8 * d, h); ctx.fillStyle = RD; ctx.fillRect(x - 2 - 4 * d, y - h, 4 + 8 * d, h * 0.3); }
   // traviesas que pasan
   ctx.fillStyle = '#5a4a3a'; for (let k = 0; k < 26; k++) { const d = ((k / 26 + t * vel * 0.12) % 1); const g = G(d), x = X(d), y = Y(d), th = 4 + 30 * d * d; ctx.beginPath(); ctx.roundRect(x - g * 1.35, y - th / 2, g * 2.7, th, 3); ctx.fill(); }
   // rieles
@@ -168,9 +181,9 @@
 
  // ---------- plano general: el tren en la cornisa, roca del precipicio y valle (tren grande) ----------
  const planoBorde = (ctx, t, o = {}) => { const ry = o.ry ?? 1200; paisaje(ctx, t, { hy: 1000, off: t * 120, sx: 820 });
-  const gr = ctx.createLinearGradient(0, ry, 0, HH); gr.addColorStop(0, '#6a5240'); gr.addColorStop(1, '#2c2030'); ctx.fillStyle = gr; ctx.beginPath(); ctx.moveTo(-200, ry); ctx.lineTo(W + 200, ry); ctx.lineTo(W + 200, HH + 200); ctx.lineTo(-200, HH + 200); ctx.closePath(); ctx.fill();
-  ctx.strokeStyle = 'rgba(30,20,20,0.45)'; ctx.lineWidth = 6; for (let k = 1; k < 9; k++) { const y = ry + k * 60; ctx.beginPath(); ctx.moveTo(-200, y); for (let x = -200; x <= W + 200; x += 80) ctx.lineTo(x, y + 14 * Math.sin(x * 0.02 + k)); ctx.stroke(); }
-  ctx.strokeStyle = 'rgba(20,12,16,0.5)'; ctx.lineWidth = 5; const Rk = H.rng(12); for (let i = 0; i < 14; i++) { let x = Rk() * W, y = ry + 30; ctx.beginPath(); ctx.moveTo(x, y); for (let j = 0; j < 6; j++) { x += (Rk() - 0.5) * 60; y += 60; ctx.lineTo(x, y); } ctx.stroke(); }
+  valle(ctx, t, ry + 40, HH + 100, { rx: 420, seed: 9 });
+  ctx.fillStyle = '#4a3a2e'; ctx.beginPath(); ctx.moveTo(-200, ry - 10); ctx.lineTo(W + 200, ry - 10); for (let x = W + 200; x >= -200; x -= 60) ctx.lineTo(x, ry + 120 + 70 * Math.abs(Math.sin(x * 0.013)) + 40 * Math.sin(x * 0.05)); ctx.closePath(); ctx.fill();
+  ctx.strokeStyle = 'rgba(20,12,10,0.5)'; ctx.lineWidth = 4; for (let k = 1; k < 4; k++) { ctx.beginPath(); ctx.moveTo(-200, ry + k * 34); for (let x = -200; x <= W + 200; x += 80) ctx.lineTo(x, ry + k * 34 + 8 * Math.sin(x * 0.03 + k)); ctx.stroke(); }
   ctx.fillStyle = '#8f7f6a'; ctx.fillRect(-200, ry - 60, W + 400, 70); ctx.strokeStyle = '#e6e9ef'; ctx.lineWidth = 12; ctx.beginPath(); ctx.moveTo(-200, ry - 58); ctx.lineTo(W + 200, ry - 58); ctx.stroke();
   trenLado(ctx, t, o.x ?? 1200, ry - 58, o.s ?? 0.85, { incl: o.incl ?? -0.05, chispas: o.chispas, coches: 3 }); };
  // ---------- vía de FRENTE con peralte (ángulo a, riel de fuera a la derecha) ----------
@@ -217,17 +230,18 @@
 
  // ---------- 2 · ¿Por qué no se sale? → VISTA DESDE ARRIBA de la curva junto al precipicio ----------
  B.push({ t0: S(2), t1: S(3), in: { type: 'zoom', d: 0.4, x: 540, y: 900 }, draw(ctx, t) {
-  const cam = camK(t, [[S(2), 600, 960, 0.8], [S(3), 580, 960, 0.88]]); ctx.save(); zoomP(ctx, cam); curvaArriba(ctx, t, { tren: true, ang0: Math.PI * 0.75 + (t - S(2)) * 0.12 }); ctx.restore();
+  const cam = camK(t, [[S(2), 420, 960, 0.8], [S(3), 400, 960, 0.88]]); ctx.save(); zoomP(ctx, cam); curvaArriba(ctx, t, { tren: true, ang0: Math.PI * 0.75 + (t - S(2)) * 0.12 }); ctx.restore();
   const q = sm(Tk.sale - 0.4, Tk.sale, t); if (q > 0) { ctx.save(); ctx.globalAlpha = q; txt(ctx, '?', 300, 1150, 260 * E.out(q), YE, { w: 900, f: 'Fredoka' }); ctx.restore(); }
  }, sfx(k) { k.play('whoosh', S(2), { dur: 0.6, top: 1600, gain: 0.3, minor: true }); for (let x = S(2); x < S(3); x += 0.22) k.play('tick', x, { f: 650, gain: 0.12, minor: true }); FX.aparece(k, Tk.sale - 0.3, 500); } });
 
- // ---------- 3 · el secreto está en algo que nunca has mirado → cámara baja: el tren pasa y la cámara baja a una rueda borrosa ----------
+ // ---------- 3 · el secreto está en algo que nunca has mirado → el tren pasa y la cámara BAJA hasta un primer plano grande de la rueda (a contraluz, «?») ----------
  B.push({ t0: S(3), t1: S(4), in: { type: 'slide', d: 0.4 }, draw(ctx, t) {
-  const cam = camK(t, [[S(3), 540, 980, 0.9], [Tk.nunca, 540, 1060, 1.3], [S(4), 400, 1150, 2.1]]); ctx.save(); zoomP(ctx, cam); paisaje(ctx, t, { hy: 920, off: t * 260, sx: 820 }); ctx.fillStyle = '#6a5a46'; ctx.fillRect(-400, 1180, W + 800, 900); piedras(ctx, 1220, 1900, 220, 6);
-  ctx.fillStyle = '#8f7f6a'; ctx.fillRect(-400, 1150, W + 800, 60); ctx.strokeStyle = '#e6e9ef'; ctx.lineWidth = 10; ctx.beginPath(); ctx.moveTo(-400, 1152); ctx.lineTo(W + 400, 1152); ctx.stroke();
-  trenLado(ctx, t, 1500 - (t - S(3)) * 260, 1152, 0.62, { coches: 3, giro: 18 }); ctx.restore();
-  const q = sm(Tk.nunca - 0.2, Tk.nunca + 0.3, t); if (q > 0) { ctx.save(); ctx.globalAlpha = q; ctx.strokeStyle = YE; ctx.lineWidth = 12; ctx.setLineDash([24, 16]); ctx.beginPath(); ctx.arc(540, 980, 220 + 10 * Math.sin(t * 6), 0, TAU); ctx.stroke(); ctx.setLineDash([]); txt(ctx, '?', 540, 980, 200, YE, { w: 900, f: 'Fredoka' }); ctx.restore(); }
- }, sfx(k) { k.noise(S(3), { dur: S(4) - S(3), color: 'brown', filter: 'lowpass', f: 600, gain: 0.12, a: 0.1 }); for (let x = S(3); x < S(4); x += 0.18) k.play('tick', x, { f: 700, gain: 0.14, minor: true }); FX.revelar(k, Tk.nunca - 0.2); } });
+  const tb = Tk.nunca - 0.35;
+  if (t < tb) { const z = lerp(0.9, 2.4, E.in(cl((t - S(3)) / (tb - S(3))))), cam = [lerp(540, 700, sm(S(3), tb, t)), lerp(980, 1120, sm(S(3), tb, t)), z]; ctx.save(); zoomP(ctx, cam); planoBorde(ctx, t, { x: 1150 - (t - S(3)) * 40, s: 0.85 }); ctx.restore(); }
+  else { const z = lerp(1.25, 1.0, E.out(cl((t - tb) / 0.6))); ctx.save(); ctx.translate(540, 960); ctx.scale(z, z); ctx.translate(-540, -960); paisaje(ctx, t, { hy: 640, off: t * 500, sx: 560 }); ctx.fillStyle = '#c9ced8'; ctx.fillRect(-300, 340, W + 600, 220); ctx.fillStyle = '#2a2d34'; ctx.fillRect(-300, 560, W + 600, 160);
+   ruedaLado(ctx, t, 540, 980, 320, { giro: 8, vel: 900 }); ctx.restore(); ctx.fillStyle = 'rgba(10,8,20,0.45)'; ctx.fillRect(0, 0, W, HH); P.glow(ctx, 540, 980, 520, '255,210,63', 0.25);
+   const q = sm(tb, tb + 0.3, t); ctx.save(); ctx.globalAlpha = q; ctx.strokeStyle = YE; ctx.lineWidth = 14; ctx.setLineDash([26, 16]); ctx.beginPath(); ctx.arc(540, 980, 400 + 10 * Math.sin(t * 6), 0, TAU); ctx.stroke(); ctx.setLineDash([]); txt(ctx, '?', 540, 980, 300, YE, { w: 900, f: 'Fredoka' }); ctx.restore(); }
+ }, sfx(k) { k.noise(S(3), { dur: S(4) - S(3), color: 'brown', filter: 'lowpass', f: 600, gain: 0.12, a: 0.1 }); for (let x = S(3); x < S(4); x += 0.18) k.play('tick', x, { f: 700, gain: 0.14, minor: true }); k.play('whoosh', Tk.nunca - 0.6, { dur: 0.3, top: 2200, gain: 0.3, minor: true }); FX.revelar(k, Tk.nunca - 0.35); } });
 
  // ---------- 4 · pon un vaso de plástico a rodar sobre la mesa → el vaso de lado sobre la mesa, empieza a rodar ----------
  B.push({ t0: S(4), t1: S(5), in: { type: 'zoom', d: 0.4, x: 540, y: 960 }, draw(ctx, t) {
@@ -260,7 +274,7 @@
  B.push({ t0: S(9), t1: S(11), in: { type: 'zoom', d: 0.35, x: 540, y: 960 }, draw(ctx, t) {
   const golpes = [[T_SECRETO, 1.2]], sh = sacude(t, golpes, 44), cono = t >= T_SECRETO, cam = camK(t, [[S(9), 540, 960, 1.0], [T_SECRETO, 540, 960, 1.05], [S(11), 540, 960, 1.15]]);
   ctx.save(); zoomP(ctx, cam, sh); ctx.fillStyle = '#0a1a33'; ctx.fillRect(-300, -300, W + 600, HH + 600); ctx.strokeStyle = 'rgba(143,216,255,0.12)'; ctx.lineWidth = 2; for (let gx = -300; gx <= W + 300; gx += 50) { ctx.beginPath(); ctx.moveTo(gx, -300); ctx.lineTo(gx, HH + 300); ctx.stroke(); } for (let gy = -300; gy <= HH + 300; gy += 50) { ctx.beginPath(); ctx.moveTo(-300, gy); ctx.lineTo(W + 300, gy); ctx.stroke(); }
-  if (!cono) { ctx.fillStyle = '#6b7280'; ctx.beginPath(); ctx.roundRect(340, 620, 400, 560, 20); ctx.fill(); ctx.strokeStyle = '#c9ced8'; ctx.lineWidth = 6; ctx.stroke(); txt(ctx, 'CILINDRO', 540, 1260, 54, '#c9ced8', { w: 900, f: 'Fredoka' }); marcaX(ctx, 540, 900, 260, sm(Tk.cilindros - 0.2, Tk.cilindros + 0.1, t)); }
+  if (!cono) { ruedaCono(ctx, t, 700, 930, 400, { cil: true, colores: false, eje: true, giro: 3 }); txt(ctx, 'CILINDRO', 540, 1450, 58, '#c9ced8', { w: 900, f: 'Fredoka' }); marcaX(ctx, 560, 930, 330, sm(Tk.cilindros - 0.2, Tk.cilindros + 0.1, t)); }
   else { ruedaCono(ctx, t, 720, 930, 420, { brillo: 1 - sm(T_SECRETO + 0.6, T_SECRETO + 1.4, t), giro: 3 }); if (t > Tk.vaso2 - 0.4) { const v = sm(Tk.vaso2 - 0.4, Tk.vaso2, t); ctx.save(); ctx.globalAlpha *= v; vaso(ctx, 520, 1420, 0.9, Math.PI); ctx.restore(); } }
   ctx.restore(); fogonazo(ctx, t, golpes);
   P.tag(ctx, 'NO SON CILINDROS', 470, 520, t, Tk.cilindros - 0.3, T_SECRETO, { mono: true, col: RD, px: 58 }); P.tag(ctx, 'SON CÓNICAS', 470, 520, t, T_SECRETO + 0.05, S(11), { mono: true, col: NAR, px: 64 });
@@ -268,8 +282,8 @@
 
  // ---------- 8 · y van unidas por un eje rígido: las dos giran a la vez → EJE EN RAYOS X con las dos ruedas ----------
  B.push({ t0: S(11), t1: S(13), in: { type: 'zoom', d: 0.4, x: 540, y: 960 }, draw(ctx, t) {
-  const e = sm(Tk.eje - 0.2, Tk.eje + 0.3, t), gi = sm(Tk.giran - 0.3, Tk.giran, t), cam = camK(t, [[S(11), 540, 1110, 0.88], [S(13), 540, 1100, 0.95]]);
-  ctx.fillStyle = '#0a1a33'; ctx.fillRect(0, 0, W, HH); ctx.save(); zoomP(ctx, cam); ejeRX(ctx, t, 540, 1300, 1.0, { colores: true, eje: e, giro: gi }); ctx.restore();
+  const e = sm(Tk.eje - 0.2, Tk.eje + 0.3, t), gi = sm(Tk.giran - 0.3, Tk.giran, t), cam = camK(t, [[S(11), 560, 1140, 0.98], [S(13), 560, 1140, 1.02]]);
+  rejillaRX(ctx); ctx.save(); zoomP(ctx, cam); ejeRX(ctx, t, 540, 1300, 1.0, { colores: true, eje: e, giro: gi, fondo: false }); balastoRX(ctx); ctx.restore();
   P.tag(ctx, 'EJE RÍGIDO', 470, 520, t, Tk.eje - 0.2, Tk.giran - 0.3, { mono: true, col: CY, px: 62 }); P.tag(ctx, 'GIRAN A LA VEZ', 470, 520, t, Tk.giran - 0.3, S(13), { mono: true, col: YE, px: 58 });
  }, sfx(k) { k.play('whoosh', S(11), { dur: 0.5, top: 1600, gain: 0.25, minor: true }); k.tone(Tk.eje - 0.1, { f: [[0, 200], [0.5, 420]], type: 'triangle', dur: 0.6, gain: 0.06 }); FX.etiqueta(k, Tk.eje - 0.2); FX.etiqueta(k, Tk.giran - 0.3); for (let i = 0; i < 6; i++) k.play('tick', Tk.giran + i * 0.25, { f: 1200, gain: 0.12, minor: true }); } });
 
@@ -283,8 +297,8 @@
 
  // ---------- 10 · la rueda de fuera se apoya en su parte más ANCHA… → RAYOS X: contacto naranja (fuera, ancha) y azul (dentro, estrecha) ----------
  B.push({ t0: S(14), t1: S(15), in: { type: 'zoom', d: 0.35, x: 540, y: 960 }, draw(ctx, t) {
-  const sh = 45, m = sm(Tk.ancha - 0.6, Tk.ancha - 0.1, t), cam = camK(t, [[S(14), 540, 1110, 0.85], [S(15), 540, 1100, 0.92]]);
-  ctx.fillStyle = '#0a1a33'; ctx.fillRect(0, 0, W, HH); ctx.save(); zoomP(ctx, cam); ejeRX(ctx, t, 540, 1300, 1.0, { colores: true, shift: sh, marca: m }); ctx.restore();
+  const sh = 45, m = sm(Tk.ancha - 0.6, Tk.ancha - 0.1, t), cam = camK(t, [[S(14), 580, 1140, 0.98], [S(15), 580, 1140, 1.02]]);
+  rejillaRX(ctx); ctx.save(); zoomP(ctx, cam); ejeRX(ctx, t, 540, 1300, 1.0, { colores: true, shift: sh, marca: m, fondo: false }); balastoRX(ctx); ctx.restore();
   P.tag(ctx, 'FUERA: PARTE ANCHA', 470, 520, t, Tk.ancha - 0.5, S(15), { mono: true, col: NAR, px: 56 });
  }, sfx(k) { k.play('whoosh', S(14), { dur: 0.5, top: 1600, gain: 0.25, minor: true }); k.play('ding', Tk.ancha - 0.3, { f: 'C6', gain: 0.18 }); FX.etiqueta(k, Tk.ancha - 0.5); } });
 
@@ -297,8 +311,8 @@
 
  // ---------- 12 · la de dentro, en la más ESTRECHA → RAYOS X: primer plano de la rueda de dentro (azul) ----------
  B.push({ t0: S(16), t1: S(17), in: { type: 'slide', d: 0.35 }, draw(ctx, t) {
-  const cam = camK(t, [[S(16), 540, 1100, 0.92], [S(17), 540, 1100, 0.98]]);
-  ctx.fillStyle = '#0a1a33'; ctx.fillRect(0, 0, W, HH); ctx.save(); zoomP(ctx, cam); ejeRX(ctx, t, 540, 1300, 1.0, { colores: true, shift: 45, marca: 1 }); ctx.restore();
+  const cam = camK(t, [[S(16), 580, 1140, 1.0], [S(17), 580, 1140, 1.03]]);
+  rejillaRX(ctx); ctx.save(); zoomP(ctx, cam); ejeRX(ctx, t, 540, 1300, 1.0, { colores: true, shift: 45, marca: 1, fondo: false }); balastoRX(ctx); ctx.restore();
   P.tag(ctx, 'DENTRO: PARTE ESTRECHA', 470, 520, t, Tk.estrecha - 0.6, S(17), { mono: true, col: AZ, px: 54 });
  }, sfx(k) { k.play('whoosh', S(16), { dur: 0.4, top: 1400, gain: 0.25, minor: true }); k.play('ding', Tk.estrecha - 0.3, { f: 'G5', gain: 0.18 }); FX.etiqueta(k, Tk.estrecha - 0.6); } });
 
@@ -312,7 +326,7 @@
   ctx.fillStyle = '#2b4a8a'; for (const sx of [40, 640]) { ctx.beginPath(); ctx.roundRect(sx, 900, 400, 380, 40); ctx.fill(); }
   pasajero(ctx, 240, 1180, 1.0, { miedo, incl: ln * 1.5, agarra: miedo > 0.4, ropa: '#3d6fb6' }); pasajero(ctx, 840, 1180, 1.0, { miedo, incl: ln * 1.5, ropa: '#c0533e', piel: '#b27a55', pelo: '#111' });
   pasajero(ctx, 250, 1480, 1.0, { miedo, incl: ln * 2.2, agarra: true, ropa: '#3a7a4a' });
-  mesaMadera(ctx, 300, 1260, 500, 200); const v = sm(Tk.vaso3 - 0.6, Tk.vaso3 - 0.2, t); if (v > 0) { const a = (t - Tk.vaso3 + 0.6) * 3; vaso(ctx, 550 + Math.cos(a) * 120, 1330 + Math.sin(a) * 40, 0.45, a + Math.PI / 2, { colores: true }); }
+  mesaMadera(ctx, 330, 1180, 640, 300); const v = sm(Tk.vaso3 - 0.7, Tk.vaso3 - 0.3, t); if (v > 0) { const a = (t - Tk.vaso3 + 0.7) * 3; ctx.strokeStyle = 'rgba(255,255,255,0.45)'; ctx.lineWidth = 6; ctx.setLineDash([16, 14]); ctx.beginPath(); ctx.ellipse(650, 1290, 190, 55, 0, 0, TAU); ctx.stroke(); ctx.setLineDash([]); vaso(ctx, 650 + Math.cos(a) * 190, 1290 + Math.sin(a) * 55, 0.7, a + Math.PI / 2, { colores: true }); }
   ctx.restore(); P.tag(ctx, 'GIRA SOLO', 470, 520, t, Tk.solo - 0.3, S(20), { mono: true, col: GR, px: 64 });
  }, sfx(k) { k.noise(S(17), { dur: S(20) - S(17), color: 'brown', filter: 'lowpass', f: 400, gain: 0.12, a: 0.2, hold: 2.5 }); k.noise(S(17) + 0.1, { dur: 0.8, color: 'pink', filter: 'bandpass', f: 2200, q: 3, gain: 0.04, a: 0.1 }); FX.correcto(k, Tk.solo); FX.etiqueta(k, Tk.solo - 0.3); k.noise(Tk.vaso3 - 0.5, { dur: 1.0, color: 'pink', filter: 'bandpass', f: 1400, q: 1.5, gain: 0.05, a: 0.2 }); } });
 
@@ -327,20 +341,20 @@
 
  // ---------- 15 · la vía se inclina: el riel de fuera va más alto → VÍA DE FRENTE: se inclina ----------
  B.push({ t0: S(22), t1: S(24), in: { type: 'zoom', d: 0.4, x: 540, y: 960 }, draw(ctx, t) {
-  const a = 0.13 * E.inOut(win(t, Tk.inclina - 0.6, Tk.alto)), cam = camK(t, [[S(22), 540, 960, 0.9], [S(24), 540, 960, 1.0]]);
+  const a = 0.24 * E.inOut(win(t, Tk.inclina - 0.6, Tk.alto)), cam = camK(t, [[S(22), 540, 960, 0.9], [S(24), 540, 960, 1.0]]);
   ctx.save(); zoomP(ctx, cam); paisaje(ctx, t, { hy: 980, off: t * 40, sx: 820 }); ctx.fillStyle = '#5a4a3a'; ctx.fillRect(-300, 1180, W + 700, 900); piedras(ctx, 1500, 2000, 200, 8);
-  viaFrente(ctx, t, 540, 1260, 1.0, a); trenFrente(ctx, t, 540 - 110 * Math.sin(a), 1260 - 110 * Math.cos(a), 0.95, { incl: -a });
+  viaFrente(ctx, t, 540, 1260, 1.0, a); trenFrente(ctx, t, 540 - 110 * Math.sin(a), 1260 - 110 * Math.cos(a), 0.88, { incl: -a });
   if (a > 0.02) { const al = sm(Tk.alto - 0.4, Tk.alto, t), xr = 540 + 210 * Math.cos(a) + 100, ytop = 1260 - 110 - 210 * Math.sin(a); ctx.save(); ctx.globalAlpha = al; ctx.strokeStyle = YE; ctx.fillStyle = YE; ctx.lineWidth = 10; ctx.beginPath(); ctx.moveTo(xr, 1150 + 40); ctx.lineTo(xr, ytop); ctx.stroke(); ctx.beginPath(); ctx.moveTo(xr, ytop - 30); ctx.lineTo(xr - 22, ytop + 6); ctx.lineTo(xr + 22, ytop + 6); ctx.closePath(); ctx.fill(); ctx.restore(); }
-  ctx.restore(); P.tag(ctx, 'RIEL DE FUERA MÁS ALTO', 470, 520, t, Tk.alto - 0.6, S(24), { mono: true, col: YE, px: 52 });
+  ctx.restore(); P.tag(ctx, 'RIEL DE FUERA MÁS ALTO', 470, 1390, t, Tk.alto - 0.6, S(24), { mono: true, col: YE, px: 52 });
  }, sfx(k) { k.play('whoosh', S(22), { dur: 0.6, top: 1200, gain: 0.25, minor: true }); k.noise(Tk.inclina - 0.5, { dur: 1.0, color: 'brown', filter: 'bandpass', f: 300, q: 1, gain: 0.1, a: 0.3 }); FX.etiqueta(k, Tk.alto - 0.6); } });
 
  // ---------- 16 · es el peralte, y contrarresta el empujón hacia fuera → tren de frente en la curva peraltada, con flechas ----------
  B.push({ t0: S(24), t1: S(25), in: { type: 'slide', d: 0.4 }, draw(ctx, t) {
-  const a = 0.13, fl = sm(Tk.empujon - 0.4, Tk.empujon, t), cam = camK(t, [[S(24), 540, 960, 1.0], [S(25), 540, 980, 1.08]]);
+  const a = 0.24, fl = sm(Tk.empujon - 0.4, Tk.empujon, t), cam = camK(t, [[S(24), 540, 960, 1.0], [S(25), 540, 980, 1.08]]);
   ctx.save(); zoomP(ctx, cam); paisaje(ctx, t, { hy: 980, off: t * 40, sx: 820 }); ctx.fillStyle = '#5a4a3a'; ctx.fillRect(-300, 1180, W + 700, 900); piedras(ctx, 1500, 2000, 200, 8);
-  viaFrente(ctx, t, 540, 1260, 1.0, a); trenFrente(ctx, t, 540 - 110 * Math.sin(a), 1260 - 110 * Math.cos(a), 0.95, { incl: -a });
+  viaFrente(ctx, t, 540, 1260, 1.0, a); trenFrente(ctx, t, 540 - 110 * Math.sin(a), 1260 - 110 * Math.cos(a), 0.88, { incl: -a });
   if (fl > 0) { ctx.save(); ctx.globalAlpha = fl; for (const [col, x0, x1, y] of [[RD, 700, 980, 820], [GR, 980, 720, 920]]) { ctx.strokeStyle = col; ctx.fillStyle = col; ctx.lineWidth = 26; ctx.beginPath(); ctx.moveTo(x0, y); ctx.lineTo(x1 - Math.sign(x1 - x0) * 40, y); ctx.stroke(); ctx.beginPath(); ctx.moveTo(x1, y); ctx.lineTo(x1 - Math.sign(x1 - x0) * 60, y - 40); ctx.lineTo(x1 - Math.sign(x1 - x0) * 60, y + 40); ctx.closePath(); ctx.fill(); } ctx.restore(); }
-  ctx.restore(); P.tag(ctx, 'PERALTE', 470, 520, t, Tk.peralte - 0.3, S(25), { mono: true, col: YE, px: 66 });
+  ctx.restore(); P.tag(ctx, 'PERALTE', 470, 1390, t, Tk.peralte - 0.3, S(25), { mono: true, col: YE, px: 66 });
  }, sfx(k) { FX.etiqueta(k, Tk.peralte - 0.3); k.play('whoosh', Tk.empujon - 0.4, { dur: 0.5, top: 1400, gain: 0.25 }); FX.correcto(k, Tk.empujon + 0.4); } });
 
  // ---------- 17 · así gira el tren junto al precipicio… gracias a un CONO → plano general breve y PRIMER PLANO FINAL de la rueda cónica ----------
