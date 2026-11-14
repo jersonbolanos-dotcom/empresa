@@ -23,7 +23,8 @@ El humo sale por el escape.
 La biela y el cigüeñal convierten ese sube y baja en giro,
 como tus piernas en los pedales de una bicicleta.
 Y la cadena lleva ese giro a la rueda de atrás.
-Ahora, el dato.
+[QUITAR] Ahora, el dato.
+[PAUSA 0.6]
 A unas seis mil vueltas por minuto, con una explosión cada dos vueltas…
 son cincuenta explosiones cada segundo.
 Tres mil…

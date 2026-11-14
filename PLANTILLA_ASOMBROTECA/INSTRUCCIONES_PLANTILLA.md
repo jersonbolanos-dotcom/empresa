@@ -1039,3 +1039,9 @@ Las manos de los vídeos salen ahora de la **hoja de manos ilustradas** del cana
 - Pone la marca en y = 1850 en lugar de la posición de la maqueta (y ≈ 1630). Úsalo cuando el dibujo baja hasta casi el borde inferior y la marca va en una franja corta debajo (pinta esa franja en la rama `PORTADA` del episodio).
 - Con `--marca-y`, el aviso del recorte 3:4 solo comprueba el texto: la marca queda fuera de la cuadrícula de Instagram a propósito.
 - Sin la opción, la portada es idéntica a la de la v1.30.
+
+## v1.41 · `[PAUSA]` después de un `[QUITAR]`
+
+- En `03_GUION/tramos.txt` se puede escribir un tramo `[QUITAR] …` y, en la línea siguiente, `[PAUSA 0.6]`: la pausa queda entre el último tramo dicho antes del quitado y el siguiente tramo que se dice.
+- Ejemplo (moto): `[QUITAR] Ahora, el dato.` + `[PAUSA 0.6]` antes de «A unas seis mil vueltas por minuto…».
+- Sin esa combinación, `alinear.py` funciona igual que en la v1.40.

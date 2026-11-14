@@ -218,11 +218,18 @@ if GN:
                 if a > q1: nt.append([q1, a])
             trozos = nt
         trozos = [q for q in trozos if q[1] - q[0] >= 0.08]   # dos [QUITAR] seguidos no dejan migas de silencio
+        # v1.41: una [PAUSA] escrita tras un tramo [QUITAR] se cuelga del último tramo que SÍ va al vídeo y se inserta en el punto del corte
+        pp_v = []
+        for t, d, k in pp_orig:
+            kk = k
+            while kk in QT: kk -= 1
+            if kk != k: t = round(speech[kk + 1][0] - 0.02, 3) - 0.001
+            pp_v.append((t, d, kk))
         # montaje en el tiempo original: copiar [de, a] tal cual o insertar silencio exacto (pausas de posproducción del cuerpo)
         montaje = []
         for de, a in trozos:
             cur = de
-            for t, d, _ in pp_orig:
+            for t, d, _ in pp_v:
                 if de < t < a:
                     montaje += [{"de": cur, "a": t}, {"silencio": d}]; cur = t
             montaje.append({"de": cur, "a": a})
@@ -242,14 +249,14 @@ if GN:
             if r["seg"] in nuevo:
                 q = {"w": r["w"], "s": mapa(r["s"]), "e": mapa(r["e"]), "seg": nuevo[r["seg"]]}
                 vw.append(q)
-        for t, d, k in pp_orig:   # marca de pausa en la primera palabra tras cada pausa de posproducción
-            f = next(q for q in vw if q["seg"] == nuevo[k + 1]); f["pausa"] = round(f.get("pausa", 0) + d, 3)
+        for t, d, k in pp_v:   # marca de pausa en la primera palabra tras cada pausa de posproducción
+            k1 = next(i for i in range(k + 1, len(SEGS)) if i not in QT); f = next(q for q in vw if q["seg"] == nuevo[k1]); f["pausa"] = round(f.get("pausa", 0) + d, 3)
         vs = [{"i": nuevo[i], "s": mapa(speech[i][0]), "e": mapa(speech[i][1]), "s0": round(speech[i][0], 3), "e0": round(speech[i][1], 3),
                "text": re.sub(r"(\S+)\|\S+", r"\1", SEGS[i])} for i in keep]
         base, ext = os.path.splitext(OUT)
         json.dump({"duration": round(total, 6), "speech_end": mapa(speech[-1][1]), "segments": vs, "words": vw, "gancho": L,
                    "montaje": montaje, "duracion_original": round(DUR, 6),
-                   "pausas_post": [{"tras_tramo": nuevo[k], "t": t, "t_montado": mapa(t) + 0, "dur": d} for t, d, k in pp_orig],
+                   "pausas_post": [{"tras_tramo": nuevo[k], "t": t, "t_montado": mapa(t) + 0, "dur": d} for t, d, k in pp_v],
                    "method": "silencedetect + reparto silábico; sin ASR · variante de gancho (v1.29)"},
                   open(f"{base}_{L}{ext}", "w"), ensure_ascii=False, indent=1)
         resumen[L] = round(total, 2)

@@ -1,198 +1,262 @@
 {
- "duration": 66.429388,
- "speech_end": 66.429,
+ "duration": 67.029388,
+ "speech_end": 67.029,
  "segments": [
   {
    "i": 0,
    "s": 0.05,
    "e": 1.216,
-   "text": "Entre tus piernas…"
+   "text": "Entre tus piernas…",
+   "s0": 0.05,
+   "e0": 1.216
   },
   {
    "i": 1,
    "s": 1.467,
    "e": 3.598,
-   "text": "hay una máquina que explota sin parar."
+   "text": "hay una máquina que explota sin parar.",
+   "s0": 1.467,
+   "e0": 3.598
   },
   {
    "i": 2,
    "s": 4.168,
    "e": 5.172,
-   "text": "¿Qué pasa ahí dentro?"
+   "text": "¿Qué pasa ahí dentro?",
+   "s0": 4.168,
+   "e0": 5.172
   },
   {
    "i": 3,
    "s": 5.907,
    "e": 8.134,
-   "text": "Es más asombroso de lo que crees."
+   "text": "Es más asombroso de lo que crees.",
+   "s0": 5.907,
+   "e0": 8.134
   },
   {
    "i": 4,
    "s": 8.71,
    "e": 9.712,
-   "text": "Tu motor respira,"
+   "text": "Tu motor respira,",
+   "s0": 8.71,
+   "e0": 9.712
   },
   {
    "i": 5,
    "s": 10.002,
    "e": 10.472,
-   "text": "como tú,"
+   "text": "como tú,",
+   "s0": 10.002,
+   "e0": 10.472
   },
   {
    "i": 6,
    "s": 10.824,
    "e": 11.974,
-   "text": "en cuatro tiempos."
+   "text": "en cuatro tiempos.",
+   "s0": 10.824,
+   "e0": 11.974
   },
   {
    "i": 7,
    "s": 12.418,
    "e": 15.922,
-   "text": "Arriba, dos válvulas se abren y se cierran como una nariz."
+   "text": "Arriba, dos válvulas se abren y se cierran como una nariz.",
+   "s0": 12.418,
+   "e0": 15.922
   },
   {
    "i": 8,
    "s": 16.402,
    "e": 16.734,
-   "text": "Uno:"
+   "text": "Uno:",
+   "s0": 16.402,
+   "e0": 16.734
   },
   {
    "i": 9,
    "s": 17.063,
    "e": 17.596,
-   "text": "aspira."
+   "text": "aspira.",
+   "s0": 17.063,
+   "e0": 17.596
   },
   {
    "i": 10,
    "s": 17.925,
    "e": 20.451,
-   "text": "El pistón baja y entra aire con gasolina."
+   "text": "El pistón baja y entra aire con gasolina.",
+   "s0": 17.925,
+   "e0": 20.451
   },
   {
    "i": 11,
    "s": 20.858,
    "e": 21.326,
-   "text": "Dos:"
+   "text": "Dos:",
+   "s0": 20.858,
+   "e0": 21.326
   },
   {
    "i": 12,
    "s": 21.621,
    "e": 22.224,
-   "text": "aprieta."
+   "text": "aprieta.",
+   "s0": 21.621,
+   "e0": 22.224
   },
   {
    "i": 13,
    "s": 22.489,
    "e": 24.261,
-   "text": "El pistón sube y lo comprime."
+   "text": "El pistón sube y lo comprime.",
+   "s0": 22.489,
+   "e0": 24.261
   },
   {
    "i": 14,
    "s": 24.717,
    "e": 25.138,
-   "text": "Tres:"
+   "text": "Tres:",
+   "s0": 24.717,
+   "e0": 25.138
   },
   {
    "i": 15,
    "s": 25.738,
    "e": 27.416,
-   "text": "la bujía lanza una chispa…"
+   "text": "la bujía lanza una chispa…",
+   "s0": 25.738,
+   "e0": 27.416
   },
   {
    "i": 16,
    "s": 27.947,
    "e": 28.748,
-   "text": "y explota."
+   "text": "y explota.",
+   "s0": 27.947,
+   "e0": 28.748
   },
   {
    "i": 17,
    "s": 29.079,
    "e": 31.382,
-   "text": "La explosión empuja el pistón hacia abajo."
+   "text": "La explosión empuja el pistón hacia abajo.",
+   "s0": 29.079,
+   "e0": 31.382
   },
   {
    "i": 18,
    "s": 31.823,
    "e": 32.245,
-   "text": "Cuatro:"
+   "text": "Cuatro:",
+   "s0": 31.823,
+   "e0": 32.245
   },
   {
    "i": 19,
    "s": 32.522,
    "e": 33.03,
-   "text": "sopla."
+   "text": "sopla.",
+   "s0": 32.522,
+   "e0": 33.03
   },
   {
    "i": 20,
    "s": 33.366,
    "e": 34.899,
-   "text": "El humo sale por el escape."
+   "text": "El humo sale por el escape.",
+   "s0": 33.366,
+   "e0": 34.899
   },
   {
    "i": 21,
    "s": 35.402,
    "e": 39.159,
-   "text": "La biela y el cigüeñal convierten ese sube y baja en giro,"
+   "text": "La biela y el cigüeñal convierten ese sube y baja en giro,",
+   "s0": 35.402,
+   "e0": 39.159
   },
   {
    "i": 22,
    "s": 39.413,
    "e": 41.763,
-   "text": "como tus piernas en los pedales de una bicicleta."
+   "text": "como tus piernas en los pedales de una bicicleta.",
+   "s0": 39.413,
+   "e0": 41.763
   },
   {
    "i": 23,
    "s": 42.055,
    "e": 44.936,
-   "text": "Y la cadena lleva ese giro a la rueda de atrás."
+   "text": "Y la cadena lleva ese giro a la rueda de atrás.",
+   "s0": 42.055,
+   "e0": 44.936
   },
   {
    "i": 24,
    "s": 45.483,
    "e": 46.655,
-   "text": "Ahora, el dato."
+   "text": "Ahora, el dato.",
+   "s0": 45.483,
+   "e0": 46.655
   },
   {
    "i": 25,
-   "s": 48.112,
-   "e": 52.209,
-   "text": "A unas seis mil vueltas por minuto, con una explosión cada dos vueltas…"
+   "s": 48.712,
+   "e": 52.809,
+   "text": "A unas seis mil vueltas por minuto, con una explosión cada dos vueltas…",
+   "s0": 48.112,
+   "e0": 52.209
   },
   {
    "i": 26,
-   "s": 52.512,
-   "e": 55.21,
-   "text": "son cincuenta explosiones cada segundo."
+   "s": 53.112,
+   "e": 55.81,
+   "text": "son cincuenta explosiones cada segundo.",
+   "s0": 52.512,
+   "e0": 55.21
   },
   {
    "i": 27,
-   "s": 55.529,
-   "e": 56.322,
-   "text": "Tres mil…"
+   "s": 56.129,
+   "e": 56.922,
+   "text": "Tres mil…",
+   "s0": 55.529,
+   "e0": 56.322
   },
   {
    "i": 28,
-   "s": 56.645,
-   "e": 57.46,
-   "text": "cada minuto."
+   "s": 57.245,
+   "e": 58.06,
+   "text": "cada minuto.",
+   "s0": 56.645,
+   "e0": 57.46
   },
   {
    "i": 29,
-   "s": 57.788,
-   "e": 59.169,
-   "text": "Cincuenta por segundo…"
+   "s": 58.388,
+   "e": 59.769,
+   "text": "Cincuenta por segundo…",
+   "s0": 57.788,
+   "e0": 59.169
   },
   {
    "i": 30,
-   "s": 59.441,
-   "e": 62.775,
-   "text": "mientras vas al trabajo, llevas un pedido o vuelves a casa."
+   "s": 60.041,
+   "e": 63.375,
+   "text": "mientras vas al trabajo, llevas un pedido o vuelves a casa.",
+   "s0": 59.441,
+   "e0": 62.775
   },
   {
    "i": 31,
-   "s": 63.128,
-   "e": 66.429,
-   "text": "Envíaselo a ese amigo que se gana la vida en dos ruedas."
+   "s": 63.728,
+   "e": 67.029,
+   "text": "Envíaselo a ese amigo que se gana la vida en dos ruedas.",
+   "s0": 63.128,
+   "e0": 66.429
   }
  ],
  "words": [
@@ -894,294 +958,304 @@
   },
   {
    "w": "A",
-   "s": 48.112,
-   "e": 48.295,
-   "seg": 25
+   "s": 48.712,
+   "e": 48.895,
+   "seg": 25,
+   "pausa": 0.6
   },
   {
    "w": "unas",
-   "s": 48.295,
-   "e": 48.66,
+   "s": 48.895,
+   "e": 49.26,
    "seg": 25
   },
   {
    "w": "seis",
-   "s": 48.66,
-   "e": 48.843,
+   "s": 49.26,
+   "e": 49.443,
    "seg": 25
   },
   {
    "w": "mil",
-   "s": 48.843,
-   "e": 49.026,
+   "s": 49.443,
+   "e": 49.626,
    "seg": 25
   },
   {
    "w": "vueltas",
-   "s": 49.026,
-   "e": 49.391,
+   "s": 49.626,
+   "e": 49.991,
    "seg": 25
   },
   {
    "w": "por",
-   "s": 49.391,
-   "e": 49.574,
+   "s": 49.991,
+   "e": 50.174,
    "seg": 25
   },
   {
    "w": "minuto,",
-   "s": 49.574,
-   "e": 50.122,
+   "s": 50.174,
+   "e": 50.722,
    "seg": 25
   },
   {
    "w": "con",
-   "s": 50.122,
-   "e": 50.311,
+   "s": 50.722,
+   "e": 50.911,
    "seg": 25
   },
   {
    "w": "una",
-   "s": 50.311,
-   "e": 50.691,
+   "s": 50.911,
+   "e": 51.291,
    "seg": 25
   },
   {
    "w": "explosión",
-   "s": 50.691,
-   "e": 51.26,
+   "s": 51.291,
+   "e": 51.86,
    "seg": 25
   },
   {
    "w": "cada",
-   "s": 51.26,
-   "e": 51.64,
+   "s": 51.86,
+   "e": 52.24,
    "seg": 25
   },
   {
    "w": "dos",
-   "s": 51.64,
-   "e": 51.83,
+   "s": 52.24,
+   "e": 52.43,
    "seg": 25
   },
   {
    "w": "vueltas…",
-   "s": 51.83,
-   "e": 52.209,
+   "s": 52.43,
+   "e": 52.809,
    "seg": 25
   },
   {
    "w": "son",
-   "s": 52.512,
-   "e": 52.736,
+   "s": 53.112,
+   "e": 53.336,
    "seg": 26
   },
   {
    "w": "cincuenta",
-   "s": 52.736,
-   "e": 53.406,
+   "s": 53.336,
+   "e": 54.006,
    "seg": 26
   },
   {
    "w": "explosiones",
-   "s": 53.406,
-   "e": 54.3,
+   "s": 54.006,
+   "e": 54.9,
    "seg": 26
   },
   {
    "w": "cada",
-   "s": 54.3,
-   "e": 54.664,
+   "s": 54.9,
+   "e": 55.264,
    "seg": 26
   },
   {
    "w": "segundo.",
-   "s": 54.664,
-   "e": 55.21,
+   "s": 55.264,
+   "e": 55.81,
    "seg": 26
   },
   {
    "w": "Tres",
-   "s": 55.529,
-   "e": 55.925,
+   "s": 56.129,
+   "e": 56.525,
    "seg": 27
   },
   {
    "w": "mil…",
-   "s": 55.925,
-   "e": 56.322,
+   "s": 56.525,
+   "e": 56.922,
    "seg": 27
   },
   {
    "w": "cada",
-   "s": 56.645,
-   "e": 56.971,
+   "s": 57.245,
+   "e": 57.571,
    "seg": 28
   },
   {
    "w": "minuto.",
-   "s": 56.971,
-   "e": 57.46,
+   "s": 57.571,
+   "e": 58.06,
    "seg": 28
   },
   {
    "w": "Cincuenta",
-   "s": 57.788,
-   "e": 58.38,
+   "s": 58.388,
+   "e": 58.98,
    "seg": 29
   },
   {
    "w": "por",
-   "s": 58.38,
-   "e": 58.577,
+   "s": 58.98,
+   "e": 59.177,
    "seg": 29
   },
   {
    "w": "segundo…",
-   "s": 58.577,
-   "e": 59.169,
+   "s": 59.177,
+   "e": 59.769,
    "seg": 29
   },
   {
    "w": "mientras",
-   "s": 59.441,
-   "e": 59.78,
+   "s": 60.041,
+   "e": 60.38,
    "seg": 30
   },
   {
    "w": "vas",
-   "s": 59.78,
-   "e": 59.949,
+   "s": 60.38,
+   "e": 60.549,
    "seg": 30
   },
   {
    "w": "al",
-   "s": 59.949,
-   "e": 60.119,
+   "s": 60.549,
+   "e": 60.719,
    "seg": 30
   },
   {
    "w": "trabajo,",
-   "s": 60.119,
-   "e": 60.627,
+   "s": 60.719,
+   "e": 61.227,
    "seg": 30
   },
   {
    "w": "llevas",
-   "s": 60.627,
-   "e": 60.966,
+   "s": 61.227,
+   "e": 61.566,
    "seg": 30
   },
   {
    "w": "un",
-   "s": 60.966,
-   "e": 61.135,
+   "s": 61.566,
+   "e": 61.735,
    "seg": 30
   },
   {
    "w": "pedido",
-   "s": 61.135,
-   "e": 61.644,
+   "s": 61.735,
+   "e": 62.244,
    "seg": 30
   },
   {
    "w": "o",
-   "s": 61.644,
-   "e": 61.813,
+   "s": 62.244,
+   "e": 62.413,
    "seg": 30
   },
   {
    "w": "vuelves",
-   "s": 61.813,
-   "e": 62.198,
+   "s": 62.413,
+   "e": 62.798,
    "seg": 30
   },
   {
    "w": "a",
-   "s": 62.198,
-   "e": 62.391,
+   "s": 62.798,
+   "e": 62.991,
    "seg": 30
   },
   {
    "w": "casa.",
-   "s": 62.391,
-   "e": 62.775,
+   "s": 62.991,
+   "e": 63.375,
    "seg": 30
   },
   {
    "w": "Envíaselo",
-   "s": 63.128,
-   "e": 63.878,
+   "s": 63.728,
+   "e": 64.478,
    "seg": 31
   },
   {
    "w": "a",
-   "s": 63.878,
-   "e": 64.028,
+   "s": 64.478,
+   "e": 64.628,
    "seg": 31
   },
   {
    "w": "ese",
-   "s": 64.028,
-   "e": 64.328,
+   "s": 64.628,
+   "e": 64.928,
    "seg": 31
   },
   {
    "w": "amigo",
-   "s": 64.328,
-   "e": 64.779,
-   "seg": 31
-  },
-  {
-   "w": "que",
-   "s": 64.779,
-   "e": 64.929,
-   "seg": 31
-  },
-  {
-   "w": "se",
-   "s": 64.929,
-   "e": 65.079,
-   "seg": 31
-  },
-  {
-   "w": "gana",
-   "s": 65.079,
+   "s": 64.928,
    "e": 65.379,
    "seg": 31
   },
   {
-   "w": "la",
+   "w": "que",
    "s": 65.379,
    "e": 65.529,
    "seg": 31
   },
   {
-   "w": "vida",
+   "w": "se",
    "s": 65.529,
-   "e": 65.829,
+   "e": 65.679,
    "seg": 31
   },
   {
-   "w": "en",
-   "s": 65.829,
+   "w": "gana",
+   "s": 65.679,
    "e": 65.979,
    "seg": 31
   },
   {
-   "w": "dos",
+   "w": "la",
    "s": 65.979,
    "e": 66.129,
    "seg": 31
   },
   {
-   "w": "ruedas.",
+   "w": "vida",
    "s": 66.129,
    "e": 66.429,
+   "seg": 31
+  },
+  {
+   "w": "en",
+   "s": 66.429,
+   "e": 66.579,
+   "seg": 31
+  },
+  {
+   "w": "dos",
+   "s": 66.579,
+   "e": 66.729,
+   "seg": 31
+  },
+  {
+   "w": "ruedas.",
+   "s": 66.729,
+   "e": 67.029,
    "seg": 31
   }
  ],
  "method": "silencedetect + reparto silábico; sin ASR",
+ "pausas_post": [
+  {
+   "tras_tramo": 24,
+   "t": 47.384,
+   "t_montado": 47.384,
+   "dur": 0.6
+  }
+ ],
+ "duracion_original": 66.429388,
  "ganchos": {
   "B": [
    0,
