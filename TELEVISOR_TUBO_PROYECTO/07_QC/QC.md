@@ -3,11 +3,11 @@
 | Control | Resultado | |
 |---|---|---|
 | Formato | h264 1080×1920 30/1 · aac 48000 Hz | ✔ |
-| Duración / tamaño | 65.97 s · 32.7 MB | ✔ |
+| Duración / tamaño | 65.97 s · 32.8 MB | ✔ |
 | Decodificación completa | 0 errores | ✔ |
 | Negros > 0,3 s / congelados > 1,5 s | 0 / 0 | ✔ |
 | Silencios > 1 s (−50 dB) | 0 | ✔ |
-| Sonoridad | -14.0 LUFS · pico -1.0 dBTP | ✔ |
+| Sonoridad | -13.8 LUFS · pico -2.1 dBTP | ✔ |
 | Voz intacta (md5 por tramo) | original igual · 24/24 tramos idénticos en la voz montada | ✔ |
 | Determinismo | OK | ✔ |
 | Duración (objetivo 45-70 s) | 66.0 s | ✔ |

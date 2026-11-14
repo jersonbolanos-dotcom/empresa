@@ -1,6 +1,6 @@
 # Publicar · ¿Cómo funcionaban por dentro los televisores de antes?
 
-> Un solo vídeo (v1.34): `TELEVISOR_TUBO_FINAL.mp4`, gancho A (con el golpecito de la B y el puntito de la C). Portada: `portada.jpg`.
+> Un solo vídeo (v1.34): `TELEVISOR_TUBO_FINAL.mp4` (V2), gancho A (con el golpecito de la B y el puntito de la C). Portada: `portada.jpg` (la mitad del televisor en rayos X).
 > El texto no da la respuesta (no decir «electrones», «cañón», «barrido» ni «vacío»). Sin enlaces.
 
 ## Facebook (Reels)

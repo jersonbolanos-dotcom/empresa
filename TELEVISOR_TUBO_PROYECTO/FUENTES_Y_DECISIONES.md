@@ -36,6 +36,14 @@ Vídeo único, gancho A (con el golpecito de la B y el puntito de la C) · plant
 | Aun desconectado puede guardar electricidad peligrosa: nunca lo abras | [MESSER]: «maintains very high voltages, even when the monitor is powered off and unplugged» | [IFIXIT]: «like a giant high-voltage capacitor… discharge it before any kind of work»; también [WIKI-CRT]: «CRTs have to be discharged before handling» |
 
 ## Decisiones
+- **V2** (la versión anterior está en `V1/`: vídeo, portada, `episodio.js` y mezcla; la voz no se tocó):
+  - en «pesados», la sala: el niño empuja el televisor y no lo mueve, y la abuela se ríe;
+  - en la zona del vacío, el tubo gira (de horizontal a de pie y de vuelta) con acercamientos al cuello, al vidrio grueso y al cono, sin repetir ángulo más de 4 s; tubo grande, entero y centrado;
+  - transición al cañón con corte directo (un solo subtítulo);
+  - tres chorros en diagonal, centrados;
+  - «nunca lo abras»: televisor de espaldas más grande y X a opacidad completa;
+  - portada: la mitad del televisor en rayos X (cañón, bobinas y chorro) y la otra normal; dibujo más abajo y marca en una franja corta (plantilla v1.40, `--marca-y`);
+  - el pico subió a −0,4 dBTP con los efectos nuevos y se bajó con el limitador, volviendo a montar solo el audio (−2,1 dBTP, −13,8 LUFS).
 - **Voz:** una sola toma (1.023 caracteres, 65,8 s). Se quitaron con `[QUITAR]` «o sea,» y «Eso sí:», y se alargó la pausa larga con `[PAUSA 0.4]` antes de «Porque por dentro el tubo está al vacío». Resultado: 64,95 s, voz intacta (md5 por tramo).
 - **Sin siglas:** siempre «tubo», nunca «CRT».
 - **Sin cifras de fuerza en la voz:** las fuentes no coinciden (800 libras en uno de 27 pulgadas frente a «varias toneladas»); se dice «el aire lo aprieta». Tampoco se dan pulgadas ni pesos.
