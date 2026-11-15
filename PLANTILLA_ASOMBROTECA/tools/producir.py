@@ -315,6 +315,9 @@ def p_qc(P, a):
     # v1.29 · sonido de punta a punta: silencio (−50 dB) al principio ≤ 0,5 s y al final ≤ 1 s
     s_ini, s_fin = silencios_borde(out, dur)
     enc = None if zs is None else zs.get('encimados'); ll = None if zs is None else zs.get('llena')
+    VIR = es_viral(C)
+    if VIR:
+        cierre = None   # v2.0: el cierre «Envíaselo» ya no es obligatorio en modo viral
     ok = lambda c: '✔' if c else '✘'
     filas = [
         ('Formato', f'{vs["codec_name"]} {vs["width"]}×{vs["height"]} {vs["r_frame_rate"]} · {au[0]["codec_name"] + " " + au[0]["sample_rate"] + " Hz" if au else "SIN AUDIO"}', vs['width'] == 1080 and vs['height'] == 1920 and vs['r_frame_rate'] == '30/1' and bool(au)),
@@ -337,6 +340,8 @@ def p_qc(P, a):
         ('Subtítulos sin etiquetas [ ] ni < >', 'sin datos' if etq is None else ('limpios' if not etq else 'ETIQUETAS: ' + ', '.join(etq[:5])), etq is None or not etq),
         ('Movimiento desde el fotograma 0', 'sin datos' if mov is None else ('sí' if mov else 'NEGRO o QUIETO al empezar'), mov is not False),
     ]
+    if VIR:
+        filas += qc_viral(P, a, out, ll)
     txt = '\n'.join(f'{k}: {v} {ok(c)}' for k, v, c in filas)
     open(os.path.join(Q, f'qc_tecnico{sf}.txt'), 'w').write(f'Archivo: {out}\n{txt}\n')
     md = [f'# QC · {os.path.basename(out)}', '', '| Control | Resultado | |', '|---|---|---|'] + [f'| {k} | {v} | {ok(c)} |' for k, v, c in filas]
@@ -346,6 +351,51 @@ def p_qc(P, a):
     bien = all(c for _, _, c in filas)
     print('QC' + (f' variante {G}' if G else '') + ': ' + ('TODO CORRECTO' if bien else 'HAY PUNTOS A REVISAR'))
     return bien
+
+
+def es_viral(C):
+    # v2.0: el episodio se hizo con PL.make({ modo: 'viral' })
+    ep = os.path.join(C, 'js', 'episodio.js')
+    return os.path.exists(ep) and bool(re.search(r"modo\s*:\s*['\"]viral['\"]", open(ep, encoding='utf-8').read()))
+
+
+def qc_viral(P, a, out, ll):
+    # v2.0 · tres AVISOS del modo viral (no hacen fallar el QC: se marcan «AVISO» en el resultado)
+    filas = []
+    r = subprocess.run(['ffmpeg', '-hide_banner', '-i', out, '-vf', "select='gt(scene,0.4)',showinfo", '-an', '-f', 'null', '-'], capture_output=True, text=True).stderr
+    cortes = [round(float(x), 2) for x in re.findall(r'pts_time:([\d.]+)', r)]
+    filas.append(('AVISO viral · cambios bruscos (escena > 0,4; máx. 3)', f'{len(cortes)}' + (f' en {", ".join(str(c) for c in cortes[:8])} s' if cortes else '') + (' · AVISO: más de 3' if len(cortes) > 3 else ''), True))
+    m0 = None
+    if ll and ll.get('muestras'):
+        m0 = ll['muestras'][0][1]
+    filas.append(('AVISO viral · protagonista en el fotograma 0 (≥ 70 % del ancho)', 'sin datos' if m0 is None else f'{100 * m0:.0f} %' + (' · AVISO: menos del 70 %' if m0 < 0.70 else ''), True))
+    piso = None; mez = os.path.join(P, '05_AUDIO', 'mezcla_final.wav'); al = alin(P, a)
+    if os.path.exists(al):
+        try:
+            import numpy as np, wave
+            ws = json.load(open(al))['words']; sr_dur = None
+            src = mez if os.path.exists(mez) else None
+            if src is None:
+                tmp = os.path.join(P, '07_QC', '_piso.wav'); sh(['ffmpeg', '-v', 'error', '-y', '-i', out, '-ac', '1', '-ar', '48000', tmp]); src = tmp
+            with wave.open(src) as w:
+                sr = w.getframerate(); ch = w.getnchannels(); sw = w.getsampwidth(); raw = w.readframes(w.getnframes())
+            x = np.frombuffer(raw, dtype={2: np.int16, 4: np.int32}[sw]).astype(np.float64) / (2 ** (8 * sw - 1))
+            x = x.reshape(-1, ch).mean(axis=1)
+            mins = []
+            for w0, w1 in zip(ws, ws[1:]):
+                g0, g1 = w0['e'] + 0.05, w1['s'] - 0.05
+                if g1 - g0 >= 0.2:
+                    seg = x[int(g0 * sr):int(g1 * sr)]; blk = int(0.05 * sr)
+                    rms = [20 * np.log10(np.sqrt(np.mean(seg[i:i + blk] ** 2)) + 1e-9) for i in range(0, len(seg) - blk + 1, blk)]
+                    if rms:
+                        mins.append(min(rms))
+            piso = (min(mins), len(mins)) if mins else None
+            if src.endswith('_piso.wav'):
+                os.remove(src)
+        except Exception as e:
+            piso = None
+    filas.append(('AVISO viral · piso de sonido entre frases (debe bajar de −45 dB)', 'sin datos' if piso is None else f'mínimo {piso[0]:.1f} dB en {piso[1]} huecos' + (' · AVISO: nunca baja de −45 dB' if piso[0] > -45 else ''), True))
+    return filas
 
 
 def silencios_borde(out, dur):
