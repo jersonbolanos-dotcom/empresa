@@ -1,33 +1,15 @@
 # Publicar · ¿Cómo conservaban los alimentos sin neveras?
 
-> v1.29 · Reglas: el gancho va como **pregunta** y **NUNCA** se da la respuesta. Se pide **comentar** (una pregunta concreta),
-> nunca «dale like», «comparte si…» ni «sígueme» (Meta lo castiga). De **3 a 5 hashtags**. Sin enlaces en la descripción.
-> Primero, las 3 variantes como «Reel de prueba» en Instagram; a las 24 h, la que más retuvo en los primeros 3 s va al perfil y a las demás redes.
-
-Variante elegida: [A | B | C] · Portada: `portada.jpg`
-
-## YouTube Shorts
-**Título** (≤ 70 caracteres, pregunta sin respuesta):
-[¿…?] #shorts
-
-**Descripción:**
-[Gancho en una frase, sin desvelar la respuesta.]
-[Pregunta para comentar: «¿Tú qué…? Te leo en comentarios.»]
-#shorts #[tema] #[tema] #[tema]
+> Un solo vídeo (v1.34): `CONSERVAR_ALIMENTOS_FINAL.mp4`, gancho C en segunda persona («La carne de tu abuela colgaba al sol… y no se pudría»). Portada: `portada.jpg` (la carne colgada al sol con la lupa de microscopio y las bacterias).
+> El texto no da la respuesta (no decir «agua», «sal», «humo», «bacterias» ni «fermentación»). Sin enlaces. Sin recetas.
 
 ## Facebook (Reels)
-**Texto:**
-[Gancho como pregunta, 1-2 frases.]
-[Pregunta para comentar.]
-#[tema] #[tema] #[tema]
+**Texto** (copiar tal cual):
 
-## Instagram (Reels)
-**Texto** (la primera línea es la que se ve: gancho como pregunta):
-[¿…?]
-[1 frase de contexto sin dar la respuesta.]
-[Pregunta para comentar.]
-#[tema] #[tema] #[tema] #[tema]
+¿Cómo se conservaba la carne sin nevera? 🥩
+Tu abuela la colgaba al sol en el patio… y no se dañaba. Detrás de ese truco de toda la vida hay pura ciencia.
+¿Tú también viste carne colgada en casa de tus abuelos? Te leo en comentarios.
+Compártelo con ese amigo que se acuerda de la carne de sus abuelos, y sigue a Asombroteca.
+Fuentes: FAO y Universidad de California.
 
-## TikTok
-**Texto** (≤ 150 caracteres):
-[¿…?] [Pregunta para comentar.] #[tema] #[tema] #[tema]
+#abuela #nostalgia #ciencia #curiosidades #comida #charqui #asombroteca
