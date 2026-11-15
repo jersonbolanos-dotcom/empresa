@@ -188,7 +188,7 @@
  const ATRAV = [S(4) - 0.05, S(4) + 1.25], SALE = [S(5) - 0.25, S(5) + 0.85];
 
  B.push({ t0: 0, t1: S(6) - 0.35, in: { type: 'cut' }, draw(ctx, t) {
-  if (PORTADA) { const cam = [1500, 1040, 3.4]; ctx.save(); P.aplicaCamara(ctx, cam); mundoV(ctx, 0); ctx.restore(); avalancha(ctx, 1.95, aPantalla(cam, CARD)); P.resplandor(ctx, 540, 960, 400, '255,210,120', 0.4); P.vineta(ctx, 0.55); return; }
+  if (PORTADA) { const cam = camV(0), tg = aPantalla(cam, CARD); ctx.save(); P.aplicaCamara(ctx, cam); mundoV(ctx, 0, 1, 'fondo'); ctx.restore(); avalancha(ctx, 0, tg, 'atras'); ctx.save(); P.aplicaCamara(ctx, cam); mundoV(ctx, 0, 1, 'dedo'); ctx.restore(); avalancha(ctx, 0, tg, 'delante'); P.resplandor(ctx, tg[0], tg[1], 300, '255,214,110', 0.35); P.vineta(ctx, 0.55); return; }   // v2.0: portada = el fotograma 0 (uña con la tarjeta y disquetes cayendo)
   if (t < ATRAV[0]) { const cam = camV(t), sh = sacude(t, [[Tk.una, 0.9]], 26); const tg = aPantalla(cam, CARD); ctx.save(); P.aplicaCamara(ctx, cam, sh); mundoV(ctx, t, 1, 'fondo'); ctx.restore(); avalancha(ctx, t, tg, 'atras'); ctx.save(); P.aplicaCamara(ctx, cam, sh); mundoV(ctx, t, 1, 'dedo'); ctx.restore();   // v2.0b: parte de la avalancha cae DETRÁS del dedo (su punta redondeada se ve desde el fotograma 0)
    if (t > Tk.una - 0.1) P.resplandor(ctx, tg[0], tg[1], 260 * cam[2] / 3, '255,214,110', 0.55 * (1 - sm(Tk.una, S(2) + 0.6, t)) + 0.12);
    if (t >= Tk.esto2 - 0.1) { const a = sm(Tk.esto2 - 0.1, Tk.esto2 + 0.3, t); ctx.save(); P.aplicaCamara(ctx, cam); anillo(ctx, t, CARD[0], CARD[1], 84, a); ctx.restore(); }

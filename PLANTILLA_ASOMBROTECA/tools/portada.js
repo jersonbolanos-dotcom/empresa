@@ -26,7 +26,7 @@ const { chromium } = require('playwright'); const path = require('path'); const 
  const res = await p.evaluate(async ({ img, texto, roja, etiqueta, marca, foco, bloque, bajar, modoRoja, tam, escala, marcaPos, marcaY }) => {
   const c = document.getElementById('c'), ctx = c.getContext('2d'); await document.fonts.load('900 100px Nunito'); await document.fonts.load('800 40px Nunito');
   const im = new Image(); im.src = img; await im.decode();
-  const nrm = (s) => s.normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^\p{L}\p{N}]/gu, '').toUpperCase();
+  const nrm = (s) => s.replace(/ñ/g, '\u0001').replace(/Ñ/g, '\u0001').normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^\p{L}\p{N}\u0001]/gu, '').toUpperCase();   // v2.0: la ñ no es una n («UNA» ≠ «UÑA»)
   const X = 540, MAXW = 920, Y0 = 240, Y1 = 1680;
   // fondo NÍTIDO: el fotograma a tamaño real (o ampliado solo si hay que centrar un foco); sin desenfoque
   const k = Math.max(1080 / im.width, 1920 / im.height) * (foco === 540 ? 1 : 1.25) * (escala || 1), w = im.width * k, h = im.height * k;
