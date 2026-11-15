@@ -60,6 +60,7 @@
  const EP = PL.make({
   skin: 'plana',              // 'plana' | 'oscura'
   align: A, duration: DURATION, beats: B,
+  etiquetas: 'suave',         // v1.42: etiquetas casi mudas (−10 dB); el «tin» solo con FX.clave en 3-4 momentos clave
   keywords: ['Asombroteca'],  // palabras con recuadro de selección; ['palabra', t0, t1] limita el recuadro a un tramo
   capY: 300,
   ambience(k) { k.noise(0, { dur: DURATION, color: 'brown', filter: 'lowpass', f: 200, gain: 0.04, a: 1, hold: DURATION - 2 }); },

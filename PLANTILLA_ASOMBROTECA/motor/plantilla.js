@@ -5617,6 +5617,7 @@ P._limpiarFijos = () => { for (const k of Object.keys(FIJOS)) delete FIJOS[k]; }
  // cfg = { skin, align, duration, beats:[{t0,t1,in:{type,d,x,y}, draw(ctx,t,api), sfx(k,api)}], keywords, music(k,api), capY }
  function make(cfg) {
   if (cfg.estilo && ESTILOS[cfg.estilo]) cfg = { ...ESTILOS[cfg.estilo], ...cfg };
+  SND_ETQ = cfg.etiquetas === 'suave' || cfg.etiquetas === 'silencio' ? cfg.etiquetas : 'clasico';   // v1.42: sonido de las etiquetas (por defecto, el de siempre)
   if (cfg.marca) Object.assign(P.MARCA, cfg.marca);
   SK = SKINS[cfg.skin || 'plana'];
   P.SAFE.on = !!cfg.zonaSegura; const PZ = cfg.pausas ? P.pausas(cfg.align, cfg.pausaMin ?? 0.4, cfg.pausaMax ?? 1.6) : [], WARP = PZ.length ? pausaWarp(PZ) : (t) => t;
@@ -5657,9 +5658,13 @@ P._limpiarFijos = () => { for (const k of Object.keys(FIJOS)) delete FIJOS[k]; }
   fade: (k, t, d) => k.noise(t, { dur: d + 0.3, color: 'brown', filter: 'lowpass', f: [[0, 600], [d + 0.3, 120]], gain: 0.12, a: d * 0.5, minor: true }),
  };
  // efectos con nombre para los bloques (consistencia entre episodios)
+ // v1.42 · SND_ETQ: 'clasico' (por defecto, igual que antes) · 'suave' (FX.etiqueta y el «ding» de FX.revelar a −10 dB) · 'silencio' (FX.etiqueta mudo).
+ //   El «tin» de siempre queda en FX.clave(k, t), para 3-4 momentos clave por vídeo. Los golpes (thud, destellos) no cambian.
+ let SND_ETQ = 'clasico'; const G10 = 0.316;
  const FX = {
   aparece: (k, t, f = 560) => k.play('pop', t, { f, gain: 0.5 }),
-  etiqueta: (k, t) => { k.play('pop', t, { f: 700, gain: 0.35, minor: true }); k.play('tick', t + 0.02, { gain: 0.25, minor: true }); },
+  etiqueta: (k, t) => { if (SND_ETQ === 'silencio') return; const g = SND_ETQ === 'suave' ? G10 : 1; k.play('pop', t, { f: 700, gain: 0.35 * g, minor: true }); k.play('tick', t + 0.02, { gain: 0.25 * g, minor: true }); },
+  clave: (k, t) => { k.play('pop', t, { f: 700, gain: 0.35, minor: true }); k.play('tick', t + 0.02, { gain: 0.25, minor: true }); },   // v1.42: el «tin» para los momentos clave
   flecha: (k, t, d = 0.4) => k.play('swish', t, { dur: d, gain: 0.35, minor: true }),
   tachado: (k, t) => { k.play('error', t, { f: 'A3', gain: 0.4 }); k.play('slap', t, { gain: 0.3, minor: true }); },
   correcto: (k, t) => k.play('success', t, { gain: 0.4 }),
@@ -5682,7 +5687,7 @@ P._limpiarFijos = () => { for (const k of Object.keys(FIJOS)) delete FIJOS[k]; }
   motor: (k, t, d, g = 1) => { k.tone(t, { f: 48, type: 'triangle', dur: d, gain: 0.05 * g, a: 0.3, hold: d * 0.8 }); for (let x = 0; x < d; x += 0.5) k.play('tick', t + x, { f: 2400, gain: 0.08 * g, minor: true }); },
   campo: (k, t, d = 1.2, g = 1) => { const R = H.rng(Math.round(t * 100)); for (let x = 0; x < d; x += 0.07) k.tone(t + x, { f: [523, 659, 784, 988, 1175][Math.floor(R() * 5)], dur: 0.5, gain: 0.02 * g, a: 0.02, filter: 'lowpass', f2: 2200, verb: 0.4, pan: R() * 1.2 - 0.6, minor: true }); k.noise(t, { dur: d, color: 'pink', filter: 'bandpass', f: 2400, q: 2, gain: 0.03 * g, a: d * 0.4 }); },
   escala: (k, t, d = 1) => { k.play('riser', t, { dur: d, gain: 0.35 }); k.tone(t + d, { f: [[0, 90], [0.4, 45]], dur: 0.6, gain: 0.25 }); },
-  revelar: (k, t) => { k.play('whoosh', t, { dur: 0.6, top: 2000, gain: 0.35, minor: true }); k.play('ding', t + 0.35, { f: 'C6', gain: 0.18, minor: true }); },
+  revelar: (k, t) => { k.play('whoosh', t, { dur: 0.6, top: 2000, gain: 0.35, minor: true }); k.play('ding', t + 0.35, { f: 'C6', gain: 0.18 * (SND_ETQ === 'clasico' ? 1 : G10), minor: true }); },
   puerta: (k, t) => { k.play('click', t, { gain: 0.7 }); k.play('thud', t + 0.03, { f: 160, gain: 0.25 }); k.noise(t + 0.05, { dur: 0.35, color: 'pink', filter: 'bandpass', f: 1200, q: 1, gain: 0.05, a: 0.05 }); },
   // v1.4 · aire y refrigeración
   ventilador: (k, t, d, g = 1, f = 300) => { k.noise(t, { dur: d, color: 'pink', filter: 'bandpass', f: [[0, f * 0.6], [Math.min(1.5, d * 0.3), f], [d, f]], q: 0.9, gain: 0.05 * g, a: Math.min(1.2, d * 0.3), hold: d * 0.7 }); },

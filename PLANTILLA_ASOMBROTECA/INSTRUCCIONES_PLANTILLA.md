@@ -1045,3 +1045,9 @@ Las manos de los vídeos salen ahora de la **hoja de manos ilustradas** del cana
 - En `03_GUION/tramos.txt` se puede escribir un tramo `[QUITAR] …` y, en la línea siguiente, `[PAUSA 0.6]`: la pausa queda entre el último tramo dicho antes del quitado y el siguiente tramo que se dice.
 - Ejemplo (moto): `[QUITAR] Ahora, el dato.` + `[PAUSA 0.6]` antes de «A unas seis mil vueltas por minuto…».
 - Sin esa combinación, `alinear.py` funciona igual que en la v1.40.
+
+## v1.42 · Sonido de las etiquetas
+
+- `PL.make({ …, etiquetas: 'suave' })`: `FX.etiqueta` suena a −10 dB (y el «ding» de `FX.revelar` también). `etiquetas: 'silencio'`: `FX.etiqueta` no suena. Sin la opción (episodios viejos), el sonido es el de siempre.
+- `FX.clave(k, t)`: el «tin» de siempre (pop de 700 Hz + tic). Úsalo solo en 3-4 momentos clave por vídeo (la revelación, los números o pasos importantes).
+- Los golpes (`thud`, `FX.golpeSordo`, destellos) no cambian.

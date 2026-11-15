@@ -1,5 +1,12 @@
 # Guía de estilos y guion · PLANTILLA ASOMBROTECA v1.34
 
+> **v1.42 · Sonido de las etiquetas: el «tin» solo en los momentos clave (regla para TODOS los vídeos nuevos):**
+> 1. **Etiquetas normales casi mudas.** En `PL.make` va `etiquetas: 'suave'`: cada `FX.etiqueta` suena a −10 dB (o `etiquetas: 'silencio'`, sin sonido). El «ding» de `FX.revelar` también baja −10 dB.
+> 2. **El «tin» de siempre, solo 3-4 veces por vídeo**, con `FX.clave(k, t)`: la revelación más fuerte y los números o pasos importantes (p. ej. «1 · LA SAL», «2 · …»). Nunca en cada etiqueta.
+> 3. **Los golpes fuertes no cambian** (explosiones, destellos, `thud`, `golpeSordo`): esos sí funcionan.
+> 4. Antes de entregar, contar los `FX.clave` del episodio (3-4) y decirlo en el resumen.
+> 5. Los episodios anteriores a la v1.42 suenan igual que siempre (sin `etiquetas`, el sonido es el clásico).
+
 > **v1.34 · Lo que funcionó en los 3 vídeos más vistos del canal (manda sobre todo lo demás):**
 > *Avión sin motores (303 mil) · submarino (235 mil) · rayo en un avión (46 mil).*
 > 1. **Tema: peligro en un medio de transporte**, tipo «¿Qué pasa si…?»: «¿Qué pasa si se apagan los motores de un avión?», «¿Qué pasa si un submarino se hunde demasiado?», «¿Qué pasa si un rayo cae en tu avión?». Otros medios: barco, tren, ascensor, teleférico, coche, cohete.
