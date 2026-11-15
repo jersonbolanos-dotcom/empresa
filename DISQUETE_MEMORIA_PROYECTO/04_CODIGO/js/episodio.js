@@ -161,16 +161,16 @@
  const VCOL = ['#2b2f36', '#3a5fb0', '#2b2f36', '#59606e', '#3a5fb0', '#23262d'];
  const DEDO_P = [1500, 900], DEDO_AN = 150, MM = 7.2, CARD = [1500, 900 + DEDO_AN * 0.45], DISQ = [500, 1100], DISQ_S = 8.5;
  const AVA = (() => { const R = RNG(2024), out = []; for (let i = 0; i < 46; i++) out.push({ x0: R() * 1300 - 110, y0: R() * 2700 - 400, vy: 700 + R() * 600, vx: (R() - 0.5) * 220, r0: R() * 6, sp: (R() - 0.5) * 3.2, s: 2.6 + R() * 4.2, col: VCOL[i % VCOL.length], d: R() }); return out.sort((a, b) => a.s - b.s); })();
- const camV = (t) => P.camino(t, [[0, 1500, 1040, 3.0], [1.7, 1500, 1040, 3.25], [Tk.una, 1500, 1045, 3.7], [S(2), 1500, 1050, 4.1], [Tk.esto1 - 0.15, 500, 1100, 1.12], [Tk.esto2 - 0.35, 520, 1100, 1.06], [Tk.esto2 + 0.3, 1500, 933, 3.6], [S(4), 1500, 940, 3.75]]);
+ const camV = (t) => P.camino(t, [[0, 1500, 985, 3.0], [1.7, 1500, 992, 3.25], [Tk.una, 1500, 1000, 3.7], [S(2), 1500, 1000, 3.9], [Tk.esto1 - 0.15, 500, 1100, 1.12], [Tk.esto2 - 0.35, 520, 1100, 1.06], [Tk.esto2 + 0.3, 1500, 933, 3.6], [S(4), 1500, 940, 3.75]]);
  const aPantalla = (cam, p) => [(p[0] - cam[0]) * cam[2] + 540, (p[1] - cam[1]) * cam[2] + 960];
  const mesaOscura = (ctx) => { ctx.fillStyle = '#10121a'; ctx.fillRect(-3000, -3000, 8000, 9000); ctx.strokeStyle = 'rgba(255,255,255,0.025)'; ctx.lineWidth = 6; for (let y = -1000; y < 4000; y += 46) { ctx.beginPath(); ctx.moveTo(-1000, y); ctx.bezierCurveTo(600, y + 18, 1400, y - 14, 3200, y + 10); ctx.stroke(); } };
- const mundoV = (ctx, t, cardA = 1) => {
-  mesaOscura(ctx); P.resplandor(ctx, 1250, 1000, 1300, '255,196,140', 0.16);
-  P.floppy35(ctx, DISQ[0], DISQ[1], DISQ_S, { rot: -0.1, col: '#3a5fb0' });
+ const mundoV = (ctx, t, cardA = 1, parte = 'todo') => {
+  if (parte !== 'dedo') { mesaOscura(ctx); P.resplandor(ctx, 1250, 1000, 1300, '255,196,140', 0.16); P.floppy35(ctx, DISQ[0], DISQ[1], DISQ_S, { rot: -0.1, col: '#3a5fb0' }); }
+  if (parte === 'fondo') return;
   const d = P.dedoPP(ctx, DEDO_P[0], DEDO_P[1], DEDO_AN, { vista: 'dorso', piel: 'medio', largo: 2600, luz: 0.8 });
   if (cardA > 0) { ctx.save(); ctx.globalAlpha *= cardA; P.microSD(ctx, d.una[0], d.una[1] + 2, MM, { rot: -0.07 }); P.reflejo(ctx, (c) => { c.beginPath(); c.rect(d.una[0] - 5.5 * MM, d.una[1] - 7.5 * MM, 11 * MM, 15 * MM); }, t, { ancho: 30, a: 0.35, vel: 0.5 }); ctx.restore(); }
  };
- const avalancha = (ctx, t, tgt) => { for (const f of AVA) { const c = E.in(sm(1.55 + 0.35 * f.d, Tk.una - 0.04, t)); if (c >= 1) continue; let y = f.y0 + f.vy * t + 380 * t * t; y = ((y + 500) % 2900 + 2900) % 2900 - 500; const x = f.x0 + f.vx * t, ang = c * 5, rx = x - tgt[0], ry = y - tgt[1], k = 1 - c;
+ const avalancha = (ctx, t, tgt, capa) => { for (const f of AVA) { const c = E.in(sm(1.55 + 0.35 * f.d, Tk.una - 0.04, t)); if (c >= 1) continue; const atras = f.d < 0.6 && c <= 0; if ((capa === 'atras' && !atras) || (capa === 'delante' && atras)) continue; let y = f.y0 + f.vy * t + 380 * t * t; y = ((y + 500) % 2900 + 2900) % 2900 - 500; const x = f.x0 + f.vx * t, ang = c * 5, rx = x - tgt[0], ry = y - tgt[1], k = 1 - c;
    const px = tgt[0] + (rx * Math.cos(ang) - ry * Math.sin(ang)) * k, py = tgt[1] + (rx * Math.sin(ang) + ry * Math.cos(ang)) * k, s = f.s * Math.pow(k, 1.4) * (0.85 + 0.15 * (1 - c));
    if (s < 0.05) continue; const dib = (cc) => P.floppy35(cc, px, py, s, { rot: f.r0 + f.sp * t + c * 3, col: f.col }); if (f.s < 3.6 && c < 0.3) P.capaDesenfoque(ctx, 7, dib); else dib(ctx); } };
  const interiorV = (ctx, t) => { ctx.fillStyle = '#060c1f'; ctx.fillRect(0, 0, W, HH); P.resplandor(ctx, 540, 960, 900, '60,120,255', 0.35);
@@ -189,10 +189,10 @@
 
  B.push({ t0: 0, t1: S(6), in: { type: 'cut' }, draw(ctx, t) {
   if (PORTADA) { const cam = [1500, 1040, 3.4]; ctx.save(); P.aplicaCamara(ctx, cam); mundoV(ctx, 0); ctx.restore(); avalancha(ctx, 1.95, aPantalla(cam, CARD)); P.resplandor(ctx, 540, 960, 400, '255,210,120', 0.4); P.vineta(ctx, 0.55); return; }
-  if (t < ATRAV[0]) { const cam = camV(t), sh = sacude(t, [[Tk.una, 0.9]], 26); ctx.save(); P.aplicaCamara(ctx, cam, sh); mundoV(ctx, t); ctx.restore(); const tg = aPantalla(cam, CARD);
+  if (t < ATRAV[0]) { const cam = camV(t), sh = sacude(t, [[Tk.una, 0.9]], 26); const tg = aPantalla(cam, CARD); ctx.save(); P.aplicaCamara(ctx, cam, sh); mundoV(ctx, t, 1, 'fondo'); ctx.restore(); avalancha(ctx, t, tg, 'atras'); ctx.save(); P.aplicaCamara(ctx, cam, sh); mundoV(ctx, t, 1, 'dedo'); ctx.restore();   // v2.0b: parte de la avalancha cae DETRÁS del dedo (su punta redondeada se ve desde el fotograma 0)
    if (t > Tk.una - 0.1) P.resplandor(ctx, tg[0], tg[1], 260 * cam[2] / 3, '255,214,110', 0.55 * (1 - sm(Tk.una, S(2) + 0.6, t)) + 0.12);
    if (t >= Tk.esto2 - 0.1) { const a = sm(Tk.esto2 - 0.1, Tk.esto2 + 0.3, t); ctx.save(); P.aplicaCamara(ctx, cam); anillo(ctx, t, CARD[0], CARD[1], 84, a); ctx.restore(); }
-   avalancha(ctx, t, tg); P.particulas(ctx, t, { tipo: 'polvo', n: 50, a: 0.35, seed: 5 }); }
+   avalancha(ctx, t, tg, 'delante'); P.particulas(ctx, t, { tipo: 'polvo', n: 50, a: 0.35, seed: 5 }); }
   else if (t < ATRAV[1] + 0.02) { const cam = camV(ATRAV[0]); P.atravesar(ctx, t, ATRAV[0], ATRAV[1], (c) => { c.save(); P.aplicaCamara(c, cam); mundoV(c, t); c.restore(); }, (c) => interiorV(c, t), { centro: aPantalla(cam, CARD), zoom: 9 }); }
   else if (t < SALE[0]) interiorV(ctx, t);
   else if (t < SALE[1]) P.salir(ctx, t, SALE[0], SALE[1], (c) => interiorV(c, t), (c) => oficinaV(c, t, camOf(t)), { centro: aPantalla(camOf(t), [730, 1223]), zoom: 12 });
@@ -311,7 +311,8 @@
  // ---------- MONTAJE ----------
  const EP = PL.make({
   estilo: 'cartoon', capBorde: true, marca: { nombre: 'ASOMBROTECA' }, align: A, duration: DURATION, beats: B,
-  modo: 'viral',   // v2.0: sin música ni ambiente, etiquetas suaves; el «tin» (FX.clave) en el contador, «1 mega», «100 pisos», «300.000» y «1 km»
+  modo: 'viral', capOcultar: [[0, S(2) - 0.05]],   // v2.0b: durante el gancho, SOLO el titular; el subtítulo entra cuando termina
+    // v2.0: sin música ni ambiente; etiquetas y pausas mudas; el «tin» (FX.clave) en «1 mega», «100 pisos», «300.000» y «1 km»
   keywords: [],
   ambience(k) { k.noise(0, { dur: DURATION, color: 'brown', filter: 'lowpass', f: 400, gain: 0.02, a: 0.05, hold: DURATION - 2.5 }); },
   music(k) { MUS.piano(k, 0, S(18), { bpm: 84, gain: 0.7, strings: 0.6, chords: [['D3', 'F#3', 'A3', 'D4'], ['B2', 'D3', 'F#3', 'B3'], ['G2', 'B2', 'D3', 'G3'], ['A2', 'C#3', 'E3', 'A3']] }); MUS.pulso(k, S(19), DURATION, { bpm: 100, gain: 0.5, chords: [['D3', 'F#3', 'A3', 'D4'], ['G2', 'B2', 'D3', 'G3'], ['B2', 'D3', 'F#3', 'B3'], ['A2', 'C#3', 'E3', 'A3']] }); },

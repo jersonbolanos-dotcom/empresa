@@ -19,3 +19,11 @@ QC técnico del render completo de prueba: TODO CORRECTO (−14,0 LUFS, pico −
 | Piso de sonido entre frases | Baja de −45 dB en los 5 huecos (−55,1 · −82,9 · −65,9 · −84,2 · −84,0 dB) | ✔ |
 
 Quitado: un clic por disquete que caía, los tics del contador, los tics del lector y el tono agudo de `FX.pausa` en cada pausa de la voz (en modo viral las pausas quedan en silencio).
+
+## Corrección v2.0c (manos, gancho con un solo texto, dedo redondeado desde el fotograma 0, franja de la fuente)
+
+- Efectos de sonido en el clip: los mismos 4 (0,0 · 2,59 · 7,77 · 10,36 s), 3 en 0–10 s. Cambios bruscos: 1 (2,60 s). Fotograma 0: 100 %. Piso de sonido: baja de −45 dB en los 5 huecos.
+- Gancho (0–3,35 s): solo el titular «CABEN EN UNA UÑA»; el subtítulo entra con «¿Cómo pasamos…» (3,40 s).
+- El dedo redondeado (`P.dedoPP`) con la tarjeta en la uña se ve desde el fotograma 0: parte de la avalancha cae detrás del dedo.
+- La fuente de la cifra (36 px) lleva una franja oscura semitransparente detrás.
+- QC técnico del render completo: TODO CORRECTO (−14,0 LUFS, pico −1,7 dBTP, voz con 24/24 tramos idénticos).
