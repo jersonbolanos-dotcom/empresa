@@ -56,6 +56,8 @@
   if (t > T.lema + 0.7) P.finger(ctx, 610, lerp(1700, 1310, E.out(win(t, T.lema + 0.7, T.lema + 1.3))), 110, press * (1 - win(t, T.lema + 1.6, T.lema + 1.9)));
  }, sfx(k) { FX.sello(k, T.cierre + 0.1); FX.aparece(k, T.lema + 0.4, 700); FX.clic(k, T.lema + 1.45); k.play('ding', T.lema + 1.5, { f: 'A5', gain: 0.3 }); } });
 
+ // v1.43 · Personajes y manos predeterminados: P.personaje(ctx, t, x, y, alto, { tipo: 'adulto', expr: 'sorpresa', pose: 'celular' })
+ //        y P.manoV(ctx, 'frente', x, y, alto, { ancla: 'punta' }). Ver catalogo/personajes_v143.jpg.
  // ---------- 3 · EPISODIO ----------
  const EP = PL.make({
   skin: 'plana',              // 'plana' | 'oscura'

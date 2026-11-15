@@ -1,5 +1,12 @@
 # Guía de estilos y guion · PLANTILLA ASOMBROTECA v1.34
 
+> **v1.43 · Personajes y manos nuevos (predeterminados para TODOS los vídeos nuevos):**
+> 1. **Personajes:** `P.personaje(ctx, t, x, y, alto, { tipo, expr, pose })`, ilustración plana moderna con cuello, hombros, brazos con codo, manos que agarran de verdad, cara expresiva, pelo, ropa con detalles y sombra suave. Tipos: `adulto`, `adulta`, `nino`, `abuela`, `abuelo`, `conductor` (casco). Expresiones: `normal`, `sorpresa`, `susto`, `alegria`, `desesperacion`. Poses: `pie`, `senala`, `celular`, `cabeza`, `saluda`.
+> 2. **Manos con dedos de cerca:** cuando la mano del personaje se ve grande (plano cercano), sale con dedos (mano vectorial); las manos simples solo en planos lejanos (se decide solo; `dedos: true/false` lo fuerza).
+> 3. **Mano grande:** `P.manoV(ctx, pose, x, y, alto, { ancla, ang, espejo })`, dibujada con código: nítida a cualquier tamaño, con uñas, nudillos y sombra. Poses: `frente`, `lado_derecho`, `apunta_derecha`, `apunta_izquierda`, `abierta`, `puno`, `pulgar_arriba`, `pinza`, `sujeta_celular`, `sostiene_tarjeta`, `palma_arriba`, `toca`. Ya no se usa `P.manoImg` (imagen agrandada, borrosa) en vídeos nuevos.
+> 4. **Tamaño creíble y pantalla llena:** el personaje con su objeto ocupa ≥ 60 % del ancho; para eso, acercar la cámara (planos de medio cuerpo) en vez de dejarlo pequeño en una habitación vacía.
+> 5. Los episodios anteriores a la v1.43 se ven igual (los bloques viejos no cambian). Catálogo: `catalogo/personajes_v143.jpg`.
+
 > **v1.42 · Sonido de las etiquetas: el «tin» solo en los momentos clave (regla para TODOS los vídeos nuevos):**
 > 1. **Etiquetas normales casi mudas.** En `PL.make` va `etiquetas: 'suave'`: cada `FX.etiqueta` suena a −10 dB (o `etiquetas: 'silencio'`, sin sonido). El «ding» de `FX.revelar` también baja −10 dB.
 > 2. **El «tin» de siempre, solo 3-4 veces por vídeo**, con `FX.clave(k, t)`: la revelación más fuerte y los números o pasos importantes (p. ej. «1 · LA SAL», «2 · …»). Nunca en cada etiqueta.

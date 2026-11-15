@@ -1051,3 +1051,13 @@ Las manos de los vídeos salen ahora de la **hoja de manos ilustradas** del cana
 - `PL.make({ …, etiquetas: 'suave' })`: `FX.etiqueta` suena a −10 dB (y el «ding» de `FX.revelar` también). `etiquetas: 'silencio'`: `FX.etiqueta` no suena. Sin la opción (episodios viejos), el sonido es el de siempre.
 - `FX.clave(k, t)`: el «tin» de siempre (pop de 700 Hz + tic). Úsalo solo en 3-4 momentos clave por vídeo (la revelación, los números o pasos importantes).
 - Los golpes (`thud`, `FX.golpeSordo`, destellos) no cambian.
+
+## v1.43 · Personajes nuevos y mano vectorial (predeterminados)
+
+- `P.personaje(ctx, t, x, y, alto, o)` — x, y = pies en el suelo; alto = altura total en px. Devuelve `{ manoD, manoI, cabeza, k }` en px.
+  - `o.tipo`: `'adulto'` | `'adulta'` | `'nino'` | `'abuela'` | `'abuelo'` | `'conductor'`
+  - `o.expr`: `'normal'` | `'sorpresa'` | `'susto'` | `'alegria'` | `'desesperacion'`
+  - `o.pose`: `'pie'` | `'senala'` | `'celular'` | `'cabeza'` | `'saluda'` (o `manoD`/`manoI` a mano no; las poses ya colocan los brazos con codo)
+  - `o.ropa`, `o.ropa2` (pantalón o falda), `o.piel`, `o.pelo`, `o.mira` (−1..1), `o.seed`, `o.espejo`, `o.lentes`, `o.corbata`, `o.casco`, `o.pantalla` (color de la pantalla del celular), `o.objeto(ctx, x, y, ang, k)` (dibujo extra; en la pose `celular` se dibuja sobre la pantalla), `o.dedos` (true/false fuerza manos con dedos o simples; por defecto, con dedos cuando la mano mide más de ≈ 9 px de radio).
+- `P.manoV(ctx, pose, x, y, alto, o)` — mano vectorial grande. Poses: `frente`, `lado_derecho`, `apunta_derecha`, `apunta_izquierda`, `abierta`, `puno`, `pulgar_arriba`, `pinza`, `sujeta_celular`, `sostiene_tarjeta`, `palma_arriba`, `toca`, `relajada`. `o.ancla`: `'punta'` (punta del índice; por defecto), `'base'` (muñeca) o `'centro'`; `o.ang`, `o.espejo`, `o.piel`, `o.sombra` (false sin sombra), `o.objeto: { col, pantalla, dibujo(ctx, x, y, w, h) }` para el celular o la tarjeta.
+- Catálogo con todas las variantes, expresiones, poses y manos: `catalogo/personajes_v143.jpg`.
