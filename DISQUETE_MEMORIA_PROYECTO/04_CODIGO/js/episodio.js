@@ -203,7 +203,7 @@
   golpe(k, Tk.una, 1.1); k.play('pop', Tk.una, { f: 240, gain: 0.3 });   // «uña»: todo entra en la tarjeta (tras ~0,7 s de silencio)
   golpe(k, ATRAV[1] - 0.1, 0.8);   // el contador llega a 335.544 justo al entrar en la tarjeta (sube en silencio)
   const c0 = SALE[1] - 0.1, cd = Tk.lleno - 0.1 - c0; k.noise(c0, { dur: cd, filter: 'bandpass', f: [[0, 900], [cd * 0.3, 1250], [cd * 0.6, 820], [cd, 1150]], q: 2.5, gain: 0.07, a: 0.05, hold: cd * 0.85 }); k.tone(c0, { f: 95, type: 'sawtooth', dur: cd, gain: 0.025, filter: 'lowpass', f2: 400, a: 0.05, hold: cd * 0.8 });   // el lector: un solo ruido continuo
-  k.play('error', Tk.lleno, { gain: 0.45 }); k.tone(Tk.lleno, { f: 'A4', type: 'square', dur: 0.35, gain: 0.05, filter: 'lowpass', f2: 2000 });
+  k.tone(Tk.lleno, { f: 'A3', type: 'square', dur: 0.45, gain: 0.1, hold: 0.35, filter: 'lowpass', f2: 1400 }); k.tone(Tk.lleno, { f: 'A4', type: 'square', dur: 0.35, gain: 0.05, filter: 'lowpass', f2: 2000 });   // el error: UN solo sonido
  } });
  // ======================================================================================================================
  // v2.0 · RESTO DEL VIAJE — un solo mundo con la cámara viajando (2 cortes secos: 53,0 s y 59,7 s; 2 fogonazos: «uña» y el final)
@@ -245,10 +245,10 @@
  // ---------- la tarjeta: cámara en la uña, atravesar, celdas, celda grande, se encogen, edificio de capas ----------
  const camTarj = (t) => P.camino(t, [[SAL_DISCO[0], 1500, 1000, 3.4], [TARJ_IN[0], 1500, 1030, 4.2]]);
  const mundoCam = (ctx, t, cam) => { ctx.save(); P.aplicaCamara(ctx, cam); mundoV(ctx, t); ctx.restore(); const tg = aPantalla(cam, CARD); P.resplandor(ctx, tg[0], tg[1], 90 * cam[2], '255,214,110', 0.22); P.particulas(ctx, t, { tipo: 'polvo', n: 40, a: 0.3, seed: 5 }); };
- const escenaCelda = (ctx, t) => { fondoOscuro(ctx, '#070d1f'); P.resplandor(ctx, 540, 970, 760, '60,120,255', 0.28); celdaGrande(ctx, t, CELDA_X + 0.1, Tk.encerrada); };
- const escenaEncoge = (ctx, t) => { fondoOscuro(ctx, '#070d1f'); P.resplandor(ctx, 540, 970, 760, '60,120,255', 0.28); celdaEncoge(ctx, t, sm(ENCOGE_X + 0.2, Tk.achicarse + 0.3, t)); };
+ const escenaCelda = (ctx, t) => { fondoOscuro(ctx, '#070d1f'); P.resplandor(ctx, 540, 970, 760, '60,120,255', 0.28); ctx.save(); ctx.translate(0, -215); celdaGrande(ctx, t, CELDA_X + 0.1, Tk.encerrada); ctx.restore(); };
+ const escenaEncoge = (ctx, t) => { fondoOscuro(ctx, '#070d1f'); P.resplandor(ctx, 540, 970, 760, '60,120,255', 0.28); ctx.save(); ctx.translate(0, -215); celdaEncoge(ctx, t, sm(ENCOGE_X + 0.2, Tk.achicarse + 0.3, t)); ctx.restore(); };
  const pisosN = (t) => lerp(1, 162, E.in(sm(Tk.apilaron - 0.3, Tk.pisos - 0.05, t)));
- const escenaCapas = (ctx, t) => { fondoOscuro(ctx, '#070d1f'); P.resplandor(ctx, 540, 1250, 820, '60,140,255', 0.3); const cam = P.camino(t, [[CAPAS_X, 540, 1560, 1.3], [Tk.edificio, 540, 1520, 1.2], [Tk.cien, 540, 1020, 0.92], [S(18) + 0.7, 540, 1000, 0.9]]);
+ const escenaCapas = (ctx, t) => { fondoOscuro(ctx, '#070d1f'); P.resplandor(ctx, 540, 1250, 820, '60,140,255', 0.3); const cam = P.camino(t, [[CAPAS_X, 540, 1720, 1.6], [Tk.edificio, 540, 1560, 1.35], [Tk.cien, 540, 1080, 1.05], [S(18) + 0.7, 540, 1060, 1.03]]);
   ctx.save(); P.aplicaCamara(ctx, cam); capas(ctx, t, 540, 1800, pisosN(t), { hp: 5, w: 760, d: 360 }); ctx.restore(); P.particulas(ctx, t, { tipo: 'chispas', n: 24, a: 0.5, seed: 21 }); };
  const camPreg = (t) => P.camino(t, [[SAL_CAPAS[0], 1500, 1030, 3.0], [S(18) + 2.6, 1250, 1060, 1.15], [T_MONT, 1000, 1080, 0.86]]);
  const CONT_PISOS = (ctx, t) => { if (t < Tk.apilaron - 0.4 || t > SAL_CAPAS[0] + 0.2) return; const a = 1 - sm(SAL_CAPAS[0] - 0.2, SAL_CAPAS[0] + 0.2, t), v = Math.floor(pisosN(t)); P.contador(ctx, t, 540, 600, v, { t0: Tk.apilaron - 0.3, px: 112, final: 162, etiqueta: 'PISOS DE CELDAS', a }); if (v >= 162) P.fuenteCifra(ctx, 'Kioxia BiCS FLASH: 162 capas (2022)', 540, 735, { a: 0.92 * a }); };
@@ -278,7 +278,7 @@
   golpe(k, Tk.mega - 0.05, 0.8);
   const t0 = Tk.iman, d = S(13) - t0; k.noise(t0, { dur: d, color: 'brown', filter: 'bandpass', f: [[0, 160], [1.2, 320], [d, 260]], q: 1, gain: 0.07, a: 0.8, hold: d * 0.85 }); k.tone(t0, { f: [[0, 40], [1.2, 95], [d, 92]], type: 'sawtooth', dur: d, gain: 0.02, filter: 'lowpass', f2: 420, a: 0.8, hold: d * 0.85 });
   k.noise(Tk.sonaba - 0.6, { dur: 2.4, filter: 'bandpass', f: [[0, 800], [2.4, 1100]], q: 2.5, gain: 0.05, a: 0.9, hold: 1.2 });
-  k.noise(Tk.danarse, { dur: 0.6, filter: 'highpass', f: 3000, gain: 0.12, a: 0.005 }); k.play('error', Tk.danarse, { gain: 0.3 });
+  k.noise(Tk.danarse, { dur: 0.6, filter: 'highpass', f: 3000, gain: 0.12, a: 0.005 }); k.tone(Tk.danarse, { f: 'A3', type: 'square', dur: 0.4, gain: 0.07, hold: 0.3, filter: 'lowpass', f2: 1400 });
  } });
 
  // ---------- C · sale del disco a la uña, entra en la tarjeta (celdas, electricidad encerrada, se encogen, edificio) y vuelve a la uña ----------
@@ -296,6 +296,7 @@
   P.vineta(ctx, 0.5); P.grano(ctx, t, 0.05);
  }, sfx(k) {   // 2 sonidos: la electricidad que se encierra y el golpe del contador de pisos; después, silencio real hasta «Más de trescientos mil»
   FX.zumbido(k, Tk.electricidad, 1.6, 0.5); golpe(k, Tk.pisos - 0.05, 0.8);
+  const s0 = S(19) - 1.75, s1 = S(19) - 0.8; k.noise(s0, { dur: s1 - s0, color: 'brown', filter: 'lowpass', f: 220, gain: 0.012, a: 0.3, hold: s1 - s0 - 0.45 });   // murmullo grave (muy bajo, no cuenta como efecto) y luego 0,8 s de silencio real antes de la revelación
  } });
 
  // ---------- D · CORTE 1: de lado, la montaña de disquetes y la torre del kilómetro; la cámara sube y vuelve a bajar a la uña ----------
