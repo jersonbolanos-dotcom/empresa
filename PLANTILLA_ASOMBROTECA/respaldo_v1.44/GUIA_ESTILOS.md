@@ -1,0 +1,166 @@
+# Guía de estilos y guion · PLANTILLA ASOMBROTECA v1.34
+
+> **v1.43 · Personajes y manos nuevos (predeterminados para TODOS los vídeos nuevos):**
+> 1. **Personajes:** `P.personaje(ctx, t, x, y, alto, { tipo, expr, pose })`, ilustración plana moderna con cuello, hombros, brazos con codo, manos que agarran de verdad, cara expresiva, pelo, ropa con detalles y sombra suave. Tipos: `adulto`, `adulta`, `nino`, `abuela`, `abuelo`, `conductor` (casco). Expresiones: `normal`, `sorpresa`, `susto`, `alegria`, `desesperacion`. Poses: `pie`, `senala`, `celular`, `cabeza`, `saluda`.
+> 2. **Manos con dedos de cerca:** cuando la mano del personaje se ve grande (plano cercano), sale con dedos (mano vectorial); las manos simples solo en planos lejanos (se decide solo; `dedos: true/false` lo fuerza).
+> 3. **Mano grande:** `P.manoV(ctx, pose, x, y, alto, { ancla, ang, espejo })`, dibujada con código: nítida a cualquier tamaño, con uñas, nudillos y sombra. Poses: `frente`, `lado_derecho`, `apunta_derecha`, `apunta_izquierda`, `abierta`, `puno`, `pulgar_arriba`, `pinza`, `sujeta_celular`, `sostiene_tarjeta`, `palma_arriba`, `toca`. Ya no se usa `P.manoImg` (imagen agrandada, borrosa) en vídeos nuevos.
+> 4. **Tamaño creíble y pantalla llena:** el personaje con su objeto ocupa ≥ 60 % del ancho; para eso, acercar la cámara (planos de medio cuerpo) en vez de dejarlo pequeño en una habitación vacía.
+> 5. Los episodios anteriores a la v1.43 se ven igual (los bloques viejos no cambian). Catálogo: `catalogo/personajes_v143.jpg`.
+
+> **v1.42 · Sonido de las etiquetas: el «tin» solo en los momentos clave (regla para TODOS los vídeos nuevos):**
+> 1. **Etiquetas normales casi mudas.** En `PL.make` va `etiquetas: 'suave'`: cada `FX.etiqueta` suena a −10 dB (o `etiquetas: 'silencio'`, sin sonido). El «ding» de `FX.revelar` también baja −10 dB.
+> 2. **El «tin» de siempre, solo 3-4 veces por vídeo**, con `FX.clave(k, t)`: la revelación más fuerte y los números o pasos importantes (p. ej. «1 · LA SAL», «2 · …»). Nunca en cada etiqueta.
+> 3. **Los golpes fuertes no cambian** (explosiones, destellos, `thud`, `golpeSordo`): esos sí funcionan.
+> 4. Antes de entregar, contar los `FX.clave` del episodio (3-4) y decirlo en el resumen.
+> 5. Los episodios anteriores a la v1.42 suenan igual que siempre (sin `etiquetas`, el sonido es el clásico).
+
+> **v1.34 · Lo que funcionó en los 3 vídeos más vistos del canal (manda sobre todo lo demás):**
+> *Avión sin motores (303 mil) · submarino (235 mil) · rayo en un avión (46 mil).*
+> 1. **Tema: peligro en un medio de transporte**, tipo «¿Qué pasa si…?»: «¿Qué pasa si se apagan los motores de un avión?», «¿Qué pasa si un submarino se hunde demasiado?», «¿Qué pasa si un rayo cae en tu avión?». Otros medios: barco, tren, ascensor, teleférico, coche, cohete.
+> 2. **El espectador DENTRO de la situación**, en segunda persona: «Vas en un avión…», «Estás en un submarino a 300 metros…». **El peligro llega en los primeros 2 s** («…y se apagan los dos motores»).
+> 3. **Promesa de respuesta** justo después del peligro: «…y la explicación es sorprendente», «…y lo que pasa después no es lo que crees».
+> 4. **Un solo objeto grande y en movimiento desde el fotograma 0** (el avión, el submarino): ≥ 60 % del ancho, centrado en la zona segura, nada de media pantalla vacía (el QC lo marca como FALLO).
+> 5. **La pregunta escrita arriba** durante los primeros segundos (≈ 0-4 s), grande, en la franja superior de la zona segura y sin taparse con los subtítulos; desaparece antes de 5 s.
+> 6. **«Imagina…» solo si el peligro llega antes de los 2 s** («Imagina que vas en un avión y se apagan los motores.»). Si no, prohibido (como «En el año…» o «Antes de…»).
+> 7. **Un solo vídeo por defecto.** Se proponen 3 ganchos, el usuario elige UNO y se generan la voz y el vídeo solo con ese (`producir.py NOMBRE video`). Las 3 variantes (puntos 2-4 de la v1.29) son una opción, solo si se piden.
+>
+> Ejemplo de arranque: «Vas en un avión a 10.000 metros… y se apagan los dos motores. Lo que pasa después es sorprendente.» + la pregunta «¿QUÉ PASA SI SE APAGAN LOS MOTORES?» arriba + el avión grande planeando desde el fotograma 0.
+
+> **v1.29 · Ahorro de créditos y crecimiento (mandan sobre todo lo demás, junto con las v1.27):**
+> 1. **Una sola generación de voz por vídeo.** En ElevenLabs se pide UNA toma (`generations_count: 1`), nunca dos. El guion completo cabe en ≤ 1.300 caracteres (≈ 45-70 s). Si una pausa queda corta, se alarga con `[PAUSA x]`; si una palabra sale mal, se regenera solo ese tramo corto, nunca el audio entero.
+> 2. **Tres ganchos en el mismo audio** *(v1.34: OPCIONAL, solo si el usuario pide las 3 variantes; por defecto, un solo gancho y un solo vídeo)*. Los 3 ganchos van al principio del MISMO guion, separados por silencios, y se generan en esa única toma (≈ 200-300 créditos extra en total). En `tramos.txt` se marcan como `[GANCHO A]`, `[GANCHO B]` y `[GANCHO C]`. `producir.py NOMBRE variantes` monta 3 MP4: cada uno con su gancho + el mismo cuerpo. La voz sigue intacta: solo se eligen tramos, nunca se edita una muestra.
+> 3. **Variante sin gastar créditos.** Si no hay créditos para ganchos hablados, se hacen 3 variantes VISUALES con el mismo audio: cambia la imagen, el movimiento y la frase grande en pantalla de los primeros 2 s.
+> 4. **Probar antes de publicar.** Las 3 variantes se suben a Instagram como «Reel de prueba» (solo lo ven no seguidores). A las 24 h, la que más gente retuvo en los primeros 3 s se comparte al perfil y se sube a Facebook, YouTube y TikTok.
+> 5. **Sonido desde el fotograma 0 y hasta el último.** Nunca hay más de 0,5 s de silencio al principio ni más de 1 s al final: un efecto o un acorde de cierre suave acompaña la última imagen.
+> 6. **Pantalla llena.** El protagonista ocupa al menos el 60 % del ancho de la zona segura. Nada de media pantalla vacía. *(v1.34: y la escena centrada en la zona segura; el QC lo marca como FALLO. Usa `P.encuadrar`.)*
+> 7. **Nada encimado.** En transiciones y finales, un texto o contador desaparece del todo antes de que entre otro. Nada de flechas o elementos cortados en los bordes.
+> 8. **Datos a prueba de comentarios.** Cada cifra se comprueba en 2 fuentes, y los contadores cuadran con la suma de lo que muestran. Cuidado doble con deportes, récords y fechas: el público los conoce.
+> 9. **Temas que se comparten.** Vida diaria (móvil, comida, cuerpo, viajes, casa) y desmentir un mito («Tu móvil NO…», «Esto NO es…»). Si un formato funcionó en el canal, se repite con otro tema.
+> 10. **Portada fija.** Cada vídeo entrega `07_OUTPUT/portada.jpg` (1080×1920): fondo oscuro, 2-4 palabras gigantes con UNA en rojo y una etiqueta amarilla pequeña. Siempre la misma maqueta, para que el perfil se vea como una marca.
+> 11. **Textos de publicación.** Cada vídeo entrega `07_OUTPUT/PUBLICAR.md` con título y descripción para YouTube, Facebook, Instagram y TikTok. El gancho va como pregunta y NUNCA se da la respuesta. Se pide comentar, nunca «dale like» ni «comparte si…» (Meta lo castiga). De 3 a 5 hashtags.
+> 12. **Personas reales.** Sin fotos sin licencia: se dibujan con rasgos reconocibles (peinado, barba, número), sin copiar ninguna foto.
+>
+> **v1.27 · Reglas para más visualizaciones (mandan sobre todo lo demás):**
+> 1. **Zona segura de Instagram:** texto importante solo en 220 ≤ y ≤ 1450 y x ≤ 940. Subtítulos arriba (estilo `ios`, capY 330-520), una palabra clave por frase.
+> 2. **Gancho (0-2 s):** nada de «Imagina» (v1.34: salvo con el peligro antes de 2 s), «En el año…», «Antes de…». Contradicción, cifra imposible o algo en juego, en segunda persona. Movimiento desde el fotograma 0. Se proponen 3 ganchos y el usuario elige antes del guion.
+> 3. **Ángulo personal:** se cuenta desde la vida del espectador (tu móvil, tu casa, tu cuerpo, tu ciudad).
+> 4. **Pantalla limpia:** sin título fijo arriba; máximo 2 etiquetas a la vez de 1-3 palabras; avisos pequeños y breves.
+> 5. **Pausas dramáticas:** 3-4 silencios antes de las revelaciones (ElevenLabs Eleven v4, voz Dan, con `[short pause]`, `[long pause]` una vez y «…»; los corchetes nunca salen en los subtítulos). La animación se frena, la música baja y entra `FX.pausa`. v1.28: una pausa corta se alarga sin tocar la voz con una línea `[PAUSA x]` (0.3–1.0 s) en `tramos.txt`.
+> 6. **Duración:** 45-70 s (el QC avisa por debajo de 45 s y por encima de 75 s, y falla por encima de 90).
+> 7. **Cierre:** la última frase siempre es «Envíaselo a ese amigo que…» con `P.ctaShare`; «ASOMBROTECA» solo pequeño con `P.marca`; nunca «Sigue a Asombroteca».
+
+Lo que hace funcionar a los vídeos verticales de referencia, convertido en reglas y bloques de la plantilla.
+
+**Referencias analizadas (7 vídeos):**
+
+- ¿Por qué el fentanilo da tanto placer?
+- Lo que pasa cuando bebes de más (alcohol y memoria).
+- 1.000 botellas y una envenenada.
+- La batalla del castillo de Itter.
+- El teclado del iPhone.
+- La pantalla táctil.
+- El gancho del metro.
+
+Catálogo visual de todo lo nuevo: `catalogo/catalogo_v126.jpg`. Ejemplo ejecutable: `ejemplo_demo_v126/`.
+
+---
+
+## 1. Fórmula de guion (todas las referencias la siguen)
+
+| Paso | Qué es | Ejemplo de las referencias |
+|---|---|---|
+| 1. Gancho (≤ 2 s) | Pregunta o dato que parece imposible, en segunda persona | «¿Por qué…?», «Mil botellas para tu fiesta, y una está envenenada.» |
+| 2. Giro | Corrige la intuición: «No es X, es Y» | «No es que lo hayas olvidado, es que nunca llegó a grabarlo.» |
+| 3. Metáfora cotidiana | Un objeto conocido explica el mecanismo y se mantiene en todo el vídeo | cerradura y llave = receptor; grabadora = hipocampo; rejilla de cables = pantalla |
+| 4. Mecanismo en 2-4 pasos | Cada paso, una frase y una imagen; con cifras concretas | «Con 2 catadores, 4 combinaciones; con 10, 1.024.» |
+| 5. Consecuencia | Lo sorprendente que se deduce | «Por eso la pantalla se vuelve loca cuando llueve.» |
+| 6. Remate | Vuelve al gancho con una frase redonda | «Sienta tan bien por lo mismo que mata.» |
+| 7. Llamada a compartir | Siempre igual: «Envíaselo a ese amigo que…» + un tipo de persona concreto | «…que se sabe de memoria la Segunda Guerra Mundial.» |
+
+**Ritmo:**
+
+- Duración de 45 a 70 s (v1.27), a unas 3 palabras por segundo, con 3-4 pausas dramáticas de 0,4-1,0 s antes de cada revelación.
+- Frases cortas, casi sin subordinadas.
+- Segunda persona («tu cerebro», «tu móvil»).
+
+**Datos:**
+
+- Una cifra por frase como máximo, y siempre con unidad.
+- Cada dato lleva su fuente en `FUENTES_Y_DECISIONES.md`.
+
+---
+
+## 2. Reglas visuales extraídas
+
+1. **Una idea visual por frase.** Cada vez que la voz cambia de idea, cambia la imagen. Sin cortes bruscos: la cámara se acerca, se aleja o transforma un objeto en el siguiente. Las referencias tienen de 0 a 7 cortes en 30-97 s.
+2. **Metáfora sostenida.** El mismo objeto metafórico vuelve en varios planos: la cerradura aparece en el gancho, en el mecanismo y en el remate.
+3. **Personificación.** Moléculas, órganos y objetos llevan cara (`P.character`, `P.face`). El estado de ánimo cuenta la historia: dolor = bola de pinchos enfadada; placer = bola naranja feliz.
+4. **Texto en pantalla mínimo.** Solo etiquetas de 1-3 palabras (`P.tag`, píldora oscura con líneas guía) y cifras grandes (`P.statBig`, `P.hud`). El resto lo dicen la voz y los subtítulos.
+5. **Subtítulos arriba**, palabra a palabra (estilo `ios`):
+   - la palabra que suena, en blanco;
+   - lo ya dicho, en gris;
+   - lo que falta, muy tenue;
+   - la palabra clave, con recuadro de selección azul y asas redondas;
+   - si ayuda, un icono vectorial junto a la palabra clave (`capIcons: { mojadas: 'gota' }`).
+6. **Cifras como contador.** Los números cambian ante el espectador: contadores HUD, barras que crecen, cuadrículas de pictogramas que se rellenan.
+7. **Personas reales = fichas.** En historia, foto en ficha tipo polaroid con nombre (`P.dossier`), «?» para los que aún no se han presentado y un sello que golpea (`P.stamp`).
+8. **Cierre de compartir.** Un móvil con la vista previa del propio vídeo y la hoja de compartir. El dedo toca un contacto (aparece el visto azul), luego «Enviar», y queda «✓ Enviado» (`P.ctaShare` + `FX.compartir`).
+9. **Sonido:**
+   - un efecto por cada cambio visual: toque, pop, whoosh, sello…;
+   - música discreta bajo la voz, que manda (sidechain automático);
+   - −14 LUFS.
+
+---
+
+## 3. Estilos
+
+Se eligen con `PL.make({ estilo: '…' })`, que fija piel, subtítulos y posición. El fondo se pinta con `P.fondo(ctx, t)`.
+
+| Estilo | Para qué temas | Aspecto | Subtítulos | Bloques típicos | Referencia de origen |
+|---|---|---|---|---|---|
+| `cartoon` | salud, química, biología, para todos los públicos | degradados vivos (morado, turquesa) con bokeh | `ios` arriba | `P.character`, `P.keyLock`, `P.icon` relleno | placer/fentanilo |
+| `noche` | cuerpo humano, fiesta, memoria, misterio | casi negro con bokeh de colores y partículas | `ios` arriba | `P.filmStrip`, `P.recBadge`, `P.scrCamera`, `P.scrAlert` | alcohol y memoria |
+| `blueprint` | lógica, matemáticas, datos, puzzles | plano técnico azul con cuadrícula, letra monoespaciada | `mono` arriba (capY 430), clave en amarillo | `P.hud`, `P.iconGrid`, `P.dotMatrix`, `P.barsGrow`, `P.clockBP` | 1.000 botellas |
+| `dossier` | historia, guerra, crimen, biografías | documental oscuro, mapa cenital de bosque | `ios` arriba | `P.mapTop`, `P.dossier`, `P.stamp`, `P.emblem`, `P.scope` | castillo de Itter |
+| `producto` | cómo funciona un objeto cotidiano | negro con resplandor cálido y motas | `ios` arriba | `P.render3` (3D), `P.tag`, flechas | gancho del metro |
+| `tecno` | electrónica, pantallas, internet | gris carbón con brillos cian y dorados | `ios` arriba | `P.layerStack` (campo y lecturas), `P.keyboardUI`, `P.smartphone` | teclado, pantalla táctil |
+| `asombroteca` | estándar del canal (v1.27) | piel «plana» | `ios` arriba (capY 420), una palabra clave por frase | todos los anteriores | episodios 1-7, ahora en zona segura |
+| `viral` | alias de `noche` | | | | |
+
+**Combinar estilos dentro de un vídeo** (como hace la demo):
+
+- Cada escena puede pintar otro fondo: `P.fondo(ctx, t, 'blueprint')`.
+- Si necesita los colores de otra piel, cámbiala solo durante esa escena: `PL.setSkin('blueprint')` al empezar el `draw` y `PL.setSkin('cartoon')` al terminar.
+- Mantén un estilo principal y cambia solo con motivo, por ejemplo al pasar de la metáfora a los datos.
+
+---
+
+## 4. Bloques nuevos de la v1.26 (resumen)
+
+Firmas completas en `INSTRUCCIONES_PLANTILLA.md`, sección v1.26.
+
+- **Estilo y montaje:** `P.fondo`, `P.bokeh`, `P.motes`, `P.gridBP`, `PL.kit(A)` (quita el código repetido de cada episodio), `P.marca` (nombre del canal configurable) y `P.mini` (una escena reducida dentro de un rectángulo).
+- **Interfaz:**
+  - `P.avatar` (persona ilustrada por semilla);
+  - pantallas de móvil para `P.smartphone`: `P.scrShare`, `P.scrChat`, `P.scrLock`, `P.scrAlert`, `P.scrCamera`;
+  - `P.keyboardUI` y `P.ctaShare` (cierre completo).
+- **Datos:** `P.hud`, `P.iconGrid`, `P.dotMatrix`, `P.barsGrow`, `P.statBig`, `P.clockBP` y `P.icon` (49 iconos: `P.ICONOS`).
+- **Personajes y metáforas:** `P.face`, `P.character` (14 tipos), `P.keyLock`, `P.filmStrip` y `P.recBadge`.
+- **Historia:** `P.mapTop` (bosque, caminos, lugares, tropas y rutas), `P.dossier`, `P.stamp`, `P.emblem` y `P.scope`.
+- **Tecnología:** `P.layerStack` (corte por capas con campo eléctrico y lecturas que bajan al tocar).
+- **3D de producto:**
+  - mallas: `P.mesh.box`, `extrude`, `cyl`, `sphere` y `lathe`;
+  - render: `P.render3`, con luz suave, sombras de contacto, superficies de apoyo y pintura sobre caras.
+- **Sonido:** `FX.toque`, `FX.compartir`, `FX.llave`, `FX.latido`, `FX.chispa`, `FX.disparos`, `FX.tanque`, `FX.rec`, `FX.alertaMovil`, `FX.personaje` y `FX.pasarPagina`.
+
+---
+
+## 5. Lo que hacemos MEJOR que las referencias
+
+- **Exactitud física y de escala.** Hay comprobaciones automáticas y se rotula «ESQUEMÁTICO» cuando hace falta, en lugar de solo un aspecto bonito.
+- **Fuentes y licencias.** Están documentadas en cada proyecto, y las fotos llevan su fecha real y su crédito.
+- **Producción automática y reproducible:**
+  - los fotogramas se calculan solo a partir del tiempo, así que el resultado es idéntico en cada render;
+  - el control de calidad mide formato, sonoridad, pico real, negros, congelados, silencios y la huella de la voz, y comprueba que el render es idéntico.
+- **Nitidez.** Se entrega a 1080 × 1920; las referencias están a 720 × 1280.
+- **Ningún objeto flota.** Las sombras de contacto en el 3D y las superficies de apoyo lo garantizan.

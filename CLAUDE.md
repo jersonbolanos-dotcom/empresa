@@ -9,6 +9,14 @@ con resumen en español. Responder siempre en español.
 3. `PLANTILLA_ASOMBROTECA/CAMBIOS_PLANTILLA.md` — versión actual de la plantilla.
 4. El episodio más parecido como ejemplo (p. ej. `ASOMBROTECA_MACHU_PICCHU_PROYECTO/04_CODIGO/js/episodio.js`).
 
+## v2.0 · MODO VIRAL (manda sobre todo; ver el bloque v2.0 de `GUIA_ESTILOS.md` y las reglas 128–154 del SUPERPROMPT)
+- Vídeos nuevos con `PL.make({ modo: 'viral' })`. Fotograma 0 = la imagen más fuerte (una sola cosa, primerísimo plano, ya en acción); gancho de 2–4 s con la paradoja completa; segunda frase = segundo dato (sin promesas genéricas); un solo texto en el gancho.
+- Cadena de preguntas con re-ganchos cada 8–15 s, un «No es X: es Y», analogías de una frase (sin metáfora sostenida), ≥ 3 cifras verificadas como contadores con fuente en letra pequeña, remate que responde al título y último plano = fotograma 0. Duración 40–90 s.
+- Un solo mundo continuo (`P.camino`, `P.atravesar`), máximo 3 cortes y 2 fogonazos; primerísimo plano (solo los textos no se recortan); el objeto es el protagonista (personas con cara solo si la historia trata de personas; manos `P.manoR`, dedo `P.dedoPP`); luz y profundidad (`P.capaDesenfoque`, `P.resplandor`, `P.reflejo`, `P.vineta`, `P.grano`, `P.particulas`); paleta corta; titulares grandes `P.titular` en vez de etiquetas.
+- Sin música continua por defecto (o −10 dB con `musica: 'baja'`), silencio de 0,5–1,2 s antes de cada revelación, −14 LUFS. La voz es un parámetro del proyecto.
+- QC v2.0 (avisos): cambios bruscos > 3, protagonista en el fotograma 0 < 70 % del ancho, piso de sonido entre frases que nunca baja de −45 dB.
+- Sustituidas: corte directo en cada plano, «nada cortado en los bordes» (solo textos), personajes con reacción, metáfora sostenida, promesa de respuesta y el cierre «Envíaselo» obligatorio. Los episodios viejos no se rehacen y renderizan igual.
+
 ## Reglas fijas
 - Voz intocable (no alterar, sintetizar, acelerar ni recortar). El audio es el reloj maestro. Comprobar md5 de la voz.
 - 1080×1920, 30 fps, H.264 + AAC 48 kHz, < 100 MB, −14 LUFS, pico ≤ −1 dBTP.

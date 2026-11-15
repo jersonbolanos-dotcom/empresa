@@ -217,3 +217,31 @@ Si sientes que al prompt le falta algo para que el video se vea mejor, hazlo y e
 125. **MANO (v1.34).** En `senalar`/`tocar` el pulgar va al costado de la mano, tapado en parte por los dedos doblados. La pose `sujetar` NO se usa (aún no se ve natural): en las escenas con cargador se muestra solo el cargador y el cable, sin mano.
 126. **MANOS ILUSTRADAS (v1.35).** Toda mano del vídeo se hace con `P.manoImg(ctx, pose, x, y, alto, { ancla, ang, espejo })` y las 21 poses de la hoja del canal (catálogo `catalogo/manos_v135.jpg`); `P.mano` ya no se usa. Para señalar o tocar, ancla `'punta'` en el punto exacto. Para sostener, solo las poses con su objeto (celular, taza, tarjeta, bolígrafo); con cualquier otro objeto (un cargador), el objeto solo y sin mano. Alto ≤ ≈ 800 px. Créditos: «Manos: hoja de manos ilustradas aportada por el canal».
 127. **PERSONAJES Y MANOS (v1.43, MANDA SOBRE LA 126).** Todo personaje nuevo se dibuja con `P.personaje(ctx, t, x, y, alto, { tipo, expr, pose, … })` (adulto, adulta, niño, abuela, abuelo, conductor; expresiones normal, sorpresa, susto, alegría, desesperación; poses de pie, señala, celular, manos a la cabeza, saluda): con cuello, brazos con codo y manos que agarran. En planos cercanos las manos salen con dedos (mano vectorial) y en planos lejanos como manos simples. Toda mano grande se dibuja con `P.manoV(ctx, pose, x, y, alto, { ancla, ang, espejo })` (vectorial, nítida a cualquier tamaño); `P.manoImg` y los muñecos de los episodios viejos solo se mantienen para esos episodios. Catálogo: `catalogo/personajes_v143.jpg`.
+**v2.0 · MODO VIRAL (manda sobre todas las anteriores).** Quedan SUSTITUIDAS por la v2.0: «corte directo en cada cambio de plano», «nada cortado en los bordes» (ahora solo para textos, etiquetas y contadores), «personajes con reacción» (solo si la historia trata de personas), «metáfora sostenida», «promesa de respuesta» y el cierre «Envíaselo a ese amigo» obligatorio. Donde cualquier regla anterior choque con la v2.0, manda la v2.0. Los episodios anteriores no se rehacen y se renderizan igual.
+128. **GANCHO (v2.0).** El fotograma 0 es la imagen más fuerte del vídeo: una sola cosa, en primerísimo plano, ya en acción. Sin escena de presentación ni personajes de pie.
+129. **GANCHO (v2.0).** La frase gancho dura de 2 a 4 s y contiene la paradoja completa (creencia rota · «¿Sabías que…?» con algo que parece imposible · paradoja con un hecho real · dos números que chocan).
+130. **GANCHO (v2.0).** La segunda frase es un segundo dato concreto que agranda el misterio. Prohibidas las promesas genéricas («te va a sorprender», «tiene un secreto», «lo que nadie sabe»).
+131. **GANCHO (v2.0).** Un solo texto en pantalla durante el gancho: lo que se oye es lo que se lee. La pregunta fija de arriba solo se usa si no coincide con el subtítulo.
+132. **GANCHO (v2.0).** Si el tema tiene una medida que cambia, se muestra como contador desde el segundo 0 (`P.contador`).
+133. **GUION (v2.0).** Estructura de cadena de preguntas con un re-gancho cada 8 a 15 s («Y lo más raro:», «Pero…», «¿Y para qué?»).
+134. **GUION (v2.0).** Un giro «No es X: es Y» en el centro o en el remate.
+135. **GUION (v2.0).** Analogías de una frase (3 a 5 s) en el paso difícil. Sin metáfora sostenida.
+136. **GUION (v2.0).** Al menos tres cifras verificadas en dos fuentes, dichas en la voz y mostradas como contadores. La fuente de la cifra principal va en letra pequeña en pantalla (`P.fuenteCifra`).
+137. **GUION (v2.0).** Remate: la última frase responde al título y el último plano repite la composición del fotograma 0.
+138. **GUION (v2.0).** Llamada a la acción dentro de la última frase o ninguna. Tres variantes para alternar: solo el remate; una pregunta que se contesta con un dato personal; «Sígueme, y envíaselo a…» en una frase.
+139. **GUION (v2.0).** Duración libre entre 40 y 90 s según lo que aguante la cadena.
+140. **IMAGEN (v2.0).** Un solo mundo continuo por vídeo. La cámara viaja (`P.camino`); los interiores se revelan atravesando el objeto con un acercamiento (`P.atravesar`). Como máximo 3 cortes secos, reservados para analogías.
+141. **IMAGEN (v2.0).** Primerísimo plano: el protagonista puede ser más grande que la pantalla. Lo que nunca se recorta es el texto ni la parte que se está explicando.
+142. **IMAGEN (v2.0).** El objeto es el protagonista. Personas con cara solo si la historia trata de personas. Manos y dedos, en primer plano y con el dibujo realista nuevo (`P.manoR`, `P.dedoPP`).
+143. **IMAGEN (v2.0).** Profundidad y luz en todos los planos: capas con fondo desenfocado, brillos, resplandor, viñeta, textura y partículas (`P.capaDesenfoque`, `P.resplandor`, `P.reflejo`, `P.vineta`, `P.grano`, `P.particulas`).
+144. **IMAGEN (v2.0).** Paleta corta por vídeo: un fondo y uno o dos colores de acento.
+145. **IMAGEN (v2.0).** Titular por idea: 2 a 4 palabras en mayúsculas, grandes, con una palabra de color (`P.titular`). Sustituye a las etiquetas técnicas pequeñas.
+146. **IMAGEN (v2.0).** Fogonazos a pantalla completa: como máximo 2 por vídeo.
+147. **SONIDO Y VOZ (v2.0).** Sin música continua por defecto, o 10 dB más baja que antes (`PL.make({ modo: 'viral' })` la quita; `musica: 'baja'` la deja a −10 dB). Efectos solo ligados a lo que pasa en pantalla.
+148. **SONIDO Y VOZ (v2.0).** Silencio de 0,5 a 1,2 s antes de cada revelación, sin nada sonando.
+149. **SONIDO Y VOZ (v2.0).** Volumen final igual que antes: −14 LUFS.
+150. **SONIDO Y VOZ (v2.0).** La voz es un parámetro del proyecto, para poder comparar voces.
+151. **CONTROL DE CALIDAD (v2.0).** Contar cambios bruscos de pantalla y avisar si pasan de 3.
+152. **CONTROL DE CALIDAD (v2.0).** Comprobar que en el fotograma 0 el protagonista cubre al menos el 70 % del ancho.
+153. **CONTROL DE CALIDAD (v2.0).** Medir el piso de sonido entre frases y avisar si nunca baja de −45 dB.
+154. **CONTROL DE CALIDAD (v2.0).** La regla «nada cortado en los bordes» pasa a aplicarse solo a textos, etiquetas y contadores.

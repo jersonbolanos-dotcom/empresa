@@ -1,5 +1,41 @@
 # Guía de estilos y guion · PLANTILLA ASOMBROTECA v1.34
 
+> **v2.0 · MODO VIRAL (manda sobre todo lo demás). Aprendizajes de 10 vídeos virales (`APRENDIZAJES_10_VIRALES_v2.md`). Se activa con `PL.make({ modo: 'viral' })`.**
+> Quedan SUSTITUIDAS por la v2.0: «corte directo en cada cambio de plano», «nada cortado en los bordes» (ahora solo para textos, etiquetas y contadores), «personajes con reacción» (solo si la historia trata de personas), «metáfora sostenida», «promesa de respuesta» y el cierre «Envíaselo a ese amigo» obligatorio. Donde cualquier regla anterior choque con la v2.0, manda la v2.0. Los episodios anteriores no se rehacen y se renderizan igual.
+> **GANCHO**
+> 1. El fotograma 0 es la imagen más fuerte del vídeo: una sola cosa, en primerísimo plano, ya en acción. Sin escena de presentación ni personajes de pie.
+> 2. La frase gancho dura de 2 a 4 s y contiene la paradoja completa (creencia rota · «¿Sabías que…?» con algo que parece imposible · paradoja con un hecho real · dos números que chocan).
+> 3. La segunda frase es un segundo dato concreto que agranda el misterio. Prohibidas las promesas genéricas («te va a sorprender», «tiene un secreto», «lo que nadie sabe»).
+> 4. Un solo texto en pantalla durante el gancho: lo que se oye es lo que se lee. La pregunta fija de arriba solo se usa si no coincide con el subtítulo.
+> 5. Si el tema tiene una medida que cambia, se muestra como contador desde el segundo 0 (`P.contador`).
+> **GUION**
+> 6. Estructura de cadena de preguntas con un re-gancho cada 8 a 15 s («Y lo más raro:», «Pero…», «¿Y para qué?»).
+> 7. Un giro «No es X: es Y» en el centro o en el remate.
+> 8. Analogías de una frase (3 a 5 s) en el paso difícil. Sin metáfora sostenida.
+> 9. Al menos tres cifras verificadas en dos fuentes, dichas en la voz y mostradas como contadores. La fuente de la cifra principal va en letra pequeña en pantalla (`P.fuenteCifra`).
+> 10. Remate: la última frase responde al título y el último plano repite la composición del fotograma 0.
+> 11. Llamada a la acción dentro de la última frase o ninguna. Tres variantes para alternar: solo el remate; una pregunta que se contesta con un dato personal; «Sígueme, y envíaselo a…» en una frase.
+> 12. Duración libre entre 40 y 90 s según lo que aguante la cadena.
+> **IMAGEN**
+> 13. Un solo mundo continuo por vídeo. La cámara viaja (`P.camino`); los interiores se revelan atravesando el objeto con un acercamiento (`P.atravesar`). Como máximo 3 cortes secos, reservados para analogías.
+> 14. Primerísimo plano: el protagonista puede ser más grande que la pantalla. Lo que nunca se recorta es el texto ni la parte que se está explicando.
+> 15. El objeto es el protagonista. Personas con cara solo si la historia trata de personas. Manos y dedos, en primer plano y con el dibujo realista nuevo (`P.manoR`, `P.dedoPP`).
+> 16. Profundidad y luz en todos los planos: capas con fondo desenfocado, brillos, resplandor, viñeta, textura y partículas (`P.capaDesenfoque`, `P.resplandor`, `P.reflejo`, `P.vineta`, `P.grano`, `P.particulas`).
+> 17. Paleta corta por vídeo: un fondo y uno o dos colores de acento.
+> 18. Titular por idea: 2 a 4 palabras en mayúsculas, grandes, con una palabra de color (`P.titular`). Sustituye a las etiquetas técnicas pequeñas.
+> 19. Fogonazos a pantalla completa: como máximo 2 por vídeo.
+> **SONIDO Y VOZ**
+> 20. Sin música continua por defecto, o 10 dB más baja que antes (`PL.make({ modo: 'viral' })` la quita; `musica: 'baja'` la deja a −10 dB). Efectos solo ligados a lo que pasa en pantalla.
+> 21. Silencio de 0,5 a 1,2 s antes de cada revelación, sin nada sonando.
+> 22. Volumen final igual que antes: −14 LUFS.
+> 23. La voz es un parámetro del proyecto, para poder comparar voces.
+> **CONTROL DE CALIDAD**
+> 24. Contar cambios bruscos de pantalla y avisar si pasan de 3.
+> 25. Comprobar que en el fotograma 0 el protagonista cubre al menos el 70 % del ancho.
+> 26. Medir el piso de sonido entre frases y avisar si nunca baja de −45 dB.
+> 27. La regla «nada cortado en los bordes» pasa a aplicarse solo a textos, etiquetas y contadores.
+
+
 > **v1.43 · Personajes y manos nuevos (predeterminados para TODOS los vídeos nuevos):**
 > 1. **Personajes:** `P.personaje(ctx, t, x, y, alto, { tipo, expr, pose })`, ilustración plana moderna con cuello, hombros, brazos con codo, manos que agarran de verdad, cara expresiva, pelo, ropa con detalles y sombra suave. Tipos: `adulto`, `adulta`, `nino`, `abuela`, `abuelo`, `conductor` (casco). Expresiones: `normal`, `sorpresa`, `susto`, `alegria`, `desesperacion`. Poses: `pie`, `senala`, `celular`, `cabeza`, `saluda`.
 > 2. **Manos con dedos de cerca:** cuando la mano del personaje se ve grande (plano cercano), sale con dedos (mano vectorial); las manos simples solo en planos lejanos (se decide solo; `dedos: true/false` lo fuerza).
