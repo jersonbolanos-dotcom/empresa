@@ -161,7 +161,7 @@
  const VCOL = ['#2b2f36', '#3a5fb0', '#2b2f36', '#59606e', '#3a5fb0', '#23262d'];
  const DEDO_P = [1500, 900], DEDO_AN = 150, MM = 7.2, CARD = [1500, 900 + DEDO_AN * 0.45], DISQ = [500, 1100], DISQ_S = 8.5;
  const AVA = (() => { const R = RNG(2024), out = []; for (let i = 0; i < 46; i++) out.push({ x0: R() * 1300 - 110, y0: R() * 2700 - 400, vy: 700 + R() * 600, vx: (R() - 0.5) * 220, r0: R() * 6, sp: (R() - 0.5) * 3.2, s: 2.6 + R() * 4.2, col: VCOL[i % VCOL.length], d: R() }); return out.sort((a, b) => a.s - b.s); })();
- const camV = (t) => P.camino(t, [[0, 1500, 1040, 3.0], [1.7, 1500, 1040, 3.25], [Tk.una, 1500, 1045, 3.7], [S(2), 1500, 1050, 4.1], [Tk.esto1 - 0.15, 500, 1100, 1.12], [Tk.esto2 - 0.35, 520, 1100, 1.06], [Tk.esto2 + 0.25, 1020, 1080, 0.58], [S(4), 1020, 1075, 0.6]]);
+ const camV = (t) => P.camino(t, [[0, 1500, 1040, 3.0], [1.7, 1500, 1040, 3.25], [Tk.una, 1500, 1045, 3.7], [S(2), 1500, 1050, 4.1], [Tk.esto1 - 0.15, 500, 1100, 1.12], [Tk.esto2 - 0.35, 520, 1100, 1.06], [Tk.esto2 + 0.3, 1500, 933, 3.6], [S(4), 1500, 940, 3.75]]);
  const aPantalla = (cam, p) => [(p[0] - cam[0]) * cam[2] + 540, (p[1] - cam[1]) * cam[2] + 960];
  const mesaOscura = (ctx) => { ctx.fillStyle = '#10121a'; ctx.fillRect(-3000, -3000, 8000, 9000); ctx.strokeStyle = 'rgba(255,255,255,0.025)'; ctx.lineWidth = 6; for (let y = -1000; y < 4000; y += 46) { ctx.beginPath(); ctx.moveTo(-1000, y); ctx.bezierCurveTo(600, y + 18, 1400, y - 14, 3200, y + 10); ctx.stroke(); } };
  const mundoV = (ctx, t, cardA = 1) => {
@@ -184,29 +184,26 @@
   pcBeige(ctx, t, 540, 1320, 1.0, { led: t < Tk.lleno && t > S(5) && Math.sin(t * 14) > 0 ? 1 : 0, disco: '#3a5fb0', pantalla: pantallaCopia(p, err) }); ctx.restore();
   ctx.fillStyle = 'rgba(8,10,24,0.5)'; ctx.fillRect(0, 0, W, HH); const led = aPantalla(cam, [640, 1242]); P.resplandor(ctx, led[0], led[1], 180 * cam[2], '60,255,110', t < Tk.lleno && Math.sin(t * 14) > 0 ? 0.45 : 0.1); const scr = aPantalla(cam, [540, 860]); P.resplandor(ctx, scr[0], scr[1], 420 * cam[2], '120,190,255', 0.22); };
  const TIT = (ctx, t) => P.titular(ctx, 'CABEN EN UNA UÑA', 540, 480, t, -0.3, S(2) - 0.1, { px: 96, clave: 'UÑA', col: '#ff3b3b' });
- const CONT = (ctx, t) => { const t0 = Tk.esto2 + 0.15, v = Math.round(335544 * E.out(sm(t0, t0 + 1.7, t))), a = 1 - sm(S(5) - 0.5, S(5) - 0.15, t); if (t < t0 - 0.2 || a <= 0) return; P.contador(ctx, t, 540, 570, v, { t0, px: 128, final: 335544, etiqueta: 'DISQUETES QUE CABEN', a }); if (v >= 335544) P.fuenteCifra(ctx, 'Cálculo: ECMA-125 (1,44 MB) y tarjeta de 512 GB', 540, 765, { a: 0.92 * a }); };
+ const CONT = (ctx, t) => { const t0 = Tk.esto2 + 0.15, v = Math.round(335544 * E.out(sm(t0, ATRAV[1] - 0.1, t))), a = 1 - sm(S(5) - 0.5, S(5) - 0.15, t); if (t < t0 - 0.2 || a <= 0) return; P.contador(ctx, t, 540, 570, v, { t0, px: 128, final: 335544, etiqueta: 'DISQUETES QUE CABEN', a }); if (v >= 335544) P.fuenteCifra(ctx, 'Cálculo: ECMA-125 (1,44 MB) y tarjeta de 512 GB', 540, 765, { a: 0.92 * a }); };
  const ATRAV = [S(4) - 0.05, S(4) + 1.25], SALE = [S(5) - 0.25, S(5) + 0.85];
 
  B.push({ t0: 0, t1: S(6), in: { type: 'cut' }, draw(ctx, t) {
   if (PORTADA) { const cam = [1500, 1040, 3.4]; ctx.save(); P.aplicaCamara(ctx, cam); mundoV(ctx, 0); ctx.restore(); avalancha(ctx, 1.95, aPantalla(cam, CARD)); P.resplandor(ctx, 540, 960, 400, '255,210,120', 0.4); P.vineta(ctx, 0.55); return; }
   if (t < ATRAV[0]) { const cam = camV(t), sh = sacude(t, [[Tk.una, 0.9]], 26); ctx.save(); P.aplicaCamara(ctx, cam, sh); mundoV(ctx, t); ctx.restore(); const tg = aPantalla(cam, CARD);
    if (t > Tk.una - 0.1) P.resplandor(ctx, tg[0], tg[1], 260 * cam[2] / 3, '255,214,110', 0.55 * (1 - sm(Tk.una, S(2) + 0.6, t)) + 0.12);
-   if (t >= Tk.esto2 - 0.1) { const a = sm(Tk.esto2 - 0.1, Tk.esto2 + 0.3, t); ctx.save(); P.aplicaCamara(ctx, cam); anillo(ctx, t, CARD[0], CARD[1], 105, a); ctx.restore(); }
+   if (t >= Tk.esto2 - 0.1) { const a = sm(Tk.esto2 - 0.1, Tk.esto2 + 0.3, t); ctx.save(); P.aplicaCamara(ctx, cam); anillo(ctx, t, CARD[0], CARD[1], 84, a); ctx.restore(); }
    avalancha(ctx, t, tg); P.particulas(ctx, t, { tipo: 'polvo', n: 50, a: 0.35, seed: 5 }); }
-  else if (t < ATRAV[1] + 0.02) { const cam = camV(ATRAV[0]); P.atravesar(ctx, t, ATRAV[0], ATRAV[1], (c) => { c.save(); P.aplicaCamara(c, cam); mundoV(c, t); c.restore(); }, (c) => interiorV(c, t), { centro: aPantalla(cam, CARD), zoom: 26 }); }
+  else if (t < ATRAV[1] + 0.02) { const cam = camV(ATRAV[0]); P.atravesar(ctx, t, ATRAV[0], ATRAV[1], (c) => { c.save(); P.aplicaCamara(c, cam); mundoV(c, t); c.restore(); }, (c) => interiorV(c, t), { centro: aPantalla(cam, CARD), zoom: 9 }); }
   else if (t < SALE[0]) interiorV(ctx, t);
   else if (t < SALE[1]) P.salir(ctx, t, SALE[0], SALE[1], (c) => interiorV(c, t), (c) => oficinaV(c, t, camOf(t)), { centro: aPantalla(camOf(t), [730, 1223]), zoom: 12 });
   else { const cam = camOf(t); cam[4] = t < Tk.lector + 0.35 ? 1 : 0; const sh = sacude(t, [[Tk.lleno, 0.5]], 18); cam[0] -= sh[0] / cam[2]; oficinaV(ctx, t, cam); }
   fogonazo(ctx, t, [[Tk.una, 0.55]]); TIT(ctx, t); CONT(ctx, t); P.vineta(ctx, 0.5); P.grano(ctx, t, 0.05);
- }, sfx(k) {
-  const R = RNG(31); for (let x = 0.02; x < 1.55; x += 0.035 + R() * 0.05) k.play('tock', x, { f: 520 + R() * 500, gain: 0.07 + R() * 0.08, pan: R() - 0.5, minor: true });
-  k.noise(0, { dur: 1.7, color: 'brown', filter: 'lowpass', f: 700, gain: 0.16, a: 0.01, hold: 1.3 });
-  k.play('whoosh', Tk.una - 0.75, { dur: 0.75, top: 2200, gain: 0.18, minor: true }); golpe(k, Tk.una, 1.1); k.play('pop', Tk.una + 0.03, { f: 240, gain: 0.3 });
-  k.play('swish', S(2) + 0.1, { dur: 0.6, gain: 0.3, minor: true }); k.play('swish', Tk.esto2 - 0.3, { dur: 0.5, gain: 0.3, minor: true });
-  const t0 = Tk.esto2 + 0.15; for (let x = 0; x < 1.7; x += 0.055) k.play('tick', t0 + x, { f: 2200 + x * 900, gain: 0.05, minor: true }); FX.clave(k, t0 + 1.7);
-  k.play('whoosh', ATRAV[0], { dur: ATRAV[1] - ATRAV[0], top: 2600, gain: 0.35, minor: true }); k.play('thud', ATRAV[1] - 0.1, { f: 45, gain: 0.5 }); FX.zumbido(k, ATRAV[1], SALE[0] - ATRAV[1], 0.5);
-  k.play('whoosh', SALE[0], { dur: SALE[1] - SALE[0], top: 1800, gain: 0.3, minor: true });
-  crrr(k, SALE[1] - 0.1, Tk.lleno - 0.1, 1.1); for (let x = SALE[1]; x < Tk.lleno; x += 0.36) k.play('tick', x, { f: 2600, gain: 0.05, minor: true }); k.play('error', Tk.lleno, { gain: 0.45 }); k.tone(Tk.lleno, { f: 'A4', type: 'square', dur: 0.35, gain: 0.05, filter: 'lowpass', f2: 2000 });
+ }, sfx(k) {   // v2.0 · un sonido solo cuando pasa algo IMPORTANTE (nunca por objeto, partícula o número): 4 en los 12 primeros segundos
+  k.noise(0, { dur: 1.85, color: 'pink', filter: 'bandpass', f: [[0, 2600], [1.85, 1300]], q: 0.7, gain: 0.13, a: 0.02, hold: 1.2 }); k.noise(0, { dur: 1.85, color: 'brown', filter: 'lowpass', f: 600, gain: 0.14, a: 0.02, hold: 1.2 });   // la avalancha: UN «crash» continuo y suave
+  golpe(k, Tk.una, 1.1); k.play('pop', Tk.una, { f: 240, gain: 0.3 });   // «uña»: todo entra en la tarjeta (tras ~0,7 s de silencio)
+  golpe(k, ATRAV[1] - 0.1, 0.8);   // el contador llega a 335.544 justo al entrar en la tarjeta (sube en silencio)
+  const c0 = SALE[1] - 0.1, cd = Tk.lleno - 0.1 - c0; k.noise(c0, { dur: cd, filter: 'bandpass', f: [[0, 900], [cd * 0.3, 1250], [cd * 0.6, 820], [cd, 1150]], q: 2.5, gain: 0.07, a: 0.05, hold: cd * 0.85 }); k.tone(c0, { f: 95, type: 'sawtooth', dur: cd, gain: 0.025, filter: 'lowpass', f2: 400, a: 0.05, hold: cd * 0.8 });   // el lector: un solo ruido continuo
+  k.play('error', Tk.lleno, { gain: 0.45 }); k.tone(Tk.lleno, { f: 'A4', type: 'square', dur: 0.35, gain: 0.05, filter: 'lowpass', f2: 2000 });
  } });
  // ---------- 5 · Un disquete guardaba UN POCO MÁS DE UN MEGA. → el disquete de cerca y su «medidor» casi vacío ← «tin» 1 ----------
  B.push({ t0: S(6), t1: S(7), in: { type: 'cut' }, draw(ctx, t) {

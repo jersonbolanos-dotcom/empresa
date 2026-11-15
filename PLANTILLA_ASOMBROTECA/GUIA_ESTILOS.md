@@ -29,10 +29,12 @@
 > 21. Silencio de 0,5 a 1,2 s antes de cada revelación, sin nada sonando.
 > 22. Volumen final igual que antes: −14 LUFS.
 > 23. La voz es un parámetro del proyecto, para poder comparar voces.
+> 23b. (v2.0b) **Pocos sonidos:** un efecto solo cuando pasa algo IMPORTANTE en pantalla, nunca uno por objeto, partícula o número. Una avalancha o un montón de cosas = UN solo sonido continuo y suave (un «crash»), no un clic por objeto. Los contadores suben EN SILENCIO y suena un golpe solo al llegar a la cifra final. El «tin» (`FX.clave`) como máximo 3-4 veces en todo el vídeo, en las revelaciones. En modo viral las etiquetas y las pausas no suenan.
 > **CONTROL DE CALIDAD**
 > 24. Contar cambios bruscos de pantalla y avisar si pasan de 3.
 > 25. Comprobar que en el fotograma 0 el protagonista cubre al menos el 70 % del ancho.
 > 26. Medir el piso de sonido entre frases y avisar si nunca baja de −45 dB.
+> 26b. (v2.0b) Contar los efectos de sonido por cada 10 s (inicios en la pista de efectos; un sonido continuo cuenta una vez) y avisar si pasan de 3; contar los `FX.clave` y avisar si pasan de 4.
 > 27. La regla «nada cortado en los bordes» pasa a aplicarse solo a textos, etiquetas y contadores.
 
 

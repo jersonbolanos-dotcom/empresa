@@ -395,7 +395,35 @@ def qc_viral(P, a, out, ll):
         except Exception as e:
             piso = None
     filas.append(('AVISO viral · piso de sonido entre frases (debe bajar de −45 dB)', 'sin datos' if piso is None else f'mínimo {piso[0]:.1f} dB en {piso[1]} huecos' + (' · AVISO: nunca baja de −45 dB' if piso[0] > -45 else ''), True))
+    ef = efectos_sonido(os.path.join(P, '05_AUDIO', 'efectos_sonido.wav'))
+    if ef is not None:
+        dur = max(ef + [0.0]); ven = [sum(1 for x in ef if 10 * i <= x < 10 * (i + 1)) for i in range(int(dur // 10) + 1)]
+        malos = [f'{10 * i}-{10 * (i + 1)} s: {n}' for i, n in enumerate(ven) if n > 3]
+        filas.append(('AVISO viral · efectos de sonido por cada 10 s (máx. 3)', f'{len(ef)} efectos; máx. {max(ven) if ven else 0} en 10 s' + (' · AVISO: ' + ', '.join(malos) if malos else ''), True))
+    ep = os.path.join(P, '04_CODIGO', 'js', 'episodio.js')
+    if os.path.exists(ep):
+        nc = len(re.findall(r'FX\.clave\(', open(ep, encoding='utf-8').read()))
+        filas.append(('AVISO viral · «tin» (FX.clave) en todo el vídeo (máx. 4)', f'{nc}' + (' · AVISO: más de 4' if nc > 4 else ''), True))
     return filas
+
+
+def efectos_sonido(wav, umbral=-50.0, salto=10.0, sep=0.25):
+    # v2.0 · instantes en que EMPIEZA un efecto en la pista de efectos: el nivel (RMS en bloques de 10 ms) supera el umbral
+    # y sube ≥ 10 dB sobre el mínimo de los 150 ms anteriores. Un sonido continuo (la avalancha, el lector) cuenta una sola vez.
+    if not os.path.exists(wav):
+        return None
+    try:
+        import numpy as np
+        sr = 48000; raw = subprocess.run(['ffmpeg', '-v', 'error', '-i', wav, '-ac', '1', '-ar', str(sr), '-f', 's16le', '-'], capture_output=True).stdout
+        x = np.frombuffer(raw, dtype=np.int16).astype(np.float64) / 32768; b = int(0.01 * sr); n = len(x) // b
+        lv = 20 * np.log10(np.sqrt((x[:n * b].reshape(n, b) ** 2).mean(axis=1)) + 1e-9)
+        out = []; ult = -9
+        for i in range(15, n):
+            if lv[i] > umbral and lv[i] - lv[i - 15:i].min() >= salto and i * 0.01 - ult >= sep:
+                out.append(round(i * 0.01, 2)); ult = i * 0.01
+        return out
+    except Exception:
+        return None
 
 
 def silencios_borde(out, dur):
