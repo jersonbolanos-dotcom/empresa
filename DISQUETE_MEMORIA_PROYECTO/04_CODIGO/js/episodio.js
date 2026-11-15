@@ -1,5 +1,5 @@
 // =====================================================================================================
-// episodio.js — Del disquete a las memorias diminutas · PLANTILLA ASOMBROTECA v1.42 · «cartoon» (oficina de los 90 → hoy)
+// episodio.js — Del disquete a las memorias diminutas · PLANTILLA ASOMBROTECA v2.0 (modo viral) · «cartoon» (oficina de los 90 → hoy)
 // UN solo vídeo con UN gancho (v1.34): el C en segunda persona («Todos tus disquetes… hoy caben en una uña»).
 // Voz: ElevenLabs Eleven v4, Dan, UNA toma (938 caracteres, 63,7 s), voz intacta.
 // Metáfora sostenida: LA BIBLIOTECA QUE SE ENCOGE (el disquete, una biblioteca redonda que gira con un bibliotecario-imán que corre;
@@ -152,38 +152,62 @@
  const PREG = (ctx, t) => P.pregunta(ctx, '¿CÓMO CABE TODO / EN UNA UÑA?', t, 0, S(3) - 0.1, { capY: 330, px: 58, clave: 'UÑA', col: '#ff3b3b', x: 540, dy: 110 });
  const persona90 = (ctx, t, x, y, alto, o = {}) => P.personaje(ctx, t, x, y, alto, Object.assign({ tipo: 'adulto', ropa: '#4f7f6a', ropa2: '#3a3550', corbata: '#c0392b', seed: 3, piel: '#e0a77e' }, o));
 
- // ---------- 1 · GANCHO: la torre de disquetes se tambalea en la mesa y la persona de los 90 la mira → en «UÑA» la torre se comprime y la tarjeta sale a cámara (90 % del ancho) ----------
- B.push({ t0: 0, t1: S(2), in: { type: 'cut' }, draw(ctx, t) {
-  if (PORTADA) { oficina90(ctx, 1, { mesa: 1560 }); ctx.fillStyle = 'rgba(30,25,20,0.25)'; ctx.fillRect(0, 0, W, HH); P.floppy35(ctx, 330, 1322, 5.0, { rot: -0.04, col: '#3a5fb0' }); dedoTarjeta(ctx, 1, 800, 1000, 820, { glow: 0.7 }); ctx.fillStyle = '#2a2220'; ctx.fillRect(0, 1790, W, HH); ctx.fillStyle = '#b8452f'; ctx.fillRect(0, 1784, W, 8); return; }
-  const TU = Tk.una, sh = sacude(t, [[TU, 1.4]], 52), comp = sm(TU - 0.45, TU - 0.05, t), cam = camK(t, [[0, 560, 1200, 1.12], [TU, 540, 1180, 1.2]]);
-  ctx.save(); zoomP(ctx, cam, sh); oficina90(ctx, t); ctx.save(); ctx.translate(500, 1320); ctx.scale(1 - 0.95 * comp, 1 - 0.95 * comp); ctx.rotate(comp * 2.5); ctx.translate(-500, -1320); torreDisq(ctx, t, 500, 1320, 26, 6.2, { sway: 1 - comp, desp: (i) => (i % 2 ? 1 : -1) * 6 * Math.sin(t * 4 + i) }); ctx.restore();
-  persona90(ctx, t, 860, 1760, 820, { expr: t > 1.2 ? 'sorpresa' : 'normal', mira: -1 }); ctx.restore();
-  if (t > TU - 0.3) { const u = sm(TU - 0.3, TU, t), back = sm(TU + 0.15, S(2), t), mm = lerp(4, 88, E.in(u)) * (1 - 0.45 * E.out(back)); tarjetaRX(ctx, t, 540 + sh[0], lerp(1230, 980, E.out(u)) + sh[1], mm, { rot: lerp(1.2, 0.05, u) + 0.2 * back, rx: 0 }); }
-  fogonazo(ctx, t, [[TU, 0.6]]); PREG(ctx, t);
- }, sfx(k) { for (let i = 0; i < 10; i++) k.play('tock', 0.15 + i * 0.2, { f: 700 + 80 * (i % 3), gain: 0.12, minor: true }); k.play('whoosh', Tk.una - 0.45, { dur: 0.45, top: 2600, gain: 0.35, minor: true }); golpe(k, Tk.una, 1.2); k.play('pop', Tk.una + 0.03, { f: 260, gain: 0.35 }); } });
+ // ---------- v2.0 · MODO VIRAL · 0 → S(6): UN SOLO MUNDO CONTINUO, SIN CORTES ----------
+ // Fotograma 0: avalancha de disquetes en primerísimo plano (llena la pantalla, ya cayendo). En «uña» todos se meten en la tarjeta que
+ // descansa sobre la uña (dedo en primerísimo plano, P.dedoPP). «¿Cómo pasamos de esto…» → la cámara viaja al disquete (escala real) →
+ // «…a esto?» → los dos a la vez, a escala real, y el contador «DISQUETES QUE CABEN» → «algo que no se ve»: la cámara ATRAVIESA la tarjeta
+ // (celdas con electricidad encerrada) → «¿Te acuerdas del ruidito del lector…?»: sale por la ranura de la disquetera beige → «disco lleno».
+ // Un solo texto en el gancho («CABEN EN UNA UÑA»). Mundo: escritorio oscuro; 1 mm = 8,5 px de mundo (disquete 90 mm, tarjeta 11 × 15 mm, uña ≈ 13 mm).
+ const VCOL = ['#2b2f36', '#3a5fb0', '#2b2f36', '#59606e', '#3a5fb0', '#23262d'];
+ const DEDO_P = [1500, 900], DEDO_AN = 150, MM = 7.2, CARD = [1500, 900 + DEDO_AN * 0.45], DISQ = [500, 1100], DISQ_S = 8.5;
+ const AVA = (() => { const R = RNG(2024), out = []; for (let i = 0; i < 46; i++) out.push({ x0: R() * 1300 - 110, y0: R() * 2700 - 400, vy: 700 + R() * 600, vx: (R() - 0.5) * 220, r0: R() * 6, sp: (R() - 0.5) * 3.2, s: 2.6 + R() * 4.2, col: VCOL[i % VCOL.length], d: R() }); return out.sort((a, b) => a.s - b.s); })();
+ const camV = (t) => P.camino(t, [[0, 1500, 1040, 3.0], [1.7, 1500, 1040, 3.25], [Tk.una, 1500, 1045, 3.7], [S(2), 1500, 1050, 4.1], [Tk.esto1 - 0.15, 500, 1100, 1.12], [Tk.esto2 - 0.35, 520, 1100, 1.06], [Tk.esto2 + 0.25, 1020, 1080, 0.58], [S(4), 1020, 1075, 0.6]]);
+ const aPantalla = (cam, p) => [(p[0] - cam[0]) * cam[2] + 540, (p[1] - cam[1]) * cam[2] + 960];
+ const mesaOscura = (ctx) => { ctx.fillStyle = '#10121a'; ctx.fillRect(-3000, -3000, 8000, 9000); ctx.strokeStyle = 'rgba(255,255,255,0.025)'; ctx.lineWidth = 6; for (let y = -1000; y < 4000; y += 46) { ctx.beginPath(); ctx.moveTo(-1000, y); ctx.bezierCurveTo(600, y + 18, 1400, y - 14, 3200, y + 10); ctx.stroke(); } };
+ const mundoV = (ctx, t, cardA = 1) => {
+  mesaOscura(ctx); P.resplandor(ctx, 1250, 1000, 1300, '255,196,140', 0.16);
+  P.floppy35(ctx, DISQ[0], DISQ[1], DISQ_S, { rot: -0.1, col: '#3a5fb0' });
+  const d = P.dedoPP(ctx, DEDO_P[0], DEDO_P[1], DEDO_AN, { vista: 'dorso', piel: 'medio', largo: 2600, luz: 0.8 });
+  if (cardA > 0) { ctx.save(); ctx.globalAlpha *= cardA; P.microSD(ctx, d.una[0], d.una[1] + 2, MM, { rot: -0.07 }); P.reflejo(ctx, (c) => { c.beginPath(); c.rect(d.una[0] - 5.5 * MM, d.una[1] - 7.5 * MM, 11 * MM, 15 * MM); }, t, { ancho: 30, a: 0.35, vel: 0.5 }); ctx.restore(); }
+ };
+ const avalancha = (ctx, t, tgt) => { for (const f of AVA) { const c = E.in(sm(1.55 + 0.35 * f.d, Tk.una - 0.04, t)); if (c >= 1) continue; let y = f.y0 + f.vy * t + 380 * t * t; y = ((y + 500) % 2900 + 2900) % 2900 - 500; const x = f.x0 + f.vx * t, ang = c * 5, rx = x - tgt[0], ry = y - tgt[1], k = 1 - c;
+   const px = tgt[0] + (rx * Math.cos(ang) - ry * Math.sin(ang)) * k, py = tgt[1] + (rx * Math.sin(ang) + ry * Math.cos(ang)) * k, s = f.s * Math.pow(k, 1.4) * (0.85 + 0.15 * (1 - c));
+   if (s < 0.05) continue; const dib = (cc) => P.floppy35(cc, px, py, s, { rot: f.r0 + f.sp * t + c * 3, col: f.col }); if (f.s < 3.6 && c < 0.3) P.capaDesenfoque(ctx, 7, dib); else dib(ctx); } };
+ const interiorV = (ctx, t) => { ctx.fillStyle = '#060c1f'; ctx.fillRect(0, 0, W, HH); P.resplandor(ctx, 540, 960, 900, '60,120,255', 0.35);
+  const av = (t * 0.9) % 1;
+  for (let r = 15; r >= 0; r--) { const z = 0.7 + (r - av) * 0.55; if (z <= 0.35) continue; const sc = 1 / z, fade = Math.min(1, 2.2 / (z + 0.4)); for (const lado of [1, -1]) { const yy = 960 + lado * 330 * sc; for (let c = -5; c <= 5; c++) { const x = 540 + c * 250 * sc, cw = 205 * sc, ch = 120 * sc; if (x < -cw || x > W + cw) continue;
+     ctx.save(); ctx.globalAlpha = fade; ctx.fillStyle = lado > 0 ? '#16295a' : '#132250'; ctx.strokeStyle = 'rgba(143,216,255,0.55)'; ctx.lineWidth = Math.max(1, 4 * sc); ctx.beginPath(); ctx.roundRect(x - cw / 2, yy - ch / 2, cw, ch, 14 * sc); ctx.fill(); ctx.stroke();
+     const on = ((c * 7 + (r + Math.floor(t * 0.9)) * 3 + (lado > 0 ? 1 : 0)) % 3) !== 0; if (on) { ctx.fillStyle = '#ffd23f'; ctx.beginPath(); ctx.arc(x, yy, 26 * sc, 0, TAU); ctx.fill(); if (z < 3.5) P.resplandor(ctx, x, yy, 90 * sc, '255,210,80', 0.5 * fade); } ctx.restore(); } } }
+  P.particulas(ctx, t, { tipo: 'chispas', n: 40, area: [0, 300, W, 1700], a: 0.7, seed: 11 }); };
+ const camOf = (t) => P.camino(t, [[S(5) - 0.2, 730, 1223, 2.4], [Tk.lector + 0.35, 735, 1226, 2.7], [Tk.lleno - 0.55, 540, 900, 1.2], [S(6), 540, 860, 1.55]]);
+ const oficinaV = (ctx, t, cam) => { ctx.save(); P.aplicaCamara(ctx, cam, cam[4] ? [3 * Math.sin(t * 60), 0] : [0, 0]); oficina90(ctx, t); const p = sm(S(5) + 0.4, Tk.lleno - 0.15, t), err = t > Tk.lleno - 0.05 ? (t - Tk.lleno + 0.05) * 2 : 0;
+  pcBeige(ctx, t, 540, 1320, 1.0, { led: t < Tk.lleno && t > S(5) && Math.sin(t * 14) > 0 ? 1 : 0, disco: '#3a5fb0', pantalla: pantallaCopia(p, err) }); ctx.restore();
+  ctx.fillStyle = 'rgba(8,10,24,0.5)'; ctx.fillRect(0, 0, W, HH); const led = aPantalla(cam, [640, 1242]); P.resplandor(ctx, led[0], led[1], 180 * cam[2], '60,255,110', t < Tk.lleno && Math.sin(t * 14) > 0 ? 0.45 : 0.1); const scr = aPantalla(cam, [540, 860]); P.resplandor(ctx, scr[0], scr[1], 420 * cam[2], '120,190,255', 0.22); };
+ const TIT = (ctx, t) => P.titular(ctx, 'CABEN EN UNA UÑA', 540, 480, t, -0.3, S(2) - 0.1, { px: 96, clave: 'UÑA', col: '#ff3b3b' });
+ const CONT = (ctx, t) => { const t0 = Tk.esto2 + 0.15, v = Math.round(335544 * E.out(sm(t0, t0 + 1.7, t))), a = 1 - sm(S(5) - 0.5, S(5) - 0.15, t); if (t < t0 - 0.2 || a <= 0) return; P.contador(ctx, t, 540, 570, v, { t0, px: 128, final: 335544, etiqueta: 'DISQUETES QUE CABEN', a }); if (v >= 335544) P.fuenteCifra(ctx, 'Cálculo: ECMA-125 (1,44 MB) y tarjeta de 512 GB', 540, 765, { a: 0.92 * a }); };
+ const ATRAV = [S(4) - 0.05, S(4) + 1.25], SALE = [S(5) - 0.25, S(5) + 0.85];
 
- // ---------- 2 · ¿Cómo pasamos de ESTO… (el disquete sobre la mesa) a ESTO? (la tarjeta en la punta del dedo, junto a la uña) ----------
- B.push({ t0: S(2), t1: S(4), in: { type: 'cut' }, draw(ctx, t) {
-  if (t < S(3) - 0.05) { const cam = camK(t, [[S(2), 540, 1000, 1.0], [S(3), 540, 990, 1.06]]); ctx.save(); zoomP(ctx, cam); ctx.fillStyle = '#8a5b34'; ctx.fillRect(-300, -300, W + 600, HH + 600); ctx.strokeStyle = 'rgba(0,0,0,0.12)'; ctx.lineWidth = 6; for (let y = -300; y < HH + 300; y += 70) { ctx.beginPath(); ctx.moveTo(-300, y); ctx.lineTo(W + 300, y + 30); ctx.stroke(); }
-   P.floppy35(ctx, 540, 1010, 8.0, { rot: -0.08 + 0.05 * Math.sin(t * 1.5), col: '#3a5fb0' }); ctx.restore(); }
-  else { const cam = camK(t, [[S(3), 540, 980, 1.0], [S(4), 540, 960, 1.1]]); ctx.save(); zoomP(ctx, cam); salaHoy(ctx, t); ctx.fillStyle = 'rgba(30,30,40,0.25)'; ctx.fillRect(-300, -300, W + 600, HH + 600); dedoTarjeta(ctx, t, 560, 700 + 6 * Math.sin(t * 2), 1250, { glow: 0.5 + 0.2 * Math.sin(t * 5) }); ctx.restore(); }
-  PREG(ctx, t);
- }, sfx(k) { k.play('whoosh', S(3), { dur: 0.4, top: 1600, gain: 0.25, minor: true }); k.play('sparkle', S(3) + 0.1, { gain: 0.2 }); } });
-
- // ---------- 3 · La respuesta está en algo que no se ve. → la tarjeta gira y un barrido de rayos X deja ver por dentro ----------
- B.push({ t0: S(4), t1: S(5), in: { type: 'cut' }, draw(ctx, t) {
-  const u = sm(S(4), S(5), t); ctx.fillStyle = '#0f1424'; ctx.fillRect(0, 0, W, HH); P.glow(ctx, 540, 980, 700, '60,120,255', 0.35); const rx = sm(Tk.ve - 1.2, Tk.ve, t);
-  tarjetaRX(ctx, t, 540, 990, lerp(70, 78, E.inOut(u)), { rot: 0.25 * Math.sin((t - S(4)) * 0.9), rx, n: 12 });
-  const sy = lerp(400, 1560, ((t - S(4)) * 0.6) % 1); ctx.fillStyle = 'rgba(143,216,255,0.25)'; ctx.fillRect(140, sy - 6, 800, 12);
- }, sfx(k) { k.tone(S(4), { f: [[0, 200], [2.8, 600]], type: 'sine', dur: 2.9, gain: 0.05 }); FX.revelar(k, Tk.ve - 1.1); } });
-
- // ---------- 4 · ¿Te acuerdas del ruidito del lector… y del temido «DISCO LLENO»? → el lector de cerca (lucecita, crrr) → la oficina: la barra de copia… y «DISCO LLENO»; la persona se desespera ----------
- B.push({ t0: S(5), t1: S(6), in: { type: 'cut' }, draw(ctx, t) {
-  const tb = Tk.lector + 0.35, TL = Tk.lleno;
-  if (t < tb) { const cam = camK(t, [[S(5), 700, 960, 1.6], [tb, 720, 970, 1.7]]); ctx.save(); zoomP(ctx, cam, [3 * Math.sin(t * 60), 0]); oficina90(ctx, t); pcBeige(ctx, t, 540, 1320, 1.0, { led: Math.sin(t * 14) > 0 ? 1 : 0, disco: '#3a5fb0', pantalla: pantallaCopia(0.2, 0) }); ctx.restore(); TAG(ctx, 'EL LECTOR', 470, 520, t, Tk.ruidito - 0.2, tb, { mono: true, col: '#ffffff', px: 60 }); }
-  else { const p = sm(tb, TL - 0.15, t), err = t > TL - 0.05 ? (t - TL + 0.05) * 2 : 0, sh = sacude(t, [[TL, 0.5]], 22), cam = camK(t, [[tb, 540, 1080, 1.0], [S(6), 540, 1070, 1.05]]); ctx.save(); zoomP(ctx, cam, sh); oficina90(ctx, t); pcBeige(ctx, t, 470, 1320, 1.05, { led: t < TL && Math.sin(t * 14) > 0 ? 1 : 0, disco: '#3a5fb0', pantalla: pantallaCopia(p, err) }); cajaDisq(ctx, 200, 1880, 1.1); persona90(ctx, t, 850, 1960, 1000, { expr: t > TL ? 'desesperacion' : 'normal', pose: t > TL ? 'cabeza' : 'pie', mira: -1 }); ctx.restore(); }
- }, sfx(k) { crrr(k, S(5) + 0.1, Tk.lleno - 0.1, 1.2); FX.etiqueta(k, Tk.ruidito - 0.2); for (let x = S(5) + 0.2; x < Tk.lleno; x += 0.36) k.play('tick', x, { f: 2600, gain: 0.05, minor: true }); k.play('error', Tk.lleno, { gain: 0.45 }); k.tone(Tk.lleno, { f: 'A4', type: 'square', dur: 0.35, gain: 0.05, filter: 'lowpass', f2: 2000 }); } });
-
+ B.push({ t0: 0, t1: S(6), in: { type: 'cut' }, draw(ctx, t) {
+  if (PORTADA) { const cam = [1500, 1040, 3.4]; ctx.save(); P.aplicaCamara(ctx, cam); mundoV(ctx, 0); ctx.restore(); avalancha(ctx, 1.95, aPantalla(cam, CARD)); P.resplandor(ctx, 540, 960, 400, '255,210,120', 0.4); P.vineta(ctx, 0.55); return; }
+  if (t < ATRAV[0]) { const cam = camV(t), sh = sacude(t, [[Tk.una, 0.9]], 26); ctx.save(); P.aplicaCamara(ctx, cam, sh); mundoV(ctx, t); ctx.restore(); const tg = aPantalla(cam, CARD);
+   if (t > Tk.una - 0.1) P.resplandor(ctx, tg[0], tg[1], 260 * cam[2] / 3, '255,214,110', 0.55 * (1 - sm(Tk.una, S(2) + 0.6, t)) + 0.12);
+   if (t >= Tk.esto2 - 0.1) { const a = sm(Tk.esto2 - 0.1, Tk.esto2 + 0.3, t); ctx.save(); P.aplicaCamara(ctx, cam); anillo(ctx, t, CARD[0], CARD[1], 105, a); ctx.restore(); }
+   avalancha(ctx, t, tg); P.particulas(ctx, t, { tipo: 'polvo', n: 50, a: 0.35, seed: 5 }); }
+  else if (t < ATRAV[1] + 0.02) { const cam = camV(ATRAV[0]); P.atravesar(ctx, t, ATRAV[0], ATRAV[1], (c) => { c.save(); P.aplicaCamara(c, cam); mundoV(c, t); c.restore(); }, (c) => interiorV(c, t), { centro: aPantalla(cam, CARD), zoom: 26 }); }
+  else if (t < SALE[0]) interiorV(ctx, t);
+  else if (t < SALE[1]) P.salir(ctx, t, SALE[0], SALE[1], (c) => interiorV(c, t), (c) => oficinaV(c, t, camOf(t)), { centro: aPantalla(camOf(t), [730, 1223]), zoom: 12 });
+  else { const cam = camOf(t); cam[4] = t < Tk.lector + 0.35 ? 1 : 0; const sh = sacude(t, [[Tk.lleno, 0.5]], 18); cam[0] -= sh[0] / cam[2]; oficinaV(ctx, t, cam); }
+  fogonazo(ctx, t, [[Tk.una, 0.55]]); TIT(ctx, t); CONT(ctx, t); P.vineta(ctx, 0.5); P.grano(ctx, t, 0.05);
+ }, sfx(k) {
+  const R = RNG(31); for (let x = 0.02; x < 1.55; x += 0.035 + R() * 0.05) k.play('tock', x, { f: 520 + R() * 500, gain: 0.07 + R() * 0.08, pan: R() - 0.5, minor: true });
+  k.noise(0, { dur: 1.7, color: 'brown', filter: 'lowpass', f: 700, gain: 0.16, a: 0.01, hold: 1.3 });
+  k.play('whoosh', Tk.una - 0.75, { dur: 0.75, top: 2200, gain: 0.18, minor: true }); golpe(k, Tk.una, 1.1); k.play('pop', Tk.una + 0.03, { f: 240, gain: 0.3 });
+  k.play('swish', S(2) + 0.1, { dur: 0.6, gain: 0.3, minor: true }); k.play('swish', Tk.esto2 - 0.3, { dur: 0.5, gain: 0.3, minor: true });
+  const t0 = Tk.esto2 + 0.15; for (let x = 0; x < 1.7; x += 0.055) k.play('tick', t0 + x, { f: 2200 + x * 900, gain: 0.05, minor: true }); FX.clave(k, t0 + 1.7);
+  k.play('whoosh', ATRAV[0], { dur: ATRAV[1] - ATRAV[0], top: 2600, gain: 0.35, minor: true }); k.play('thud', ATRAV[1] - 0.1, { f: 45, gain: 0.5 }); FX.zumbido(k, ATRAV[1], SALE[0] - ATRAV[1], 0.5);
+  k.play('whoosh', SALE[0], { dur: SALE[1] - SALE[0], top: 1800, gain: 0.3, minor: true });
+  crrr(k, SALE[1] - 0.1, Tk.lleno - 0.1, 1.1); for (let x = SALE[1]; x < Tk.lleno; x += 0.36) k.play('tick', x, { f: 2600, gain: 0.05, minor: true }); k.play('error', Tk.lleno, { gain: 0.45 }); k.tone(Tk.lleno, { f: 'A4', type: 'square', dur: 0.35, gain: 0.05, filter: 'lowpass', f2: 2000 });
+ } });
  // ---------- 5 · Un disquete guardaba UN POCO MÁS DE UN MEGA. → el disquete de cerca y su «medidor» casi vacío ← «tin» 1 ----------
  B.push({ t0: S(6), t1: S(7), in: { type: 'cut' }, draw(ctx, t) {
   const cam = camK(t, [[S(6), 540, 960, 1.0], [S(7), 540, 930, 1.08]]); ctx.save(); zoomP(ctx, cam); ctx.fillStyle = '#d6c49c'; ctx.fillRect(-300, -300, W + 600, HH + 600); P.floppy35(ctx, 540, 1000, 7.2, { rot: 0.06 * Math.sin((t - S(6)) * 1.2), col: '#c0392b', shutter: sm(S(6) + 0.6, S(6) + 1.6, t) * 0.6 }); ctx.restore();
@@ -290,7 +314,7 @@
  // ---------- MONTAJE ----------
  const EP = PL.make({
   estilo: 'cartoon', capBorde: true, marca: { nombre: 'ASOMBROTECA' }, align: A, duration: DURATION, beats: B,
-  etiquetas: 'suave',   // v1.42: etiquetas a −10 dB; el «tin» (FX.clave) solo en «1 mega», «100 pisos», «300.000» y «1 km»
+  modo: 'viral',   // v2.0: sin música ni ambiente, etiquetas suaves; el «tin» (FX.clave) en el contador, «1 mega», «100 pisos», «300.000» y «1 km»
   keywords: [],
   ambience(k) { k.noise(0, { dur: DURATION, color: 'brown', filter: 'lowpass', f: 400, gain: 0.02, a: 0.05, hold: DURATION - 2.5 }); },
   music(k) { MUS.piano(k, 0, S(18), { bpm: 84, gain: 0.7, strings: 0.6, chords: [['D3', 'F#3', 'A3', 'D4'], ['B2', 'D3', 'F#3', 'B3'], ['G2', 'B2', 'D3', 'G3'], ['A2', 'C#3', 'E3', 'A3']] }); MUS.pulso(k, S(19), DURATION, { bpm: 100, gain: 0.5, chords: [['D3', 'F#3', 'A3', 'D4'], ['G2', 'B2', 'D3', 'G3'], ['B2', 'D3', 'F#3', 'B3'], ['A2', 'C#3', 'E3', 'A3']] }); },

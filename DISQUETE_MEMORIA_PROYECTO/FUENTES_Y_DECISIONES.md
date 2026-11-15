@@ -52,3 +52,9 @@ Vídeo único, gancho C en segunda persona · plantilla v1.42 · consultado el 1
 - **No se compara la torre con ningún edificio famoso** para no necesitar otras fuentes.
 - **Portada:** «TODO EN / UNA UÑA» con «UNA UÑA» en rojo (línea de la palabra clave) y la etiqueta «DEL DISQUETE A HOY»; el disquete grande junto a la tarjetita en la punta del dedo; la marca debajo, fuera del dibujo (`--marca-y 1850`).
 - **Red del entorno:** se añadieron los dominios de Ecma, el Computer History Museum, la SD Association, Micron, Kioxia y la sala de prensa de Samsung para leer las fuentes completas (la página de la SD Association y la de Micron piden verificación y no se usan).
+
+## v2.0 · Modo viral (rehecho con la plantilla v2.0)
+- **Excepción de voz (aprobada por el usuario):** el modo viral pide que la segunda frase sea un segundo dato y que el remate responda al título. Este episodio **conserva las frases ya grabadas** (Dan, Eleven v4, una sola toma, 0 créditos nuevos, voz intacta: md5 y 24/24 tramos idénticos). Por eso la segunda frase («¿Cómo pasamos de esto… a esto?») y el cierre son los de la versión anterior. Los vídeos nuevos sí siguen la fórmula completa.
+- Contador «DISQUETES QUE CABEN» = 335.544: 1.474.560 bytes por disquete (ECMA-125: 18 sectores × 512 B × 80 pistas × 2 caras) y tarjeta de 512 GB con 460,8 GiB útiles (494.780.232.499 bytes). Letra pequeña en pantalla: «Cálculo: ECMA-125 (1,44 MB) y tarjeta de 512 GB».
+- Escala real en el plano «esto / esto»: 1 mm = 8,5 px de mundo (disquete de 90 mm, microSD de 11 × 15 mm, uña de un índice adulto ≈ 13 mm).
+- Respaldo de la versión anterior (v1.43, con música y personajes) en `V2/`.
