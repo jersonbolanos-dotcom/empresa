@@ -58,3 +58,15 @@ Vídeo único, gancho C en segunda persona · plantilla v1.42 · consultado el 1
 - Contador «DISQUETES QUE CABEN» = 335.544: 1.474.560 bytes por disquete (ECMA-125: 18 sectores × 512 B × 80 pistas × 2 caras) y tarjeta de 512 GB con 460,8 GiB útiles (494.780.232.499 bytes). Letra pequeña en pantalla: «Cálculo: ECMA-125 (1,44 MB) y tarjeta de 512 GB».
 - Escala real en el plano «esto / esto»: 1 mm = 8,5 px de mundo (disquete de 90 mm, microSD de 11 × 15 mm, uña de un índice adulto ≈ 13 mm).
 - Respaldo de la versión anterior (v1.43, con música y personajes) en `V2/`.
+
+## v2.0 · Vídeo completo en modo viral (FINAL)
+- **Contadores y su fuente en pantalla (letra pequeña con franja):**
+  - «UN POCO MÁS DE 1 MEGA» → **1.474.560 bytes** = 80 pistas × 18 sectores × 512 B × 2 caras ([ECMA-125]).
+  - «MÁS DE 100 PISOS» → **162 pisos de celdas** (Kioxia BiCS FLASH de 2022, [KIOXIA-BiCS]); la voz dice «más de cien», y 162 lo cumple (hay generaciones de 218 y 332 capas).
+  - «MÁS DE 300.000» → **335.544 disquetes** (cálculo de arriba, [ECMA-125] + [KIOXIA-SD]).
+  - «MÁS DE 1 KM» → **1.107 m** = 335.544 × 3,3 mm ([ECMA-125] 6.1.2); la regla de altura sube a 1 m = 6 px.
+- **Un solo mundo con la cámara viajando:** uña → computador de los 90 y «disco lleno» (primer plano de las manos en el teclado, sin persona) → la cámara entra por la ranura al disquete y por la ventana de la persiana al disco → sale a la uña y entra en la tarjeta (celdas, electricidad encerrada, se encogen, edificio de capas) → sale a la uña → montaña y torre (de lado) → vuelta a la uña. **2 cortes secos** (53,0 s, al revelar «más de trescientos mil», y 59,7 s, «en una uña») y **2 fogonazos** («uña» y el final).
+- **Sonido (regla 155):** 14 efectos en todo el vídeo, como mucho 3 por cada 10 s; la avalancha, el giro del disco y la montaña son un solo sonido continuo cada uno; los contadores suben en silencio y suenan con un golpe al final; el «tin» (`FX.clave`) solo 3 veces: «trescientos mil», «kilómetro» y la «uña» final. Silencio real antes de «Más de trescientos mil» (1,8 s). Sin música.
+- **Final en bucle:** en «… en una uña» el último plano repite el fotograma 0; durante ese plano (y el gancho) solo se ve el titular, sin subtítulos (`capOcultar`).
+- **La voz** es la misma toma (excepción anotada arriba): por eso la segunda frase y el cierre «Envíaselo…» son los grabados.
+- Respaldo de la versión anterior en `V2/`.

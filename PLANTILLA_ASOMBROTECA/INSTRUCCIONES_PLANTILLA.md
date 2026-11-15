@@ -1061,3 +1061,29 @@ Las manos de los vídeos salen ahora de la **hoja de manos ilustradas** del cana
   - `o.ropa`, `o.ropa2` (pantalón o falda), `o.piel`, `o.pelo`, `o.mira` (−1..1), `o.seed`, `o.espejo`, `o.lentes`, `o.corbata`, `o.casco`, `o.pantalla` (color de la pantalla del celular), `o.objeto(ctx, x, y, ang, k)` (dibujo extra; en la pose `celular` se dibuja sobre la pantalla), `o.dedos` (true/false fuerza manos con dedos o simples; por defecto, con dedos cuando la mano mide más de ≈ 9 px de radio).
 - `P.manoV(ctx, pose, x, y, alto, o)` — mano vectorial grande. Poses: `frente`, `lado_derecho`, `apunta_derecha`, `apunta_izquierda`, `abierta`, `puno`, `pulgar_arriba`, `pinza`, `sujeta_celular`, `sostiene_tarjeta`, `palma_arriba`, `toca`, `relajada`. `o.ancla`: `'punta'` (punta del índice; por defecto), `'base'` (muñeca) o `'centro'`; `o.ang`, `o.espejo`, `o.piel`, `o.sombra` (false sin sombra), `o.objeto: { col, pantalla, dibujo(ctx, x, y, w, h) }` para el celular o la tarjeta.
 - Catálogo con todas las variantes, expresiones, poses y manos: `catalogo/personajes_v143.jpg`.
+
+## v2.0 · MODO VIRAL
+
+`PL.make({ modo: 'viral', capOcultar: [[0, fin_del_gancho]], … })` — manda sobre todo lo anterior en los vídeos nuevos (reglas 128–157 del SUPERPROMPT y bloque v2.0 de `GUIA_ESTILOS.md`). Los episodios viejos no cambian.
+
+**Lo que hace el modo viral en el motor:** sin música (`musica: 'baja'` la deja a −10 dB) ni ambiente (`ambiente: true` lo devuelve); `FX.etiqueta` y `FX.pausa` mudos (un sonido solo cuando pasa algo importante); `capOcultar` quita los subtítulos en los tramos indicados.
+
+**Cámara continua (un solo mundo, máximo 3 cortes):**
+- `P.camino(t, [[t, x, y, zoom, giro], …])` → `[x, y, zoom, giro]` con interpolación suave (zoom logarítmico). `P.aplicaCamara(ctx, cam, [sx, sy])` lo aplica (centro 540, 960).
+- `P.atravesar(ctx, t, t0, t1, fuera(ctx), dentro(ctx, u), { centro: [x, y], zoom })`: la cámara entra en un objeto (zoom + círculo que se abre). `P.salir(…)` es lo mismo al revés.
+
+**Luz y profundidad:** `P.capaDesenfoque(ctx, px, dibujo, { bruma, col })`, `P.resplandor(ctx, x, y, r, 'r,g,b', a)`, `P.reflejo(ctx, forma, t, { ancho, a, vel, ang })`, `P.vineta(ctx, a, 'r,g,b')`, `P.grano(ctx, t, a)`, `P.particulas(ctx, t, { tipo: 'polvo' | 'chispas' | 'burbujas' | 'lluvia', n, area, a, tam, col, seed })`.
+
+**Textos de datos:**
+- `P.contador(ctx, t, x, y, valor, { t0, px, final, colFinal, unidad, etiqueta, a })` — el número sube EN SILENCIO; suena un golpe solo al llegar a `final`.
+- `P.titular(ctx, 'TEXTO', x, y, t, t0, t1, { px, clave, col })` — titular grande con UNA palabra de color (en vez de etiquetas pequeñas).
+- `P.tachado(ctx, 'texto', x, y, t, t0, t1, { px, col, retraso })` — para el «No es X: es Y».
+- `P.fuenteCifra(ctx, 'Fuente…', x, y, { px = 36, franja = true })` — letra pequeña con franja oscura detrás.
+
+**Manos y dedo:**
+- `P.dedoPP(ctx, x, y, ancho, { vista: 'dorso' | 'yema', piel, ang, largo, luz })` → `{ punta, una }` (la uña sirve de apoyo para una tarjeta).
+- `P.manoR(ctx, pose, x, y, alto, o)` — una sola silueta. Poses: senala, toca, boton, celular, celular_pulgar (teléfono AGARRADO), pinza (de lado, con tarjeta / moneda / grano), palma, alto, saludo, puno (pulgar por delante), pulgar (dedos curvos), ok, agarrar (manubrio, taza, cuchara), perilla, llave, golpecito, espolvorear, contar1–5, relajada (con `giro: { roll: 180 }` = manos en el teclado). `o`: vista, lado, piel, guante, ancla, ang, giro, t, objeto, pantalla, dibujoPantalla, capa. Catálogo: `catalogo/manos_v20_2x.jpg`.
+
+**QC (`producir.py … qc`, avisos que no hacen fallar):** cambios bruscos (escena > 0,4) > 3; protagonista del fotograma 0 < 70 % del ancho; piso de sonido entre frases que nunca baja de −45 dB; más de 3 efectos de sonido por cada 10 s (inicios en `05_AUDIO/efectos_sonido.wav`; un sonido continuo cuenta una vez); más de 4 `FX.clave`. En modo viral el cierre «Envíaselo» ya no es obligatorio.
+
+**Ejemplo completo:** `DISQUETE_MEMORIA_PROYECTO/04_CODIGO/js/episodio.js` (avalancha → uña → disquete por dentro → tarjeta por dentro → montaña y torre → vuelta al fotograma 0).

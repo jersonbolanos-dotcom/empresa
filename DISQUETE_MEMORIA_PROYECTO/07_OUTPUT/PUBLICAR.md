@@ -1,15 +1,31 @@
-# Publicar · Del disquete a las memorias diminutas
+# Publicar · Del disquete a las memorias diminutas (v2.0 · modo viral)
 
-> Un solo vídeo (v1.34): `DISQUETE_MEMORIA_FINAL.mp4`, gancho C en segunda persona («Todos tus disquetes… hoy caben en una uña»). Portada: `portada.jpg` (el disquete grande junto a la tarjetita en la punta del dedo).
-> El texto no da la respuesta (no decir «trescientos mil», «kilómetro», «electrones» ni «pisos»). Sin enlaces.
+> Un solo vídeo: `DISQUETE_MEMORIA_FINAL.mp4` (65 s, plantilla v2.0, modo viral). Portada: `portada.jpg` (la uña con la tarjeta y los disquetes cayendo, titular «EN UNA UÑA» con «UÑA» en rojo).
+> El vídeo termina en bucle: el último plano es el fotograma 0 (la uña con la tarjeta entre la avalancha de disquetes).
+> El texto no da la respuesta (no decir «trescientos mil», «kilómetro», «celdas» ni «pisos»). Sin enlaces.
 
 ## Facebook (Reels)
 **Texto** (copiar tal cual):
 
-¿Te acuerdas de los disquetes? 💾
-Esa caja llena que guardabas como un tesoro hoy cabe en algo del tamaño de una uña. Y el número de disquetes que harían falta para llenarla… es difícil de creer.
-¿Cuál era tu disquete de colores favorito? Te leo en comentarios.
-Compártelo con ese amigo que aún guarda sus disquetes, y sigue a Asombroteca.
-Fuentes: Ecma International y Computer History Museum.
+Todos tus disquetes… hoy caben en una uña. 💾
+Entramos en un disquete y en una tarjeta de memoria para ver por qué. El número de disquetes que caben en una tarjeta es difícil de creer.
+¿Cuál era tu disquete favorito? Te leo en comentarios.
+Fuentes: Ecma International (ECMA-125) y Kioxia.
 
 #disquete #nostalgia #tecnologia #años90 #curiosidades #ciencia #asombroteca
+
+## Instagram (Reels) y TikTok
+**Texto** (copiar tal cual):
+
+Todos tus disquetes caben en una uña 💾 ¿Adivinas cuántos? Míralo hasta el final.
+Fuentes: Ecma International (ECMA-125) y Kioxia.
+
+#disquete #nostalgia #tecnologia #años90 #curiosidades #ciencia #asombroteca
+
+## YouTube Shorts
+**Título:** Todos tus disquetes caben en una uña 💾
+**Descripción:** Entramos en un disquete y en una tarjeta de memoria de 512 GB para contar cuántos disquetes caben… y qué altura tendría la torre. Fuentes: Ecma International (ECMA-125, disquete de 1,44 MB y 3,3 mm de grosor) y Kioxia (capacidad útil y capas de memoria).
+
+## Comprobación antes de publicar
+- QC: `07_QC/QC.md` (TODO CORRECTO, con los avisos del modo viral).
+- Voz: la misma toma de siempre (excepción anotada en `FUENTES_Y_DECISIONES.md`).

@@ -6366,10 +6366,54 @@ P._limpiarFijos = () => { for (const k of Object.keys(FIJOS)) delete FIJOS[k]; }
    const ca = Math.cos(o.ang || 0), sa = Math.sin(o.ang || 0), toS = (q) => { const dx = (q[0] - anc[0]) * k * mir, dy = (q[1] - anc[1]) * k; return [x + dx * ca - dy * sa, y + dx * sa + dy * ca]; };
    return { punta: toS(IX[3]), muneca: toS([0, 110]), palma: toS(PALMC), objeto: toS([128, -10]), pulgar: toS(TB[3]) }; };
 
+  // v2.0c · PUÑO (de frente) y PULGAR ARRIBA (de lado): dedos doblados uno junto a otro, nudillos que marcan la curva; en el puño el pulgar
+  //   se dobla POR DELANTE de los dedos, apoyado sobre el índice y el medio. Unidades de la mano (largo 190).
+  const punoR = (ctx, pose, x, y, alto, o, C) => { const { base, hl, sh, lin, cre, guante } = C, k = alto / 190, mir = o.lado === 'izquierda' ? -1 : 1, up = pose === 'pulgar';
+   const ow = Math.max(1.1, 1.5 / Math.sqrt(k)), bbOf = (pts, r) => pts.flatMap((q) => [[q[0] - r, q[1] - r], [q[0] + r, q[1] + r]]);
+   const gradX = (g, p0, p1, r) => { const dx = p1[0] - p0[0], dy = p1[1] - p0[1], l = Math.hypot(dx, dy) || 1, nx = -dy / l * r, ny = dx / l * r, m = [(p0[0] + p1[0]) / 2, (p0[1] + p1[1]) / 2], gr = g.createLinearGradient(m[0] + nx, m[1] + ny, m[0] - nx, m[1] - ny); gr.addColorStop(0, hl); gr.addColorStop(0.5, base); gr.addColorStop(1, sh); return gr; };
+   const soft = (g, path, a = 0.42) => { g.save(); g.globalAlpha *= a; g.strokeStyle = lin; g.lineWidth = ow * 0.9; g.lineCap = 'round'; g.lineJoin = 'round'; path(g); g.stroke(); g.restore(); };
+   let run = [], PALMC, TIP, anc;
+   if (!up) {   // PUÑO de frente: los cuatro dedos doblados en columnas, el pulgar cruza por delante
+    const masa = [[-44, 70], [-48, 20], [-44, -22], [-30, -34], [40, -34], [50, -20], [52, 30], [46, 70]], FA = [[0, 66], [0, 240]];
+    const COLS = [[-26, 11], [-5, 11.5], [16, 11], [36, 9.5]], TH = [[-40, 50], [-24, 32], [0, 24], [18, 22]], THR = [14, 12.5, 11.2, 10.2];
+    PALMC = [0, 20]; TIP = TH[3];
+    run.push({ mano: true, bb: bbOf(FA, 34), fill: (g) => { const gc = polyFinger(FA, [26, 30]); g.fillStyle = gradX(g, FA[0], FA[1], 28); trazaDedo(g, gc, true); g.fill(); }, det: () => {} });
+    run.push({ mano: true, bb: masa, fill: (g) => { const gr = g.createRadialGradient(-6, -10, 6, 0, 18, 80); gr.addColorStop(0, hl); gr.addColorStop(0.6, base); gr.addColorStop(1, sh); g.fillStyle = gr; trazaSuave(g, masa); g.fill(); }, det: () => {} });
+    COLS.forEach(([cx, r], i) => { const top = -38 + (i === 3 ? 6 : i === 0 ? 2 : 0), bot = 36 - (i === 3 ? 4 : 0);
+     run.push({ mano: true, bb: [[cx - r - 2, top - r], [cx + r + 2, bot + r]], fill: (g) => { const gr = g.createLinearGradient(cx - r, 0, cx + r, 0); gr.addColorStop(0, sh); gr.addColorStop(0.35, hl); gr.addColorStop(0.7, base); gr.addColorStop(1, sh); g.fillStyle = gr; g.beginPath(); g.roundRect(cx - r, top - r * 0.2, 2 * r, bot - top, [r, r, r * 0.9, r * 0.9]); g.fill(); },
+      det: (g) => { soft(g, (q) => { q.beginPath(); q.roundRect(cx - r, top - r * 0.2, 2 * r, bot - top, [r, r, r * 0.9, r * 0.9]); });
+       g.fillStyle = guante ? '#17181c' : 'rgba(255,255,255,0.22)'; g.beginPath(); g.ellipse(cx, top + r * 0.5, r * 0.7, r * 0.42, 0, 0, Math.PI * 2); g.fill();
+       g.strokeStyle = cre; g.lineWidth = ow * 0.75; for (const yy of [top + (bot - top) * 0.42, top + (bot - top) * 0.47]) { g.beginPath(); g.moveTo(cx - r * 0.6, yy); g.quadraticCurveTo(cx, yy + 2, cx + r * 0.6, yy); g.stroke(); } } }); });
+    run.push({ mano: true, pulgar: true, bb: bbOf(TH, 15), fill: (g) => { const gc = polyFinger(TH, THR); g.fillStyle = gradX(g, TH[0], TH[3], 12); trazaDedo(g, gc, true); g.fill(); },
+     det: (g) => { const gc = polyFinger(TH, THR); soft(g, (q) => { q.beginPath(); q.moveTo(gc.L[1][0], gc.L[1][1]); for (let j = 2; j < gc.L.length; j++) q.lineTo(gc.L[j][0], gc.L[j][1]); q.arc(gc.tip[0], gc.tip[1], gc.rt, gc.ang + Math.PI / 2, gc.ang - Math.PI / 2, true); for (let j = gc.R.length - 1; j >= 1; j--) q.lineTo(gc.R[j][0], gc.R[j][1]); }, 0.55);
+      g.strokeStyle = cre; g.lineWidth = ow * 0.75; g.beginPath(); g.arc(TH[2][0] - 2, TH[2][1] + 1, THR[2] * 0.6, Math.PI * 0.55, Math.PI * 1.45); g.stroke(); if (!guante) unaEn(g, TH[3], Math.atan2(TH[3][1] - TH[2][1], TH[3][0] - TH[2][0]), THR[3], 0.9, base, ow); } });
+    anc = o.ancla === 'muneca' ? [0, 70] : o.ancla === 'punta' ? TIP : PALMC;
+   } else {   // PULGAR ARRIBA de lado: cuatro rollos curvos (índice arriba, meñique abajo), nudillos en curva, pulgar hacia arriba
+    const masa = [[-34, 96], [-40, 40], [-34, -10], [-16, -22], [26, -26], [46, -22], [58, -2], [60, 30], [56, 70], [36, 100]], FA = [[0, 92], [-26, 260]];
+    const ROLL = [[-4, 13.5, 50], [21, 13, 55], [46, 12, 53], [69, 10.5, 46]], TH = [[6, -14], [10, -50], [14, -80]], THR = [14, 12.5, 11];
+    PALMC = [6, 36]; TIP = TH[2];
+    run.push({ mano: true, bb: bbOf(FA, 36), fill: (g) => { const gc = polyFinger(FA, [27, 31]); g.fillStyle = gradX(g, FA[0], FA[1], 28); trazaDedo(g, gc, true); g.fill(); }, det: () => {} });
+    run.push({ mano: true, bb: masa, fill: (g) => { const gr = g.createRadialGradient(10, 10, 6, 6, 36, 80); gr.addColorStop(0, hl); gr.addColorStop(0.6, base); gr.addColorStop(1, sh); g.fillStyle = gr; trazaSuave(g, masa); g.fill(); }, det: () => {} });
+    ROLL.forEach(([yc, r, kx], i) => { const pts = [[kx - 8, yc - r * 0.5], [kx + 3, yc + r * 0.25], [kx - 4, yc + r * 0.95], [kx - 26, yc + r * 1.2], [-8 + i * 4, yc + r * 0.85]];
+     const rr = [r, r * 0.98, r * 0.95, r * 0.9, r * 0.84], gc = () => polyFinger(pts, rr);
+     run.push({ mano: true, bb: bbOf(pts, r + 2), fill: (g) => { g.fillStyle = gradX(g, pts[0], pts[3], r); trazaDedo(g, gc(), true); g.fill(); },
+      det: (g) => { const q = gc(); soft(g, (c) => { c.beginPath(); c.moveTo(q.R[0][0], q.R[0][1]); for (let j = 1; j < q.R.length; j++) c.lineTo(q.R[j][0], q.R[j][1]); }, 0.5);
+       g.fillStyle = guante ? '#17181c' : 'rgba(255,255,255,0.24)'; g.beginPath(); g.ellipse(kx - 2, yc, r * 0.55, r * 0.75, 0.2, 0, Math.PI * 2); g.fill();
+       g.strokeStyle = cre; g.lineWidth = ow * 0.75; g.beginPath(); g.arc(kx - 6, yc + r * 0.55, r * 0.5, -0.6, 0.9); g.stroke(); } }); });
+    run.push({ mano: true, pulgar: true, bb: bbOf(TH, 16), fill: (g) => { const gc = polyFinger(TH, THR); g.fillStyle = gradX(g, TH[0], TH[2], 13); trazaDedo(g, gc, true); g.fill(); },
+     det: (g) => { const gc = polyFinger(TH, THR); soft(g, (q) => { q.beginPath(); q.moveTo(gc.L[1][0], gc.L[1][1]); q.lineTo(gc.L[2][0], gc.L[2][1]); q.arc(gc.tip[0], gc.tip[1], gc.rt, gc.ang + Math.PI / 2, gc.ang - Math.PI / 2, true); q.lineTo(gc.R[1][0], gc.R[1][1]); });
+      g.strokeStyle = cre; g.lineWidth = ow * 0.75; for (const off of [-1.4, 1.4]) { g.beginPath(); g.moveTo(TH[1][0] - 8, TH[1][1] + off); g.quadraticCurveTo(TH[1][0], TH[1][1] + off + 2, TH[1][0] + 8, TH[1][1] + off); g.stroke(); } if (!guante) unaEn(g, TH[2], Math.atan2(TH[2][1] - TH[1][1], TH[2][0] - TH[1][0]), THR[2], 0.7, base, ow); } });
+    anc = o.ancla === 'muneca' ? [0, 96] : o.ancla === 'punta' ? TIP : PALMC;
+   }
+   ctx.save(); ctx.translate(x, y); ctx.rotate(o.ang || 0); ctx.scale(k * mir, k); ctx.translate(-anc[0], -anc[1]); unirMano.prev = null; unirMano(ctx, run, base, lin, ow); ctx.restore();
+   const ca = Math.cos(o.ang || 0), sa = Math.sin(o.ang || 0), toS = (q) => { const dx = (q[0] - anc[0]) * k * mir, dy = (q[1] - anc[1]) * k; return [x + dx * ca - dy * sa, y + dx * sa + dy * ca]; };
+   return { punta: toS(TIP), muneca: toS([0, 80]), palma: toS(PALMC), objeto: null, pulgar: toS(TIP) }; };
+
   P.manoR = (ctx, pose, x, y, alto, o = {}) => { const ps0 = MP[pose] || MP.relajada, t = o.t || 0; let ps = ps0;
    const vista = o.vista || (pose === 'alto' || pose === 'palma' || pose === 'saludo' || pose.startsWith('contar') || pose.startsWith('celular') ? 'palma' : 'dorso');
    const izq = o.lado === 'izquierda', guante = !!o.guante, base = guante ? '#2d2f36' : (PIEL[o.piel] || o.piel || PIEL.medio);
    const hl = guante ? '#565a66' : tonoR(base, 0.16), sh = guante ? '#1b1c21' : tonoR(base, -0.2), lin = guante ? '#101114' : tonoR(base, -0.38), cre = guante ? 'rgba(255,255,255,0.18)' : tonoR(base, -0.28);
+   if ((pose === 'puno' || pose === 'pulgar') && !o.vista && !o.giro) return punoR(ctx, pose, x, y, alto, o, { base, hl, sh, lin, cre, guante });   // v2.0c: puño y pulgar arriba limpios
    if (pose === 'pinza' && !o.vista && !o.giro) return pinzaR(ctx, x, y, alto, o, { base, hl, sh, lin, cre, guante });   // v2.0b: pinza de lado, limpia
    if (pose.startsWith('celular') && !o.vista && !o.giro && o.objeto !== null) return celularR(ctx, pose, x, y, alto, o, { base, hl, sh, lin, guante });   // v2.0b: el teléfono AGARRADO
    // giro según pose y vista
