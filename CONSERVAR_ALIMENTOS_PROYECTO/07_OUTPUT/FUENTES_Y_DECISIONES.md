@@ -30,6 +30,9 @@ Vídeo único, gancho C en segunda persona · plantilla v1.41 · consultado el 1
 | Les quitaban lo que necesitan para multiplicarse | Es el resumen de los datos de arriba: cada técnica quita agua o deja un ambiente hostil y así impide su crecimiento ([UC-TEC]: «preventing their growth»; [UC-AW]) | [FAO] cap. 4: los productos tradicionales de cap. 2 son estables sin frío «because of their low water activity» |
 
 ## Decisiones
+- **V2** (la versión anterior está en `V1/`: vídeo, portada, `episodio.js` y mezcla; la voz no se tocó):
+  - en el patio (gancho, abuela, final y portada) la carne ya no es un pedazo gigante: son tres pedazos medianos y tres tiras colgados en la cuerda, a tamaño creíble (≈ 65 % del ancho entre todos), con el patio, la casa y el fogón a la vista; la lupa de la portada va sobre uno de los pedazos;
+  - sonido (plantilla v1.42): las etiquetas normales suenan a −10 dB y el «tin» (`FX.clave`) suena solo 4 veces, en los cuatro pasos (sal, sol y viento, humo, fermentación); antes sonaba 24 veces. Los golpes no cambian.
 - **Voz:** una sola toma (Eleven v4, voz Dan; 889 caracteres, 58,8 s, 889 créditos). No hizo falta `[QUITAR]` ni `[PAUSA]`. Voz intacta (md5 por tramo, 22/22 iguales).
 - **Guion:** a petición del usuario, la revelación cierra el círculo con el gancho («No era magia… Por eso la carne de tu abuela colgaba al sol… y no se pudría») y se quitó «Hoy existen normas para hacerlo seguro», porque no hay ninguna receta.
 - **Seguridad, sin recetas:** no se dan cantidades, tiempos, temperaturas ni pasos; ninguna técnica se presenta como algo que hacer en casa. La vasija de la fermentación no dice qué alimento lleva.

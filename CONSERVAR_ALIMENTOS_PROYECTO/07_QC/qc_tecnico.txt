@@ -1,6 +1,6 @@
 Archivo: /home/user/empresa/CONSERVAR_ALIMENTOS_PROYECTO/07_OUTPUT/CONSERVAR_ALIMENTOS_FINAL.mp4
 Formato: h264 1080×1920 30/1 · aac 48000 Hz ✔
-Duración / tamaño: 59.83 s · 31.9 MB ✔
+Duración / tamaño: 59.83 s · 31.7 MB ✔
 Decodificación completa: 0 errores ✔
 Negros > 0,3 s / congelados > 1,5 s: 0 / 0 ✔
 Silencios > 1 s (−50 dB): 0 ✔
