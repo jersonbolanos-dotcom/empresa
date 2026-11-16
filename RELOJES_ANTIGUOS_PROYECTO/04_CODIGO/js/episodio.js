@@ -30,8 +30,8 @@
  const lineasHora = (e) => { const out = []; for (let k = 0; k <= 12; k++) out.push(((k - 6) / 6) * 1.25 * e); return out; };
  const suelo = (ctx, L) => { ctx.fillStyle = mixc('#13182b', '#b98a50', L); ctx.fillRect(-6000, -6000, 14000, 14000); ctx.save(); ctx.scale(1, KZ); ctx.strokeStyle = `rgba(0,0,0,${0.12 + 0.08 * L})`; ctx.lineWidth = 6; for (let x = -4000; x <= 6000; x += 420) { ctx.beginPath(); ctx.moveTo(x, -6000); ctx.lineTo(x, 6000); ctx.stroke(); } for (let z = -6000; z <= 6000; z += 420) { ctx.beginPath(); ctx.moveTo(-4000, z); ctx.lineTo(6000, z); ctx.stroke(); } ctx.restore(); };
  const relojSol = (ctx, t, L, e) => { const r = DIAL.r;
-  ctx.save(); ctx.fillStyle = mixc('#0c1020', '#6e4f2c', L); ctx.beginPath(); ctx.ellipse(0, 60, r * 1.02, r * KZ * 1.02, 0, 0, TAU); ctx.fill(); ctx.fillRect(-r * 1.02, 0, r * 2.04, 60); ctx.restore();
-  ctx.save(); ctx.scale(1, KZ); const g = ctx.createRadialGradient(-180, -220, 60, 0, 0, r); g.addColorStop(0, mixc('#2b3350', '#e9cf9e', L)); g.addColorStop(1, mixc('#1a2038', '#b88d55', L)); ctx.fillStyle = g; ctx.beginPath(); ctx.arc(0, 0, r, 0, TAU); ctx.fill();
+  ctx.save(); ctx.fillStyle = mixc('#1c2340', '#6e4f2c', L); ctx.beginPath(); ctx.ellipse(0, 60, r * 1.02, r * KZ * 1.02, 0, 0, TAU); ctx.fill(); ctx.fillRect(-r * 1.02, 0, r * 2.04, 60); ctx.restore();
+  ctx.save(); ctx.scale(1, KZ); const g = ctx.createRadialGradient(-180, -220, 60, 0, 0, r); g.addColorStop(0, mixc('#4a5684', '#e9cf9e', L)); g.addColorStop(1, mixc('#2c3558', '#b88d55', L)); ctx.fillStyle = g; ctx.beginPath(); ctx.arc(0, 0, r, 0, TAU); ctx.fill();
    ctx.strokeStyle = mixc('#0e1222', '#8a6436', L); ctx.lineWidth = 10; ctx.beginPath(); ctx.arc(0, 0, r * 0.94, 0, TAU); ctx.stroke(); ctx.beginPath(); ctx.arc(0, 0, r * 0.62, -2.3, -0.84 + Math.PI * 0); ctx.stroke();
    const R0 = RNG(9); for (let i = 0; i < 90; i++) { ctx.fillStyle = `rgba(0,0,0,${0.05 + 0.05 * R0()})`; ctx.beginPath(); ctx.arc((R0() - 0.5) * r * 1.8, (R0() - 0.5) * r * 1.8, 6 + R0() * 22, 0, TAU); ctx.fill(); }
    // las líneas talladas (surco oscuro + borde claro), desde el pie del palo hacia quien mira
@@ -111,8 +111,8 @@
  // ---------- cámara del mundo ----------
  const P0 = (() => { const a = -0.95, r = DIAL.r * 0.52; return G(Math.sin(a) * r * 0.85, Math.cos(a) * r * 0.85 + 0); })();   // el borde de la sombra cruzando las líneas
  const VASC = G(VAS.x, VAS.z, VAS.h * 0.5), MECC = G(MEC.x, MEC.z, 720);
- const cam = (t) => P.camino(t, [[0, P0[0], P0[1] - 20, 3.1], [2.6, P0[0] + 10, P0[1] - 20, 3.3], [S(1), P0[0] + 30, P0[1] - 40, 2.6], [S(2) + 1.2, 0, 40, 1.35], [S(3), 0, -60, 0.95], [S(5), 0, -80, 0.82], [Tk.horas, 0, 0, 1.0], [S(7) - 0.05, 0, 20, 1.05],
-  [S(9), 60, 80, 1.15], [S(11), 0, 20, 1.1], [NOCHE1, 0, -40, 0.85], [S(14) - 0.2, 300, -60, 0.8], [Tk.agua, VASC[0] - 120, VASC[1] + 60, 0.95], [S(16) - 0.2, VASC[0], VASC[1], 1.05],
+ const cam = (t) => P.camino(t, [[0, P0[0], P0[1] - 20, 3.1], [2.6, P0[0] + 10, P0[1] - 20, 3.3], [S(1), P0[0] + 30, P0[1] - 40, 2.6], [S(2) + 1.2, 0, 90, 1.35], [S(3), 0, 70, 1.2], [S(5), 0, 60, 1.12], [Tk.horas, 0, 70, 1.18], [S(7) - 0.05, 0, 80, 1.2],
+  [S(9), 60, 90, 1.2], [S(11), 0, 70, 1.18], [NOCHE1, 0, 60, 1.15], [S(13) + 0.5, 0, 60, 1.18], [Tk.egipto, VASC[0] - 80, VASC[1] + 40, 1.0], [Tk.agua, VASC[0] - 60, VASC[1] + 40, 1.0], [S(16) - 0.2, VASC[0], VASC[1], 1.05],
   [S(22) + 0.2, VASC[0], VASC[1], 1.0], [S(23) - 0.1, MECC[0], MECC[1], 1.75], [S(24) - 0.2, MECC[0], MECC[1] + 20, 1.95], [Tk.iguales - 0.2, 0, 0, 1.0], [S(25) + 0.4, 0, 0, 1.2], [DURATION - 1.6, P0[0] + 10, P0[1] - 20, 3.3], [DURATION, P0[0], P0[1] - 20, 3.1]]);
  const mundo = (ctx, t, cm) => { const L = luzDia(t), e = estiraF(t);
   ctx.save(); P.aplicaCamara(ctx, cm); suelo(ctx, L); relojSol(ctx, t, L, e);
@@ -123,7 +123,7 @@
   sombraPalo(ctx, t, L); palo(ctx, L); relojMec(ctx, t, L); vasija(ctx, t, L, C01((t - Tk.egipto) / 0.6)); antorcha(ctx, t, C01((t - Tk.egipto + 0.2) / 0.5));
   ctx.restore();
   if (L > 0.05) { const sx = 540 + 600 * Math.sin(angSombra(t) + Math.PI), sy = -200; P.resplandor(ctx, sx, sy, 1400, '255,200,120', 0.32 * L); P.particulas(ctx, t, { tipo: 'polvo', n: 50, a: 0.35 * L, col: '255,226,170', seed: 5 }); }
-  if (L < 0.95) { ctx.save(); ctx.globalAlpha = 1 - L; P.particulas(ctx, t, { tipo: 'polvo', n: 60, a: 0.6, tam: 2, col: '210,225,255', area: [0, 0, W, 700], seed: 17 }); ctx.restore(); } };
+  if (L < 0.95) { const lu = 1 - L; P.resplandor(ctx, 860, 300, 1100, '150,180,255', 0.22 * lu); ctx.save(); ctx.globalAlpha = 1 - L; P.particulas(ctx, t, { tipo: 'polvo', n: 60, a: 0.6, tam: 2, col: '210,225,255', area: [0, 0, W, 700], seed: 17 }); ctx.restore(); } };
  const ENTRA = [S(16) - 0.15, S(16) + 0.9], SALE = [S(22) + 0.15, S(22) + 1.0], CORTE1 = [S(7), S(9) - 0.02];
  const TIT = (ctx, s, t, t0, t1, clave, px = 92, y = 480) => P.titular(ctx, s, 540, y, t, t0, t1, { px, clave, col: RO });
  const CNT = (ctx, t, x, v, fin, t0, o) => P.contador(ctx, t, x, 620, v, Object.assign({ t0, px: 104, final: fin }, o));
@@ -155,7 +155,7 @@
   k.play('thud', Tk.minutos, { f: 70, gain: 0.35 }); FX.clave(k, Tk.tres + 0.2);
   k.tone(S(5), { f: [[0, 220], [Tk.horas - S(5), 330]], dur: Tk.horas - S(5) + 0.4, gain: 0.025, a: 0.8, hold: Tk.horas - S(5) - 0.6, verb: 0.4 });   // el sol que cruza (continuo)
   k.play('thud', Tk.horas, { f: 64, gain: 0.4 });
-  k.noise(Tk.noche - 0.05, { dur: 3.2, color: 'brown', filter: 'lowpass', f: 300, gain: 0.08, a: 0.5, hold: 2 });   // cae la noche
+  k.tone(Tk.noche - 0.05, { f: 62, dur: 3.2, gain: 0.07, a: 0.6, hold: 2 }); k.tone(Tk.noche - 0.05, { f: 93, dur: 3.2, gain: 0.03, a: 0.6, hold: 2 });   // cae la noche (zumbido grave estable)
   k.noise(Tk.egipto - 0.2, { dur: 1.2, color: 'pink', filter: 'bandpass', f: [[0, 400], [1.2, 1500]], q: 0.7, gain: 0.09, a: 0.08, hold: 0.6 });   // se enciende la antorcha
   k.play('thud', Tk.anos, { f: 60, gain: 0.45 }); FX.clave(k, Tk.anos + 0.05);
   const g0 = Tk.escapa - 0.4, gd = SALE[0] - g0; k.noise(g0, { dur: gd, color: 'pink', filter: 'bandpass', f: 2600, q: 3, gain: 0.04, a: 0.4, hold: gd - 0.8 });   // el agua que se escapa: UN hilo continuo
