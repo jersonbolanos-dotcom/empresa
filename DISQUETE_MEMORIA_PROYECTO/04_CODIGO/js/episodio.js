@@ -317,7 +317,7 @@
   ctx.save(); P.aplicaCamara(ctx, cam); mundoV(ctx, tl, 1, 'fondo'); ctx.restore(); avalancha(ctx, tl, tg, 'atras'); ctx.save(); P.aplicaCamara(ctx, cam); mundoV(ctx, tl, 1, 'dedo'); ctx.restore(); avalancha(ctx, tl, tg, 'delante');
   P.particulas(ctx, tl, { tipo: 'polvo', n: 50, a: 0.35, seed: 5 }); fogonazo(ctx, t, [[T_FIN, 0.5]]); P.titular(ctx, 'CABEN EN UNA UÑA', 540, 480, t, T_FIN + 0.35, 0, { px: 96, clave: 'UÑA', col: '#ff3b3b' });
   P.vineta(ctx, 0.5); P.grano(ctx, tl, 0.05); P.marca(ctx, t, T.end + 0.95);
- }, sfx(k) { FX.clave(k, Tk.una2); k.noise(Tk.una2, { dur: DURATION - Tk.una2, color: 'pink', filter: 'bandpass', f: 2200, q: 0.7, gain: 0.09, a: 0.02, hold: DURATION - Tk.una2 - 0.8 }); } });
+ }, sfx() { /* v2.0: el plano final repite el fotograma 0 en silencio (solo la voz): así no pasan de 3 los sonidos entre 50 y 60 s */ } });
 
  // ---------- MONTAJE ----------
  const EP = PL.make({
