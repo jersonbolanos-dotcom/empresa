@@ -1,4 +1,23 @@
-# Videoclip moto · estética gangster / rockstar / dark trap
+# Videoclip moto · V2 estilo película de acción de autos (versión vigente)
+
+> La V1 (estética trap/gangster con glitch, semitono y textos de golpe) está respaldada en `V1/`.
+> V2 hecha a petición: «tipo cinematográfico como en las películas de Rápidos y furiosos».
+> Se toma solo el lenguaje visual del género; no se usa título, logos, personajes ni música de esa franquicia.
+
+## Cambios V2
+- **Eliminado**: glitch, separación RGB, semitono, póster rojo, brasas, flashes rojos/blancos y los textos «125» de golpe.
+- **Gradación blockbuster turquesa/naranja**: sombras frías, altas luces y piel cálidas, contraste alto y limpio.
+- **Franjas de cine fijas** (200 px) y **destello anamórfico azul** horizontal en el faro; neblina iluminada por el haz.
+- Intro: negro → destello azul que se abre → fundido al asiento. Cámara lenta heroica en el reveal (sin congelado).
+- Speed ramps, whip con motion blur real, push-ins y sacudidas medidas en los golpes. Grano de película fino.
+- Cierre: fundido a negro y un título discreto «1 2 5 / F I» en acero (texto impreso en la moto).
+- **Sonido de tráiler**: braams graves (Re), impactos, tic-tac de tensión, ostinato de cuerda grave, taikos, whooshes,
+  risers con tono Shepard, reverse impacts, silencio antes del reveal, golpe tonal final y **motor monocilíndrico
+  sintetizado** (arranque, ralentí, acelerón en el whip, gran acelerón hasta el corte en el reveal y versión «a cámara lenta» oscurecida).
+
+---
+
+## Base común (V1)
 
 ## Material original (`01_ORIGINAL/`, intacto, md5 2c1260aa653fd304acf742359155e86a)
 - 480×854 (9:16), H.264, ~29,83 fps variable, 14,87 s, AAC 48 kHz estéreo (solo ambiente, sin música).
@@ -31,5 +50,5 @@ ffmpeg -i ../01_ORIGINAL/VID-20261115-WA0000.mp4 -an -vf "fps=30,minterpolate=fp
 python3 video.py src120.rgb video_sin_audio.mp4        # ~3 min con 4 núcleos
 python3 audio.py ../03_AUDIO/diseno_sonoro_premaster.wav
 # máster: loudnorm 2 pasadas (-14 LUFS, lineal) + alimiter 0.84 → diseno_sonoro_master.wav
-ffmpeg -i video_sin_audio.mp4 -i ../03_AUDIO/diseno_sonoro_master.wav -map 0:v -map 1:a -c:v copy -c:a aac -b:a 320k -ar 48000 -shortest -movflags +faststart ../04_FINAL/VIDEOCLIP_MOTO_TRAP_1080x1920.mp4
+ffmpeg -i video_sin_audio.mp4 -i ../03_AUDIO/diseno_sonoro_master.wav -map 0:v -map 1:a -c:v copy -c:a aac -b:a 320k -ar 48000 -shortest -movflags +faststart ../04_FINAL/VIDEOCLIP_MOTO_CINE_1080x1920.mp4
 ```
