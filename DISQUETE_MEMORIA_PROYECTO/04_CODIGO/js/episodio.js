@@ -317,7 +317,8 @@
   ctx.save(); P.aplicaCamara(ctx, cam); mundoV(ctx, tl, 1, 'fondo'); ctx.restore(); avalancha(ctx, tl, tg, 'atras'); ctx.save(); P.aplicaCamara(ctx, cam); mundoV(ctx, tl, 1, 'dedo'); ctx.restore(); avalancha(ctx, tl, tg, 'delante');
   P.particulas(ctx, tl, { tipo: 'polvo', n: 50, a: 0.35, seed: 5 }); fogonazo(ctx, t, [[T_FIN, 0.5]]); P.titular(ctx, 'CABEN EN UNA UÑA', 540, 480, t, T_FIN + 0.35, 0, { px: 96, clave: 'UÑA', col: '#ff3b3b' });
   P.vineta(ctx, 0.5); P.grano(ctx, tl, 0.05); P.marca(ctx, t, T.end + 0.95);
- }, sfx() { /* v2.0: el plano final repite el fotograma 0 en silencio (solo la voz): así no pasan de 3 los sonidos entre 50 y 60 s */ } });
+ }, sfx(k) {   // v2.0: la avalancha del plano final suena suave y continua desde los 60,1 s (no suma un 4.º sonido entre 50 y 60 s y no deja silencio al final)
+  const t0 = Math.max(60.1, Tk.una2 + 0.3), d = DURATION - t0; k.noise(t0, { dur: d, color: 'pink', filter: 'bandpass', f: 2200, q: 0.7, gain: 0.07, a: 0.4, hold: d - 0.3 }); k.noise(t0, { dur: d, color: 'brown', filter: 'lowpass', f: 600, gain: 0.08, a: 0.4, hold: d - 0.3 }); } });
 
  // ---------- MONTAJE ----------
  const EP = PL.make({
