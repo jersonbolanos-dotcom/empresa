@@ -5083,7 +5083,8 @@
   lines.forEach((ln, li) => { const lw = ln.reduce((s, i) => s + all[i], 0) + sp * (ln.length - 1); let x = 540 - lw / 2;
    ln.forEach((i) => { const w = ch[i], shown = t >= w.s - 0.04, active = shown && (i === ch.length - 1 || t < ch[i + 1].s - 0.04), kw = cfg.capMaxKW ? i === kwIdx : isKW(w), ic = icn(w), pop = shown ? E.out(win(t, w.s - 0.04, w.s + 0.12)) : 0, yy = y0 + li * lh + (shown ? (1 - pop) * 8 : 0), tx = x + (ic ? iw : 0), ww = all[i] - (ic ? iw : 0);
     if (!shown && !ahead) { x += all[i] + sp; return; }
-    if (kw && shown && !mono) { const bx = tx - 10, by = yy - px * 0.88, bw = ww + 20, bh = px * 1.14; ctx.save(); ctx.globalAlpha = fade * pop; ctx.fillStyle = H.rgba(H.hex(sel), 0.26); ctx.beginPath(); ctx.roundRect(bx, by, bw, bh, 6); ctx.fill(); ctx.strokeStyle = sel; ctx.lineWidth = 3; ctx.stroke();
+    if (kw && shown && !mono && cfg.capRecuadro === 'fino') { const bx = tx - 9, by = yy - px * 0.86, bw = ww + 18, bh = px * 1.1; ctx.save(); ctx.globalAlpha = fade * pop; ctx.fillStyle = H.rgba(H.hex(sel), 0.14); ctx.beginPath(); ctx.roundRect(bx, by, bw, bh, 7); ctx.fill(); ctx.strokeStyle = sel; ctx.lineWidth = 2.5; ctx.stroke(); ctx.restore(); }   // v2.1: recuadro azul fino (modo viral)
+    else if (kw && shown && !mono) { const bx = tx - 10, by = yy - px * 0.88, bw = ww + 20, bh = px * 1.14; ctx.save(); ctx.globalAlpha = fade * pop; ctx.fillStyle = H.rgba(H.hex(sel), 0.26); ctx.beginPath(); ctx.roundRect(bx, by, bw, bh, 6); ctx.fill(); ctx.strokeStyle = sel; ctx.lineWidth = 3; ctx.stroke();
      ctx.lineWidth = 3.5; ctx.beginPath(); ctx.moveTo(bx, by - 4); ctx.lineTo(bx, by + bh * 0.6); ctx.moveTo(bx + bw, by + bh * 0.4); ctx.lineTo(bx + bw, by + bh + 4); ctx.stroke(); for (const [hx, hy] of [[bx, by - 10], [bx + bw, by + bh + 10]]) { ctx.fillStyle = sel; ctx.beginPath(); ctx.arc(hx, hy, 8.5, 0, TAU); ctx.fill(); ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 2.5; ctx.stroke(); ctx.strokeStyle = sel; } ctx.restore(); }
     if (ic && shown) { ctx.save(); ctx.globalAlpha = fade * pop; P.icon(ctx, ic, x + iw * 0.45, yy - px * 0.34, px * 0.9, { mode: 'flat', col: cfg.capIconCol || '#58b4ff' }); ctx.restore(); }
     ctx.font = active || kw ? fB : fD; ctx.globalAlpha = fade * (shown ? pop * (active || kw ? 1 : 0.58) : 0.24);
@@ -5619,7 +5620,18 @@ P._limpiarFijos = () => { for (const k of Object.keys(FIJOS)) delete FIJOS[k]; }
  function make(cfg) {
   if (cfg.estilo && ESTILOS[cfg.estilo]) cfg = { ...ESTILOS[cfg.estilo], ...cfg };
   SND_ETQ = cfg.etiquetas === 'suave' || cfg.etiquetas === 'silencio' ? cfg.etiquetas : 'clasico';   // v1.42: sonido de las etiquetas (por defecto, el de siempre)
-  const VIRAL = cfg.modo === 'viral'; if (VIRAL && cfg.etiquetas === undefined) SND_ETQ = 'silencio';   // v2.0: modo viral (etiquetas mudas: un sonido solo cuando pasa algo importante)
+  const VIRAL = cfg.modo === 'viral'; if (VIRAL && cfg.etiquetas === undefined) SND_ETQ = 'silencio';
+  // v2.1 · recuadro azul fino en UNA palabra clave de vez en cuando (≈ una cada 2-3 frases). Modo viral: activado por defecto (recuadro: false lo quita).
+  //   recuadro: true (elige solo: la palabra con contenido más larga de una frase de cada tres) · ['sombra', 'luz', …] (esas palabras, la primera vez que se dicen)
+  //   · [['luz', t0, t1], …] (con ventana de tiempo). No se aplica si el episodio ya pasa `keywords` (los episodios anteriores no cambian).
+  if (VIRAL && cfg.recuadro !== false && cfg.keywords === undefined && cfg.align && cfg.align.words) {
+   const VAC = new Set('para porque como cuando desde durante hasta entre sobre también siempre nunca entonces había tenía estaba eran sería serían este esta esto estos estas otra otro otros otras cada todo toda todos todas mismo misma pero sino aunque donde dónde cómo cuál qué quién mucho muchos mucha muchas poco pocos'.split(' '));
+   const lim = (w) => w.toLowerCase().replace(/[^a-z0-9áéíóúüñ]/g, ''), ws = cfg.align.words, kws = [];
+   if (Array.isArray(cfg.recuadro)) { for (const r of cfg.recuadro) { if (Array.isArray(r)) { kws.push(r); continue; } const w = ws.find((q) => lim(q.w) === lim(r) && !kws.some((k) => k[1] === q.s - 0.01)); if (w) kws.push([w.w, w.s - 0.01, w.e + 0.01]); } }
+   else { const segs = [...new Set(ws.map((w) => w.seg))], oc = cfg.capOcultar || [], oculto = (t) => oc.some(([a0, b0]) => t >= a0 && t < b0); let n = 0;
+    for (const sg of segs) { const pw = ws.filter((w) => w.seg === sg); if (!pw.length || oculto(pw[0].s)) continue; n++; if (n % 3 !== 2) continue; const cand = pw.filter((w) => lim(w.w).length >= 4 && !VAC.has(lim(w.w))).sort((a, b) => lim(b.w).length - lim(a.w).length)[0]; if (cand) kws.push([cand.w, cand.s - 0.01, cand.e + 0.01]); } }
+   cfg = { ...cfg, keywords: kws.map(([w, a0, b0]) => [w.replace(/[^\p{L}\p{N}]/gu, ''), a0, b0]), capRecuadro: cfg.capRecuadro || 'fino' };
+  }   // v2.0: modo viral (etiquetas mudas: un sonido solo cuando pasa algo importante)
   if (cfg.marca) Object.assign(P.MARCA, cfg.marca);
   SK = SKINS[cfg.skin || 'plana'];
   P.SAFE.on = !!cfg.zonaSegura; const PZ = cfg.pausas ? P.pausas(cfg.align, cfg.pausaMin ?? 0.4, cfg.pausaMax ?? 1.6) : [], WARP = PZ.length ? pausaWarp(PZ) : (t) => t;

@@ -7,6 +7,7 @@
 > 2. La frase gancho dura de 2 a 4 s y contiene la paradoja completa (creencia rota · «¿Sabías que…?» con algo que parece imposible · paradoja con un hecho real · dos números que chocan).
 > 3. La segunda frase es un segundo dato concreto que agranda el misterio. Prohibidas las promesas genéricas («te va a sorprender», «tiene un secreto», «lo que nadie sabe»).
 > 4. Un solo texto en pantalla durante el gancho: lo que se oye es lo que se lee. La pregunta fija de arriba solo se usa si no coincide con el subtítulo.
+> 4b. (v2.1) En los subtítulos, un recuadro azul fino alrededor de UNA palabra clave de vez en cuando (≈ una cada 2-3 frases, en las palabras más importantes), nunca en cada frase (`recuadro`, activado por defecto en el modo viral).
 > 5. Si el tema tiene una medida que cambia, se muestra como contador desde el segundo 0 (`P.contador`).
 > **GUION**
 > 6. Estructura de cadena de preguntas con un re-gancho cada 8 a 15 s («Y lo más raro:», «Pero…», «¿Y para qué?»).

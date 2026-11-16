@@ -1,0 +1,33 @@
+# ¿Cómo medían el tiempo antes de los relojes? · voz ElevenLabs Eleven v4, Dan, UNA toma (1.078 caracteres, 70,7 s).
+# Una línea por tramo de voz (26, separados por las pausas de la toma). [PAUSA x] = silencio de posproducción antes de una revelación.
+Durante miles de años, una hora no duraba una hora.
+En Londres, en invierno, una hora eran treinta y nueve minutos;
+[PAUSA 0.4]
+en verano, ochenta y tres.
+¿Cómo podía estirarse una hora?
+Porque el reloj era una sombra.
+Un palo clavado en el suelo, al sol, proyecta una sombra que gira durante el día.
+Y alguien decidió partir la luz del día en doce horas.
+Como cortar una barra de pan en doce trozos:
+si la barra crece, cada trozo también.
+No es que el reloj fallara:
+es que la hora era un pedazo de luz.
+Pero hubo un problema:
+[PAUSA 0.6]
+la noche.
+Sin sol, no hay sombra.
+Así que en Egipto usaban un reloj de agua.
+El más antiguo que se conserva tiene tres mil cuatrocientos años.
+Es una vasija de piedra con un agujerito:
+el agua se escapa, y su nivel baja por unas marcas.
+Y lo más raro:
+[PAUSA 0.4]
+por dentro tiene doce reglas distintas…
+una para cada mes.
+Porque las horas de la noche también cambiaban con las estaciones.
+¿Y cuándo dejó de estirarse la hora?
+Con los relojes mecánicos:
+[PAUSA 0.4]
+hace más de seiscientos años, las horas se volvieron iguales.
+[PAUSA 0.5]
+Pero durante miles de años, la hora la decidió una sombra.

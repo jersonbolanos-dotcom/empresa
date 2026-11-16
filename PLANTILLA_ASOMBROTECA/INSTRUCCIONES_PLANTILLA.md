@@ -1091,3 +1091,7 @@ Las manos de los vídeos salen ahora de la **hoja de manos ilustradas** del cana
 ## v2.0.1 · Acortar una pausa de la grabación (`tools/acortar_pausa.py`)
 
 Cuando la voz trae un silencio demasiado largo entre dos frases y no se puede regenerar: desde `04_CODIGO`, `python3 -I ../../PLANTILLA_ASOMBROTECA/tools/acortar_pausa.py alineacion_C.json 18 0.6` deja 0,6 s de silencio después del tramo 18 (índices desde 0). Solo corta silencio (si encuentra sonido por encima de −30 dBFS no cambia nada), los tramos de voz quedan idénticos y el QC lo comprueba por md5. Luego `python3 -I $T/subtitulos.py alineacion_C.json ../06_SUBTITULOS/subtitulos_C.srt js/datos_C.js` y `build.py` (rearma la voz). Si se vuelve a ejecutar `alinear.py`, hay que repetir el recorte. No sirve para pausas de posproducción (`[PAUSA x]`): esas se cambian en `tramos.txt`.
+
+## v2.1 · Recuadro azul fino en los subtítulos (`recuadro`)
+
+En modo viral, `PL.make` pone un recuadro azul fino alrededor de UNA palabra clave más o menos cada 2-3 frases. Por defecto la elige sola (`recuadro: true`); para elegirlas a mano: `recuadro: [['sombra', S(4), S(5)], ['luz', S(10), S(11)], …]` (palabra y ventana de tiempo) o `recuadro: ['sombra', 'luz']` (la primera vez que se dicen). `recuadro: false` lo quita. Durante `capOcultar` no hay subtítulos y, por tanto, tampoco recuadro. Ejemplo: `RELOJES_ANTIGUOS_PROYECTO/04_CODIGO/js/episodio.js`.
