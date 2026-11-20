@@ -1,6 +1,6 @@
 # Publicar · ¿Cómo aguanta un terremoto un puente así? (v2.2 · modo viral · engineering_blueprint)
 
-> Un solo vídeo: `PUENTE_CHACAO_FINAL.mp4` (~63 s). Portada: `portada.jpg` (la rueda sobre la junta, con el puente y el mar abajo; titular «3 KM SOBRE LA **FALLA**» con «FALLA» en rojo).
+> Un solo vídeo: `PUENTE_CHACAO_FINAL.mp4` (62,4 s, QC TODO CORRECTO). Portada: `portada.jpg` (la rueda sobre la junta, con el puente y el mar abajo; titular «3 KM SOBRE LA **FALLA**» con «FALLA» en rojo).
 > El vídeo termina en bucle (el último plano es el fotograma 0). El texto no da la respuesta (no decir «se mece» ni «colgante»). Sin enlaces.
 
 ## Facebook (Reels)
