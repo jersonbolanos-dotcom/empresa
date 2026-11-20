@@ -167,7 +167,7 @@
   cable(ctx, c, xs, sd, ZC, t, s, plano, o.acentoCable); orden.forEach((tr) => torre(ctx, c, tr, sd, plano, ZC));
   // 2) el tablero (cajón de acero) con su onda
   const borde = (z, y) => xs.map((x) => [x + dx, y + ondaD(x, t, s), z]);
-  const z0 = Math.max(-12, Math.min(11, c.p[2] + 0.8)), BZ = borde(z0, YD), B12 = borde(12, YD);
+  const z0 = Math.abs(c.cy) > 0.7 ? Math.max(-12, Math.min(11, c.p[2] + 0.8)) : -12, BZ = borde(z0, YD), B12 = borde(12, YD);
   if (!plano && c.p[1] > YD + ondaD(c.p[0], t, s) + 0.2) { for (let i = 0; i < xs.length - 1; i++) { const q = [pr3(c, BZ[i]), pr3(c, BZ[i + 1]), pr3(c, B12[i + 1]), pr3(c, B12[i])]; if (!poli(ctx, q)) continue; ctx.fillStyle = '#4b5260'; ctx.fill(); } ctx.strokeStyle = 'rgba(255,230,170,0.5)'; ctx.lineWidth = 1.5; ctx.setLineDash([18, 22]); trazo3(ctx, c, borde(0, YD + 0.05)); ctx.stroke(); ctx.setLineDash([]); }
   if (c.p[2] < -12.5 || plano) { const top = borde(-12, YD), bot = borde(-12, YD - 4.5); for (let i = 0; i < xs.length - 1; i++) { const q = [pr3(c, top[i]), pr3(c, top[i + 1]), pr3(c, bot[i + 1]), pr3(c, bot[i])]; if (!poli(ctx, q)) continue; if (plano) { ctx.fillStyle = 'rgba(220,235,255,0.05)'; ctx.fill(); } else { ctx.fillStyle = '#39414e'; ctx.fill(); } }
    if (plano) { trazo3(ctx, c, top); inkP(ctx, 3); trazo3(ctx, c, bot); inkP(ctx, 3); } else { ctx.strokeStyle = 'rgba(255,214,150,0.6)'; ctx.lineWidth = 2; trazo3(ctx, c, top); ctx.stroke(); ctx.strokeStyle = '#1b1f27'; ctx.lineWidth = 3; trazo3(ctx, c, borde(-12.2, YD + 1.1)); ctx.stroke(); } }
@@ -177,7 +177,7 @@
   // 4) lo cercano: patas, vigas, cable y péndolas del lado de la cámara
   orden.forEach((tr) => { torre(ctx, c, tr, sd, plano, -ZC); vigas(ctx, c, tr, sd, plano); });
   cable(ctx, c, xs, sd, -ZC, t, s, plano, o.acentoCable);
-  for (let x = 10; x < 2200; x += 30) { if (Math.abs(x - 1055) < 12) continue; for (const z of plano ? [-ZC] : c.p[2] > -ZC - 1 ? [ZC] : [-ZC, ZC]) { const a = pr3(c, [x + sd.suelo * 1.15, cableY(x) + ondaC(x, t, s), z]), b = pr3(c, [x + dx, YD + ondaD(x, t, s), z]); if (!a || !b) continue; ctx.beginPath(); ctx.moveTo(a[0], a[1]); ctx.lineTo(b[0], b[1]); if (plano) inkP(ctx, 1.4, o.acentoPend ? `rgba(255,242,184,${0.6 + 0.4 * o.acentoPend})` : 'rgba(235,244,255,0.7)'); else { ctx.strokeStyle = z < 0 ? 'rgba(215,210,205,0.75)' : 'rgba(160,160,168,0.45)'; ctx.lineWidth = Math.max(1, Math.min(5, (c.f * 0.12) / ((a[2] + b[2]) / 2))); ctx.stroke(); } } }
+  for (let x = 10; x < 2200; x += 30) { if (Math.abs(x - 1055) < 12) continue; for (const z of plano ? [-ZC] : c.p[2] > -ZC - 1 && Math.abs(c.cy) > 0.7 ? [ZC] : [-ZC, ZC]) { const a = pr3(c, [x + sd.suelo * 1.15, cableY(x) + ondaC(x, t, s), z]), b = pr3(c, [x + dx, YD + ondaD(x, t, s), z]); if (!a || !b) continue; ctx.beginPath(); ctx.moveTo(a[0], a[1]); ctx.lineTo(b[0], b[1]); if (plano) inkP(ctx, 1.4, o.acentoPend ? `rgba(255,242,184,${0.6 + 0.4 * o.acentoPend})` : 'rgba(235,244,255,0.7)'); else { ctx.strokeStyle = z < 0 ? 'rgba(215,210,205,0.75)' : 'rgba(160,160,168,0.45)'; ctx.lineWidth = Math.max(1, Math.min(5, (c.f * 0.12) / ((a[2] + b[2]) / 2))); ctx.stroke(); } } }
   return vol; };
  // cielo, mar con brillo del sol y montes en el horizonte (Chiloé al sur, el continente al norte); s = agua agitada por el sismo
  const cielo = (ctx, c, t, s = 0) => { const hy = 960 + c.f * Math.tan(c.pit), sp = pr3(c, [c.p[0] + SOL[0] * 1e6, c.p[1] + SOL[1] * 1e6, c.p[2] + SOL[2] * 1e6]);
@@ -196,9 +196,9 @@
   [S(6) + 0.3, 2075, 20, -300, 2210, 95, 0, 1000, 0], [Se(6) - 0.3, 2095, 12, -280, 2210, 105, 0, 1000, 0],
   [S(7) + 0.2, 2120, 30, -220, 2200, 10, -10, 1000, 0], [Se(7) + 0.5, 2170, 8, -120, 2205, -5, -14, 1000, 0],
   [S(10) - 0.4, 36, 61, -30, -70, 92, 0, 1000, 1], [S(12) - 1.0, 26, 59.5, -26, -60, 96, 0, 1000, 1],
-  [S(12) - 0.2, 1930, 80, -560, 1930, 80, 0, 1000, 0], [Se(14) + 0.3, 1960, 80, -540, 1960, 80, 0, 1000, 0],
-  [S(15) + 0.6, 32, 61, -30, -60, 82, 0, 1000, 1], [S(15) + 2.2, 2.5, YD + 1.35, -11.2, 2.6, YD + 1.1, CARZ, 1000, 1],
-  [S(15) + 2.9, 3.0, YD + 1.0, -10.5, 3.2, YD + 0.75, CARZ, 1000, 1], [S(15) + 3.6, RUEDA_D, YD + 0.42, -9.2, RUEDA_D, YD + 0.34, CARZ, 1000, 1]];
+  [S(12) - 0.2, 2100, 106, -300, 2100, 106, 0, 1000, 0], [Se(14) + 0.3, 2115, 106, -290, 2115, 106, 0, 1000, 0],
+  [S(15) + 0.6, 32, 61, -30, -60, 82, 0, 1000, 1], [S(15) + 1.7, 2.3, YD + 1.3, -10.6, 2.3, YD + 1.2, CARZ, 1000, 1],
+  [S(15) + 3.75, 3.1, YD + 0.95, -10.6, 3.3, YD + 0.65, CARZ, 1000, 1], [S(15) + 4.3, RUEDA_D, YD + 0.42, -9.2, RUEDA_D, YD + 0.34, CARZ, 1000, 1]];
  let CAMK = null;
  const camMundo = (t) => { CAMK = CAMK || CAM(); const cx0 = carX(t), ab = (k) => { const v = k.slice(1, 8); if (k[8]) { v[0] += cx0; v[3] += cx0; } return v; };
   let v; if (t <= CAMK[0][0]) v = ab(CAMK[0]); else if (t >= CAMK[CAMK.length - 1][0]) v = ab(CAMK[CAMK.length - 1]); else for (let i = 0; i < CAMK.length - 1; i++) { const a = CAMK[i], b = CAMK[i + 1]; if (t < b[0]) { const u = E.inOut(C01((t - a[0]) / (b[0] - a[0]))), va = ab(a), vb = ab(b); v = va.map((q, k) => lerp(q, vb[k], u)); break; } }
@@ -211,6 +211,24 @@
   ctx.save(); ctx.globalAlpha = a; L.linea(ctx, [[x, b[1]], [x, lerp(b[1], tp[1], E.out(C01(a * 1.2)))]], { cota: a > 0.95, ancho: 4, t }); L.linea(ctx, [[b[0] + 40, tp[1]], [x + 30, tp[1]]], { ancho: 2, t }); L.linea(ctx, [[b[0] + 40, b[1]], [x + 30, b[1]]], { ancho: 2, t });
   const ae = C01((t - Tk.edificio + 0.2) / 0.5); if (ae > 0) { const bw = 150, bx = b[0] - 300; ctx.globalAlpha = a * ae; ctx.fillStyle = 'rgba(18,59,122,0.55)'; ctx.fillRect(bx, b[1] - h, bw, h); ctx.strokeStyle = 'rgba(235,244,255,0.95)'; ctx.lineWidth = 4; ctx.strokeRect(bx, b[1] - h, bw, h); ctx.strokeStyle = 'rgba(235,244,255,0.55)'; ctx.lineWidth = 1.5; for (let k = 1; k < 65; k++) { const y = b[1] - (h * k) / 65; ctx.beginPath(); ctx.moveTo(bx, y); ctx.lineTo(bx + (k % 5 ? bw * 0.35 : bw), y); ctx.stroke(); } nota(ctx, '65 PISOS', bx + bw / 2, b[1] + 40, { px: 32, al: 'center', a: 1 }); }
   ctx.restore(); };
+ const ventana = (c, t) => { const s = SISMO(t), q = pr3(c, [carX(t) + sismoDX(t, s).tablero + 2.15, YD + ondaD(carX(t), t, s) + 1.25, CARZ]); return q ? [q[0], q[1]] : [540, 960]; };
+ // DENTRO DEL CARRO, desde los ojos del conductor: la mano grande aprieta el volante que vibra; por el parabrisas, el tablero ondulando y los cables
+ const conductor = (ctx, t) => { const s = SISMO(t), x = carX(t) + sismoDX(t, s).tablero, y = YD + ondaD(carX(t), t, s), fr = Math.round(t * 30), R = H.rng(700 + fr), j = 10 * s;
+  const c = cam3([x + 2.2 + (R() - 0.5) * 0.02 * s, y + 1.25 + (R() - 0.5) * 0.03 * s, CARZ + 0.55], [x + 60, y + 1.0, CARZ + 1.2], 760);
+  cielo(ctx, c, t, s); puente(ctx, c, t, 'real', { sismo: s, carro: false });
+  ctx.save(); ctx.translate((R() - 0.5) * j, (R() - 0.5) * j);
+  ctx.fillStyle = '#0b0c10'; ctx.beginPath(); ctx.moveTo(-40, -40); ctx.lineTo(W + 40, -40); ctx.lineTo(W + 40, 300); ctx.quadraticCurveTo(540, 220, -40, 300); ctx.closePath(); ctx.fill();                    // techo
+  ctx.beginPath(); ctx.moveTo(-40, 260); ctx.lineTo(130, 290); ctx.lineTo(10, 1300); ctx.lineTo(-40, 1300); ctx.closePath(); ctx.fill(); ctx.beginPath(); ctx.moveTo(W + 40, 260); ctx.lineTo(W - 130, 290); ctx.lineTo(W - 10, 1300); ctx.lineTo(W + 40, 1300); ctx.closePath(); ctx.fill();   // parantes
+  ctx.fillStyle = '#16181e'; ctx.fillRect(440, 270, 200, 70); ctx.fillStyle = 'rgba(255,200,150,0.25)'; ctx.fillRect(450, 280, 180, 50);                                                                              // retrovisor
+  const gd = ctx.createLinearGradient(0, 1180, 0, HH); gd.addColorStop(0, '#26272d'); gd.addColorStop(0.1, '#141519'); gd.addColorStop(1, '#08080a'); ctx.fillStyle = gd; ctx.beginPath(); ctx.moveTo(-40, 1260); ctx.quadraticCurveTo(540, 1150, W + 40, 1260); ctx.lineTo(W + 40, HH + 40); ctx.lineTo(-40, HH + 40); ctx.closePath(); ctx.fill();   // tablero del carro
+  ctx.fillStyle = 'rgba(255,190,130,0.25)'; ctx.fillRect(-40, 1205, W + 80, 3);
+  // el volante (vibra con el temblor) y la mano que lo aprieta
+  const vx = 540 + (R() - 0.5) * j * 1.5, vy = 1640 + (R() - 0.5) * j * 1.5; ctx.strokeStyle = '#3b3e47'; ctx.lineWidth = 64; ctx.beginPath(); ctx.ellipse(vx, vy, 470, 330, 0, Math.PI * 1.02, Math.PI * 1.98); ctx.stroke(); ctx.strokeStyle = 'rgba(255,205,160,0.55)'; ctx.lineWidth = 5; ctx.beginPath(); ctx.ellipse(vx, vy - 26, 470, 330, 0, Math.PI * 1.1, Math.PI * 1.9); ctx.stroke();
+  ctx.fillStyle = '#2e3038'; ctx.beginPath(); ctx.ellipse(vx, vy + 40, 150, 100, 0, 0, TAU); ctx.fill(); ctx.fillRect(vx - 420, vy - 10, 840, 60);
+  P.manoR(ctx, 'puno', vx - 330 + (R() - 0.5) * j, vy - 250 + (R() - 0.5) * j, 470, { t, ang: 0.5 });
+  ctx.restore();
+  ctx.save(); ctx.globalAlpha = 0.12; ctx.fillStyle = '#ffd9b0'; ctx.beginPath(); ctx.moveTo(130, 290); ctx.lineTo(600, 290); ctx.lineTo(260, 1200); ctx.lineTo(60, 1200); ctx.closePath(); ctx.fill(); ctx.restore();   // reflejo del parabrisas
+ };
  const mundoPlano = (ctx, t, o = {}) => { const c = o.cam || camMundo(t), L = pl(); L.fondo(ctx, t);
   // el agua y el fondo del mar en el plano (línea de agua punteada)
   const hy = 960 + c.f * Math.tan(c.pit); const a0 = pr3(c, [c.p[0] - 3000, 0, 0]), b0 = pr3(c, [c.p[0] + 3000, 0, 0]); if (a0 && b0) L.linea(ctx, [[a0[0], a0[1]], [b0[0], b0[1]]], { punteada: true, ancho: 2, t });
@@ -218,14 +236,14 @@
   const sdp = sismoDX(t, o.sismo || 0); for (const tx of [1055, 2210]) for (let k = -2; k <= 2; k++) { const a = pr3(c, [tx + sdp.suelo + k * 9, -3, -24]), b = pr3(c, [tx + sdp.suelo + k * 9, -93, -24]); if (a && b) L.linea(ctx, [[a[0], a[1]], [b[0], b[1]]], { ancho: 2.5, t }); }
   puente(ctx, c, t, 'plano', { sismo: o.sismo || 0, carro: false, acentoPend: o.acentoPend, acentoCable: o.acentoCable });
   // columnas que NO tiene (el «se apoya»), punteadas y tachadas en rojo
-  if (o.columnas > 0) { ctx.save(); ctx.globalAlpha = o.columnas; for (let x = 1350; x <= 2100; x += 150) { const a = pr3(c, [x, YD - 4.5, -12]), b = pr3(c, [x, -30, -12]); if (!a || !b) continue; L.linea(ctx, [[a[0], a[1]], [b[0], b[1]]], { punteada: true, ancho: 3, t }); } if (o.tache > 0) { const p1 = pr3(c, [1330, YD - 10, -12]), p2 = pr3(c, [2120, -30, -12]), p3 = pr3(c, [2120, YD - 10, -12]), p4 = pr3(c, [1330, -30, -12]); if (p1 && p2) { L.linea(ctx, [[p1[0], p1[1]], [p2[0], p2[1]]], { rol: 'rojo', ancho: 7, p: C01(o.tache * 2), t }); L.linea(ctx, [[p3[0], p3[1]], [p4[0], p4[1]]], { rol: 'rojo', ancho: 7, p: C01(o.tache * 2 - 1), t }); } } ctx.restore(); }
+  if (o.columnas > 0) { ctx.save(); ctx.globalAlpha = o.columnas; for (let x = 1960; x <= 2170; x += 70) { const a = pr3(c, [x, YD - 4.5, -12]), b = pr3(c, [x, -30, -12]); if (!a || !b) continue; L.linea(ctx, [[a[0], a[1]], [b[0], b[1]]], { punteada: true, ancho: 3, t }); } if (o.tache > 0) { const p1 = pr3(c, [1950, YD - 10, -12]), p2 = pr3(c, [2185, -30, -12]), p3 = pr3(c, [2185, YD - 10, -12]), p4 = pr3(c, [1950, -30, -12]); if (p1 && p2) { L.linea(ctx, [[p1[0], p1[1]], [p2[0], p2[1]]], { rol: 'rojo', ancho: 7, p: C01(o.tache * 2), t }); L.linea(ctx, [[p3[0], p3[1]], [p4[0], p4[1]]], { rol: 'rojo', ancho: 7, p: C01(o.tache * 2 - 1), t }); } } ctx.restore(); }
  };
  // la sección del tablero: cajón de acero aerodinámico (recuadro del plano)
- const seccion = (ctx, t, a) => { if (a <= 0) return; const L = pl(), x = 540, y = 1250, s = 13; ctx.save(); ctx.globalAlpha = a;
-  ctx.fillStyle = 'rgba(8,30,70,0.7)'; ctx.fillRect(110, 1060, 860, 360); ctx.strokeStyle = 'rgba(235,244,255,0.8)'; ctx.lineWidth = 3; ctx.strokeRect(110, 1060, 860, 360);
+ const seccion = (ctx, t, a) => { if (a <= 0) return; const L = pl(), x = 540, y = 1690, s = 13; ctx.save(); ctx.globalAlpha = a;
+  ctx.fillStyle = 'rgba(8,30,70,0.7)'; ctx.fillRect(110, 1500, 860, 360); ctx.strokeStyle = 'rgba(235,244,255,0.8)'; ctx.lineWidth = 3; ctx.strokeRect(110, 1500, 860, 360);
   L.forma(ctx, { tipo: 'poli', pts: [[x - 26 * s, y], [x - 30 * s, y - 2 * s], [x + 30 * s, y - 2 * s], [x + 26 * s, y], [x + 18 * s, y + 4 * s], [x - 18 * s, y + 4 * s]].map((q) => [q[0], q[1] - 20]) }, { rol: 'objeto2', t });
   L.linea(ctx, [[x - 30 * s, y - 2 * s - 60], [x - 30 * s, y - 2 * s - 20]], { ancho: 2, t }); L.linea(ctx, [[x + 30 * s, y - 2 * s - 60], [x + 30 * s, y - 2 * s - 20]], { ancho: 2, t });
-  nota(ctx, 'TABLERO: CAJÓN DE ACERO', x, 1110, { px: 34, al: 'center', col: '#fff2b8' }); nota(ctx, 'colgado de las péndolas', x, 1370, { px: 32, al: 'center', a: 0.85 }); ctx.restore(); };
+  nota(ctx, 'TABLERO: CAJÓN DE ACERO', x, 1550, { px: 34, al: 'center', col: '#fff2b8' }); nota(ctx, 'colgado de las péndolas', x, 1810, { px: 32, al: 'center', a: 0.85 }); ctx.restore(); };
 
  // =================================================================================================
  // 4 · BAJO EL AGUA: el encepado de la pila norte, los pilotes y la corriente
@@ -259,7 +277,7 @@
  // =================================================================================================
  const AGUA = [S(8) - 0.75, S(8) + 0.25], SUBE = [S(10) - 0.15, S(10) + 0.75];
  const AP = [S(12) - 0.85, S(12) - 0.15], RE = [Se(14) + 0.05, S(15) - 0.05];   // real → plano y plano → real (mismo puente, sin corte)
- const RUEDA = [S(15) + 3.35, S(15) + 4.05];                                       // la cámara entra en la rueda del carro
+ const RUEDA = [S(15) + 4.3, S(15) + 5.0], ENTRA = [S(15) + 1.7, S(15) + 2.2], SALE = [S(15) + 3.25, S(15) + 3.75];   // ventanilla → conductor → rueda                                       // la cámara entra en la rueda del carro
  const TIT = (ctx, s, t, t0, t1, clave, px = 88, y = 560) => P.titular(ctx, s, 540, y, t, t0, t1, { px, clave, col: RO });
  const CNT = (ctx, t, v, t0, t1, o) => { t0 -= 0.3; if (t < t0 || t > t1) return; const a = 1 - C01((t - t1 + 0.25) / 0.25); P.contador(ctx, t, 540, 620, v, Object.assign({ t0, px: 112, final: v, a, colFinal: '#fff2b8' }, o)); if (t > t0 + 0.2) P.fuenteCifra(ctx, o.fuente, 540, 790, { a: 0.92 * a }); };
 
@@ -291,6 +309,10 @@
    mundoPlano(ctx, t, { sismo: sis, columnas: col, tache, acentoPend: C01((t - S(13)) / 0.4) * (1 - C01((t - S(14) - 1.2) / 0.5)), acentoCable: t > S(13) && t < S(14) + 1.2 });
    seccion(ctx, t, C01((t - S(14) + 0.1) / 0.4) * (1 - C01((t - Tk.mecerse + 0.6) / 0.4))); }
   else if (t < RE[1]) { const u = E.inOut(C01((t - RE[0]) / (RE[1] - RE[0]))); PLANO = 1 - u; mundoPlano(ctx, t, { sismo: sis }); ctx.save(); ctx.globalAlpha = u; mundoReal(ctx, t, { sismo: sis }); ctx.restore(); }
+  else if (t < ENTRA[0]) { PLANO = 0; mundoReal(ctx, t, { sismo: sis }); }
+  else if (t < ENTRA[1]) { PLANO = 0; const c3 = camMundo(ENTRA[0]); P.atravesar(ctx, t, ENTRA[0], ENTRA[1], (c) => mundoReal(c, ENTRA[0], { cam: c3, sismo: SISMO(ENTRA[0]) }), (c) => conductor(c, t), { centro: ventana(c3, ENTRA[0]), zoom: 7 }); }
+  else if (t < SALE[0]) { PLANO = 0; conductor(ctx, t); }
+  else if (t < SALE[1]) { PLANO = 0; const c4 = camMundo(SALE[1]); P.salir(ctx, t, SALE[0], SALE[1], (c) => conductor(c, t), (c) => mundoReal(c, SALE[1], { cam: c4, sismo: SISMO(SALE[1]) }), { centro: ventana(c4, SALE[1]), zoom: 7 }); }
   else if (t < RUEDA[0]) { PLANO = 0; mundoReal(ctx, t, { sismo: sis }); }
   else if (t < RUEDA[1]) { PLANO = 0; const c2 = camMundo(RUEDA[0]), wc = pr3(c2, [carX(RUEDA[0]) + sismoDX(RUEDA[0], sis).tablero + RUEDA_D, YD + ondaD(carX(RUEDA[0]), RUEDA[0], sis) + 0.34, CARZ]) || [540, 960]; P.atravesar(ctx, t, RUEDA[0], RUEDA[1], (c) => mundoReal(c, RUEDA[0], { cam: c2, sismo: SISMO(RUEDA[0]) }), (c) => rueda(c, t - DURATION, { vib: 1, mece: 0.03 * Math.sin(t * 1.6) }), { centro: [wc[0], wc[1]], zoom: 7 }); }
   else { PLANO = 0; const fin = C01((t - (DURATION - 1.4)) / 1.2); rueda(ctx, t - DURATION, { vib: 1, mece: 0.03 * Math.sin(t * 1.6) * (1 - fin) }); }
