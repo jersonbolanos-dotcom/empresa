@@ -12,13 +12,14 @@
  const S = (i) => A.segments[i].s, Se = (i) => A.segments[i].e;
  const C01 = (v) => Math.max(0, Math.min(1, v)), RO = '#ff6a5c', AMA = '#ffd23f';
  const PORTADA = typeof window !== 'undefined' && !!window.__SIN_SUBTITULOS;
- const Tk = { tresKm: wt(0, 'tres'), falla: wt(1, 'falla'), mil: wt(2, 'mil'), canal: wt(3, 'canal'), dentro: wt(3, 'dentro.'), tramos: wt(5, 'tramos.'), ciento: wt(6, 'ciento'), edificio: wt(6, 'edificio'),
+ const Tk = { tresKm: wt(0, 'tres'), falla: wt(1, 'falla'), mil: wt(2, 'mil', 1), canal: wt(3, 'canal'), dentro: wt(3, 'dentro.'), tramos: wt(5, 'tramos.'), ciento: wt(6, 'ciento'), edificio: wt(6, 'edificio'),
   mar: wt(7, 'mar?'), noventa: wt(9, 'noventa'), catorce: wt(9, 'catorce'), trotando: wt(9, 'trotando.'), tiembla: wt(11, 'tiembla?'), apoya: wt(12, 'apoya:'), cuelga: wt(13, 'cuelga.'),
   cables: wt(14, 'cables…'), mecerse: wt(14, 'mecerse'), quebrarse: wt(14, 'quebrarse.'), ruedas: wt(15, 'ruedas…'), mecerse2: wt(15, 'mecerse'), cruzarlo: wt(16, 'cruzarlo?') };
 
  // ---- la piel del plano solo en las explicaciones: el mundo real lleva su propia viñeta y grano (sin fibras de papel) ----
  const PB = PL.PIELES.engineering_blueprint, ACAB = PB.acabado; let PLANO = 0;
  PB.acabado = (ctx, t, o) => { if (PLANO > 0.5) ACAB(ctx, t, o); else { P.vineta(ctx, 0.5); P.grano(ctx, t, 0.045); } };
+ PB.sonidos = Object.assign({}, PB.sonidos, { transicion: (k, t, d = 0.6) => k.noise(t, { dur: d, color: 'brown', filter: 'lowpass', f: 900, gain: 0.09, a: 0.08, hold: d * 0.7 }) });   // un solo evento por transición (regla 155)
  const pl = () => PL.piel();
 
  // =================================================================================================
@@ -290,8 +291,7 @@
  B.push({ t0: 0, t1: S(2) - 0.05, in: { type: 'cut' }, draw(ctx, t) { PLANO = 0; if (PORTADA) { rueda(ctx, 0); return; }
   rueda(ctx, t); TIT(ctx, '3 KM SOBRE LA', t, -0.3, S(2) - 0.3, '', 92, 500); TIT(ctx, 'FALLA', t, -0.3, S(2) - 0.3, 'FALLA', 120, 620);
  }, sfx(k) {
-  k.tone(0, { f: 52, dur: S(2), gain: 0.07, a: 0.05, hold: S(2) - 0.6 }); k.tone(0, { f: 78, dur: S(2), gain: 0.025, a: 0.05, hold: S(2) - 0.6 });   // el rodar sobre la junta (continuo)
-  k.play('thud', Tk.tresKm + 0.35, { f: 58, gain: 0.4 });                                                                      // el golpe de la junta
+    k.play('thud', Tk.tresKm + 0.35, { f: 58, gain: 0.4 });                                                                      // el golpe de la junta
  } });
  // --- beat 2: el plano de la falla de 1960 (corte 1) ---
  B.push({ t0: S(2) - 0.05, t1: S(4) - 0.05, in: { type: 'piel', d: 0.6 }, draw(ctx, t) { PLANO = 1;
@@ -335,7 +335,6 @@
   TIT(ctx, '3 KM SOBRE LA', t, DURATION - 1.15, 0, '', 92, 500); TIT(ctx, 'FALLA', t, DURATION - 1.15, 0, 'FALLA', 120, 620);
   if (t > DURATION - 1.2) P.marca(ctx, t, DURATION - 0.9);
  }, sfx(k) {   // ≤ 3 sonidos por cada 10 s; «tin» (FX.clave) 3 veces: «dentro», 14 km/h, «quebrarse»
-  pl().sonidos.transicion(k, S(4) - 0.05, 0.6);
   k.noise(S(4) + 0.5, { dur: Se(7) - S(4), color: 'pink', filter: 'bandpass', f: 500, q: 0.6, gain: 0.04, a: 1.0, hold: Se(7) - S(4) - 2 });   // viento sobre el canal (continuo)
   k.play('thud', Tk.ciento + 0.4, { f: 60, gain: 0.4 });                                                                                   // 199 m: golpe al final
   k.tone(AGUA[0] + 0.2, { f: 64, dur: SUBE[1] - AGUA[0], gain: 0.08, a: 0.3, hold: SUBE[1] - AGUA[0] - 1 }); k.tone(AGUA[0] + 0.2, { f: 96, dur: SUBE[1] - AGUA[0], gain: 0.03, a: 0.3, hold: SUBE[1] - AGUA[0] - 1 });   // bajo el agua: la corriente (continua)
