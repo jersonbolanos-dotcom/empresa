@@ -1,0 +1,6 @@
+STYLE CARD
+Name: Win95 Desktop
+Family: Retro UI & Neon
+Look: A mid-90s beige-box desktop at 2x pixel scale: teal wallpaper, 2-pixel bevelled grey chrome, navy title bars, aliased system text and a trail of frozen error dialogs.
+Motion: Icons pop onto the desktop, windows open with outline-zoom rectangles, the install bar ticks in blocks then freezes, and the hung error box is dragged, smearing a stair of copies.
+How it explains: An "AI Trainer" app explains it: the question dialog zooms into the title bar, beats are property-sheet tabs clicked by the cursor, dotted pixel arrows carry examples and the error signal, trackbar "weights" slide, counters live in status bars and group boxes, and the payoff is a classic message box.

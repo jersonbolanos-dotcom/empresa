@@ -25,7 +25,9 @@ const { chromium } = require('playwright'); const path = require('path');
    const ar = (q) => Math.max(1, (q[3] - q[1]) * (q[4] - q[2])); return (w * h) / Math.min(ar(a), ar(c)); };
   const iguales = (a, c) => [1, 2, 3, 4].every((k) => Math.abs(a[k] - c[k]) <= 3);
   const kL = Math.max(1, Math.round(0.5 / paso));
-  for (let i0 = 0; i0 * paso < D; i0++) { const t = i0 * paso; window.seek(t); const L = window.PLANTILLA.safeLog() || []; n++; let et = 0;
+  const cifras = [], grandes = [];   // v2.2: contadores (t, valor mostrado, final, con rótulo, opacidad) y momentos con > 1 texto grande
+  for (let i0 = 0; i0 * paso < D; i0++) { const t = i0 * paso; window.__CIFRAS = []; window.seek(t); const L = window.PLANTILLA.safeLog() || []; n++; let et = 0;
+   for (const c of window.__CIFRAS || []) cifras.push(c); { const g = L.filter((q) => q[0] === 'titular' || q[0] === 'contador' || q[0] === 'tachado'), cajas = []; for (const q of g) if (!cajas.some((c) => Math.abs(c[2] - q[2]) < 4 && Math.abs(c[1] - q[1]) < 4)) cajas.push(q); if (cajas.length > 1) grandes.push(+t.toFixed(1)); }
    for (const [k, x0, y0, x1, y1] of L) { if (k === 'etiqueta' || k === 'aviso') et++; if (k === 'titulo') titulos++;
     const motivo = y0 < S.top ? 'y<' + S.top : y1 > S.bottom ? 'y>' + S.bottom : x1 > S.right ? 'x>' + S.right : x0 < 0 ? 'x<0' : null;
     if (motivo) { const key = k + motivo + Math.round(t); if (!vistos.has(key)) { vistos.add(key); fuera.push({ t: +t.toFixed(1), tipo: k, motivo, caja: [x0, y0, x1, y1] }); } } }
@@ -67,6 +69,6 @@ const { chromium } = require('playwright'); const path = require('path');
    if (!bajo && ini !== null) { const t0 = anchos[ini][0], t1 = i < anchos.length ? anchos[i][0] : Math.min(D, anchos[anchos.length - 1][0] + 0.5); if (t1 - t0 > 3) { const cnt = {}; for (const q of anchos.slice(ini, i)) for (const mm of malo(q)) { const k0 = mm.replace(/ \d+ %/, ''); cnt[k0] = (cnt[k0] || 0) + 1; }
     fallos.push([t0, +t1.toFixed(1), Object.keys(cnt).sort((p0, q0) => cnt[q0] - cnt[p0]).join(' + ')]); } ini = null; } }
   const avisos = fallos.map((f) => [f[0], f[1], Math.round(100 * Math.min(...anchos.filter((q) => q[0] >= f[0] && q[0] < f[1]).map((q) => q[1])))]);
-  return { fuera, maxEtiquetas: maxEt, titulos, muestras: n, encimados, llena: { minimo: Math.round(100 * Math.min(1, ...anchos.map((q) => q[1]))), fallos, avisos, muestras: anchos } }; }, paso);
+  return { cifras, grandes, fuera, maxEtiquetas: maxEt, titulos, muestras: n, encimados, llena: { minimo: Math.round(100 * Math.min(1, ...anchos.map((q) => q[1]))), fallos, avisos, muestras: anchos } }; }, paso);
  console.log(JSON.stringify(res)); await b.close();
 })();

@@ -1,0 +1,15 @@
+01  Tech Glow Explainer (Popular Explainer Looks)  ->  estilos/01_tech_glow_explainer/
+02  Engineering Blueprint (Hand-Drawn)  ->  estilos/02_engineering_blueprint/
+03  Illuminated Manuscript (Illustration)  ->  estilos/03_illuminated_manuscript/
+04  Gouache Travel Poster (Painterly)  ->  estilos/04_gouache_travel_poster/
+05  Sumi-e Ink Wash (Painterly)  ->  estilos/05_sumi_e_ink_wash/
+06  16-Bit Pixel Odyssey (Retro Digital)  ->  estilos/06_16_bit_pixel_odyssey/
+07  Win95 Desktop (Retro UI & Neon)  ->  estilos/07_win95_desktop/
+08  Phosphor Terminal (Retro Digital)  ->  estilos/08_phosphor_terminal/
+09  Kinetic Type (Generative & Type)  ->  estilos/09_kinetic_type/
+10  Manim-Style Math (Popular Explainer Looks)  ->  estilos/10_manim_style_math/
+11  Claymation Set (Paper & Craft)  ->  estilos/11_claymation_set/
+12  Cut-Paper Diorama (Paper & Craft)  ->  estilos/12_cut_paper_diorama/
+13  Papercraft Models (Popular Explainer Looks)  ->  estilos/13_papercraft_models/
+14  Flat-Vector Science (Popular Explainer Looks)  ->  estilos/14_flat_vector_science/
+15  Cosmic Star Chart (Cosmic & Psychedelic)  ->  estilos/15_cosmic_star_chart/

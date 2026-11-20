@@ -1,0 +1,6 @@
+STYLE CARD
+Name: 16-Bit Pixel Odyssey
+Family: Retro Digital
+Look: A SNES-era cutscene: 320x180 hand-placed pixels blown up 4x, a strict ~40-colour palette, banded sky with checkerboard dither transitions, layered parallax and an RPG dialog box.
+Motion: A SNES cutscene opening: 16-step brightness fade-in, parallax layers rise into place in whole-pixel steps, the hero walks on with a 2-frame cycle, the drone flies in, hearts pop, the window snaps open and dialog types out.
+How it explains: Tells it as a SNES RPG: the question is a dialog line whose window snaps up into a quest header, a mosaic transition opens a training hall where labelled CAT/DOG cards ride a chevron conveyor into the MODEL while an EXAMPLES window counts, a wavy battle-swirl starts a turn-based fight (GUESS/CHECK/ADJUST command menu, MISS! damage pop and screen flash, red error trail, weight stat bars), and an iris wipe lands on a LEVEL UP accuracy screen.

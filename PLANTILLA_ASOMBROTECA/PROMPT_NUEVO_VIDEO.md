@@ -22,8 +22,14 @@ IMAGEN
 - Luz y profundidad en todos los planos. Titulares grandes con palabra de color. Cifras como contadores, con su fuente.
 - Último plano igual al fotograma 0.
 
+ESTILO (v2.2)
+- estilo: '<nombre>' de la tabla del bloque v2.2 de GUIA_ESTILOS. Cifras con su valor final y quietas ~1,5 s; un solo texto grande a la vez.
+
 SONIDO
 - Una sola toma de voz (generations_count: 1). Sin música continua. Silencio antes de cada revelación.
+
+CIERRE (alternar con el vídeo anterior)
+- Bucle al fotograma 0, invitación a comentar algo concreto («¿Te atreverías a…? Te leo en los comentarios») o prometer el siguiente vídeo.
 
 ENTREGA
 - Hoja de prueba de 15 a 18 fotogramas antes del render, con el fotograma 0 el primero.

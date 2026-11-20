@@ -1,0 +1,6 @@
+STYLE CARD
+Name: Manim-Style Math
+Family: Popular Explainer Looks
+Look: The math-explainer look of Manim, the open-source library behind 3Blue1Brown: pure black, crisp anti-aliased vector lines, a restrained palette of Manim blue, teal, yellow, red and green, LaTeX-like serif math with italic variables, axes with tick marks, curves, arrows, braces and surrounding rectangles.
+Motion: Manim's own vocabulary on a smooth sigmoid ease: equations Write on (glyph outlines trace, then fill), axes and curves Create, a dot slides down the graph in gradient-descent hops, then a SurroundingRectangle draws round the key term and it Indicates with a yellow pulse.
+How it explains: One MovingCameraScene: the question Writes on and Transforms into the header, a neural net Creates (edges blue/red by weight sign), pixel pictures fly into the input neurons as a counter climbs, a forward pass runs as ShowPassingFlash, the wrong "dog?" gets a red SurroundingRectangle, the camera pans to a loss curve where a dot descends while edges re-colour, then the axes relabel to accuracy, the curve climbs and the number Transforms into a 97% that Indicates.

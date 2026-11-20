@@ -19,6 +19,11 @@ con resumen en español. Responder siempre en español.
 - Manos (v2.0b, regla 156): `P.manoR` es una sola silueta con contorno continuo, sin costuras.
 - Sustituidas: corte directo en cada plano, «nada cortado en los bordes» (solo textos), personajes con reacción, metáfora sostenida, promesa de respuesta y el cierre «Envíaselo» obligatorio. Los episodios viejos no se rehacen y renderizan igual.
 
+## v2.2 · BIBLIOTECA DE ESTILOS (bloque v2.2 de GUIA_ESTILOS; reglas 158–161)
+- `PL.make({ modo: 'viral', estilo: 'nombre' })` con uno de los 15 estilos de `PLANTILLA_ASOMBROTECA/estilos/` (tabla de temas en GUIA); solo cambia la piel. El tema se dibuja con `PL.piel().fondo / forma / linea / brillo`.
+- Cifra con su valor final desde que aparece y quieta ~1,5 s; cifras redondeadas en pantalla y la exacta en letra pequeña; nunca el mismo plano más de 3-4 s; un solo texto grande a la vez; cierres alternos.
+- Los originales del Atlas están en `referencias/estilos_atlas/` (no van en el kit).
+
 ## Reglas fijas
 - Voz intocable (no alterar, sintetizar, acelerar ni recortar). El audio es el reloj maestro. Comprobar md5 de la voz.
 - 1080×1920, 30 fps, H.264 + AAC 48 kHz, < 100 MB, −14 LUFS, pico ≤ −1 dBTP.

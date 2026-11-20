@@ -1,0 +1,6 @@
+STYLE CARD
+Name: Tech Glow Explainer
+Family: Popular Explainer Looks
+Look: The polished AI / tech YouTube motion-graphics look: deep navy-to-indigo space with drifting electric glows and a perspective grid, gradient-stroked icon tiles wired into node diagrams with light pulses racing along the connectors, dark cards with thin neon borders, gradient headline type and bloom on everything bright.
+Motion: Smooth eased build: glows bloom up, icon tiles pop in with an overshoot and their line icons draw on, connectors trace out and start carrying light pulses, the headline rises word by word and the stat counts up, all under a slow camera push and drifting particles.
+How it explains: One continuous camera: the title shrinks to a header while the brain tile flies into place, labelled examples ride glowing lanes into the model, the camera pushes through the brain into its network (light-speed streaks), Guess/Check/Adjust chips light up as light pulses run forward and a red error pulse runs back, then the camera pans to a glowing accuracy chart and pulls back for the takeaway; numbers count up in gradient Space Grotesk with bloom.

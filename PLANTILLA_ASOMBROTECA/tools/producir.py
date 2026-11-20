@@ -341,7 +341,7 @@ def p_qc(P, a):
         ('Movimiento desde el fotograma 0', 'sin datos' if mov is None else ('sí' if mov else 'NEGRO o QUIETO al empezar'), mov is not False),
     ]
     if VIR:
-        filas += qc_viral(P, a, out, ll)
+        filas += qc_viral(P, a, out, ll, zs)
     txt = '\n'.join(f'{k}: {v} {ok(c)}' for k, v, c in filas)
     open(os.path.join(Q, f'qc_tecnico{sf}.txt'), 'w').write(f'Archivo: {out}\n{txt}\n')
     md = [f'# QC · {os.path.basename(out)}', '', '| Control | Resultado | |', '|---|---|---|'] + [f'| {k} | {v} | {ok(c)} |' for k, v, c in filas]
@@ -359,7 +359,7 @@ def es_viral(C):
     return os.path.exists(ep) and bool(re.search(r"modo\s*:\s*['\"]viral['\"]", open(ep, encoding='utf-8').read()))
 
 
-def qc_viral(P, a, out, ll):
+def qc_viral(P, a, out, ll, zs=None):
     # v2.0 · tres AVISOS del modo viral (no hacen fallar el QC: se marcan «AVISO» en el resultado)
     filas = []
     r = subprocess.run(['ffmpeg', '-hide_banner', '-i', out, '-vf', "select='gt(scene,0.4)',showinfo", '-an', '-f', 'null', '-'], capture_output=True, text=True).stderr
@@ -400,11 +400,54 @@ def qc_viral(P, a, out, ll):
         dur = max(ef + [0.0]); ven = [sum(1 for x in ef if 10 * i <= x < 10 * (i + 1)) for i in range(int(dur // 10) + 1)]
         malos = [f'{10 * i}-{10 * (i + 1)} s: {n}' for i, n in enumerate(ven) if n > 3]
         filas.append(('AVISO viral · efectos de sonido por cada 10 s (máx. 3)', f'{len(ef)} efectos; máx. {max(ven) if ven else 0} en 10 s' + (' · AVISO: ' + ', '.join(malos) if malos else ''), True))
+    filas += qc_v22(out, zs)
     ep = os.path.join(P, '04_CODIGO', 'js', 'episodio.js')
     if os.path.exists(ep):
         nc = len(re.findall(r'FX\.clave\(', open(ep, encoding='utf-8').read()))
         filas.append(('AVISO viral · «tin» (FX.clave) en todo el vídeo (máx. 4)', f'{nc}' + (' · AVISO: más de 4' if nc > 4 else ''), True))
     return filas
+
+
+def rangos(ts, paso=0.25):
+    out = []
+    for t in sorted(ts):
+        if out and t - out[-1][1] <= paso + 1e-6:
+            out[-1][1] = t
+        else:
+            out.append([t, t])
+    return out
+
+
+def qc_v22(out, zs):
+    # v2.2 · avisos (no hacen fallar): contadores, un solo texto grande a la vez y planos que no cambian en más de 4 s
+    filas = []
+    if zs is not None and 'cifras' in zs:
+        cf = zs['cifras']; inter = sorted({c[0] for c in cf if c[3] and c[4] > 0.5 and c[1] != c[2]})
+        quietas = []
+        for fin in sorted({c[2] for c in cf}):
+            ts = sorted(c[0] for c in cf if c[2] == fin and c[1] == fin and c[4] > 0.9)
+            mejor = max([r[1] - r[0] + 0.2 for r in rangos(ts, 0.21)] or [0])
+            if mejor < 1.5:
+                quietas.append(f'{P_fmt(fin)} ({mejor:.1f} s)')
+        filas.append(('AVISO v2.2 · contadores: valor final desde que aparece y quieto ≥ 1,5 s', ('sin contadores' if not cf else ('correcto' if not inter and not quietas else '')) + (f' · AVISO: número intermedio con el rótulo en {", ".join(f"{r[0]:.1f}" for r in rangos(inter, 0.21)[:5])} s' if inter else '') + (f' · AVISO: poco tiempo quieto: {", ".join(quietas[:5])}' if quietas else ''), True))
+        gr = rangos(zs.get('grandes', []), 0.21)
+        filas.append(('AVISO v2.2 · un solo texto grande a la vez', 'correcto' if not gr else 'AVISO: ' + ', '.join(f'{r[0]:.1f}-{r[1]:.1f} s' for r in gr[:6]), True))
+    try:
+        import numpy as np
+        w, h = 54, 96
+        raw = subprocess.run(['ffmpeg', '-v', 'error', '-i', out, '-vf', f'fps=2,scale={w}:{h},format=gray', '-f', 'rawvideo', '-'], capture_output=True).stdout
+        fr = np.frombuffer(raw, dtype=np.uint8).reshape(-1, h, w)[:, 40:, :].astype(np.float32)
+        quietos = [i / 2 for i in range(len(fr) - 8) if np.abs(fr[i + 8] - fr[i]).mean() < 3.0]
+        qr = [r for r in rangos(quietos, 0.51)]
+        filas.append(('AVISO v2.2 · nunca el mismo plano más de 4 s', 'correcto' if not qr else 'AVISO: plano casi igual 4 s después en ' + ', '.join(f'{r[0]:.1f}-{r[1] + 4:.1f} s' for r in qr[:6]), True))
+    except Exception:
+        pass
+    return filas
+
+
+def P_fmt(n):
+    s = str(int(round(abs(n))))
+    return ('−' if n < 0 else '') + re.sub(r'(?<=\d)(?=(\d{3})+$)', '.', s)
 
 
 def efectos_sonido(wav, umbral=-50.0, salto=10.0, sep=0.25):

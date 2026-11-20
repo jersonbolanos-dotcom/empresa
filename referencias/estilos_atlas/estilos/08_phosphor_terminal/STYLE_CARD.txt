@@ -1,0 +1,6 @@
+STYLE CARD
+Name: Phosphor Terminal
+Family: Retro Digital
+Look: A green P1-phosphor CRT: VT323 boot log with bloom and halation, curved scanlines, true per-pixel barrel distortion with RGB fringing at the edges, tube vignette, hum bar, and a glass face catching the room light inside a plastic bezel.
+Motion: The tube powers on (dot, then a bright line that snaps open into a flashing raster that settles as the phosphor warms), then the boot log types at terminal speed, the trace sweeps, the greeting prints and the cursor blinks while a hum bar rolls.
+How it explains: Explains as a live terminal session: the typed question scrolls away and lives on in the inverse-video status line, a labelled data log streams into a box-drawn MODEL, V-hold rolls carry us between screens, arrows and the error path are phosphor line-drawings, and counters are big VT323 numerals that flip in inverse video for emphasis.

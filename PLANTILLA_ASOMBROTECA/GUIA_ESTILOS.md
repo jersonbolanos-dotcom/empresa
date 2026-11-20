@@ -1,5 +1,25 @@
 # Guía de estilos y guion · PLANTILLA ASOMBROTECA v1.34
 
+> **v2.2 · BIBLIOTECA DE ESTILOS (pieles) + aprendizajes de ChatGPT, Gemini y Grok. Manda junto con la v2.0.**
+> Un estilo solo cambia la PIEL (fondo, forma de pintar, trazo, luz, acabado, transición, tipografía y sonidos del medio). El modo viral v2.0 (gancho, titular con palabra roja, recuadro azul, contadores, bucle, voz, QC) no cambia. Se activa con `PL.make({ modo: 'viral', estilo: 'nombre' })`; sin estilo, todo queda como antes.
+>
+> | Tema del vídeo | Estilos recomendados |
+> |---|---|
+> | Vehículos y accidentes, puentes, máquinas | `tech_glow`, `engineering_blueprint` |
+> | Historia antigua | `illuminated_manuscript`, `gouache_travel_poster`, `sumi_e` |
+> | Tecnología de antes | `pixel_16bit`, `win95`, `phosphor_terminal` |
+> | Números y escalas | `kinetic_type`, `manim_math` |
+> | Cuerpo y naturaleza | `claymation`, `cut_paper`, `papercraft`, `flat_vector_science` |
+> | Espacio | `cosmic_star_chart` |
+>
+> 28. Elegir UN estilo por vídeo según la tabla (se pueden mezclar dos solo si uno es el «mundo real» y otro el de las explicaciones). Muestra de los 15: `catalogo/estilos_v22.jpg`.
+> 29. La cifra principal aparece YA con su valor final y se queda quieta ~1,5 s; nunca un número intermedio con el rótulo final (con estilo o con `reglas: '2.2'`, `P.contador` lo hace solo; el QC avisa).
+> 30. En pantalla, cifras redondeadas («+300.000», «90 M»); la cuenta exacta y la fuente, solo en la letra pequeña (`P.fuenteCifra`).
+> 31. Nunca el mismo dibujo o ángulo más de 3-4 s (el QC avisa si un plano casi no cambia en 4 s).
+> 32. Un solo texto grande a la vez (titular O contador O tachado; el QC avisa).
+> 33. Alternar cierres entre vídeos: bucle al fotograma 0, invitación a comentar algo concreto («¿Te atreverías a cruzarlo? Te leo en los comentarios») o prometer el siguiente vídeo. No repetir el del vídeo anterior.
+> 34. Sonido del medio (`PL.piel().sonidos`: aparece, trazo, transicion, golpe): cada uno es UN evento; las reglas 155 (pocos sonidos, «tin» 3-4, voz delante, sin música) siguen mandando.
+
 > **v2.0 · MODO VIRAL (manda sobre todo lo demás). Aprendizajes de 10 vídeos virales (`APRENDIZAJES_10_VIRALES_v2.md`). Se activa con `PL.make({ modo: 'viral' })`.**
 > Quedan SUSTITUIDAS por la v2.0: «corte directo en cada cambio de plano», «nada cortado en los bordes» (ahora solo para textos, etiquetas y contadores), «personajes con reacción» (solo si la historia trata de personas), «metáfora sostenida», «promesa de respuesta» y el cierre «Envíaselo a ese amigo» obligatorio. Donde cualquier regla anterior choque con la v2.0, manda la v2.0. Los episodios anteriores no se rehacen y se renderizan igual.
 > **GANCHO**

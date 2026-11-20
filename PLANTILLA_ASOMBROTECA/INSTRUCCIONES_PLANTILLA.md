@@ -1095,3 +1095,16 @@ Cuando la voz trae un silencio demasiado largo entre dos frases y no se puede re
 ## v2.1 · Recuadro azul fino en los subtítulos (`recuadro`)
 
 En modo viral, `PL.make` pone un recuadro azul fino alrededor de UNA palabra clave más o menos cada 2-3 frases. Por defecto la elige sola (`recuadro: true`); para elegirlas a mano: `recuadro: [['sombra', S(4), S(5)], ['luz', S(10), S(11)], …]` (palabra y ventana de tiempo) o `recuadro: ['sombra', 'luz']` (la primera vez que se dicen). `recuadro: false` lo quita. Durante `capOcultar` no hay subtítulos y, por tanto, tampoco recuadro. Ejemplo: `RELOJES_ANTIGUOS_PROYECTO/04_CODIGO/js/episodio.js`.
+
+## v2.2 · Biblioteca de estilos (`estilos/`)
+
+`PL.make({ modo: 'viral', estilo: 'engineering_blueprint', … })`. El estilo es una PIEL: no dibuja el tema, le da su medio.
+
+- **Dibujar el tema con la piel:** `const pl = PL.piel();` y luego `pl.fondo(ctx, t, o)`, `pl.forma(ctx, figura, { rol, t, p })`, `pl.linea(ctx, puntos, { rol, ancho, p, punteada, flecha, t })`, `pl.brillo(ctx, x, y, r, { t })`. Figuras: `{ tipo: 'elipse', x, y, rx, ry, rot }`, `{ tipo: 'circulo', x, y, r }`, `{ tipo: 'rect', x, y, w, h, r }`, `{ tipo: 'poli', pts: [[x, y], …] }`. Roles: `fondo`, `fondo2`, `objeto`, `objeto2`, `detalle`, `sombra`, `acento`, `rojo`. Se puede seguir dibujando a mano con canvas y mezclar (p. ej. el mundo real con luz y profundidad, y las explicaciones con la piel).
+- **Lo que hace solo el motor:** la pasada de acabado del estilo (bloom, píxeles, fósforo, papel, grano…), los textos grandes después del acabado con su tipografía y la palabra clave en rojo, y los subtítulos con su franja.
+- **Transición del medio:** en un beat, `in: { type: 'piel', d: 0.6 }` (pasar hoja, mosaico, rodado del tubo, mano de crema…); su sonido sale de `pl.sonidos.transicion`.
+- **Sonidos del medio:** `pl.sonidos.aparece(k, t)`, `trazo(k, t, d)`, `transicion(k, t, d)`, `golpe(k, t)` (un evento cada uno).
+- **Reglas 2.2:** con estilo (o `reglas: '2.2'` sin estilo) `P.contador` muestra el valor final desde que aparece, con un golpe de entrada; `reglas: '2.0'` lo desactiva.
+- **QC:** `producir.py … qc` añade los avisos v2.2 (contadores, un texto grande a la vez, plano quieto 4 s).
+- **Muestra:** `python3 -I PLANTILLA_ASOMBROTECA/tools/muestra_estilos.py ESTILOS_PRUEBA_PROYECTO 14.3` → `07_QC/muestra_estilos.jpg`.
+- **Estilo nuevo:** copiar uno de `estilos/`, registrarlo con `PL.estilosComun.registrar('nombre', { paleta, textos, fondo, forma, linea, brillo, acabado, transicion, sonidos })` y añadirlo a la tabla de GUIA_ESTILOS.
