@@ -81,23 +81,24 @@
  // =================================================================================================
  // 2 · EL PLANO DE LA FALLA DE 1960 (piel engineering_blueprint) — mapa esquemático del sur de Chile
  // =================================================================================================
- const MP = (lat, lon) => [140 + (lon + 76) * 165, 720 + (-37 - lat) * 100];
- const COSTA = [[-36.6, -73.1], [-37.2, -73.6], [-37.6, -73.66], [-38.0, -73.5], [-38.6, -73.48], [-39.4, -73.22], [-39.9, -73.42], [-40.5, -73.76], [-41.0, -73.9], [-41.55, -73.82], [-41.76, -73.6], [-41.78, -73.2], [-41.5, -72.95], [-41.85, -72.6], [-42.4, -72.75], [-43.2, -72.85], [-44.0, -73.05], [-44.8, -73.4], [-45.6, -73.9], [-46.2, -74.6], [-46.55, -75.45], [-46.9, -75.6], [-47.6, -74.9]];
- const TIERRA = COSTA.concat([[-49, -74.9], [-49, -66], [-33, -66], [-33, -72.6], [-36.6, -73.1]]).map((q) => MP(q[0], q[1]));
+ const MP = (lat, lon) => [140 + (lon + 76) * 165, 390 + (-37 - lat) * 112];
+ const COSTA = [[-31.5, -71.6], [-33.0, -71.7], [-34.0, -72.0], [-35.0, -72.3], [-36.0, -72.8], [-36.6, -73.1], [-37.2, -73.6], [-37.6, -73.66], [-38.0, -73.5], [-38.6, -73.48], [-39.4, -73.22], [-39.9, -73.42], [-40.5, -73.76], [-41.0, -73.9], [-41.55, -73.82], [-41.76, -73.6], [-41.78, -73.2], [-41.5, -72.95], [-41.85, -72.6], [-42.4, -72.75], [-43.2, -72.85], [-44.0, -73.05], [-44.8, -73.4], [-45.6, -73.9], [-46.2, -74.6], [-46.55, -75.45], [-46.9, -75.6], [-47.6, -74.9]];
+ const TIERRA = COSTA.concat([[-49, -74.9], [-49, -66], [-31.5, -66]]).map((q) => MP(q[0], q[1]));
  const CHILOE = [[-41.84, -73.98], [-41.86, -73.55], [-42.1, -73.4], [-42.6, -73.65], [-43.1, -73.55], [-43.42, -73.85], [-43.3, -74.3], [-42.7, -74.2], [-42.2, -74.15]].map((q) => MP(q[0], q[1]));
  const RUPTURA = [[-37.9, -74.3], [-37.9, -73.4], [-40.0, -73.1], [-42.0, -73.3], [-44.5, -74.0], [-46.5, -75.2], [-46.5, -76.0], [-44.3, -75.4], [-41.9, -74.9], [-39.7, -74.6]].map((q) => MP(q[0], q[1]));
  const CHACAO = MP(-41.79, -73.52), EPI = MP(-38.14, -73.41);
  const nota = (ctx, s, x, y, o = {}) => { ctx.save(); ctx.font = `600 ${o.px || 34}px "IBM Plex Mono", monospace`; ctx.textAlign = o.al || 'left'; ctx.textBaseline = 'middle'; ctx.lineWidth = 7; ctx.strokeStyle = 'rgba(8,30,70,0.85)'; ctx.globalAlpha *= o.a ?? 1; ctx.strokeText(s, x, y); ctx.fillStyle = o.col || '#eaf3ff'; ctx.fillText(s, x, y); ctx.restore(); };
  const mapa = (ctx, t) => { const L = pl(); L.fondo(ctx, t);
-  const z = lerp(1.0, 1.9, E.inOut(sm(Tk.canal - 0.6, S(4) + 0.3, t))), cx = lerp(540, CHACAO[0], E.inOut(sm(Tk.canal - 0.6, S(4), t))), cy = lerp(1150 + 30 * Math.sin(t * 0.5), CHACAO[1] + 80, E.inOut(sm(Tk.canal - 0.6, S(4), t)));
-  ctx.save(); ctx.beginPath(); ctx.rect(0, 720, W, HH); ctx.clip(); ctx.translate(540, 1150); ctx.scale(z, z); ctx.translate(-cx, -cy - (z - 1) * 60); const d0 = S(2) + 0.1;
-  L.forma(ctx, { tipo: 'poli', pts: TIERRA }, { rol: 'objeto', t }); L.forma(ctx, { tipo: 'poli', pts: CHILOE }, { rol: 'objeto', t }); nota(ctx, 'OCÉANO PACÍFICO', MP(0, -75.6)[0], MP(-40.2, 0)[1], { px: 30, a: 0.55 * (1 - C01((t - Tk.canal + 0.8) / 0.4)) });
+  const z0 = 1 + 0.12 * E.inOut(sm(S(2), Tk.canal - 0.6, t)), z = lerp(z0, 1.9, E.inOut(sm(Tk.canal - 0.6, S(4) + 0.3, t))), cx = lerp(540, CHACAO[0], E.inOut(sm(Tk.canal - 0.6, S(4), t))), cy = lerp(1150 + 30 * Math.sin(t * 0.5), CHACAO[1] + 80, E.inOut(sm(Tk.canal - 0.6, S(4), t)));
+  ctx.save(); ctx.beginPath(); ctx.rect(0, 400, W, HH); ctx.clip(); ctx.translate(540, 1150); ctx.scale(z, z); ctx.translate(-cx, -cy - (z - 1) * 60); const d0 = S(2) + 0.1;
+  for (let lat = -36; lat >= -47; lat--) { const yl = MP(lat, 0)[1]; L.linea(ctx, [[-200, yl], [1300, yl]], { punteada: true, ancho: 2, t }); nota(ctx, `${-lat}° S`, 925, yl - 18, { px: 30, a: 0.6, al: 'right' }); }
+  L.forma(ctx, { tipo: 'poli', pts: TIERRA }, { rol: 'objeto', t }); L.forma(ctx, { tipo: 'poli', pts: CHILOE }, { rol: 'objeto', t }); nota(ctx, 'OCÉANO PACÍFICO', MP(0, -76)[0] - 60, MP(-44.2, 0)[1], { px: 30, a: 0.55 * (1 - C01((t - Tk.canal + 0.8) / 0.4)) });
   // la ruptura de 1960: se dibuja de norte a sur mientras la voz dice «se rompió a lo largo de mil kilómetros»
   const pr = E.inOut(sm(d0 + 0.3, Tk.mil + 0.9, t)); if (pr > 0) { ctx.save(); ctx.beginPath(); ctx.rect(-500, 0, 2200, MP(-37.9, 0)[1] + (MP(-46.6, 0)[1] - MP(-37.9, 0)[1]) * pr); ctx.clip(); L.forma(ctx, { tipo: 'poli', pts: RUPTURA }, { rol: 'sombra', t }); L.linea(ctx, RUPTURA.concat([RUPTURA[0]]), { rol: 'rojo', ancho: 6, t }); ctx.restore(); }
   // cota de la ruptura (1.000 km) a la izquierda
   const xa = MP(0, -75.9)[0] - 40, ya = MP(-37.9, 0)[1], yb = MP(-46.5, 0)[1]; if (pr > 0) L.linea(ctx, [[xa, ya], [xa, lerp(ya, yb, pr)]], { cota: pr > 0.98, ancho: 3, t });
-  const ae = C01((t - d0) / 0.5) * (1 - C01((t - Tk.canal + 0.8) / 0.4)); if (ae > 0) { ctx.save(); ctx.globalAlpha = ae; L.brillo(ctx, EPI[0], EPI[1], 16, { t }); nota(ctx, '1960 · M 9,5', EPI[0] + 50, EPI[1] - 6, { px: 32 }); ctx.restore(); }
-  nota(ctx, 'ARAUCO', MP(0, -73.3)[0] + 40, ya + 70, { px: 32, a: 0.85 * (1 - C01((t - Tk.canal + 0.8) / 0.4)) }); nota(ctx, 'TAITAO', MP(0, -75.2)[0] + 70, yb + 10, { px: 32, a: 0.85 * C01((t - Tk.mil) / 0.6) });
+  const ae = C01((t - d0) / 0.5) * (1 - C01((t - Tk.mil + 0.7) / 0.3)); if (ae > 0) { ctx.save(); ctx.globalAlpha = ae; L.brillo(ctx, EPI[0], EPI[1], 16, { t }); nota(ctx, '1960 · M 9,5', EPI[0] + 50, EPI[1] - 6, { px: 32 }); ctx.restore(); }
+  nota(ctx, 'ARAUCO', MP(0, -73.3)[0] + 40, ya + 70, { px: 32, a: 0.85 * (1 - C01((t - Tk.mil + 0.7) / 0.3)) }); nota(ctx, 'TAITAO', MP(0, -75.2)[0] + 70, yb + 10, { px: 32, a: 0.85 * C01((t - Tk.mil) / 0.6) });
   const ac = C01((t - Tk.canal + 0.3) / 0.4); if (ac > 0) { ctx.save(); ctx.globalAlpha = ac; const pul = 1 + 0.25 * Math.sin(t * 6); L.brillo(ctx, CHACAO[0], CHACAO[1], 14 * pul, { t }); ctx.restore(); nota(ctx, 'CANAL DE CHACAO', CHACAO[0] + 46, CHACAO[1] - 26, { px: 32, a: ac, col: '#fff2b8' }); nota(ctx, 'CHILOÉ', MP(0, -74.0)[0] + 40, MP(-42.7, 0)[1], { px: 30, a: ac * 0.85 }); }
   ctx.restore();
   nota(ctx, 'ESQUEMA · FALLA DE 1960', 80, 1640, { px: 32, a: 0.8 });
@@ -183,17 +184,20 @@
  const cielo = (ctx, c, t, s = 0) => { const hy = 960 + c.f * Math.tan(c.pit), sp = pr3(c, [c.p[0] + SOL[0] * 1e6, c.p[1] + SOL[1] * 1e6, c.p[2] + SOL[2] * 1e6]);
   const g = ctx.createLinearGradient(0, hy - 1400, 0, hy); g.addColorStop(0, '#16213d'); g.addColorStop(0.55, '#a8603f'); g.addColorStop(0.92, '#f2b277'); g.addColorStop(1, '#ffd9a0'); ctx.fillStyle = g; ctx.fillRect(0, 0, W, Math.max(0, hy) + 2);
   if (sp) { P.resplandor(ctx, sp[0], sp[1], 1000, '255,190,120', 0.7); P.resplandor(ctx, sp[0], sp[1], 120, '255,245,220', 1); }
+  { const Rn = H.rng(61); for (let i = 0; i < 44; i++) { const az = Rn() * TAU, el = 0.04 + Math.pow(Rn(), 1.1) * 0.9, sz = 0.6 + Rn() * 1.2, dv = [Math.sin(az) * Math.cos(el), Math.sin(el), Math.cos(az) * Math.cos(el)], q = pr3(c, [c.p[0] + dv[0] * 1e5, c.p[1] + dv[1] * 1e5, c.p[2] + dv[2] * 1e5]); if (!q || q[1] > hy - 6) continue;
+    const rx = c.f * 0.14 * sz * (1 + el), ry = rx * 0.045; for (let k = 0; k < 3; k++) { const ox = (Rn() - 0.5) * rx * 0.8, oy = k * ry * 2.2, kx = rx * (0.45 + 0.4 * Rn()); ctx.fillStyle = 'rgba(96,56,66,0.5)'; ctx.beginPath(); ctx.ellipse(q[0] + ox, q[1] + oy, kx, ry, 0, 0, TAU); ctx.fill(); ctx.fillStyle = 'rgba(255,208,152,0.78)'; ctx.beginPath(); ctx.ellipse(q[0] + ox + kx * 0.06, q[1] + oy + ry * 0.6, kx * 0.85, ry * 0.5, 0, 0, TAU); ctx.fill(); } } }
   ctx.fillStyle = '#2a2638'; ctx.beginPath(); ctx.moveTo(0, hy); for (let px = 0; px <= W; px += 12) { const az = c.yaw + Math.atan((px - 540) / c.f), lado = Math.abs(Math.sin(az)), hm = (lado > 0.35 ? 60 + 140 * (lado - 0.35) : 0) * (0.7 + 0.3 * Math.sin(az * 9) + 0.15 * Math.sin(az * 23)); ctx.lineTo(px, hy - (hm * c.f) / 9000); } ctx.lineTo(W, hy); ctx.closePath(); ctx.fill();
   const gm = ctx.createLinearGradient(0, hy, 0, HH); gm.addColorStop(0, '#8d6a63'); gm.addColorStop(0.08, '#3b4766'); gm.addColorStop(1, '#0b1220'); ctx.fillStyle = gm; ctx.fillRect(0, Math.max(0, hy), W, HH);
   if (sp && sp[1] < hy + 40) { ctx.save(); ctx.globalCompositeOperation = 'lighter'; const R = H.rng(31); for (let i = 0; i < 220; i++) { const yy = hy + 4 + Math.pow(R(), 1.8) * (HH - hy), xx = sp[0] + (R() - 0.5) * (40 + (yy - hy) * 0.9) + s * 14 * Math.sin(t * 9 + i), a = 0.55 * (0.3 + 0.7 * Math.abs(Math.sin(t * (2.4 + 6 * s) + i * 1.7))) * (1 - (yy - hy) / (HH - hy + 1)); ctx.fillStyle = `rgba(255,214,150,${a})`; ctx.fillRect(xx, yy, 6 + R() * 24 * (1 + (yy - hy) / 600), 2); } ctx.restore(); }
+  { const R3 = H.rng(19); ctx.strokeStyle = 'rgba(205,220,245,0.3)'; for (let i = 0; i < 140; i++) { const wx = c.p[0] + (R3() - 0.5) * 300 + ((t * 4) % 20), wz = c.p[2] + 3 + R3() * 160, jy = s * 1.2 * Math.sin(t * 13 + i), a = pr3(c, [wx, jy, wz]), b = pr3(c, [wx + 3 * c.cy, jy, wz - 3 * c.sy]); if (a && b && a[1] > hy) { ctx.lineWidth = Math.max(2, Math.min(7, 1200 / a[2])); ctx.beginPath(); ctx.moveTo(a[0], a[1]); ctx.lineTo(b[0], b[1]); ctx.stroke(); } } }
   // olas: rayas que corren con la corriente; con el sismo, el agua se agita (más rayas, espuma, temblor)
-  const R2 = H.rng(8), n = 90 + Math.round(170 * s); for (let i = 0; i < n; i++) { const wx = c.p[0] + (R2() - 0.5) * 3000 + ((t * 4) % 60), wz = c.p[2] + 30 + Math.pow(R2(), 1.5) * 2400, jy = s * 1.6 * Math.sin(t * 13 + i * 2.1), a = pr3(c, [wx, jy, wz]), b = pr3(c, [wx + 14 + 10 * s, jy, wz]); if (a && b && a[1] > hy) { ctx.strokeStyle = s > 0.2 && i % 3 === 0 ? `rgba(235,242,255,${0.25 + 0.3 * s})` : 'rgba(200,215,240,0.13)'; ctx.lineWidth = Math.max(1.5, Math.min(6, 1400 / a[2])); ctx.beginPath(); ctx.moveTo(a[0], a[1]); ctx.lineTo(b[0], b[1]); ctx.stroke(); } }
+  const R2 = H.rng(8), n = 170 + Math.round(150 * s); for (let i = 0; i < n; i++) { const wx = c.p[0] + (R2() - 0.5) * 3000 + ((t * 4) % 60), wz = c.p[2] + 30 + Math.pow(R2(), 1.5) * 2400, jy = s * 1.6 * Math.sin(t * 13 + i * 2.1), a = pr3(c, [wx, jy, wz]), b = pr3(c, [wx + (14 + 10 * s) * c.cy, jy, wz - (14 + 10 * s) * c.sy]); if (a && b && a[1] > hy) { ctx.strokeStyle = s > 0.2 && i % 3 === 0 ? `rgba(235,242,255,${0.4 + 0.3 * s})` : 'rgba(205,220,245,0.36)'; ctx.lineWidth = Math.max(2.5, Math.min(9, 2400 / a[2])); ctx.beginPath(); ctx.moveTo(a[0], a[1]); ctx.lineTo(b[0], b[1]); ctx.stroke(); } }
  };
  // keyframes de cámara [t, px, py, pz, tx, ty, tz, f, rel]: con rel = 1, X y el objetivo X van pegados al carro (la cámara lo sigue)
  const CAM = () => [
   [S(4) - 0.2, 985, 26, -125, 1055, 120, 0, 950, 0], [S(5) - 0.2, 950, 40, -170, 1075, 150, 30, 950, 0],
   [S(5) + 0.4, -250, 85, -95, 1100, 120, 15, 1300, 0], [Se(5), -190, 80, -88, 1200, 120, 15, 1300, 0],
-  [S(6) + 0.3, 2075, 20, -300, 2210, 95, 0, 1000, 0], [Se(6) - 0.3, 2095, 12, -280, 2210, 105, 0, 1000, 0],
+  [S(6) + 0.3, 2075, 20, -300, 2210, 72, 0, 1000, 0], [Se(6) - 0.3, 2095, 12, -280, 2210, 80, 0, 1000, 0],
   [S(7) + 0.2, 2120, 30, -220, 2200, 10, -10, 1000, 0], [Se(7) + 0.5, 2170, 8, -120, 2205, -5, -14, 1000, 0],
   [S(10) - 0.4, 36, 61, -30, -70, 92, 0, 1000, 1], [S(12) - 1.0, 26, 59.5, -26, -60, 96, 0, 1000, 1],
   [S(12) - 0.2, 2100, 106, -300, 2100, 106, 0, 1000, 0], [Se(14) + 0.3, 2115, 106, -290, 2115, 106, 0, 1000, 0],
@@ -257,13 +261,13 @@
   ctx.fillStyle = 'rgba(200,235,255,0.35)'; ctx.fillRect(-400, ys - 4, 1900, 4);
   // fondo marino (corte con estratos)
   const gf = ctx.createLinearGradient(0, yf, 0, yp + 200); gf.addColorStop(0, '#4a4234'); gf.addColorStop(0.3, '#33302a'); gf.addColorStop(1, '#1b1a18'); ctx.fillStyle = gf; ctx.beginPath(); ctx.moveTo(-400, yf + 20); for (let x = -400; x <= 1500; x += 40) ctx.lineTo(x, yf + 14 * Math.sin(x * 0.01) + 8 * Math.sin(x * 0.037)); ctx.lineTo(1500, yp + 400); ctx.lineTo(-400, yp + 400); ctx.closePath(); ctx.fill();
-  ctx.strokeStyle = 'rgba(0,0,0,0.25)'; ctx.lineWidth = 3; for (let k = 1; k < 6; k++) { ctx.beginPath(); for (let x = -400; x <= 1500; x += 40) ctx.lineTo(x, yf + k * 150 + 20 * Math.sin(x * 0.006 + k)); ctx.stroke(); }
+  ctx.strokeStyle = 'rgba(0,0,0,0.5)'; ctx.lineWidth = 6; for (let k = 1; k < 6; k++) { ctx.beginPath(); for (let x = -400; x <= 1500; x += 40) ctx.lineTo(x, yf + k * 150 + 20 * Math.sin(x * 0.006 + k)); ctx.stroke(); }
   // la pata de la torre que baja hasta el encepado
   const gt = ctx.createLinearGradient(380, 0, 700, 0); gt.addColorStop(0, '#3e5566'); gt.addColorStop(0.5, '#7d93a0'); gt.addColorStop(1, '#2c3d4a'); ctx.fillStyle = gt; ctx.fillRect(400, -900, 280, ys + 902 - 902 + 900); ctx.fillRect(400, -900, 280, 1100);
   // encepado
   const ge = ctx.createLinearGradient(0, ys, 0, ye); ge.addColorStop(0, '#8aa1ad'); ge.addColorStop(1, '#3a4d59'); ctx.fillStyle = ge; ctx.fillRect(120, ys - 20, 840, ye - ys + 20);
   // pilotes (2,65 m de diámetro) hasta 90 m
-  for (let k = 0; k < 6; k++) { const x = 170 + k * 148, w = 2.65 * m * 1.6; const gp = ctx.createLinearGradient(x, 0, x + w, 0); gp.addColorStop(0, '#2c3b45'); gp.addColorStop(0.45, '#8399a4'); gp.addColorStop(1, '#22303a'); ctx.fillStyle = gp; ctx.fillRect(x, ye, w, yp - ye); ctx.fillStyle = 'rgba(0,0,0,0.25)'; ctx.fillRect(x, yf, w, yp - yf); }
+  for (let k = 0; k < 6; k++) { const x = 170 + k * 148, w = 2.65 * m * 1.6; const gp = ctx.createLinearGradient(x, 0, x + w, 0); gp.addColorStop(0, '#2c3b45'); gp.addColorStop(0.45, '#8399a4'); gp.addColorStop(1, '#22303a'); ctx.fillStyle = gp; ctx.fillRect(x, ye, w, yp - ye); ctx.fillStyle = 'rgba(0,0,0,0.25)'; ctx.fillRect(x, yf, w, yp - yf); ctx.strokeStyle = '#030a14'; ctx.lineWidth = 7; ctx.strokeRect(x, ye, w, yp - ye); ctx.fillStyle = 'rgba(190,230,255,0.55)'; ctx.fillRect(x + w * 0.38, ye, 5, yp - ye); for (let yb = ye + 90; yb < yp; yb += 130) { ctx.fillStyle = 'rgba(3,10,20,0.6)'; ctx.fillRect(x, yb, w, 5); } }
   // cota de 90 m (piel del plano: línea blanca con flechas)
   const L = pl(); const ac = C01((t - Tk.noventa + 0.4) / 0.5); if (ac > 0) { ctx.save(); ctx.globalAlpha = ac; L.linea(ctx, [[1030, ye], [1030, lerp(ye, yp, E.out(ac))]], { cota: ac > 0.98, ancho: 4, t }); L.linea(ctx, [[960, ye], [1060, ye]], { ancho: 2, t }); L.linea(ctx, [[960, yp], [1060, yp]], { ancho: 2, t }); ctx.restore(); }
   ctx.restore();
@@ -283,10 +287,10 @@
 
  const B = [];
  // --- beat 1: la rueda sobre la junta (gancho) ---
- B.push({ t0: 0, t1: S(2) - 0.05, in: { type: 'cut' }, draw(ctx, t) { PLANO = 0;
+ B.push({ t0: 0, t1: S(2) - 0.05, in: { type: 'cut' }, draw(ctx, t) { PLANO = 0; if (PORTADA) { rueda(ctx, 0); return; }
   rueda(ctx, t); TIT(ctx, '3 KM SOBRE LA', t, -0.3, S(2) - 0.3, '', 92, 500); TIT(ctx, 'FALLA', t, -0.3, S(2) - 0.3, 'FALLA', 120, 620);
  }, sfx(k) {
-  k.noise(0, { dur: S(2), color: 'brown', filter: 'lowpass', f: [[0, 260], [S(2), 200]], gain: 0.07, a: 0.05, hold: S(2) - 0.6 });   // el rodar sobre la junta (continuo)
+  k.tone(0, { f: 52, dur: S(2), gain: 0.07, a: 0.05, hold: S(2) - 0.6 }); k.tone(0, { f: 78, dur: S(2), gain: 0.025, a: 0.05, hold: S(2) - 0.6 });   // el rodar sobre la junta (continuo)
   k.play('thud', Tk.tresKm + 0.35, { f: 58, gain: 0.4 });                                                                      // el golpe de la junta
  } });
  // --- beat 2: el plano de la falla de 1960 (corte 1) ---
@@ -294,7 +298,7 @@
   mapa(ctx, t);
   CNT(ctx, t, 1000, Tk.mil - 0.05, S(3) + 0.9, { unidad: 'KM', etiqueta: 'SE ROMPIÓ LA FALLA', fuente: 'USGS · U. de Chile (900–1.000 km)' });
   TIT(ctx, 'JUSTO DENTRO', t, S(3) + 1.0, S(4) - 0.2, 'DENTRO', 104);
- }, sfx(k) { pl().sonidos.transicion(k, S(2) - 0.05, 0.6); k.play('thud', Tk.mil + 0.35, { f: 62, gain: 0.4 }); FX.clave(k, Tk.dentro); } });
+ }, sfx(k) { k.play('thud', Tk.mil + 0.35, { f: 62, gain: 0.4 }); FX.clave(k, Tk.dentro); } });
  // --- beat 3: el puente (corte 2) y todo lo demás, con la cámara continua ---
  B.push({ t0: S(4) - 0.05, t1: DURATION, in: { type: 'piel', d: 0.6 }, draw(ctx, t) {
   if (PORTADA) { PLANO = 0; rueda(ctx, 0); return; }
@@ -320,8 +324,8 @@
   TIT(ctx, '¿AQUÍ?', t, S(4) + 0.6, Se(4) + 0.3, 'AQUÍ?', 130);
   if (t > S(5) + 0.3 && t < Se(5) + 0.2) P.fuenteCifra(ctx, '2.750 m · apertura prevista 2028 (MOP)', 540, 1380, { a: 0.9 * C01((t - S(5) - 0.3) / 0.3) });
   CNT(ctx, t, 199, Tk.ciento - 0.05, Se(6) + 0.1, { unidad: 'M', etiqueta: '≈ 65 PISOS', fuente: 'MOP · UACh (pila norte)' });
-  TIT(ctx, '¿QUÉ LAS SOSTIENE?', t, S(7) - 0.05, Se(7) + 0.4, 'SOSTIENE?', 80);
-  CNT(ctx, t, 90, Tk.noventa - 0.05, Tk.catorce - 0.15, { unidad: 'M', etiqueta: 'PILOTES', fuente: 'MOP · UACh (hasta 90 m)' });
+  TIT(ctx, '¿QUÉ LAS SOSTIENE?', t, S(7) - 0.05, Se(7) + 0.4, 'SOSTIENE?', 66);
+  CNT(ctx, t, 90, Tk.noventa - 0.05, Tk.catorce - 0.5, { unidad: 'M', etiqueta: 'PILOTES', fuente: 'MOP · UACh (hasta 90 m)' });
   CNT(ctx, t, 14, Tk.catorce - 0.05, Se(9) + 0.1, { unidad: 'KM/H', etiqueta: 'LA CORRIENTE', fuente: 'UC · UdeC (≈ 4 m/s)' });
   TIT(ctx, '¿Y SI TIEMBLA?', t, S(11) - 0.05, Se(11) + 0.5, 'TIEMBLA?', 96);
   P.tachado(ctx, 'SE APOYA', 540, 560, t, S(12) - 0.05, S(13) - 0.05, { px: 100 });
@@ -334,7 +338,7 @@
   pl().sonidos.transicion(k, S(4) - 0.05, 0.6);
   k.noise(S(4) + 0.5, { dur: Se(7) - S(4), color: 'pink', filter: 'bandpass', f: 500, q: 0.6, gain: 0.04, a: 1.0, hold: Se(7) - S(4) - 2 });   // viento sobre el canal (continuo)
   k.play('thud', Tk.ciento + 0.4, { f: 60, gain: 0.4 });                                                                                   // 199 m: golpe al final
-  k.noise(AGUA[0] + 0.2, { dur: SUBE[1] - AGUA[0], color: 'brown', filter: 'lowpass', f: 420, gain: 0.09, a: 0.3, hold: SUBE[1] - AGUA[0] - 1 });   // bajo el agua: la corriente (continua)
+  k.tone(AGUA[0] + 0.2, { f: 64, dur: SUBE[1] - AGUA[0], gain: 0.08, a: 0.3, hold: SUBE[1] - AGUA[0] - 1 }); k.tone(AGUA[0] + 0.2, { f: 96, dur: SUBE[1] - AGUA[0], gain: 0.03, a: 0.3, hold: SUBE[1] - AGUA[0] - 1 });   // bajo el agua: la corriente (continua)
   k.play('thud', Tk.noventa + 0.4, { f: 55, gain: 0.4 }); FX.clave(k, Tk.catorce + 0.45);
   k.play('thud', Tk.apoya, { f: 70, gain: 0.35 });                                                                                         // el tachado
   const r0 = S(11) - 0.3, rd = DURATION - 0.4 - r0; k.tone(r0, { f: 38, dur: rd, gain: 0.14, a: 0.8, hold: rd - 2.2 }); k.tone(r0, { f: 57, dur: rd, gain: 0.05, a: 0.8, hold: rd - 2.2 });   // el sismo: UN retumbo grave continuo

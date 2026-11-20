@@ -41,7 +41,7 @@
  const cv = document.getElementById('cv'), ctx = cv.getContext('2d');
  const W = 1080, Hh = 1920, DURATION = window.EPISODIO.DURATION;
  window.DURATION = DURATION;
- const specs = ['700 40px "Nunito"', '800 40px "Nunito"', '900 40px "Nunito"', '700 40px "Fredoka"', '700 40px "Space Grotesk"', '600 40px "IBM Plex Mono"', '700 40px "Fraunces"', 'italic 600 40px "Fraunces"'];
+ const specs = ['700 40px "Nunito"', '800 40px "Nunito"', '900 40px "Nunito"', '700 40px "Fredoka"', '700 40px "Space Grotesk"', '400 40px "IBM Plex Mono"', '500 40px "IBM Plex Mono"', '600 40px "IBM Plex Mono"', '700 40px "IBM Plex Mono"', '400 40px "Nunito"', '600 40px "Fredoka"', '400 40px "Space Grotesk"', '600 40px "Space Grotesk"', '600 40px "Fraunces"', '700 40px "Fraunces"', 'italic 600 40px "Fraunces"'];
  try { await Promise.all(specs.map((f) => document.fonts.load(f, 'AaZz09áéíóúñ¿$'))); await document.fonts.ready; } catch (e) {}
  await window.EPISODIO.init();
  let lastT = -1;
