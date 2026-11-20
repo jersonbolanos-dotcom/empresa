@@ -5072,7 +5072,7 @@
   const mono = cfg.capStyle === 'mono', CH = chunks(A), ci = CH.findIndex((c) => t >= c.s - 0.05 && t < c.e), ch = CH[ci]; if (!ch) return;
   // entre trozos seguidos el cambio es instantáneo (como en las referencias); solo se funde si hay un silencio real
   const pe = ci > 0 ? CH[ci - 1].e : -9, ns = ci + 1 < CH.length ? CH[ci + 1].s : 1e9, fin = ns - ch.e < 0.15 ? 1 : 1 - sm(ch.e - 0.12, ch.e, t), ini = ch.s - pe < 0.15 ? 1 : sm(ch.s - 0.05, ch.s + 0.08, t);
-  const KW = cfg.keywords || [], y = cfg.capY || (mono ? 1330 : 330), px = cfg.capPx || (mono ? 50 : 58), fam = mono ? SK.font.mono : SK.font.cap, wB = mono ? 600 : SK.font.capW, wD = mono ? 400 : SK.font.capDim;
+  const KW = cfg.keywords || [], y = cfg.capY || (mono ? 1330 : 330), px = cfg.capPx || (mono ? 50 : 58), fam = cfg.capFam || (mono ? SK.font.mono : SK.font.cap), wB = mono ? 600 : SK.font.capW, wD = mono ? 400 : SK.font.capDim;
   const fB = `${wB} ${px}px "${fam}"`, fD = `${wD} ${px}px "${fam}"`, ahead = cfg.capAhead !== false, sel = cfg.capSel || '#2F7BF6', IC = cfg.capIcons || {}, isKW = (w) => KW.some((k) => (Array.isArray(k) ? nrm(w.txt) === nrm(k[0]) && w.s >= k[1] && w.s <= k[2] : nrm(w.txt) === nrm(k)));
   ctx.save(); ctx.textBaseline = 'alphabetic'; ctx.font = fB; const sp = ctx.measureText(' ').width, iw = px * 0.95;
   const icn = (w) => { const k = Object.keys(IC).find((q) => nrm(q) === nrm(w.txt)); return k ? IC[k] : null; };
@@ -5081,6 +5081,7 @@
   const kwIdx = cfg.capMaxKW ? ch.findIndex(isKW) : -1; // v1.27: una sola palabra clave resaltada por trozo
   const lh = px * 1.22, y0 = y - (lines.length - 1) * lh / 2, fade = ini * fin;
   lines.forEach((ln, li) => { const lw = ln.reduce((s, i) => s + all[i], 0) + sp * (ln.length - 1); let x = 540 - lw / 2;
+   if (cfg.capCaja) { ctx.save(); ctx.globalAlpha = fade; ctx.fillStyle = cfg.capCaja; ctx.beginPath(); ctx.roundRect(540 - lw / 2 - px * 0.45, y0 + li * lh - px * 0.98, lw + px * 0.9, px * 1.36, px * 0.32); ctx.fill(); ctx.restore(); }   // v2.2: franja oscura detrás del subtítulo
    ln.forEach((i) => { const w = ch[i], shown = t >= w.s - 0.04, active = shown && (i === ch.length - 1 || t < ch[i + 1].s - 0.04), kw = cfg.capMaxKW ? i === kwIdx : isKW(w), ic = icn(w), pop = shown ? E.out(win(t, w.s - 0.04, w.s + 0.12)) : 0, yy = y0 + li * lh + (shown ? (1 - pop) * 8 : 0), tx = x + (ic ? iw : 0), ww = all[i] - (ic ? iw : 0);
     if (!shown && !ahead) { x += all[i] + sp; return; }
     if (kw && shown && !mono && cfg.capRecuadro === 'fino') { const bx = tx - 9, by = yy - px * 0.86, bw = ww + 18, bh = px * 1.1; ctx.save(); ctx.globalAlpha = fade * pop; ctx.fillStyle = H.rgba(H.hex(sel), 0.14); ctx.beginPath(); ctx.roundRect(bx, by, bw, bh, 7); ctx.fill(); ctx.strokeStyle = sel; ctx.lineWidth = 2.5; ctx.stroke(); ctx.restore(); }   // v2.1: recuadro azul fino (modo viral)
@@ -5597,6 +5598,7 @@ P._limpiarFijos = () => { for (const k of Object.keys(FIJOS)) delete FIJOS[k]; }
  // ---------------- TRANSICIONES ----------------
  // cut | iris (círculo desde un punto) | slide (barrido lateral con desenfoque de movimiento) | rise (sube) | fade | zoom (entra por un punto)
  function transition(ctx, type, u, o, drawPrev, drawNext, L) {
+  if (type === 'piel' && P._piel && P._piel.transicion) { P._piel.transicion(ctx, u, drawPrev, drawNext, L, o); return; }   // v2.2: la transición del medio
   const e = E.inOut(u);
   if (type === 'iris' || type === 'zoom') {
    if (type === 'zoom') { ctx.save(); const s = lerp(1, 4, e); ctx.translate(o.x, o.y); ctx.scale(s, s); ctx.translate(-o.x, -o.y); drawPrev(ctx); ctx.restore(); } else drawPrev(ctx);
@@ -5620,6 +5622,10 @@ P._limpiarFijos = () => { for (const k of Object.keys(FIJOS)) delete FIJOS[k]; }
  function make(cfg) {
   if (cfg.estilo && ESTILOS[cfg.estilo]) cfg = { ...ESTILOS[cfg.estilo], ...cfg };
   SND_ETQ = cfg.etiquetas === 'suave' || cfg.etiquetas === 'silencio' ? cfg.etiquetas : 'clasico';   // v1.42: sonido de las etiquetas (por defecto, el de siempre)
+  // v2.2 · estilo de la biblioteca (solo cambia la piel): ajustes base del modo viral + los del estilo; lo que pase el episodio manda
+  const PIEL = cfg.modo === 'viral' && cfg.estilo && PIELES[cfg.estilo] ? PIELES[cfg.estilo] : null;
+  if (PIEL) { const tc = (PIEL.textos || {}).cap || {}; cfg = { skin: 'noche', capStyle: 'ios', capY: 330, zonaSegura: true, pausas: true, capMaxKW: 1, capBorde: true, capCaja: tc.caja === undefined ? 'rgba(6,8,18,0.5)' : tc.caja, capColor: tc.color, capSel: tc.sel, capFam: tc.fam, ...(PIEL.cfg || {}), ...cfg }; }
+  P._piel = PIEL; P._reglas22 = cfg.reglas === '2.2' || (!!PIEL && cfg.reglas !== '2.0'); P._diferir = null;
   const VIRAL = cfg.modo === 'viral'; if (VIRAL && cfg.etiquetas === undefined) SND_ETQ = 'silencio';
   // v2.1 · recuadro azul fino en UNA palabra clave de vez en cuando (≈ una cada 2-3 frases). Modo viral: activado por defecto (recuadro: false lo quita).
   //   recuadro: true (elige solo: la palabra con contenido más larga de una frase de cada tres) · ['sombra', 'luz', …] (esas palabras, la primera vez que se dicen)
@@ -5645,13 +5651,15 @@ P._limpiarFijos = () => { for (const k of Object.keys(FIJOS)) delete FIJOS[k]; }
    const b = bs[i], tr = b.in || { type: 'cut', d: 0 }, u = tr.d ? win(t, b.t0, b.t0 + tr.d) : 1;
    ctx.save(); ctx.fillStyle = col('ink'); ctx.fillRect(0, 0, W, HH); ctx.restore();
    SAFE_LOG = typeof window !== 'undefined' && window.__SAFE_QC ? [] : null; P.SAFE.on = !!cfg.zonaSegura; const tw = WARP(t);
+   if (PIEL) P._diferir = [];   // v2.2: con un estilo, los textos grandes se dibujan DESPUÉS del acabado (nítidos y con la palabra roja)
    if (i > 0 && u < 1 && tr.type !== 'cut') transition(ctx, tr.type, u, tr, (c) => drawBeat(c, bs[i - 1], tw), (c) => drawBeat(c, b, tw), LA);
    else drawBeat(ctx, b, tw);
+   if (PIEL) { const Ld = P._diferir; P._diferir = null; if (PIEL.acabado) { ctx.save(); PIEL.acabado(ctx, tw, { i, beat: b }); ctx.restore(); } P._textosPiel(ctx, Ld); }
    // acabado de la piel
-   H.vignette(ctx, W, HH, SK.vignette, SK.vigCol);
+   if (!PIEL) H.vignette(ctx, W, HH, SK.vignette, SK.vigCol);
    if (P._dibujarFijos) { if (typeof window !== 'undefined' && window.__SIN_SUBTITULOS) P._limpiarFijos(); else P._dibujarFijos(ctx); }   // v1.36b: textos fijos (P.pregunta), fuera de la cámara
    if (!(typeof window !== 'undefined' && window.__SIN_SUBTITULOS)) captions(ctx, A, t, cfg);   // v1.29: fondo limpio para la portada
-   if (SK.grain) H.grain(ctx, W, HH, SK.grain, 1 + Math.floor(t * 24), true);
+   if (SK.grain && !PIEL) H.grain(ctx, W, HH, SK.grain, 1 + Math.floor(t * 24), true);
   }
   // sonido: cada beat declara sus efectos; el motor añade las transiciones
   const TS = TRANS_SFX;
@@ -6173,19 +6181,29 @@ P._limpiarFijos = () => { for (const k of Object.keys(FIJOS)) delete FIJOS[k]; }
   // ---------- TEXTOS DE DATOS ----------
   P.fmtMiles = (n) => { const s = String(Math.round(Math.abs(n))); return (n < 0 ? '−' : '') + s.replace(/\B(?=(\d{3})+(?!\d))/g, '.'); };
   // P.contador(ctx, t, x, y, valor, o) — número grande con separador de miles. o: { px, col, colFinal, final (valor a partir del cual cambia de color), unidad, etiqueta, t0 (aparece), a }
-  P.contador = (ctx, t, x, y, v, o = {}) => { const a = (o.a ?? 1) * C01((t - (o.t0 ?? -1)) / 0.25); if (a <= 0) return; const px = o.px || 120, fin = o.final != null && v >= o.final, col = fin ? (o.colFinal || '#ffd23f') : (o.col || '#ffffff'); ctx.save(); ctx.globalAlpha *= a; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.lineJoin = 'round';
-   const s = P.fmtMiles(v) + (o.unidad ? ' ' + o.unidad : ''); ctx.font = `900 ${px}px Fredoka, Nunito, sans-serif`; ctx.lineWidth = px * 0.16; ctx.strokeStyle = 'rgba(8,10,20,0.85)'; ctx.strokeText(s, x, y); ctx.fillStyle = col; ctx.fillText(s, x, y);
-   if (o.etiqueta) { const pe = Math.max(34, px * 0.3); ctx.font = `800 ${pe}px Nunito, sans-serif`; ctx.lineWidth = pe * 0.18; ctx.strokeText(o.etiqueta, x, y + px * 0.62 + pe * 0.2); ctx.fillStyle = '#ffffff'; ctx.fillText(o.etiqueta, x, y + px * 0.62 + pe * 0.2); } ctx.restore(); };
+  const TXP = (k) => (P._piel && P._piel.textos && P._piel.textos[k]) || null;   // v2.2: estilo de texto de la piel activa (null = el de siempre)
+  const diferir = (ctx, fn) => { if (!P._diferir) return false; const T0 = ctx.getTransform(), ga = ctx.globalAlpha; P._diferir.push((g) => { g.save(); g.setTransform(T0); g.globalAlpha = ga; fn(g); g.restore(); }); return true; };
+  P.contador = (ctx, t, x, y, v, o = {}) => { if (diferir(ctx, (g) => P.contador(g, t, x, y, v, o))) return;
+   if (P._reglas22 && o.final != null) v = o.final;   // v2.2: la cifra principal aparece ya con su valor final (sin números intermedios)
+   const a = (o.a ?? 1) * C01((t - (o.t0 ?? -1)) / 0.25); if (a <= 0) return; const TS = TXP('contador'), px = o.px || 120, fin = o.final != null && v >= o.final, col = fin ? (o.colFinal || (TS && TS.colFinal) || '#ffd23f') : (o.col || (TS && TS.col) || '#ffffff'); ctx.save(); ctx.globalAlpha *= a; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.lineJoin = 'round';
+   if (P._reglas22 && o.final != null) { const k = 1 + 0.2 * (1 - E2(C01((t - (o.t0 ?? -1)) / 0.25))); ctx.translate(x, y); ctx.scale(k, k); ctx.translate(-x, -y); }
+   if (TS && TS.espaciado) ctx.letterSpacing = TS.espaciado;
+   const s = P.fmtMiles(v) + (o.unidad ? ' ' + o.unidad : ''); ctx.font = TS && TS.fam ? `${TS.peso || 900} ${px}px ${TS.fam}` : `900 ${px}px Fredoka, Nunito, sans-serif`; ctx.lineWidth = px * (TS && TS.bordeAncho != null ? TS.bordeAncho : 0.16); ctx.strokeStyle = (TS && TS.borde) || 'rgba(8,10,20,0.85)'; if (ctx.lineWidth > 0) ctx.strokeText(s, x, y); ctx.fillStyle = col; ctx.fillText(s, x, y);
+   const pe = Math.max(34, px * 0.3), ws = ctx.measureText(s).width;
+   if (o.etiqueta) { ctx.font = TS && TS.famEtiqueta ? `${TS.pesoEtiqueta || 800} ${pe}px ${TS.famEtiqueta}` : `800 ${pe}px Nunito, sans-serif`; ctx.lineWidth = pe * 0.18; ctx.strokeText(o.etiqueta, x, y + px * 0.62 + pe * 0.2); ctx.fillStyle = (TS && TS.colEtiqueta) || '#ffffff'; ctx.fillText(o.etiqueta, x, y + px * 0.62 + pe * 0.2); }
+   if (SAFE_LOG) { safeLog('contador', x - ws / 2, y - px * 0.55, x + ws / 2, y + px * 0.5 + (o.etiqueta ? px * 0.12 + pe * 1.3 : 0)); if (o.final != null && typeof window !== 'undefined') (window.__CIFRAS = window.__CIFRAS || []).push([+t.toFixed(2), v, o.final, o.etiqueta ? 1 : 0, +(a).toFixed(2)]); }
+   ctx.restore(); };
   // P.titular(ctx, texto, x, y, t, t0, t1, o) — 2 a 4 palabras GRANDES en mayúsculas con una palabra de color (o.clave, o.col). Entra con un pequeño rebote.
-  P.titular = (ctx, s, x, y, t, t0, t1, o = {}) => { const a = C01((t - t0) / 0.18) * (t1 ? 1 - C01((t - t1 + 0.18) / 0.18) : 1); if (a <= 0) return; const px = o.px || 110, w = String(s).toUpperCase().split(/\s+/), cl = (o.clave || '').toUpperCase(), sc = 0.82 + 0.18 * Math.min(1, (t - t0) / 0.18) + 0.06 * Math.sin(Math.min(1, (t - t0) / 0.3) * Math.PI);
-   ctx.save(); ctx.globalAlpha *= a; ctx.translate(x, y); ctx.scale(sc, sc); ctx.font = `900 ${px}px Fredoka, Nunito, sans-serif`; ctx.textBaseline = 'middle'; ctx.lineJoin = 'round'; const sp = px * 0.28, ws = w.map((q) => ctx.measureText(q).width), tot = ws.reduce((s2, v) => s2 + v, 0) + sp * (w.length - 1); let cx = -tot / 2;
-   w.forEach((q, i) => { ctx.lineWidth = px * 0.17; ctx.strokeStyle = 'rgba(8,10,20,0.9)'; ctx.strokeText(q, cx, 0); ctx.fillStyle = q.replace(/[^\p{L}\p{N}]/gu, '') === cl.replace(/[^\p{L}\p{N}]/gu, '') ? (o.col || '#ff3b3b') : (o.colBase || '#ffffff'); ctx.fillText(q, cx, 0); cx += ws[i] + sp; }); ctx.restore(); };
+  P.titular = (ctx, s, x, y, t, t0, t1, o = {}) => { if (diferir(ctx, (g) => P.titular(g, s, x, y, t, t0, t1, o))) return; const a = C01((t - t0) / 0.18) * (t1 ? 1 - C01((t - t1 + 0.18) / 0.18) : 1); if (a <= 0) return; const TS = TXP('titular'), px = o.px || 110, w = String(s).toUpperCase().split(/\s+/), cl = (o.clave || '').toUpperCase(), sc = 0.82 + 0.18 * Math.min(1, (t - t0) / 0.18) + 0.06 * Math.sin(Math.min(1, (t - t0) / 0.3) * Math.PI);
+   ctx.save(); ctx.globalAlpha *= a; ctx.translate(x, y); ctx.scale(sc * (TS && TS.escalaX || 1), sc); ctx.font = TS && TS.fam ? `${TS.peso || 900} ${px}px ${TS.fam}` : `900 ${px}px Fredoka, Nunito, sans-serif`; if (TS && TS.espaciado) ctx.letterSpacing = TS.espaciado; ctx.textBaseline = 'middle'; ctx.lineJoin = 'round'; const sp = px * 0.28, ws = w.map((q) => ctx.measureText(q).width), tot = ws.reduce((s2, v) => s2 + v, 0) + sp * (w.length - 1); let cx = -tot / 2;
+   if (SAFE_LOG) { const hw = tot / 2 * sc * (TS && TS.escalaX || 1); safeLog('titular', x - hw, y - px * 0.55 * sc, x + hw, y + px * 0.55 * sc); }
+   w.forEach((q, i) => { ctx.lineWidth = px * (TS && TS.bordeAncho != null ? TS.bordeAncho : 0.17); ctx.strokeStyle = (TS && TS.borde) || 'rgba(8,10,20,0.9)'; if (ctx.lineWidth > 0) ctx.strokeText(q, cx, 0); ctx.fillStyle = q.replace(/[^\p{L}\p{N}]/gu, '') === cl.replace(/[^\p{L}\p{N}]/gu, '') ? (o.col || (TS && TS.col) || '#ff3b3b') : (o.colBase || (TS && TS.colBase) || '#ffffff'); ctx.fillText(q, cx, 0); cx += ws[i] + sp; }); ctx.restore(); };
   // P.tachado(ctx, texto, x, y, t, t0, t1, o) — texto que se tacha en rojo para desmentir (la raya cruza en 0,3 s desde t0 + o.retraso).
-  P.tachado = (ctx, s, x, y, t, t0, t1, o = {}) => { const a = C01((t - t0) / 0.18) * (t1 ? 1 - C01((t - t1 + 0.18) / 0.18) : 1); if (a <= 0) return; const px = o.px || 90; ctx.save(); ctx.globalAlpha *= a; ctx.font = `900 ${px}px Fredoka, Nunito, sans-serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.lineJoin = 'round'; ctx.lineWidth = px * 0.16; ctx.strokeStyle = 'rgba(8,10,20,0.9)'; ctx.strokeText(s, x, y); ctx.fillStyle = o.colBase || '#ffffff'; ctx.fillText(s, x, y);
+  P.tachado = (ctx, s, x, y, t, t0, t1, o = {}) => { if (diferir(ctx, (g) => P.tachado(g, s, x, y, t, t0, t1, o))) return; const a = C01((t - t0) / 0.18) * (t1 ? 1 - C01((t - t1 + 0.18) / 0.18) : 1); if (a <= 0) return; const TS = TXP('titular'), px = o.px || 90; ctx.save(); ctx.globalAlpha *= a; ctx.font = TS && TS.fam ? `${TS.peso || 900} ${px}px ${TS.fam}` : `900 ${px}px Fredoka, Nunito, sans-serif`; if (SAFE_LOG) safeLog('tachado', x - px * String(s).length * 0.3, y - px * 0.55, x + px * String(s).length * 0.3, y + px * 0.55); ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.lineJoin = 'round'; ctx.lineWidth = px * 0.16; ctx.strokeStyle = 'rgba(8,10,20,0.9)'; ctx.strokeText(s, x, y); ctx.fillStyle = o.colBase || '#ffffff'; ctx.fillText(s, x, y);
    const w = ctx.measureText(s).width, u = E2(C01((t - t0 - (o.retraso ?? 0.35)) / 0.3)); if (u > 0) { ctx.strokeStyle = o.col || '#ff2a3d'; ctx.lineCap = 'round'; ctx.lineWidth = px * 0.14; ctx.beginPath(); ctx.moveTo(x - w / 2 - 12, y + px * 0.08); ctx.lineTo(x - w / 2 - 12 + (w + 24) * u, y - px * 0.08); ctx.stroke(); } ctx.restore(); };
   // P.fuenteCifra(ctx, texto, x, y, o) — la fuente de una cifra en letra pequeña (≥ 32 px), gris claro con sombra.
-  P.fuenteCifra = (ctx, s, x, y, o = {}) => { const px = Math.max(32, o.px || 36); ctx.save(); ctx.globalAlpha *= o.a ?? 0.92; ctx.font = `600 ${px}px Nunito, sans-serif`; ctx.textAlign = o.alinear || 'center'; ctx.textBaseline = 'middle';
-   if (o.franja !== false) { const w = ctx.measureText(s).width, al = o.alinear || 'center', x0 = al === 'center' ? x - w / 2 : al === 'right' ? x - w : x; ctx.save(); ctx.fillStyle = o.colFranja || 'rgba(6,8,18,0.72)'; ctx.beginPath(); ctx.roundRect(x0 - px * 0.6, y - px * 0.78, w + px * 1.2, px * 1.56, px * 0.4); ctx.fill(); ctx.restore(); }   /* v2.0b: franja oscura semitransparente detrás (se lee sobre cualquier fondo) */ ctx.lineJoin = 'round'; ctx.lineWidth = px * 0.2; ctx.strokeStyle = 'rgba(8,10,20,0.8)'; ctx.strokeText(s, x, y); ctx.fillStyle = o.col || '#c9d2e0'; ctx.fillText(s, x, y); ctx.restore(); };
+  P.fuenteCifra = (ctx, s, x, y, o = {}) => { if (diferir(ctx, (g) => P.fuenteCifra(g, s, x, y, o))) return; const TS = TXP('fuente'), px = Math.max(32, o.px || 36); ctx.save(); ctx.globalAlpha *= o.a ?? 0.92; ctx.font = TS && TS.fam ? `${TS.peso || 600} ${px}px ${TS.fam}` : `600 ${px}px Nunito, sans-serif`; ctx.textAlign = o.alinear || 'center'; ctx.textBaseline = 'middle';
+   if (o.franja !== false) { const w = ctx.measureText(s).width, al = o.alinear || 'center', x0 = al === 'center' ? x - w / 2 : al === 'right' ? x - w : x; ctx.save(); ctx.fillStyle = o.colFranja || (TS && TS.franja) || 'rgba(6,8,18,0.72)'; ctx.beginPath(); ctx.roundRect(x0 - px * 0.6, y - px * 0.78, w + px * 1.2, px * 1.56, px * 0.4); ctx.fill(); ctx.restore(); }   /* v2.0b: franja oscura semitransparente detrás (se lee sobre cualquier fondo) */ ctx.lineJoin = 'round'; ctx.lineWidth = px * 0.2; ctx.strokeStyle = 'rgba(8,10,20,0.8)'; ctx.strokeText(s, x, y); ctx.fillStyle = o.col || (TS && TS.col) || '#c9d2e0'; ctx.fillText(s, x, y); ctx.restore(); };
   // ---------- DEDO EN PRIMERÍSIMO PLANO ----------
   // P.dedoPP(ctx, x, y, ancho, o) — la punta de un dedo índice que sube desde abajo, a pantalla completa: (x, y) = punta del dedo; ancho en px.
   //   o: { vista: 'dorso' (uña) | 'yema' (huella), piel: 'claro' | 'medio' | 'oscuro' | '#hex', ang, largo (px, por defecto 2,6 × ancho), luz (0..1 luz de borde) }
@@ -6520,5 +6538,19 @@ P._limpiarFijos = () => { for (const k of Object.keys(FIJOS)) delete FIJOS[k]; }
   const salR = (ctx, pr, G, t) => { const tp = G.F[1].pts[3], th = G.T.pts[3], c = pr([(tp[0] + th[0]) / 2, (tp[1] + th[1]) / 2, (tp[2] + th[2]) / 2]); for (let i = 0; i < 16; i++) { const ph = ((t * 1.2 + i / 16) % 1), sx = c[0] + (((i * 37) % 11) - 5) * 1.6 + ph * 6 * Math.sin(i), sy = c[1] + ph * 120 + 4; ctx.globalAlpha = 1 - ph * 0.7; ctx.fillStyle = '#ffffff'; ctx.strokeStyle = '#b9c0c9'; ctx.lineWidth = 0.6; ctx.beginPath(); ctx.rect(sx - 2, sy - 2, 4, 4); ctx.fill(); ctx.stroke(); } ctx.globalAlpha = 1; };
   P.MANO_POSES = Object.keys(MP).concat(['saludo']);
  }
- window.PLANTILLA = { make, SKINS, P, FX, MUS, TRANS_SFX, setSkin: (n) => (SK = SKINS[n]), W, HH, kit: (A, o) => P.kit(A, o), ESTILOS, safeLog: () => SAFE_LOG || [] };
+ // v2.2 · BIBLIOTECA DE ESTILOS (pieles): cada estilo de estilos/<nombre>.js se registra con PLANTILLA.registrarPiel;
+ //   PL.make({ modo: 'viral', estilo: '<nombre>' }) lo activa. Sin estilo de la biblioteca, P._piel queda en null y nada cambia.
+ const PIELES = {}; P._piel = null; P._reglas22 = false; P._diferir = null;
+ const registrarPiel = (nombre, def) => (PIELES[nombre] = Object.assign({ nombre }, def));
+ let CAPA_TXT = null;
+ P._textosPiel = (ctx, L) => { if (!L || !L.length) return; const tx = (P._piel && P._piel.textos) || {};
+  if (!tx.pixel && !tx.brillo) { for (const f of L) f(ctx); return; }
+  if (!CAPA_TXT) CAPA_TXT = H.layer(W, HH); const g = CAPA_TXT.getContext('2d'); g.setTransform(1, 0, 0, 1, 0, 0); g.globalAlpha = 1; g.clearRect(0, 0, W, HH); for (const f of L) f(g);
+  ctx.save(); ctx.setTransform(1, 0, 0, 1, 0, 0);
+  if (tx.brillo) { ctx.save(); ctx.globalCompositeOperation = 'lighter'; ctx.globalAlpha = tx.brillo.a ?? 0.55; ctx.filter = `blur(${tx.brillo.r ?? 12}px)`; ctx.drawImage(CAPA_TXT, 0, 0); ctx.restore(); }
+  if (tx.pixel) { const n = tx.pixel, w = Math.round(W / n), h = Math.round(HH / n); if (!CAPA_TXT.mini || CAPA_TXT.mini.width !== w) { CAPA_TXT.mini = H.layer(w, h); } const m = CAPA_TXT.mini.getContext('2d'); m.clearRect(0, 0, w, h); m.imageSmoothingEnabled = true; m.drawImage(CAPA_TXT, 0, 0, w, h); ctx.imageSmoothingEnabled = false; ctx.drawImage(CAPA_TXT.mini, 0, 0, W, HH); ctx.imageSmoothingEnabled = true; }
+  else ctx.drawImage(CAPA_TXT, 0, 0);
+  ctx.restore(); };
+ TRANS_SFX.piel = (k, t, d) => { const pl = P._piel; if (pl && pl.sonidos && pl.sonidos.transicion) pl.sonidos.transicion(k, t, d); };
+ window.PLANTILLA = { make, SKINS, P, FX, MUS, TRANS_SFX, setSkin: (n) => (SK = SKINS[n]), W, HH, kit: (A, o) => P.kit(A, o), ESTILOS, safeLog: () => SAFE_LOG || [], PIELES, registrarPiel, piel: () => P._piel };
 })();

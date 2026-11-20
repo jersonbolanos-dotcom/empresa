@@ -28,6 +28,16 @@ if G:
 _ep = os.path.join(root, 'js', 'episodio.js')
 if os.path.exists(_ep) and 'manoImg' in open(_ep, encoding='utf-8').read() and 'motor/manos.js' not in src:
     src = re.sub(r'(<!-- @inline-js (\S*)motor/plantilla\.js -->)', lambda m: f'<!-- @inline-js {m.group(2)}motor/manos.js -->\n' + m.group(1), src, count=1)
+# v2.2 · biblioteca de estilos: si episodio.js pide un estilo de PLANTILLA_ASOMBROTECA/estilos/ (estilo: 'nombre'), se incrustan
+# estilos/_comun.js y estilos/nombre.js justo después del motor (los episodios sin estilo de la biblioteca no cambian)
+if os.path.exists(_ep):
+    _m = re.search(r"estilo\s*:\s*['\"]([a-z0-9_]+)['\"]", open(_ep, encoding='utf-8').read())
+    _mm = re.search(r'<!-- @inline-js (\S*)motor/plantilla\.js -->', src)
+    if _m and _mm:
+        _base = _mm.group(1); _dir = os.path.normpath(os.path.join(root, _base, 'estilos'))
+        if os.path.exists(os.path.join(_dir, _m.group(1) + '.js')):
+            src = src.replace(_mm.group(0), _mm.group(0) + f'\n<!-- @inline-js {_base}estilos/_comun.js -->\n<!-- @inline-js {_base}estilos/{_m.group(1)}.js -->', 1)
+            print(f'estilo: {_m.group(1)} (biblioteca v2.2)')
 out = re.sub(r'<!-- @inline-css (\S+) -->', css, src)
 out = re.sub(r'<!-- @inline-js (\S+) -->', js, out)
 adir = os.path.join(root, '..', '01_ENTRADA', 'audio')
