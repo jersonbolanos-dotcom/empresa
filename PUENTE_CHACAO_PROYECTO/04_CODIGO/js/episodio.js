@@ -335,7 +335,6 @@
   TIT(ctx, '3 KM SOBRE LA', t, DURATION - 1.15, 0, '', 92, 500); TIT(ctx, 'FALLA', t, DURATION - 1.15, 0, 'FALLA', 120, 620);
   if (t > DURATION - 1.2) P.marca(ctx, t, DURATION - 0.9);
  }, sfx(k) {   // ≤ 3 sonidos por cada 10 s; «tin» (FX.clave) 3 veces: «dentro», 14 km/h, «quebrarse»
-  k.noise(S(4) + 0.5, { dur: Se(7) - S(4), color: 'pink', filter: 'bandpass', f: 500, q: 0.6, gain: 0.04, a: 1.0, hold: Se(7) - S(4) - 2 });   // viento sobre el canal (continuo)
   k.play('thud', Tk.ciento + 0.4, { f: 60, gain: 0.4 });                                                                                   // 199 m: golpe al final
   k.tone(AGUA[0] + 0.2, { f: 64, dur: SUBE[1] - AGUA[0], gain: 0.08, a: 0.3, hold: SUBE[1] - AGUA[0] - 1 }); k.tone(AGUA[0] + 0.2, { f: 96, dur: SUBE[1] - AGUA[0], gain: 0.03, a: 0.3, hold: SUBE[1] - AGUA[0] - 1 });   // bajo el agua: la corriente (continua)
   k.play('thud', Tk.noventa + 0.4, { f: 55, gain: 0.4 }); FX.clave(k, Tk.catorce + 0.45);
