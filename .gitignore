@@ -1,0 +1,8 @@
+# generados y temporales (v2.5)
+__pycache__/
+*.pyc
+**/04_CODIGO/index.html
+**/04_CODIGO/voz16k.f32
+**/04_CODIGO/sherpa-onnx-whisper-small/
+**/05_AUDIO/sfx.wav
+**/05_AUDIO/music.wav

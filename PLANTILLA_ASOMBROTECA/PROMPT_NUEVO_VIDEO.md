@@ -1,6 +1,6 @@
 # Prompt para producir un vídeo nuevo · v2.0 «modo viral» (copiar y pegar en Claude Code)
 
-Rellena lo que va entre corchetes. El molde anterior (v1.34) está en `respaldo_v1.44/PROMPT_NUEVO_VIDEO.md`.
+Rellena lo que va entre corchetes. El molde anterior (v1.34) está en `_archivo/plantilla_respaldos/respaldo_v1.44/PROMPT_NUEVO_VIDEO.md` (fuera del kit).
 
 ---
 
