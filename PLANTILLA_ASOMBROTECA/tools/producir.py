@@ -398,8 +398,8 @@ def qc_viral(P, a, out, ll, zs=None):
     ef = efectos_sonido(os.path.join(P, '05_AUDIO', 'efectos_sonido.wav'))
     if ef is not None:
         dur = max(ef + [0.0]); ven = [sum(1 for x in ef if 10 * i <= x < 10 * (i + 1)) for i in range(int(dur // 10) + 1)]
-        malos = [f'{10 * i}-{10 * (i + 1)} s: {n}' for i, n in enumerate(ven) if n > 3]
-        filas.append(('AVISO viral · efectos de sonido por cada 10 s (máx. 3)', f'{len(ef)} efectos; máx. {max(ven) if ven else 0} en 10 s' + (' · AVISO: ' + ', '.join(malos) if malos else ''), True))
+        malos = [f'{10 * i}-{10 * (i + 1)} s: {n}' for i, n in enumerate(ven) if n > 5]   # v2.3: hasta ~5 efectos COHERENTES con la imagen por cada 10 s (antes 3)
+        filas.append(('AVISO viral · efectos de sonido por cada 10 s (máx. 5, coherentes con la imagen)', f'{len(ef)} efectos; máx. {max(ven) if ven else 0} en 10 s' + (' · AVISO: ' + ', '.join(malos) if malos else ''), True))
     filas += qc_v22(out, zs)
     ep = os.path.join(P, '04_CODIGO', 'js', 'episodio.js')
     if os.path.exists(ep):

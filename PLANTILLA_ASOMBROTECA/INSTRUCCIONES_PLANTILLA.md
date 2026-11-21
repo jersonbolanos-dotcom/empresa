@@ -1084,7 +1084,7 @@ Las manos de los vídeos salen ahora de la **hoja de manos ilustradas** del cana
 - `P.dedoPP(ctx, x, y, ancho, { vista: 'dorso' | 'yema', piel, ang, largo, luz })` → `{ punta, una }` (la uña sirve de apoyo para una tarjeta).
 - `P.manoR(ctx, pose, x, y, alto, o)` — una sola silueta. Poses: senala, toca, boton, celular, celular_pulgar (teléfono AGARRADO), pinza (de lado, con tarjeta / moneda / grano), palma, alto, saludo, puno (pulgar por delante), pulgar (dedos curvos), ok, agarrar (manubrio, taza, cuchara), perilla, llave, golpecito, espolvorear, contar1–5, relajada (con `giro: { roll: 180 }` = manos en el teclado). `o`: vista, lado, piel, guante, ancla, ang, giro, t, objeto, pantalla, dibujoPantalla, capa. Catálogo: `catalogo/manos_v20_2x.jpg`.
 
-**QC (`producir.py … qc`, avisos que no hacen fallar):** cambios bruscos (escena > 0,4) > 3; protagonista del fotograma 0 < 70 % del ancho; piso de sonido entre frases que nunca baja de −45 dB; más de 3 efectos de sonido por cada 10 s (inicios en `05_AUDIO/efectos_sonido.wav`; un sonido continuo cuenta una vez); más de 4 `FX.clave`. En modo viral el cierre «Envíaselo» ya no es obligatorio.
+**QC (`producir.py … qc`, avisos que no hacen fallar):** cambios bruscos (escena > 0,4) > 3; protagonista del fotograma 0 < 70 % del ancho; piso de sonido entre frases que nunca baja de −45 dB; más de 5 efectos de sonido por cada 10 s (v2.3; inicios en `05_AUDIO/efectos_sonido.wav`; un sonido continuo cuenta una vez); más de 4 `FX.clave`. En modo viral el cierre «Envíaselo» ya no es obligatorio.
 
 **Ejemplo completo:** `DISQUETE_MEMORIA_PROYECTO/04_CODIGO/js/episodio.js` (avalancha → uña → disquete por dentro → tarjeta por dentro → montaña y torre → vuelta al fotograma 0).
 

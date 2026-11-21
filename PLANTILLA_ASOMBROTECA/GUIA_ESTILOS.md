@@ -50,6 +50,7 @@
 > 21. Silencio de 0,5 a 1,2 s antes de cada revelación, sin nada sonando.
 > 22. Volumen final igual que antes: −14 LUFS.
 > 23. La voz es un parámetro del proyecto, para poder comparar voces.
+> 23c. (v2.3, regla 162) **Sonido rico pero coherente:** hasta ~5 efectos por cada 10 s si cada uno corresponde a algo que se ve; fondo muy suave por escena (≈ −30 dB bajo la voz) que calla 0,5-1 s antes de cada revelación. Prohibido el ruido sin motivo. Manda sobre el número de la 23b.
 > 23b. (v2.0b) **Pocos sonidos:** un efecto solo cuando pasa algo IMPORTANTE en pantalla, nunca uno por objeto, partícula o número. Una avalancha o un montón de cosas = UN solo sonido continuo y suave (un «crash»), no un clic por objeto. Los contadores suben EN SILENCIO y suena un golpe solo al llegar a la cifra final. El «tin» (`FX.clave`) como máximo 3-4 veces en todo el vídeo, en las revelaciones. En modo viral las etiquetas y las pausas no suenan.
 > **CONTROL DE CALIDAD**
 > 24. Contar cambios bruscos de pantalla y avisar si pasan de 3.
