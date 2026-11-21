@@ -404,12 +404,12 @@ def qc_historia(al, out, dur):
         nt = len(re.findall(TENSION, tx(20, 76)))
         filas.append(('AVISO historia · pasos del mecanismo con frase de tensión (20-75 s, ≥ 3)', f'{nt}' + ('' if nt >= 3 else ' · AVISO: menos de 3 («pero aquí viene el problema…», «y entonces pasa algo que casi nadie sabe…»)'), True))
     def gris(tt):
-        raw = subprocess.run(['ffmpeg', '-v', 'error', '-ss', str(max(0, tt)), '-i', out, '-frames:v', '1', '-vf', 'scale=54:96,format=gray', '-f', 'rawvideo', '-'], capture_output=True).stdout
+        raw = subprocess.run(['ffmpeg', '-v', 'error', '-ss', str(max(0, tt)), '-i', out, '-frames:v', '1', '-vf', 'scale=9:16,format=gray', '-f', 'rawvideo', '-'], capture_output=True).stdout
         return list(raw)
-    g0, g1 = gris(0), gris(dur - 0.15)
+    g0, g1 = gris(0), gris(dur - 1.2)   # imagen muy reducida (9×16): el mismo plano da ≈ 5-10; otro plano, > 30
     if g0 and g1 and len(g0) == len(g1):
         d = sum(abs(x - y) for x, y in zip(g0, g1)) / len(g0)
-        filas.append(('AVISO historia · el cierre no repite el fotograma 0', 'correcto' if d > 6 else f'AVISO: el último plano se parece al fotograma 0 (diferencia {d:.1f})', True))
+        filas.append(('AVISO historia · el cierre no repite el fotograma 0', 'correcto' if d > 20 else f'AVISO: el último plano repite el fotograma 0 (diferencia {d:.1f})', True))
     return filas
 
 
