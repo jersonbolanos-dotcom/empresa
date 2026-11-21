@@ -524,7 +524,7 @@ def P_fmt(n):
 
 
 def efectos_sonido(wav, umbral=-50.0, salto=10.0, sep=0.25):
-    # v2.0 · instantes en que EMPIEZA un efecto en la pista de efectos: el nivel (RMS en bloques de 10 ms) supera el umbral
+    # v2.0 · instantes en que EMPIEZA un efecto en la pista de efectos: el nivel (RMS en ventanas de 40 ms cada 10 ms, v2.5) supera el umbral
     # y sube ≥ 10 dB sobre el mínimo de los 150 ms anteriores. Un sonido continuo (la avalancha, el lector) cuenta una sola vez.
     if not os.path.exists(wav):
         return None
@@ -532,7 +532,8 @@ def efectos_sonido(wav, umbral=-50.0, salto=10.0, sep=0.25):
         import numpy as np
         sr = 48000; raw = subprocess.run(['ffmpeg', '-v', 'error', '-i', wav, '-ac', '1', '-ar', str(sr), '-f', 's16le', '-'], capture_output=True).stdout
         x = np.frombuffer(raw, dtype=np.int16).astype(np.float64) / 32768; b = int(0.01 * sr); n = len(x) // b
-        lv = 20 * np.log10(np.sqrt((x[:n * b].reshape(n, b) ** 2).mean(axis=1)) + 1e-9)
+        e = (x[:n * b].reshape(n, b) ** 2).mean(axis=1); e = np.convolve(e, np.ones(4) / 4, mode='full')[:n]   # v2.5: RMS en ventanas de 40 ms (un tono grave continuo ya no «late»)
+        lv = 20 * np.log10(np.sqrt(e) + 1e-9)
         out = []; ult = -9
         for i in range(15, n):
             if lv[i] > umbral and lv[i] - lv[i - 15:i].min() >= salto and i * 0.01 - ult >= sep:

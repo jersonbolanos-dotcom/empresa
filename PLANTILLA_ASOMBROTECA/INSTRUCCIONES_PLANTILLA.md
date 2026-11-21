@@ -1121,3 +1121,28 @@ En modo viral, `PL.make` pone un recuadro azul fino alrededor de UNA palabra cla
 - **Se mantienen** las reglas de siempre: un solo texto grande a la vez, contadores con el valor final y quietos ~1,5 s, cifras redondeadas con la fuente exacta en letra pequeña, recuadro azul en la palabra clave de los subtítulos.
 - **Validador antes del render:** `producir.py <P> video` (o `render`) lo ejecuta solo en modo historia sobre `03_GUION/guion.txt` (o `tramos.txt`); solo avisa.
 - **Ficha de la hoja (todos los modos):** `sheet.py hoja.jpg 6 <pngs> --ficha <modo> <duración>` o `tools/ficha_hoja.py hoja.jpg <modo> <duración>`: modo, duración final y casilla «Resultado FB 24 h» (tiempo promedio > 20 s; reproducciones de 3 s / visualizaciones > 50 %). `producir.py` la pone sola en la hoja de contacto y en la de prueba, y la casilla también va en `07_QC/QC.md`.
+
+## v2.5 · Referencia rápida de `PL.make({ … })`
+
+| Opción | Valores | Por defecto | Para qué |
+|---|---|---|---|
+| `align`, `duration`, `beats` | datos del proyecto | — | alineación (`window.ALIGN`), duración (`K.DURATION`) y escenas `{ t0, t1, in, draw, sfx }` |
+| `modo` | `'viral'` · `'historia'` · (nada) | clásico | viral = TikTok/Instagram (40-90 s); historia = Facebook (85-100 s); sin modo = episodios anteriores |
+| `estilo` | uno de los 15 de `estilos/` (o un estilo clásico v1.26) | — | la piel v2.2 (solo con `modo`) |
+| `reglas` | `'2.2'` · `'2.0'` | `'2.2'` con estilo | contadores con el valor final desde que aparecen |
+| `recuadro` | `true` · `false` · `['palabra', …]` · `[['palabra', t0, t1], …]` | `true` en viral/historia | recuadro azul fino en una palabra clave de los subtítulos |
+| `capOcultar` | `[[t0, t1], …]` | `[]` | sin subtítulos (gancho con un solo texto, cierre) |
+| `capStyle`, `capY`, `capPx`, `capFam`, `capColor`, `capCaja`, `capSel`, `capBorde`, `capMaxKW` | — | según modo/estilo | aspecto de los subtítulos (con estilo: `ios`, y 330, letra del estilo) |
+| `marca` | `{ nombre: 'ASOMBROTECA' }` | — | la marca discreta del final (`P.marca`) |
+| `etiquetas` | `'clasico'` · `'suave'` · `'silencio'` | `'silencio'` en viral/historia | sonido de las etiquetas |
+| `musica` | `'baja'` | sin música en viral/historia | −10 dB si se pide |
+| `ambience` + `ambiente: true` | función de sonido | apagado en viral/historia | ambiente continuo (mejor: fondos por escena en `sfx`, regla 162) |
+| `pausas`, `pausaMin`, `pausaMax` | — | `true`, 0,4 (0,3 en historia), 1,6 | la cámara frena en las pausas de la voz |
+| `zonaSegura` | `true` | `true` con estilo | registra los textos para el QC de zona segura |
+
+**Trucos aprendidos (v2.5):**
+- `wt(seg, 'palabra', n)` cuando la palabra se repite en el tramo (la consola avisa).
+- Contadores sólidos en la palabra: que entren 0,3 s antes (`t0: wt(…) - 0,3`) y duren ≥ 1,5 s; dos contadores seguidos no deben pisarse (el QC avisa).
+- Manos al volante: `P.manoR(ctx, 'puno', …)` sobre el aro (la pose `agarrar` sale con la palma abierta).
+- Fondos de sonido: ≈ 30-40 dB bajo la voz; tonos ≥ 98 Hz y ruido filtrado en bandas medias (el ruido grave «late» y el QC lo cuenta como golpes).
+- Para probar un tramo: `python3 -I PLANTILLA_ASOMBROTECA/tools/clip.py <PROYECTO> t0 t1`.

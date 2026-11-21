@@ -38,6 +38,14 @@ if os.path.exists(_ep):
         if os.path.exists(os.path.join(_dir, _m.group(1) + '.js')):
             src = src.replace(_mm.group(0), _mm.group(0) + f'\n<!-- @inline-js {_base}estilos/_comun.js -->\n<!-- @inline-js {_base}estilos/{_m.group(1)}.js -->', 1)
             print(f'estilo: {_m.group(1)} (biblioteca v2.2)')
+            # v2.5 · precarga TODAS las letras de los estilos (si el index.src.html del proyecto es antiguo y no las tiene,
+            # el primer fotograma con la letra pequeña salía con otra letra y fallaba el determinismo)
+            _SPECS = ['400 40px "IBM Plex Mono"', '500 40px "IBM Plex Mono"', '600 40px "IBM Plex Mono"', '700 40px "IBM Plex Mono"', '400 40px "Nunito"', '600 40px "Fredoka"', '400 40px "Space Grotesk"', '600 40px "Space Grotesk"', '600 40px "Fraunces"', '700 40px "Fraunces"']
+            _sp = re.search(r"const specs = \[([^\]]*)\];", src)
+            if _sp:
+                _falta = [f for f in _SPECS if f not in _sp.group(1)]
+                if _falta:
+                    src = src.replace(_sp.group(0), 'const specs = [' + _sp.group(1).rstrip() + ', ' + ', '.join("'" + f + "'" for f in _falta) + '];', 1)
 out = re.sub(r'<!-- @inline-css (\S+) -->', css, src)
 out = re.sub(r'<!-- @inline-js (\S+) -->', js, out)
 adir = os.path.join(root, '..', '01_ENTRADA', 'audio')

@@ -5099,7 +5099,8 @@
  //  wt(seg, 'palabra', n) = instante en que se dice la palabra n-ésima del tramo seg   T.s3 = inicio del tramo 3 · T.end = fin de voz
  //  B0.b3 = inicio del tramo 3 menos `lead` (para empezar el beat un pelín antes)    DURATION = voz + `tail`
  P.kit = (A, o = {}) => { const norm = (s) => s.toLowerCase().replace(/[^a-z0-9áéíóúüñ]/g, '');
-  const wt = (seg, word, nth = 0) => { let k = 0; for (const w of A.words) if (w.seg === seg && norm(w.w) === norm(word)) { if (k === nth) return w.s; k++; } throw new Error('palabra no encontrada: tramo ' + seg + ' «' + word + '»'); };
+  const wt = (seg, word, nth) => { const hits = A.words.filter((w) => w.seg === seg && norm(w.w) === norm(word)); if (nth === undefined && hits.length > 1 && typeof console !== 'undefined') console.warn(`wt: «${word}» aparece ${hits.length} veces en el tramo ${seg}; se usa la PRIMERA. Pasa wt(${seg}, '${word}', n) para otra (n desde 0).`);   // v2.5
+   const h = hits[nth || 0]; if (h) return h.s; throw new Error('palabra no encontrada: tramo ' + seg + ' «' + word + '»' + (nth ? ` (vez ${nth})` : '')); };
   const T = { end: A.speech_end }, B0 = {}; A.segments.forEach((s, i) => { T['s' + i] = s.s; B0['b' + i] = Math.max(0, s.s - (o.lead ?? 0.2)); });
   const DURATION = +(A.duration + (o.tail ?? 1.0)).toFixed(3);
   // v1.27: wa('palabra', n) = instante de la n-ésima aparición de la palabra en TODA la voz (no depende de cómo se partan los tramos)
