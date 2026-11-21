@@ -1108,3 +1108,13 @@ En modo viral, `PL.make` pone un recuadro azul fino alrededor de UNA palabra cla
 - **QC:** `producir.py … qc` añade los avisos v2.2 (contadores, un texto grande a la vez, plano quieto 4 s).
 - **Muestra:** `python3 -I PLANTILLA_ASOMBROTECA/tools/muestra_estilos.py ESTILOS_PRUEBA_PROYECTO 14.3` → `07_QC/muestra_estilos.jpg`.
 - **Estilo nuevo:** copiar uno de `estilos/`, registrarlo con `PL.estilosComun.registrar('nombre', { paleta, textos, fondo, forma, linea, brillo, acabado, transicion, sonidos })` y añadirlo a la tabla de GUIA_ESTILOS.
+
+## v2.4 · Modo «historia» (Facebook)
+
+`PL.make({ modo: 'historia', estilo: 'engineering_blueprint', … })`. El modo viral sigue igual (TikTok e Instagram).
+
+- **Motor:** el mismo comportamiento que el viral (estilos v2.2, sonido v2.3, etiquetas mudas, sin música, recuadro azul) con `pausaMin: 0,3` por defecto para que las respiraciones de 0,3-0,5 s también frenen la cámara. `PL.modo()` devuelve el modo activo.
+- **Guion (85-100 s):** 0-3 s el peligro · 3-12 s lo que está en juego con una cifra · 12-20 s promesa abierta · 20-75 s el mecanismo en 3-4 pasos, cada uno con frase de tensión («pero aquí viene el problema…», «y entonces pasa algo que casi nadie sabe…») y un giro cada ~15 s · 75-90 s desenlace que resuelve la promesa · 90-100 s pregunta concreta para comentar + «sigue a Asombroteca» (sin repetir el fotograma 0).
+- **Revisar el guion antes de la voz:** `python3 -I PLANTILLA_ASOMBROTECA/tools/guion_historia.py <PROYECTO>/03_GUION/guion.txt [car_por_s]` (por defecto 16 car./s, la velocidad medida de Dan; las líneas `[PAUSA x]` cuentan). Con Dan, 85-100 s son ~1.350-1.600 caracteres.
+- **Ritmo:** 6-8 escenas de 4-8 s, todas con movimiento; nunca el mismo plano más de 6 s; pausas de 0,3-0,5 s antes de cada giro y de la revelación final (`[PAUSA 0.4]` en `tramos.txt`), con el fondo ambiental bajando a silencio.
+- **QC (`producir.py … qc`):** detecta `modo: 'historia'`; duración 85-100 s (aviso < 75 / > 110 s), cierre obligatorio (pregunta + «sigue a Asombroteca»), avisos de estructura, cambios bruscos máx. 8, plano casi igual a los 6 s y que el último plano no repita el fotograma 0.

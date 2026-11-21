@@ -315,7 +315,7 @@ def p_qc(P, a):
     # v1.29 · sonido de punta a punta: silencio (−50 dB) al principio ≤ 0,5 s y al final ≤ 1 s
     s_ini, s_fin = silencios_borde(out, dur)
     enc = None if zs is None else zs.get('encimados'); ll = None if zs is None else zs.get('llena')
-    VIR = es_viral(C)
+    HIS = es_historia(C); VIR = es_viral(C) or HIS   # v2.4: el modo «historia» comparte los avisos del viral, con sus propias reglas
     if VIR:
         cierre = None   # v2.0: el cierre «Envíaselo» ya no es obligatorio en modo viral
     ok = lambda c: '✔' if c else '✘'
@@ -328,7 +328,8 @@ def p_qc(P, a):
         ('Sonoridad', f'{L["I"]:.1f} LUFS · pico {L["TP"]:.1f} dBTP' if L else '—', bool(L) and abs(L['I'] + 14) <= 1 and (L['TP'] or 0) <= -1),
         ('Voz intacta (md5 por tramo)', ('original ' + ('igual' if vm else 'DISTINTO' if vm is False else 'sin referencia')) + (f' · {vt[0]}/{vt[1]} tramos idénticos en la voz montada' if vt else ''), vm is not False and (vt is None or vt[0] == vt[1])),
         ('Determinismo', 'OK' if det else ('FALLO' if det is False else 'sin index.html'), det is not False),
-        ('Duración (objetivo 45-70 s)', f'{dur:.1f} s' + (' · AVISO: más de 75 s' if 75 < dur <= 90 else ' · AVISO: menos de 45 s' if dur < 45 else ''), dur <= 90),
+        (('Duración (historia: objetivo 85-100 s)', f'{dur:.1f} s' + (' · AVISO: menos de 75 s' if dur < 75 else ' · AVISO: más de 110 s' if dur > 110 else ' · fuera de 85-100 s' if not 85 <= dur <= 100 else ''), dur <= 130) if HIS else
+         ('Duración (objetivo 45-70 s)', f'{dur:.1f} s' + (' · AVISO: más de 75 s' if 75 < dur <= 90 else ' · AVISO: menos de 45 s' if dur < 45 else ''), dur <= 90)),
         ('Zona segura IG (texto en 220 ≤ y ≤ 1450, x ≤ 940)', ('sin datos' if zs is None else (f'{len(zs["fuera"])} textos fuera' + (': ' + ', '.join(f'{f["tipo"]} t={f["t"]} {f["motivo"]}' for f in zs['fuera'][:6]) if zs['fuera'] else ''))), zs is not None and not zs['fuera']),
         ('Pantalla limpia (≤ 2 etiquetas a la vez, sin título fijo)', 'sin datos' if zs is None else f'máx. {zs["maxEtiquetas"]} etiquetas · {"con" if zs["titulos"] else "sin"} título', zs is not None and zs['maxEtiquetas'] <= 2 and not zs['titulos']),
         ('Pausas dramáticas (0,4-1,6 s; objetivo 3-4)', f'{npz}' + ('' if 3 <= npz <= 6 else ' · AVISO: fuera del objetivo'), True),
@@ -336,12 +337,14 @@ def p_qc(P, a):
         ('Nada encimado (dos textos o contadores en la misma zona)', 'sin datos' if enc is None else (f'{len(enc)} encimados' + (': ' + ', '.join(f'{e["a"]}+{e["b"]} t={e["t"]}' for e in enc[:6]) if enc else '')), enc is not None and not enc),
         encuadre_fila(ll, a),
         ('Gancho sin frase de contexto' + (f' (variante {G})' if G else ''), 'sin alineación' if gch is None else ('correcto' if gch else 'EMPIEZA CON CONTEXTO (En el año / Antes de… o «Imagina» sin peligro antes de 2 s)'), gch is not False),
-        ('Cierre «Envíaselo a ese amigo…» (sin «Sigue a…»)', 'sin alineación' if cierre is None else ('correcto' if cierre else 'FALTA o hay «Sigue a…»'), cierre is not False),
+        cierre_historia(al) if HIS else ('Cierre «Envíaselo a ese amigo…» (sin «Sigue a…»)', 'sin alineación' if cierre is None else ('correcto' if cierre else 'FALTA o hay «Sigue a…»'), cierre is not False),
         ('Subtítulos sin etiquetas [ ] ni < >', 'sin datos' if etq is None else ('limpios' if not etq else 'ETIQUETAS: ' + ', '.join(etq[:5])), etq is None or not etq),
         ('Movimiento desde el fotograma 0', 'sin datos' if mov is None else ('sí' if mov else 'NEGRO o QUIETO al empezar'), mov is not False),
     ]
     if VIR:
-        filas += qc_viral(P, a, out, ll, zs)
+        filas += qc_viral(P, a, out, ll, zs, 'historia' if HIS else 'viral')
+    if HIS:
+        filas += qc_historia(al, out, dur)
     txt = '\n'.join(f'{k}: {v} {ok(c)}' for k, v, c in filas)
     open(os.path.join(Q, f'qc_tecnico{sf}.txt'), 'w').write(f'Archivo: {out}\n{txt}\n')
     md = [f'# QC · {os.path.basename(out)}', '', '| Control | Resultado | |', '|---|---|---|'] + [f'| {k} | {v} | {ok(c)} |' for k, v, c in filas]
@@ -359,12 +362,64 @@ def es_viral(C):
     return os.path.exists(ep) and bool(re.search(r"modo\s*:\s*['\"]viral['\"]", open(ep, encoding='utf-8').read()))
 
 
-def qc_viral(P, a, out, ll, zs=None):
+def es_historia(C):
+    # v2.4: el episodio se hizo con PL.make({ modo: 'historia' }) (Facebook)
+    ep = os.path.join(C, 'js', 'episodio.js')
+    return os.path.exists(ep) and bool(re.search(r"modo\s*:\s*['\"]historia['\"]", open(ep, encoding='utf-8').read()))
+
+
+TENSION = r"\b(pero|y entonces|aqu[ií] viene|el problema|casi nadie|lo que nadie|sin embargo|de pronto|justo entonces|y ah[ií]|lo peor|lo raro)\b"
+NUMERO = r"\d|\b(uno|una|dos|tres|cuatro|cinco|seis|siete|ocho|nueve|diez|once|doce|veinte|treinta|cuarenta|cincuenta|sesenta|setenta|ochenta|noventa|cien|ciento|cientos|mil|millón|millones)\b"
+
+
+def _palabras(al):
+    try:
+        return json.load(open(al))['words']
+    except Exception:
+        return None
+
+
+def cierre_historia(al):
+    # v2.4 · CIERRE del modo historia (obligatorio): una pregunta para comentar y «sigue a Asombroteca» en los últimos ~10 s
+    k = 'Cierre historia: pregunta para comentar + «sigue a Asombroteca»'
+    ws = _palabras(al)
+    if not ws:
+        return (k, 'sin alineación', True)
+    fin = ws[-1]['e']; txt = ' '.join(w['w'] for w in ws if w['s'] >= fin - 12).lower()
+    preg, sigue = '?' in txt, bool(re.search(r'sigue a asombroteca|s[ií]guenos|sigue a la asombroteca', txt))
+    return (k, 'correcto' if preg and sigue else 'FALTA ' + ' y '.join(x for x, c in (('la pregunta', preg), ('«sigue a Asombroteca»', sigue)) if not c), preg and sigue)
+
+
+def qc_historia(al, out, dur):
+    # v2.4 · AVISOS de la estructura de historia (no hacen fallar): peligro 0-3 s, cifra 3-12 s, promesa abierta 12-20 s,
+    #   ≥ 3 frases de tensión entre 20 y 75 s, y que el último plano NO repita el fotograma 0
+    filas = []; ws = _palabras(al)
+    if ws:
+        tx = lambda a0, b0: ' '.join(w['w'] for w in ws if a0 <= w['s'] < b0).lower()
+        pel = re.search(r'qu[eé] pasa si|\b(vas|est[aá]s|imagina que est[aá]s|imagina que vas|te subes|vuelas|conduces)\b', tx(0, 3.5))
+        filas.append(('AVISO historia · el peligro en 0-3 s («¿Qué pasa si…?» o «Vas en…», «Estás dentro de…»)', 'correcto' if pel else 'AVISO: no se oye ni la pregunta ni la situación en segunda persona', True))
+        filas.append(('AVISO historia · lo que está en juego con una cifra (3-12 s)', 'correcto' if re.search(NUMERO, tx(3, 12.5)) else 'AVISO: sin cifra entre 3 y 12 s', True))
+        pro = re.search(r'no es lo que|lo que (te|nadie|casi nadie)|al final|ya ver[aá]s|la respuesta|lo que de verdad|lo que realmente', tx(11, 21))
+        filas.append(('AVISO historia · promesa abierta (12-20 s)', 'correcto' if pro else 'AVISO: no se reconoce una frase que deje la pregunta abierta («y lo que te salva no es lo que imaginas»)', True))
+        nt = len(re.findall(TENSION, tx(20, 76)))
+        filas.append(('AVISO historia · pasos del mecanismo con frase de tensión (20-75 s, ≥ 3)', f'{nt}' + ('' if nt >= 3 else ' · AVISO: menos de 3 («pero aquí viene el problema…», «y entonces pasa algo que casi nadie sabe…»)'), True))
+    def gris(tt):
+        raw = subprocess.run(['ffmpeg', '-v', 'error', '-ss', str(max(0, tt)), '-i', out, '-frames:v', '1', '-vf', 'scale=54:96,format=gray', '-f', 'rawvideo', '-'], capture_output=True).stdout
+        return list(raw)
+    g0, g1 = gris(0), gris(dur - 0.15)
+    if g0 and g1 and len(g0) == len(g1):
+        d = sum(abs(x - y) for x, y in zip(g0, g1)) / len(g0)
+        filas.append(('AVISO historia · el cierre no repite el fotograma 0', 'correcto' if d > 6 else f'AVISO: el último plano se parece al fotograma 0 (diferencia {d:.1f})', True))
+    return filas
+
+
+def qc_viral(P, a, out, ll, zs=None, modo='viral'):
     # v2.0 · tres AVISOS del modo viral (no hacen fallar el QC: se marcan «AVISO» en el resultado)
     filas = []
     r = subprocess.run(['ffmpeg', '-hide_banner', '-i', out, '-vf', "select='gt(scene,0.4)',showinfo", '-an', '-f', 'null', '-'], capture_output=True, text=True).stderr
     cortes = [round(float(x), 2) for x in re.findall(r'pts_time:([\d.]+)', r)]
-    filas.append(('AVISO viral · cambios bruscos (escena > 0,4; máx. 3)', f'{len(cortes)}' + (f' en {", ".join(str(c) for c in cortes[:8])} s' if cortes else '') + (' · AVISO: más de 3' if len(cortes) > 3 else ''), True))
+    mx = 8 if modo == 'historia' else 3   # v2.4: en historia se permiten 6-8 escenas
+    filas.append((f'AVISO {modo} · cambios bruscos (escena > 0,4; máx. {mx})', f'{len(cortes)}' + (f' en {", ".join(str(c) for c in cortes[:8])} s' if cortes else '') + (f' · AVISO: más de {mx}' if len(cortes) > mx else ''), True))
     m0 = None
     if ll and ll.get('muestras'):
         m0 = ll['muestras'][0][1]
@@ -400,7 +455,7 @@ def qc_viral(P, a, out, ll, zs=None):
         dur = max(ef + [0.0]); ven = [sum(1 for x in ef if 10 * i <= x < 10 * (i + 1)) for i in range(int(dur // 10) + 1)]
         malos = [f'{10 * i}-{10 * (i + 1)} s: {n}' for i, n in enumerate(ven) if n > 5]   # v2.3: hasta ~5 efectos COHERENTES con la imagen por cada 10 s (antes 3)
         filas.append(('AVISO viral · efectos de sonido por cada 10 s (máx. 5, coherentes con la imagen)', f'{len(ef)} efectos; máx. {max(ven) if ven else 0} en 10 s' + (' · AVISO: ' + ', '.join(malos) if malos else ''), True))
-    filas += qc_v22(out, zs)
+    filas += qc_v22(out, zs, 6 if modo == 'historia' else 4)
     ep = os.path.join(P, '04_CODIGO', 'js', 'episodio.js')
     if os.path.exists(ep):
         nc = len(re.findall(r'FX\.clave\(', open(ep, encoding='utf-8').read()))
@@ -418,7 +473,7 @@ def rangos(ts, paso=0.25):
     return out
 
 
-def qc_v22(out, zs):
+def qc_v22(out, zs, seg=4):
     # v2.2 · avisos (no hacen fallar): contadores, un solo texto grande a la vez y planos que no cambian en más de 4 s
     filas = []
     if zs is not None and 'cifras' in zs:
@@ -437,9 +492,9 @@ def qc_v22(out, zs):
         w, h = 54, 96
         raw = subprocess.run(['ffmpeg', '-v', 'error', '-i', out, '-vf', f'fps=2,scale={w}:{h},format=gray', '-f', 'rawvideo', '-'], capture_output=True).stdout
         fr = np.frombuffer(raw, dtype=np.uint8).reshape(-1, h, w)[:, 40:, :].astype(np.float32)
-        quietos = [i / 2 for i in range(len(fr) - 8) if np.abs(fr[i + 8] - fr[i]).mean() < 3.0]
+        n2 = int(seg * 2); quietos = [i / 2 for i in range(len(fr) - n2) if np.abs(fr[i + n2] - fr[i]).mean() < 3.0]   # v2.4: 4 s (viral) · 6 s (historia)
         qr = [r for r in rangos(quietos, 0.51)]
-        filas.append(('AVISO v2.2 · nunca el mismo plano más de 4 s', 'correcto' if not qr else 'AVISO: plano casi igual 4 s después en ' + ', '.join(f'{r[0]:.1f}-{r[1] + 4:.1f} s' for r in qr[:6]), True))
+        filas.append((f'AVISO v2.2 · nunca el mismo plano más de {seg} s', 'correcto' if not qr else f'AVISO: plano casi igual {seg} s después en ' + ', '.join(f'{r[0]:.1f}-{r[1] + seg:.1f} s' for r in qr[:6]), True))
     except Exception:
         pass
     return filas

@@ -5623,10 +5623,14 @@ P._limpiarFijos = () => { for (const k of Object.keys(FIJOS)) delete FIJOS[k]; }
   if (cfg.estilo && ESTILOS[cfg.estilo]) cfg = { ...ESTILOS[cfg.estilo], ...cfg };
   SND_ETQ = cfg.etiquetas === 'suave' || cfg.etiquetas === 'silencio' ? cfg.etiquetas : 'clasico';   // v1.42: sonido de las etiquetas (por defecto, el de siempre)
   // v2.2 · estilo de la biblioteca (solo cambia la piel): ajustes base del modo viral + los del estilo; lo que pase el episodio manda
-  const PIEL = cfg.modo === 'viral' && cfg.estilo && PIELES[cfg.estilo] ? PIELES[cfg.estilo] : null;
+  // v2.4 · modo «historia» (Facebook): mismo motor que el viral (estilos v2.2, sonido v2.3, etiquetas mudas, sin música), con ritmo de historia;
+  //   las reglas propias (85-100 s, 6-8 escenas de 4-8 s, plano distinto cada ≤ 6 s, cierre con pregunta + «sigue a Asombroteca», sin repetir el fotograma 0) las vigila el QC.
+  const HIST = cfg.modo === 'historia'; if (HIST && cfg.pausaMin === undefined) cfg = { ...cfg, pausaMin: 0.3 };   // respiraciones de 0,3-0,5 s antes de cada giro
+  P._modo = cfg.modo || null;
+  const PIEL = (cfg.modo === 'viral' || HIST) && cfg.estilo && PIELES[cfg.estilo] ? PIELES[cfg.estilo] : null;
   if (PIEL) { const tc = (PIEL.textos || {}).cap || {}; cfg = { skin: 'noche', capStyle: 'ios', capY: 330, zonaSegura: true, pausas: true, capMaxKW: 1, capBorde: true, capCaja: tc.caja === undefined ? 'rgba(6,8,18,0.5)' : tc.caja, capColor: tc.color, capSel: tc.sel, capFam: tc.fam, ...(PIEL.cfg || {}), ...cfg }; }
   P._piel = PIEL; P._reglas22 = cfg.reglas === '2.2' || (!!PIEL && cfg.reglas !== '2.0'); P._diferir = null;
-  const VIRAL = cfg.modo === 'viral'; if (VIRAL && cfg.etiquetas === undefined) SND_ETQ = 'silencio';
+  const VIRAL = cfg.modo === 'viral' || HIST; if (VIRAL && cfg.etiquetas === undefined) SND_ETQ = 'silencio';   // v2.4: «historia» usa el mismo comportamiento
   // v2.1 · recuadro azul fino en UNA palabra clave de vez en cuando (≈ una cada 2-3 frases). Modo viral: activado por defecto (recuadro: false lo quita).
   //   recuadro: true (elige solo: la palabra con contenido más larga de una frase de cada tres) · ['sombra', 'luz', …] (esas palabras, la primera vez que se dicen)
   //   · [['luz', t0, t1], …] (con ventana de tiempo). No se aplica si el episodio ya pasa `keywords` (los episodios anteriores no cambian).
@@ -6552,5 +6556,5 @@ P._limpiarFijos = () => { for (const k of Object.keys(FIJOS)) delete FIJOS[k]; }
   else ctx.drawImage(CAPA_TXT, 0, 0);
   ctx.restore(); };
  TRANS_SFX.piel = (k, t, d) => { const pl = P._piel; if (pl && pl.sonidos && pl.sonidos.transicion) pl.sonidos.transicion(k, t, d); };
- window.PLANTILLA = { make, SKINS, P, FX, MUS, TRANS_SFX, setSkin: (n) => (SK = SKINS[n]), W, HH, kit: (A, o) => P.kit(A, o), ESTILOS, safeLog: () => SAFE_LOG || [], PIELES, registrarPiel, piel: () => P._piel };
+ window.PLANTILLA = { make, SKINS, P, FX, MUS, TRANS_SFX, setSkin: (n) => (SK = SKINS[n]), W, HH, kit: (A, o) => P.kit(A, o), ESTILOS, safeLog: () => SAFE_LOG || [], PIELES, registrarPiel, piel: () => P._piel, modo: () => P._modo };
 })();

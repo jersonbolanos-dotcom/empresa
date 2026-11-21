@@ -25,6 +25,10 @@ con resumen en español. Responder siempre en español.
 - Cifra con su valor final desde que aparece y quieta ~1,5 s; cifras redondeadas en pantalla y la exacta en letra pequeña; nunca el mismo plano más de 3-4 s; un solo texto grande a la vez; cierres alternos.
 - Los originales del Atlas están en `referencias/estilos_atlas/` (no van en el kit).
 
+## v2.4 · MODO HISTORIA para Facebook (reglas 163–166; bloque v2.4 de GUIA)
+- `PL.make({ modo: 'historia', estilo })`; el modo viral sigue para TikTok/Instagram y renderiza igual. Guion de 85-100 s: peligro 0-3 s → cifra en juego 3-12 s → promesa abierta 12-20 s → mecanismo en 3-4 pasos con frase de tensión (20-75 s) → desenlace (75-90 s) → pregunta + «sigue a Asombroteca» (sin repetir el fotograma 0).
+- 6-8 escenas de 4-8 s con movimiento; nunca el mismo plano más de 6 s; pausas de 0,3-0,5 s antes de cada giro. Revisar el guion con `tools/guion_historia.py` (Dan ≈ 16 car./s).
+
 ## Reglas fijas
 - Voz intocable (no alterar, sintetizar, acelerar ni recortar). El audio es el reloj maestro. Comprobar md5 de la voz.
 - 1080×1920, 30 fps, H.264 + AAC 48 kHz, < 100 MB, −14 LUFS, pico ≤ −1 dBTP.

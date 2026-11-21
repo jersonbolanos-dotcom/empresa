@@ -1,5 +1,11 @@
 # Guía de estilos y guion · PLANTILLA ASOMBROTECA v1.34
 
+> **v2.4 · MODO HISTORIA (Facebook).** En Facebook ganan las historias de 1:30 con alguien en peligro («¿Qué pasa si…?» con un vehículo o una catástrofe), no la ráfaga de 1:00. `PL.make({ modo: 'historia', estilo })`; el modo viral queda para TikTok e Instagram.
+>
+> 35. Guion de 85-100 s: peligro (0-3 s) → lo que está en juego con una cifra (3-12 s) → promesa abierta (12-20 s) → mecanismo en 3-4 pasos con frase de tensión y giro cada ~15 s (20-75 s) → desenlace que resuelve la promesa con la revelación más fuerte (75-90 s) → pregunta para comentar + «sigue a Asombroteca» (90-100 s). Revisar con `tools/guion_historia.py`.
+> 36. 6-8 escenas de 4-8 s, siempre con movimiento; nunca el mismo plano más de 6 s; respiraciones de 0,3-0,5 s antes de cada giro, con el fondo en silencio.
+> 37. El cierre NO repite el fotograma 0 (al revés que el viral).
+
 > **v2.2 · BIBLIOTECA DE ESTILOS (pieles) + aprendizajes de ChatGPT, Gemini y Grok. Manda junto con la v2.0.**
 > Un estilo solo cambia la PIEL (fondo, forma de pintar, trazo, luz, acabado, transición, tipografía y sonidos del medio). El modo viral v2.0 (gancho, titular con palabra roja, recuadro azul, contadores, bucle, voz, QC) no cambia. Se activa con `PL.make({ modo: 'viral', estilo: 'nombre' })`; sin estilo, todo queda como antes.
 >

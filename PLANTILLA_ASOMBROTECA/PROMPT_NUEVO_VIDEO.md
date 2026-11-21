@@ -35,3 +35,16 @@ ENTREGA
 - Hoja de prueba de 15 a 18 fotogramas antes del render, con el fotograma 0 el primero.
 - FINAL.mp4 con QC, portada, PUBLICAR.md y FUENTES_Y_DECISIONES.md.
 ```
+
+## Variante FACEBOOK · modo «historia» (v2.4)
+
+```
+Usa la PLANTILLA ASOMBROTECA v2.4 en modo historia: PL.make({ modo: 'historia', estilo: '<nombre>' }).
+TEMA: ¿Qué pasa si…? (un vehículo o una catástrofe; alguien en peligro y lo que lo salva).
+GUION (85-100 s; revísalo con tools/guion_historia.py y dime duración estimada, caracteres y cifras con fuentes). ESPERA mi OK.
+- 0-3 s el peligro (frame 0 + «¿Qué pasa si…?» o «Vas en…»); 3-12 s lo que está en juego con una cifra; 12-20 s promesa abierta;
+  20-75 s el mecanismo en 3-4 pasos con frase de tensión; 75-90 s el desenlace; 90-100 s pregunta para comentar + «sigue a Asombroteca».
+IMAGEN: 6-8 escenas de 4-8 s con movimiento; nunca el mismo plano más de 6 s; el cierre no repite el fotograma 0.
+SONIDO: v2.3; pausas de 0,3-0,5 s antes de cada giro con el fondo en silencio. Una sola toma de voz.
+ENTREGA: hoja de prueba, FINAL.mp4 con QC, portada, PUBLICAR.md (Facebook) y FUENTES_Y_DECISIONES.md.
+```
