@@ -25,6 +25,15 @@ con resumen en español. Responder siempre en español.
 - Cifra con su valor final desde que aparece y quieta ~1,5 s; cifras redondeadas en pantalla y la exacta en letra pequeña; nunca el mismo plano más de 3-4 s; un solo texto grande a la vez; cierres alternos.
 - Los originales del Atlas están en `referencias/estilos_atlas/` (no van en el kit).
 
+## Qué modo usar (v2.4)
+| Plataforma | Modo | Temas |
+|---|---|---|
+| **Facebook** | `modo: 'historia'` (85-100 s, «¿Qué pasa si…?» con alguien en peligro) | Solo vehículos, ingeniería, catástrofes e historia. Nada de celular, videojuegos, fútbol ni criptomonedas. |
+| **TikTok e Instagram** | `modo: 'viral'` (40-90 s, ráfaga) | Los de siempre. |
+| **YouTube** | cualquiera de los dos | — |
+
+En los dos modos siguen las reglas de siempre: un solo texto grande a la vez, contadores que aparecen con el valor final y se quedan quietos ~1,5 s, cifras redondeadas con la fuente exacta en letra pequeña y el recuadro azul en la palabra clave de los subtítulos. Datos de Facebook que lo justifican: tabla en CAMBIOS_PLANTILLA.md (v2.4).
+
 ## v2.4 · MODO HISTORIA para Facebook (reglas 163–166; bloque v2.4 de GUIA)
 - `PL.make({ modo: 'historia', estilo })`; el modo viral sigue para TikTok/Instagram y renderiza igual. Guion de 85-100 s: peligro 0-3 s → cifra en juego 3-12 s → promesa abierta 12-20 s → mecanismo en 3-4 pasos con frase de tensión (20-75 s) → desenlace (75-90 s) → pregunta + «sigue a Asombroteca» (sin repetir el fotograma 0).
 - 6-8 escenas de 4-8 s con movimiento; nunca el mismo plano más de 6 s; pausas de 0,3-0,5 s antes de cada giro. Revisar el guion con `tools/guion_historia.py` (Dan ≈ 16 car./s).

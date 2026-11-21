@@ -171,7 +171,7 @@ def p_prueba(P, a):
     sh(['node', os.path.join(T, 'frames.js'), 'index.html', W] + ts, cwd=C)
     pngs = sorted(glob.glob(os.path.join(W, '*.png')))
     out = os.path.join(P, '07_QC', f'prueba{suf(P, a)}.jpg')
-    sh(['python3', '-I', os.path.join(T, 'sheet.py'), out, str(min(6, len(pngs)))] + pngs)
+    sh(['python3', '-I', os.path.join(T, 'sheet.py'), out, str(min(6, len(pngs)))] + pngs + ['--ficha', modo_de(P), f'estimada {duracion(P, a):.0f} s'])
     shutil.rmtree(W, ignore_errors=True)
     print(f'Hoja de prueba: {out}')
 
@@ -207,7 +207,23 @@ def nombre_final(P, a):
     return n + '_FINAL.mp4'
 
 
+def modo_de(P):
+    C = os.path.join(P, '04_CODIGO')
+    return 'historia' if es_historia(C) else 'viral' if es_viral(C) else 'clásico'
+
+
+def validar_historia(P):
+    # v2.4 · antes de renderizar en modo historia: revisa el guion (solo avisa, no bloquea)
+    for g in ('guion.txt', 'tramos.txt'):
+        f = os.path.join(P, '03_GUION', g)
+        if os.path.exists(f):
+            print('== validador del guion (modo historia)'); subprocess.run([sys.executable, '-I', os.path.join(T, 'guion_historia.py'), f]); return
+    print('validador del guion: no hay 03_GUION/guion.txt ni tramos.txt')
+
+
 def p_render(P, a):
+    if modo_de(P) == 'historia':
+        validar_historia(P)
     p_build(P, a); C = os.path.join(P, '04_CODIGO'); W = trabajo(P, a); FR = os.path.join(W, 'fotogramas'); AU = os.path.join(W, 'audio')
     shutil.rmtree(FR, ignore_errors=True); shutil.rmtree(AU, ignore_errors=True)
     D = duracion(P, a); N = math.ceil(D * 30 - 1e-6)
@@ -282,6 +298,7 @@ def p_qc(P, a):
     if os.path.exists(os.path.join(C, 'index.html')):
         r = subprocess.run(['node', os.path.join(T, 'determinismo.js'), 'index.html'], cwd=C, capture_output=True, text=True); det = 'DETERMINISMO OK' in r.stdout
     sh(['ffmpeg', '-v', 'error', '-y', '-i', out, '-vf', f'fps=1/{max(1.0, dur / 20):.3f},scale=216:384,tile=10x2', '-frames:v', '1', os.path.join(Q, f'hoja_contacto{sf}.jpg')])
+    subprocess.run([sys.executable, '-I', os.path.join(T, 'ficha_hoja.py'), os.path.join(Q, f'hoja_contacto{sf}.jpg'), modo_de(P), f'{dur:.1f}'])   # v2.4: modo, duración y «Resultado FB 24 h»
     # v1.27 · zona segura de Instagram, etiquetas a la vez, título fijo
     zs = None
     if os.path.exists(os.path.join(C, 'index.html')):
@@ -348,7 +365,7 @@ def p_qc(P, a):
     txt = '\n'.join(f'{k}: {v} {ok(c)}' for k, v, c in filas)
     open(os.path.join(Q, f'qc_tecnico{sf}.txt'), 'w').write(f'Archivo: {out}\n{txt}\n')
     md = [f'# QC · {os.path.basename(out)}', '', '| Control | Resultado | |', '|---|---|---|'] + [f'| {k} | {v} | {ok(c)} |' for k, v, c in filas]
-    md += ['', f'Pausas cortas: los silencios de 0,4-1,6 s no cuentan como error (el control de silencios solo falla a partir de 1 s por debajo de −50 dB, y la música sigue sonando, más baja).', f'Hoja de contacto: `hoja_contacto{sf}.jpg`. Revisión visual (rellenar): textos legibles, nada flota, datos con fuente en FUENTES_Y_DECISIONES.md.']
+    md += ['', f'Pausas cortas: los silencios de 0,4-1,6 s no cuentan como error (el control de silencios solo falla a partir de 1 s por debajo de −50 dB, y la música sigue sonando, más baja).', f'Hoja de contacto: `hoja_contacto{sf}.jpg`. Revisión visual (rellenar): textos legibles, nada flota, datos con fuente en FUENTES_Y_DECISIONES.md.', '', f'## Resultado FB 24 h (rellenar) · modo {modo_de(P)} · {dur:.1f} s', '- Tiempo promedio de reproducción: ______ s (meta: más de 20 s)', '- Reproducciones de 3 s / visualizaciones: ______ % (meta: más del 50 %)']
     open(os.path.join(Q, f'QC{sf}.md'), 'w').write('\n'.join(md) + '\n')
     print(txt)
     bien = all(c for _, _, c in filas)
@@ -396,11 +413,12 @@ def qc_historia(al, out, dur):
     filas = []; ws = _palabras(al)
     if ws:
         tx = lambda a0, b0: ' '.join(w['w'] for w in ws if a0 <= w['s'] < b0).lower()
-        pel = re.search(r'qu[eé] pasa si|\b(vas|est[aá]s|imagina que est[aá]s|imagina que vas|te subes|vuelas|conduces)\b', tx(0, 3.5))
-        filas.append(('AVISO historia · el peligro en 0-3 s («¿Qué pasa si…?» o «Vas en…», «Estás dentro de…»)', 'correcto' if pel else 'AVISO: no se oye ni la pregunta ni la situación en segunda persona', True))
+        s0 = ws[0]['seg']; prim = ' '.join(w['w'] for w in ws if w['seg'] == s0).lower()
+        pel = re.search(r'qu[eé] pasa si|\?|\b(vas|est[aá]s|imagina que est[aá]s|imagina que vas|te subes|vuelas|conduces|peligro)\b', prim)
+        filas.append(('AVISO historia · pregunta o peligro en la primera frase («¿Qué pasa si…?» o «Vas en…», «Estás dentro de…»)', 'correcto' if pel else 'AVISO: la primera frase no tiene pregunta ni peligro', True))
         filas.append(('AVISO historia · lo que está en juego con una cifra (3-12 s)', 'correcto' if re.search(NUMERO, tx(3, 12.5)) else 'AVISO: sin cifra entre 3 y 12 s', True))
-        pro = re.search(r'no es lo que|lo que (te|nadie|casi nadie)|al final|ya ver[aá]s|la respuesta|lo que de verdad|lo que realmente', tx(11, 21))
-        filas.append(('AVISO historia · promesa abierta (12-20 s)', 'correcto' if pro else 'AVISO: no se reconoce una frase que deje la pregunta abierta («y lo que te salva no es lo que imaginas»)', True))
+        pro = re.search(r'no es lo que|lo que (te|nadie|casi nadie)|al final|ya ver[aá]s|la respuesta|lo que de verdad|lo que realmente', tx(0, 20))
+        filas.append(('AVISO historia · promesa abierta antes de los 20 s', 'correcto' if pro else 'AVISO: no se reconoce una frase que deje la pregunta abierta («y lo que te salva no es lo que imaginas»)', True))
         nt = len(re.findall(TENSION, tx(20, 76)))
         filas.append(('AVISO historia · pasos del mecanismo con frase de tensión (20-75 s, ≥ 3)', f'{nt}' + ('' if nt >= 3 else ' · AVISO: menos de 3 («pero aquí viene el problema…», «y entonces pasa algo que casi nadie sabe…»)'), True))
     def gris(tt):

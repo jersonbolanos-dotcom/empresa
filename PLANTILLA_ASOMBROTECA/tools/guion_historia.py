@@ -38,21 +38,23 @@ def main():
         av.append(f'nota: ~{dur:.0f} s, fuera del objetivo 85-100 s (dentro de 75-110)')
     if not 200 <= pal <= 230:
         av.append(f'nota: {pal} palabras (objetivo 200-230)')
-    if not re.search(r'qu[eé] pasa si|\b(vas|est[aá]s|imagina que est[aá]s|imagina que vas|te subes|vuelas|conduces)\b', en(0, 3.5)):
-        av.append('AVISO 0-3 s: falta el peligro («¿Qué pasa si…?» o «Vas en…», «Estás dentro de…»)')
+    primera = tramos[0][2] if tramos else ''
+    if not re.search(r'qu[eé] pasa si|\?|\b(vas|est[aá]s|imagina que est[aá]s|imagina que vas|te subes|vuelas|conduces|peligro)\b', primera):
+        av.append('AVISO primera frase: no hay pregunta ni peligro («¿Qué pasa si…?» o «Vas en…», «Estás dentro de…»)')
     if not re.search(NUMERO, en(3, 12.5)):
         av.append('AVISO 3-12 s: falta una cifra concreta de lo que está en juego')
-    if not re.search(PROMESA, en(11, 21)):
-        av.append('AVISO 12-20 s: no se reconoce la promesa abierta («y lo que te salva no es lo que imaginas»)')
+    if not re.search(PROMESA, en(0, 20)):
+        av.append('AVISO antes de 20 s: no se reconoce una promesa abierta («y lo que te salva no es lo que imaginas»)')
     nt = len(re.findall(TENSION, en(20, 76)))
     if nt < 3:
         av.append(f'AVISO 20-75 s: {nt} frases de tensión (mínimo 3: «pero aquí viene el problema…», «y entonces pasa algo que casi nadie sabe…»)')
     fin = en(dur - 12, dur + 1)
     if '?' not in fin:
-        av.append('AVISO cierre: falta una pregunta concreta para comentar')
+        av.append('AVISO cierre: no tiene una pregunta concreta para comentar')
     if not re.search(r'sigue a asombroteca|s[ií]guenos', fin):
         av.append('AVISO cierre: falta «sigue a Asombroteca»')
     print('\n'.join(av) if av else 'Estructura de historia: correcta')
+    print('(solo avisa, no bloquea)')
     for a, b, l in tramos:
         print(f'  {a:5.1f}-{b:5.1f} s  {l[:90]}')
 
